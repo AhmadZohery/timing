@@ -1,0 +1,21 @@
+{
+  "name": "مِضمار | LifeOS & Anti-Procrastination",
+  "short_name": "مِضمار",
+  "description": "النظام التشغيلي للحياة ومحاربة التسويف - يعمل محلياً بنسبة 100% دون إنترنت",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#f8fafc",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle", "utilities"]
+}
