@@ -1,32 +1,101 @@
-# React + TypeScript + Vite
+# مضمار | Midmar LifeOS ⚡
+### نظام إدارة الإنتاجية والحياة المتكامل (Local-First Life & Productivity Operating System)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+![Midmar LifeOS](public/vite.svg)
 
-Currently, two official plugins are available:
+> **مضمار (Midmar)** هو نظام تشغيل حياتي شخصي متقدم، يجمع بين إدارة الوقت، إدارة المهام الذكية، بناء العادات، الحكمة الحياتية، عيون الشعر العربي وأوزانه الخليلية، وإتقان اللغات الأجنبية — مبني وفق معمارية **Local-First** لحفظ البيانات محلياً وبشكل مشفر ومستقل تماماً.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🌟 أبرز المميزات (Key Features)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. ⏱️ إدارة الوقت والتركيز العميق (Deep Focus & Chrono Engine)
+- **مؤقت بومودورو متقدم:** مع دورات راحة وفترات تركيز مخصصة.
+- **تتبع الجلسات بالثواني:** إحصائيات دقيقة وتوزيع النشاط على مدار اليوم.
+- **مؤثرات صوتية ومرئية:** بيئة عمل غامرة ومحفزة للإنجاز.
 
-## Expanding the Oxlint configuration
+### 2. 📋 إدارة المهام والمشاريع الذكية (Task & Project Mastery)
+- **مصفوفة آيزنهاور (Eisenhower Matrix):** تصنيف فوري للأولويات (عاجل/مهم).
+- **تصنيفات وسوم وألوان:** مرونة قصوى في تنظيم مختلف مجالات الحياة.
+- **تتبع الحالة والتقدم:** إنجاز بنقرة زر وتفاعل فوري.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 3. 🎯 متتبع العادات والاستمرارية (Atomic Habit Tracker)
+- **سلاسل الاستمرارية (Streaks):** محفز بصري للالتزام اليومي.
+- **إحصائيات الإنجاز الأسبوعية والشهرية:** رؤى بيانية لدعم التحسين المستمر (Kaizen).
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+### 4. 📜 ديوان الحكمة والشعر العربي (Classical Poetry & Life Wisdom)
+- **عيون الشعر العربي:** روائع المتنبي، زهير بن أبي سلمى، أبو العلاء المعري، والإمام علي رضي الله عنه.
+- **ميزان الشعر والأوزان الخليلية:** عرض بحر كل قصيدة، تفسير المفردات الغامضة، والمعنى البلاغي العميق.
+- **نماذج التفكير العقلي (Mental Models):** الأثر التراكمي (1%)، تصفير الدوبامين، تقليل الندم لبيزوس، وشفرة أوكام.
+
+### 5. 🌐 إتقان اللغات والتعابير اليومية (Language Mastery & Idioms)
+- **حزم مفردات وتعبيرات شائعة:** الإنجليزية، الألمانية، الفرنسية، والإسبانية.
+- **المصطلحات اليومية (Everyday Idioms):** أمثلة عملية لسياق الاستخدام في بيئة العمل والتواصل اليومي.
+
+### 6. 🔒 نظام حماية وجلسات ذكي (Smart Auth Gate & Privacy)
+- **مفتوح بالكامل محلياً (Localhost Bypass):** دخول مباشر وفوري للمالك **أحمد (Ahmad)** دون الحاجة لكلمة مرور أثناء التطوير والعمل المحلي.
+- **بوابة أمان مشفرة أونلاين:** حماية كاملة عند الرفع على السيرفرات السحابية لمنع الوصول غير المصرح به.
+- **تخزين محلي خالص (Dexie / IndexedDB):** بياناتك ملك لك وحدك، مع دعم كامل للنسخ الاحتياطي (Export/Import JSON).
+
+---
+
+## 🛠️ البنية التقنية (Tech Stack)
+
+- **Frontend:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Bundler & Tooling:** [Vite](https://vitejs.dev/) + [Tailwind CSS](https://tailwindcss.com/)
+- **Icons & UI:** [Lucide React](https://lucide.dev/) + Canvas Confetti
+- **Storage:** [Dexie.js](https://dexie.com/) (IndexedDB wrapper)
+- **Deployment Ready:** Vercel (`vercel.json`), Netlify (`netlify.toml`), GitHub Pages
+
+---
+
+## 🚀 البدء والتشغيل محلياً (Getting Started)
+
+### المتطلبات المسبقة:
+- Node.js (v18+)
+- npm أو pnpm أو yarn
+
+### خطوات التشغيل:
+```bash
+# 1. استنساخ المستودع
+git clone https://github.com/<your-username>/timing.git
+cd timing
+
+# 2. تثبيت الحزم
+npm install
+
+# 3. تشغيل السيرفر المحلي
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+التطبيق سيعمل مباشرة على: `http://localhost:5173`
+
+---
+
+## ☁️ النشر السحابي (Cloud Deployment)
+
+المشروع جاهز تماماً للنشر بضغطة زر على أشهر المنصات:
+
+### 1. النشر على Vercel:
+```bash
+npx vercel --prod
+```
+أو عبر ربط المستودع في لوحة تحكم Vercel مباشرة.
+
+### 2. النشر على Netlify:
+```bash
+npx netlify deploy --prod --dir=dist
+```
+أو استيراد المستودع من GitHub مع أمر البناء `npm run build` ومجلد النشر `dist`.
+
+---
+
+## 👤 المالك والمطور (Owner)
+- **الاسم بالعربية:** أحمد
+- **الاسم بالإنجليزية:** Ahmad
+- **البريد الإلكتروني:** AhmadZohery@gmail.com
+
+---
+
+## 📄 الترخيص (License)
+هذا المشروع مرخص تحت رخصة [MIT](LICENSE).
