@@ -1,0 +1,991 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Sparkles,
+  ArrowLeft,
+  ArrowRight,
+  Flame,
+  Shield,
+  BookOpen,
+  Briefcase,
+  Dumbbell,
+  Laptop,
+  CheckCircle2,
+  Sun,
+  Moon,
+  Sunrise,
+  Volume2,
+  Globe,
+  Play,
+  Pause,
+  Radio,
+  Activity,
+  ShieldCheck,
+  Feather,
+  Brain,
+} from 'lucide-react';
+import type { DailyLog, UserState, StationId, UserProfile } from '../../types';
+import { useTranslation } from '../../i18n/LanguageContext';
+import { soundSynth } from '../../services/soundSynthesizer';
+import { haptic } from '../../services/vibrationService';
+import { PrayerTimesBar } from '../spiritual/PrayerTimesBar';
+import { DailyCircadianTimeline } from '../spiritual/DailyCircadianTimeline';
+import { SmartAmbientNudgeCard } from './SmartAmbientNudgeCard';
+import { DailyTadabburCard } from '../spiritual/DailyTadabburCard';
+import { resolveStationMetadata, LIFESTYLE_PERSONAS } from '../../utils/lifestyleEngine';
+import type { DailyTadabburItem } from '../../data/dailyTadabburData';
+import { spacedRepetition } from '../../services/spacedRepetitionService';
+import { speechService } from '../../services/speechService';
+import { TARGET_LANGUAGES } from '../../data/languages/vocabularyDatabase';
+import { LanguageQuizModal } from '../learning/LanguageQuizModal';
+import { gymFaithAudio, type GymFaithAudioState } from '../../services/gymFaithAudioService';
+import { GymFaithAudioPlayer } from '../spiritual/GymFaithAudioPlayer';
+import { scheduleService, type LearnedSportPattern } from '../../services/scheduleService';
+import { ScheduleAnomalyModal } from '../modals/ScheduleAnomalyModal';
+
+interface HomeDashboardViewProps {
+  userState?: UserState;
+  todayLog?: DailyLog;
+  allDailyLogs?: DailyLog[];
+  activeProfile?: UserProfile;
+  onSelectStation: (stationId: StationId) => void;
+  onOpenSmartTasbih: (mode?: any) => void;
+  onOpenSleepRest: () => void;
+  onOpenEvaluation: () => void;
+  onOpenLocationModal: () => void;
+  onRewardToast: (msg: string) => void;
+  onOpenTadabburModal?: (item?: DailyTadabburItem, tab?: 'quran' | 'hadith') => void;
+  completedStations?: string[];
+  onOpenLifestyleModal?: () => void;
+  onOpenFaithAudio?: () => void;
+  onOpenArabicPoetry?: () => void;
+  onOpenLifeWisdom?: () => void;
+}
+
+export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
+  userState,
+  todayLog,
+  allDailyLogs,
+  activeProfile,
+  onSelectStation,
+  onOpenSmartTasbih,
+  onOpenSleepRest,
+  onOpenEvaluation,
+  onOpenLocationModal,
+  onRewardToast,
+  onOpenTadabburModal,
+  completedStations = [],
+  onOpenLifestyleModal,
+  onOpenFaithAudio,
+  onOpenArabicPoetry,
+  onOpenLifeWisdom,
+}) => {
+  const { language, isRTL } = useTranslation();
+  const isAr = language === 'ar';
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
+
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  const personaId = userState?.settings?.lifestylePersona || 'builder_exec';
+  const personaConfig = LIFESTYLE_PERSONAS[personaId] || LIFESTYLE_PERSONAS.builder_exec;
+  const overrides = userState?.settings?.stationCustomOverrides;
+
+  const allStationIds: StationId[] = [
+    'COMMUTE_MORNING',
+    'WORK_MICRO_SPRINT',
+    'GYM_ANCHOR',
+    'EVENING_SPRINT',
+    'RETROSPECTIVE_CHECKIN',
+    'GRAND_REWARD_STATE',
+  ];
+
+  // Multilingual Daily Vocabulary on Home Dashboard
+  const [isHomeQuizOpen, setIsHomeQuizOpen] = useState(false);
+  const activeLangCode = spacedRepetition.getActiveLanguage();
+  const currentLangObj =
+    TARGET_LANGUAGES.find((l) => l.code === activeLangCode) || TARGET_LANGUAGES[0];
+  const todayWords = useMemo(
+    () => spacedRepetition.getTodayWords(),
+    [activeLangCode, isHomeQuizOpen]
+  );
+  const [languageStats, setLanguageStats] = useState(() => spacedRepetition.getStats());
+
+  const handleHomeQuizCompleted = (score: number, total: number) => {
+    setLanguageStats(spacedRepetition.getStats());
+    onRewardToast(
+      isAr
+        ? `🏆 أحسنت! حققت ${score} من ${total} في اختبار الكلمات اليومي! (+20 XP)`
+        : `🏆 Well done! ${score}/${total} correct in daily quiz! (+20 XP)`
+    );
+  };
+
+  // Faith Audio Live Sync & Resume State
+  const [faithAudioState, setFaithAudioState] = useState<GymFaithAudioState>(() => gymFaithAudio.getState());
+  useEffect(() => {
+    return gymFaithAudio.subscribe(setFaithAudioState);
+  }, []);
+
+  const resumePoint = faithAudioState.resumePoint || gymFaithAudio.getSavedResumePoint();
+
+  // Habit Learning & Sports Flexibility Engine
+  const [learnedPattern, setLearnedPattern] = useState<LearnedSportPattern | null>(null);
+  const [isAnomalyModalOpen, setIsAnomalyModalOpen] = useState(false);
+  const [selectedSport, setSelectedSport] = useState<string>(() => {
+    return (
+      (typeof window !== 'undefined' ? localStorage.getItem('midmar_movement_cat') : null) ||
+      scheduleService.getSportForDay()
+    );
+  });
+
+  useEffect(() => {
+    scheduleService.getLearnedSportPattern().then((pat) => {
+      setLearnedPattern(pat);
+    });
+  }, [selectedSport]);
+
+  const handleSelectSportForToday = (sportKey: string, movementCat: string) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setSelectedSport(sportKey);
+    localStorage.setItem('midmar_movement_cat', movementCat);
+    onRewardToast(
+      isAr
+        ? `✅ تم اعتماد نشاط اليوم: ${sportKey}`
+        : `✅ Today's activity set to: ${sportKey}`
+    );
+  };
+
+  // Determine biological time of day
+  const isFajrMorning = currentHour >= 4 && currentHour < 8;
+  const isForenoon = currentHour >= 8 && currentHour < 12;
+  const isNoon = currentHour >= 12 && currentHour < 15;
+  const isAsr = currentHour >= 15 && currentHour < 18;
+  const isMaghrib = currentHour >= 18 && currentHour < 20;
+  const isNight = currentHour >= 20 || currentHour < 4;
+
+  // Dignified Arabic greetings
+  const greeting = useMemo(() => {
+    const nameSuffix = activeProfile?.name ? ` يا ${activeProfile.name}` : '';
+    if (isFajrMorning) return `صباح النور والبركة${nameSuffix}`;
+    if (isForenoon) return `طاب يومك وبورك مسعاك${nameSuffix}`;
+    if (isNoon) return `ظهيرة موفقة ومفعمة بالإنجاز${nameSuffix}`;
+    if (isAsr) return `مساء الهمة والنشاط${nameSuffix}`;
+    if (isMaghrib) return `مساء الطمأنينة وحصاد الإنجاز${nameSuffix}`;
+    return `ليلة هادئة ومباركة${nameSuffix}`;
+  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, activeProfile?.name]);
+
+  // Eloquent motivational message
+  const motivationalMessage = useMemo(() => {
+    if (isFajrMorning) {
+      return 'أقبل عليك يومٌ جديد كصفحة بيضاء ناصعة لم يُكتب فيها إلا توكلك على الله. ابدأ بورد القرآن العظيم وأذكار الصباح، فمن بدأ يومه بالله كفاه الله سائر أمره.';
+    }
+    if (isForenoon) {
+      return 'أنت الآن في ذروة النشاط الذهني؛ ركّز في أهدافك الكبرى، وادخل شوط التركيز الأول دون مشتتات. ساعةٌ من التركيز التام تسبق يوماً من التردد.';
+    }
+    if (isNoon) {
+      return 'تفيأ ظلال صلاة الظهر وسِنة القيلولة النبوية (20 دقيقة)؛ فإنها تفرغ الإجهاد الإدراكي وتجدد صفاء الذهن لمواصلة السعي بهمة عالية.';
+    }
+    if (isAsr) {
+      return 'حافظ على صلاة العصر فإنها الصلاة الوسطى، ثم اشحن همتك في الجيم مستمعاً لأثير السيرة النبوية وبطولات الصحابة؛ فالمؤمن القوي أحب إلى الله.';
+    }
+    if (isMaghrib) {
+      return 'اقترب اليوم من ختامه؛ دوّن فكرتك الذهبية وإنجازاتك، واحمد الله على التوفيق والسداد، واستعد لمراجعة اليوم.';
+    }
+    return 'ضع أعباء النهار جانباً؛ اقرأ سورة الملك المانعة من عذاب القبر، وسبّح ربك قبل نومك، وتوجه إلى فراشك بقلب سليم راجياً بركة الغد.';
+  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib]);
+
+  // Current suggested Station based on real hour
+  const currentSuggestedStation = useMemo((): {
+    id: StationId;
+    title: string;
+    description: string;
+    cta: string;
+    icon: any;
+    badge: string;
+    badgeColor: string;
+  } => {
+    if (isFajrMorning) {
+      return {
+        id: 'COMMUTE_MORNING',
+        title: 'ورد الصباح وتلاوة القرآن الكريم',
+        description: 'قراءة وِرد اليوم من سورة البقرة، أذكار الصباح، وحرز التوحيد (100 مرة).',
+        cta: 'انطلق إلى محطة القرآن الكريم 📖',
+        icon: BookOpen,
+        badge: 'المحطة 1 • نافذة الصباح الباكر',
+        badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+      };
+    }
+    if (isForenoon || isNoon) {
+      return {
+        id: 'WORK_MICRO_SPRINT',
+        title: 'شوط التركيز والعمل العميق',
+        description: 'إنجاز المهام ذات الأولوية القصوى، وتفعيل مؤقت التركيز (20 دقيقة) بلا مقاطعة.',
+        cta: 'انطلق إلى شوط التركيز ⚡',
+        icon: Briefcase,
+        badge: 'المحطة 2 • ذروة الإنتاجية والإتقان',
+        badgeColor: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
+      };
+    }
+    if (isAsr) {
+      const movementCat =
+        (typeof window !== 'undefined'
+          ? localStorage.getItem('midmar_movement_cat')
+          : 'gym') || 'gym';
+
+      if (movementCat === 'combat') {
+        return {
+          id: 'GYM_ANCHOR',
+          title: isAr
+            ? '🥊 جولات الملاكمة والفنون القتالية مع السيرة'
+            : 'Boxing & Combat Sports with Faith Stream',
+          description: isAr
+            ? 'مؤقت الجولات الاحترافي (ملاكمة / موي تاي / جيوجيتسو) مع أثير السيرة النبوية وبطولات الصحابة.'
+            : 'Pro round timer & combat drills with prophetic biography stream.',
+          cta: isAr ? 'انطلق إلى حلبة النزال 🥊' : 'Enter Combat Arena 🥊',
+          icon: Dumbbell,
+          badge: isAr ? 'المحطة 3 • حلبة القوة والشجاعة' : 'Station 3 • Combat Arena',
+          badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+        };
+      }
+      if (movementCat === 'football') {
+        return {
+          id: 'GYM_ANCHOR',
+          title: isAr
+            ? '⚽ مباراة كرة القدم والبادل واللياقة'
+            : 'Football & Padel Match Tracker',
+          description: isAr
+            ? 'تسجيل الأهداف وصناعة اللعب، تقييم الأداء البدني وأثير الهمة العالية.'
+            : 'Track goals, assists, match intensity and physical performance.',
+          cta: isAr ? 'انطلق إلى سجل المباراة ⚽' : 'Track Match ⚽',
+          icon: Dumbbell,
+          badge: isAr ? 'المحطة 3 • مرساة اللياقة والمباريات' : 'Station 3 • Match Fitness',
+          badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+        };
+      }
+      if (movementCat === 'fitness_class') {
+        return {
+          id: 'GYM_ANCHOR',
+          title: isAr
+            ? '🔥 كلاس فيتنس وتدريب جماعي مكثف'
+            : 'High-Intensity Fitness Class',
+          description: isAr
+            ? 'شوط حرق السعرات واللياقة العالية مع أثير السيرة النبوية والتحفيز.'
+            : 'Cardio conditioning, calories burning and high energy faith stream.',
+          cta: isAr ? 'انطلق إلى كلاس الفيتنس 🔥' : 'Start Fitness Class 🔥',
+          icon: Dumbbell,
+          badge: isAr ? 'المحطة 3 • حرق ودهون وهمة' : 'Station 3 • High Conditioning',
+          badgeColor: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
+        };
+      }
+
+      return {
+        id: 'GYM_ANCHOR',
+        title: isAr
+          ? '🏋️ النشاط البدني وأثير السيرة النبوية (الجيم)'
+          : 'Strength Training & Faith Stream (Gym)',
+        description: isAr
+          ? 'صلاة العصر، تمارين الأوزان، وشحن العزيمة مع أثير السيرة النبوية والهمم العالية.'
+          : 'Afternoon prayer, weightlifting routines & inspiring prophetic history.',
+        cta: isAr ? 'انطلق إلى الجيم مع السيرة النبوية 🎙️' : 'Start Gym with Faith Stream 🎙️',
+        icon: Dumbbell,
+        badge: isAr ? 'المحطة 3 • مرساة القوة والهمة' : 'Station 3 • Strength Anchor',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+      };
+    }
+    if (isMaghrib) {
+      return {
+        id: 'EVENING_SPRINT',
+        title: 'شوط المساء والتعلم الذاتي',
+        description: 'صلاة المغرب، مشاريعك وتطلعاتك الشخصية، والقراءة والمطالعة النافعة.',
+        cta: 'انطلق إلى شوط المساء 💻',
+        icon: Laptop,
+        badge: 'المحطة 4 • جلسة البناء والتعلم',
+        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+      };
+    }
+    return {
+      id: 'RETROSPECTIVE_CHECKIN',
+      title: 'مراجعة اليوم وسكينة الليل',
+      description: 'تدوين الفكرة الذهبية، تقييم الإنجاز، سورة الملك، وأذكار النوم والاستشفاء.',
+      cta: 'انطلق إلى مراجعة اليوم 📊',
+      icon: CheckCircle2,
+      badge: 'المحطة 5 • تفريغ الذهن والاستشفاء',
+      badgeColor: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+    };
+  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib]);
+
+  const streakDays = userState?.streakDays || 0;
+  const totalPoints = userState?.totalPoints || 0;
+  const shields = userState?.streakShields || 0;
+
+  return (
+    <div className="space-y-5 animate-fade-in pb-8">
+      {/* ============================================================ */}
+      {/* 1. HERO BENTO LIVING STAGE: GREETING + ACTIVE STATION CTA    */}
+      {/* ============================================================ */}
+      <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-5 sm:p-7 shadow-sm transition-all space-y-5">
+        {/* Subtle Ambient Depth Lighting */}
+        <div className="absolute -top-16 -right-16 w-64 h-64 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 space-y-4">
+          {/* Top Tag & Time of Day Icon + Stats */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="p-2 rounded-2xl bg-emerald-500/10 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-300">
+                {isFajrMorning ? <Sunrise className="w-4 h-4" /> : isNight ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              </span>
+              <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 font-mono tracking-wide">
+                {isAr ? 'الرئيسية • مضمار LifeOS' : 'Midmar LifeOS Dashboard'}
+              </span>
+            </div>
+
+            {/* Streak, Shield & Points Badges */}
+            <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+              <button
+                type="button"
+                onClick={onOpenEvaluation}
+                className="flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300/80 dark:border-amber-700/60 shadow-2xs hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors cursor-pointer"
+                title={isAr ? 'عرض لوحة التقييم الدوري والتحفيز' : 'Evaluation Report'}
+              >
+                <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
+                <span>{streakDays} {isAr ? 'أيام' : 'Days'}</span>
+              </button>
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/50 shadow-2xs">
+                <Shield className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span>{shields}</span>
+              </div>
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50 shadow-2xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>{totalPoints} {isAr ? 'ن' : 'pts'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Majestic Classical Arabic Greeting & Spark */}
+          <div className="space-y-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-950 dark:text-white tracking-tight leading-snug">
+              {greeting}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl font-sans font-medium">
+              {motivationalMessage}
+            </p>
+          </div>
+
+          {/* Integrated Active Suggested Station CTA (Bento Box) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
+            <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                <currentSuggestedStation.icon className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50">
+                    {currentSuggestedStation.badge}
+                  </span>
+                </div>
+                <h2 className="text-sm sm:text-base font-black text-slate-950 dark:text-white truncate">
+                  {currentSuggestedStation.title}
+                </h2>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1">
+                  {currentSuggestedStation.description}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playCompletionChime();
+                  soundSynth.startAmbient('rain_light', 0.5);
+                  haptic.vibrateLight();
+                  onSelectStation('WORK_MICRO_SPRINT');
+                  onRewardToast(
+                    isAr
+                      ? '⚡ بدأ شوط التركيز العميق (25د) تلقائياً مع رذاذ المطر الهادئ!'
+                      : 'Deep Work Sprint (25m) started with calming light rain!'
+                  );
+                }}
+                className="px-4 py-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-300/80 dark:border-sky-700/60 font-black text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer"
+                title={isAr ? 'شوط تركيز فوري مدمج مع صوت رذاذ المطر الهادئ' : '1-Tap Deep Work Sprint with light rain'}
+              >
+                <span>⚡</span>
+                <span>{isAr ? 'تركيز فوري (25د + رذاذ المطر)' : '1-Tap Sprint (25m + Rain)'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playCompletionChime();
+                  haptic.vibrateLight();
+                  onSelectStation(currentSuggestedStation.id);
+                }}
+                className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                <span>{currentSuggestedStation.cta}</span>
+                <ArrowIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 1.5. FAITH AUDIO QUICK-RESUME CONTROLLER                     */}
+      {/* ============================================================ */}
+      {resumePoint && (
+        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-slate-50 to-emerald-500/5 dark:from-emerald-950/30 dark:via-[#12131A] dark:to-emerald-950/20 border border-emerald-500/20 dark:border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                if (faithAudioState.isPlaying) {
+                  gymFaithAudio.pause();
+                } else {
+                  gymFaithAudio.resumeLastPlayback();
+                }
+              }}
+              className="w-11 h-11 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
+              title={faithAudioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'استئناف الاستماع' : 'Resume Playback')}
+            >
+              {faithAudioState.isPlaying ? (
+                <Pause className="w-5 h-5 fill-white" />
+              ) : (
+                <Play className="w-5 h-5 fill-white ps-0.5" />
+              )}
+            </button>
+
+            <div className="min-w-0 space-y-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 flex items-center gap-1">
+                  <Radio className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span>{isAr ? 'أثير السيرة وبطولات الصحابة' : 'Prophetic Faith Stream'}</span>
+                </span>
+                {faithAudioState.isPlaying && (
+                  <span className="flex items-center gap-0.5">
+                    <span className="w-1 h-3 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="w-1 h-4 bg-emerald-500 rounded-full animate-pulse delay-75" />
+                    <span className="w-1 h-2 bg-emerald-500 rounded-full animate-pulse delay-150" />
+                  </span>
+                )}
+              </div>
+              <h4 className="text-xs sm:text-sm font-black text-slate-950 dark:text-white truncate">
+                {resumePoint.seriesTitleAr
+                  ? `${resumePoint.seriesTitleAr} • ${resumePoint.episodeTitleAr || ''}`
+                  : resumePoint.channelTitleAr || resumePoint.sheikhAr}
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
+                {resumePoint.sheikhAr} • {Math.floor(resumePoint.currentTime / 60)}:
+                {(resumePoint.currentTime % 60).toString().padStart(2, '0')}{' '}
+                {resumePoint.duration > 0 &&
+                  `/ ${Math.floor(resumePoint.duration / 60)}:${(resumePoint.duration % 60).toString().padStart(2, '0')}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                if (onOpenFaithAudio) {
+                  onOpenFaithAudio();
+                }
+              }}
+              className="px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-800/80 hover:bg-slate-100 text-slate-700 dark:text-zinc-200 text-xs font-bold border border-slate-200 dark:border-zinc-700 transition-colors cursor-pointer"
+            >
+              <span>{isAr ? 'فتح المشغل الكامل 🎙️' : 'Full Player 🎙️'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* 2. DAILY STATIONS ROADMAP: خريطة محطات اليوم المبارك           */}
+      {/* Full 6-station interactive grid for instant immersion         */}
+      {/* ============================================================ */}
+      <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-base">
+              🧭
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+                {isAr ? 'خريطة محطات اليوم' : 'Daily Stations Roadmap'}
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                {isAr
+                  ? `${completedStations.length} من 6 محطات مكتملة • ${personaConfig.titleAr}`
+                  : `${completedStations.length} of 6 stations completed • ${personaConfig.titleEn}`}
+                {onOpenLifestyleModal && (
+                  <button
+                    type="button"
+                    onClick={onOpenLifestyleModal}
+                    className="ms-2 text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
+                  >
+                    ({isAr ? 'تعديل النمط' : 'Change'})
+                  </button>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <span className="font-mono text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/[0.06] font-bold text-slate-600 dark:text-zinc-300">
+            {completedStations.length}/6 {isAr ? 'مكتمل' : 'Done'}
+          </span>
+        </div>
+
+        {/* 6 Stations Responsive Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+          {allStationIds.map((stId, idx) => {
+            const meta = resolveStationMetadata(stId, personaId, overrides, isAr);
+            const Icon = meta.icon;
+            const isCompleted = completedStations.includes(stId);
+            const isCurrentSuggested = currentSuggestedStation.id === stId;
+
+            return (
+              <button
+                key={stId}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  onSelectStation(stId);
+                }}
+                className={`p-3 rounded-2xl border text-start flex flex-col justify-between transition-all cursor-pointer select-none active:scale-95 group relative ${
+                  isCompleted
+                    ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300/80 dark:border-emerald-800/60'
+                    : isCurrentSuggested
+                    ? 'bg-sky-50/80 dark:bg-sky-950/30 border-sky-400/80 dark:border-sky-700/80 ring-2 ring-sky-400/20'
+                    : 'bg-slate-50/80 dark:bg-white/[0.03] border-slate-200/80 dark:border-white/[0.06] hover:border-emerald-300 dark:hover:border-emerald-700'
+                }`}
+              >
+                {/* Station Card Header */}
+                <div className="flex items-center justify-between w-full mb-2">
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${
+                      isCompleted
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : isCurrentSuggested
+                        ? 'bg-sky-600 text-white shadow-xs'
+                        : 'bg-slate-200/80 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'
+                    }`}
+                  >
+                    {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                  </div>
+
+                  <span className="font-mono text-[10px] text-slate-400 dark:text-zinc-500 font-bold">
+                    #{idx + 1}
+                  </span>
+                </div>
+
+                {/* Station Title & Time */}
+                <div className="space-y-0.5 min-w-0">
+                  <h4 className="text-xs font-black text-slate-900 dark:text-white truncate">
+                    {isAr ? meta.shortLabelAr : meta.shortLabelEn}
+                  </h4>
+                  <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 block truncate">
+                    {meta.shortTime}
+                  </span>
+                </div>
+
+                {/* Status Indicator Pill */}
+                <div className="mt-2 pt-1.5 border-t border-slate-200/60 dark:border-white/[0.06] flex items-center justify-between">
+                  {isCompleted ? (
+                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                      ✓ {isAr ? 'مكتملة' : 'Done'}
+                    </span>
+                  ) : isCurrentSuggested ? (
+                    <span className="text-[10px] font-bold text-sky-700 dark:text-sky-400 flex items-center gap-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                      <span>{isAr ? 'جارية' : 'Active'}</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500 group-hover:text-emerald-600 transition-colors">
+                      {isAr ? 'دخول ←' : 'Open →'}
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 3. OFFICIAL REAL-TIME PRAYER TIMES BAR                       */}
+      {/* ============================================================ */}
+      <PrayerTimesBar
+        todayLog={todayLog}
+        userState={userState}
+        onOpenLocationModal={onOpenLocationModal}
+        onRewardToast={onRewardToast}
+        onOpenSmartTasbih={onOpenSmartTasbih}
+      />
+
+      {/* ============================================================ */}
+      {/* 4. ROODAT AL-TADABBUR & HADITH ENGINE                        */}
+      {/* ============================================================ */}
+      <DailyTadabburCard
+        onOpenModal={(item, tab) => onOpenTadabburModal?.(item, tab)}
+        onToast={onRewardToast}
+      />
+
+      {/* ============================================================ */}
+      {/* 4.2. FAITH & KNOWLEDGE AUDIO SANCTUARY EMBEDDED              */}
+      {/* أثير الوعي والدروس الإيمانية والفكرية (أهل السنة والجماعة)   */}
+      {/* ============================================================ */}
+      <GymFaithAudioPlayer
+        onRewardToast={onRewardToast}
+      />
+
+      {/* ============================================================ */}
+      {/* 4.3. INTELLECTUAL & CULTURAL WISDOM BENTO                    */}
+      {/* ديوان الشعر العربي القديم المشروح & خزانة النماذج الفكرية     */}
+      {/* ============================================================ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        {/* Arabic Classical Poetry Card */}
+        <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-zinc-900 dark:to-transparent border border-amber-300/40 dark:border-amber-500/20 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold">
+                  <Feather className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 font-serif">
+                    {isAr ? 'ديوان الحكمة والشعر العربي' : 'Classical Arabic Poetry Diwan'}
+                  </h3>
+                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                    {isAr ? 'عيون الشعر التليد وتفكيك المفردات' : 'Odes, Vocabulary & Life Wisdom'}
+                  </span>
+                </div>
+              </div>
+
+              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-bold">
+                📜 {isAr ? 'أصالة وبيان' : 'Classics'}
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-serif">
+              «عَلى قَدْرِ أَهْلِ العَزْمِ تَأْتِي العَزائِمُ ... وَتَأْتِي عَلَى قَدْرِ الكِرامِ المَكارِمُ»
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenArabicPoetry?.();
+            }}
+            className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>📜</span>
+            <span>{isAr ? 'تصفح ديوان الشعر والشرح اللغوي' : 'Open Poetry Diwan'}</span>
+            <span>←</span>
+          </button>
+        </div>
+
+        {/* Life Wisdom & Mental Models Card */}
+        <div className="rounded-3xl bg-gradient-to-br from-cyan-500/10 via-cyan-500/5 to-transparent dark:from-cyan-950/20 dark:via-zinc-900 dark:to-transparent border border-cyan-300/40 dark:border-cyan-500/20 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 flex items-center justify-center font-bold">
+                  <Brain className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+                    {isAr ? 'خزانة النماذج الفكرية والمعارف' : 'Mental Models & Life Hacks'}
+                  </h3>
+                  <span className="text-[10px] font-bold text-cyan-700 dark:text-cyan-400">
+                    {isAr ? 'قوانين التفكير، الإنتاجية، وإسعافات الحياة' : '80/20, Parkinson, Health & Mind'}
+                  </span>
+                </div>
+              </div>
+
+              <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-800 dark:text-cyan-300 font-bold">
+                💡 {isAr ? 'وعي وعمل' : 'Wisdom'}
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-medium">
+              {isAr
+                ? 'مبدأ باريتو، قانون باركنسون، سكين هانلون، والتنهيدة الفسيولوجية لتفريغ التوتر في 30 ثانية.'
+                : 'Actionable mental models, time laws, and practical life hacks for everyday clarity.'}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenLifeWisdom?.();
+            }}
+            className="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>🧠</span>
+            <span>{isAr ? 'فتح خزانة النماذج والمعارف الحياتية' : 'Open Life Wisdom Vault'}</span>
+            <span>←</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 4.5. ADAPTIVE SPORTS & HABIT LEARNING BENTO                  */}
+      {/* "مع الوقت تتعلم وتفهم أني عملت كذا.. وخليني أحدد اليوم ايه"   */}
+      {/* ============================================================ */}
+      <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base shrink-0">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+                  {isAr ? 'برنامج اليوم الرياضي وتعلم العادات' : 'Adaptive Sports & Habit Learning'}
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40">
+                  {isAr ? 'مرونة مطلقة' : '100% Flexible'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                {isAr
+                  ? 'يتعلم النظام من تكرار نشاطك عبر 1-3 أشهر، مع حريتك الكاملة في التحديد يومياً'
+                  : 'AI learns weekly patterns over 1-3 months with full daily customization'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsAnomalyModalOpen(true);
+            }}
+            className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-800 dark:text-zinc-200 text-xs font-bold border border-slate-200 dark:border-zinc-700 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+            title={isAr ? 'توثيق ظرف طارئ وحماية الشعلة' : 'Log Anomaly & Protect Streak'}
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>{isAr ? 'ظرف طارئ / حماية الشعلة 🛡️' : 'Log Anomaly / Shield 🛡️'}</span>
+          </button>
+        </div>
+
+        {/* AI Habit Pattern Explanation Banner */}
+        {learnedPattern && (
+          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-950 dark:text-amber-200 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base">💡</span>
+              <p className="font-medium text-[11px] sm:text-xs">
+                {learnedPattern.explanationAr}
+              </p>
+            </div>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-amber-200/80 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 shrink-0">
+              دقة {learnedPattern.confidence}%
+            </span>
+          </div>
+        )}
+
+        {/* 1-Tap Sport Selector for Today */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 dark:text-zinc-300 block">
+            {isAr ? 'حدد نشاطك اليوم حسب رغبتك ومزاجك:' : 'Choose today\'s activity freely:'}
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {[
+              { id: 'gym', cat: 'gym', labelAr: '🏋️ جيم وأوزان', labelEn: 'Gym & Weights' },
+              { id: 'combat', cat: 'combat', labelAr: '🥊 ملاكمة وقتال', labelEn: 'Boxing & Combat' },
+              { id: 'padel', cat: 'football', labelAr: '⚽ بادل / مباريات', labelEn: 'Padel / Football' },
+              { id: 'fitness', cat: 'fitness_class', labelAr: '🔥 فيتنس مكثف', labelEn: 'HIIT & Fitness' },
+              { id: 'rest', cat: 'mobility', labelAr: '🧘 راحة واستشفاء', labelEn: 'Active Rest' },
+            ].map((sp) => {
+              const isSelected = selectedSport === sp.id || selectedSport === sp.cat;
+              return (
+                <button
+                  key={sp.id}
+                  type="button"
+                  onClick={() => handleSelectSportForToday(sp.id, sp.cat)}
+                  className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 ${
+                    isSelected
+                      ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-950 dark:text-amber-200 font-bold shadow-xs ring-1 ring-amber-400/40'
+                      : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200/80 dark:border-white/[0.06] text-slate-700 dark:text-zinc-300 hover:border-amber-300'
+                  }`}
+                >
+                  <span className="text-xs block truncate">{isAr ? sp.labelAr : sp.labelEn}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 5. DAILY VOCABULARY MASTERY BENTO (الحصيلة اللغوية اليومية) */}
+      {/* ============================================================ */}
+      <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-3.5">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-base shrink-0">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+                  {isAr ? 'الحصيلة اللغوية اليومية' : 'Daily Language Mastery'}
+                </h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-800/40">
+                  {currentLangObj.flag} {currentLangObj.nameAr}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                {isAr
+                  ? `الورد اليومي: ${todayWords.length} كلمات • متبقي للمراجعة التكرارية: ${languageStats.dueReviewsCount}`
+                  : `Daily Quota: ${todayWords.length} words • ${languageStats.dueReviewsCount} due for review`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playCompletionChime();
+                haptic.vibrateLight();
+                setIsHomeQuizOpen(true);
+              }}
+              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
+            >
+              <span>🎯</span>
+              <span>{isAr ? 'اختبار الكلمات اليومي' : 'Quick Quiz'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onSelectStation('EVENING_SPRINT');
+              }}
+              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-700 dark:text-zinc-300 font-bold text-xs border border-slate-200 dark:border-zinc-700 transition-colors cursor-pointer"
+              title={isAr ? 'عرض بطاقات الكلمات الكاملة' : 'View full cards'}
+            >
+              <span>{isAr ? 'عرض البطاقات ←' : 'Full Cards →'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Active Word Spotlight Banner */}
+        {todayWords[0] && (
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-50/80 via-slate-50 to-white dark:from-indigo-950/20 dark:via-zinc-900 dark:to-zinc-950 border border-indigo-100 dark:border-indigo-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  speechService.speak(todayWords[0].word, currentLangObj.speechCode, 1.0);
+                }}
+                className="w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 cursor-pointer shrink-0"
+                title={isAr ? 'استمع للنطق البشري' : 'Listen speech'}
+              >
+                <Volume2 className="w-5 h-5" />
+              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-base sm:text-lg font-black text-slate-950 dark:text-white font-serif">
+                    {todayWords[0].word}
+                  </span>
+                  <span className="font-mono text-xs text-slate-400">
+                    {todayWords[0].phonetic}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans">
+                  {todayWords[0].translationAr}
+                </p>
+              </div>
+            </div>
+
+            <div className="text-xs text-slate-600 dark:text-zinc-300 bg-white/80 dark:bg-zinc-800/70 px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-zinc-700/60 max-w-sm truncate">
+              "{todayWords[0].contextSentence}"
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* 6. 24-HOUR CIRCADIAN TIMELINE & GUIDANCE                     */}
+      {/* ============================================================ */}
+      <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
+            ☀️
+          </div>
+          <div>
+            <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+              {isAr ? 'الإيقاع الحيوي ومسار اليوم' : 'Circadian Timeline & Guidance'}
+            </h3>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {isAr ? 'حركة الشمس والقمر وتوزيع محطات اليوم على مدار 24 ساعة' : 'Sun/Moon cycle & 24-hour station allocation'}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4 pt-1">
+          <DailyCircadianTimeline
+            todayLog={todayLog}
+            userState={userState}
+            onSelectStation={onSelectStation}
+            onOpenSleepRest={onOpenSleepRest}
+          />
+
+          <SmartAmbientNudgeCard
+            todayLog={todayLog}
+            userState={userState}
+            dailyLogs={allDailyLogs}
+            onSelectStation={onSelectStation}
+            onOpenSleepRest={onOpenSleepRest}
+            onStartSuggestedSprint={(_dur) => {
+              onSelectStation('WORK_MICRO_SPRINT');
+            }}
+            onRewardToast={onRewardToast}
+          />
+        </div>
+      </div>
+
+      {/* Language Quiz Modal from Home Dashboard */}
+      <LanguageQuizModal
+        isOpen={isHomeQuizOpen}
+        onClose={() => {
+          setIsHomeQuizOpen(false);
+          setLanguageStats(spacedRepetition.getStats());
+        }}
+        words={todayWords}
+        speechCode={currentLangObj.speechCode}
+        onCompleted={handleHomeQuizCompleted}
+      />
+
+      {/* Schedule Anomaly Modal */}
+      <ScheduleAnomalyModal
+        isOpen={isAnomalyModalOpen}
+        onClose={() => setIsAnomalyModalOpen(false)}
+        expectedSport={selectedSport}
+        onLogged={(_record) => {
+          onRewardToast(
+            isAr
+              ? '🛡️ تم توثيق ظرفك وحماية شعلتك بنسبة 100% دون أي عقوبة!'
+              : '🛡️ Anomaly logged. Your streak is 100% protected!'
+          );
+        }}
+      />
+    </div>
+  );
+};
