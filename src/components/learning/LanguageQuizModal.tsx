@@ -82,14 +82,13 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     }
   }, [isOpen, activeQuizMode, currentIndex, speechCode, words]);
 
-  if (!isOpen || words.length === 0) return null;
-
   const currentWord = words[currentIndex] || words[0];
   const currentWordProgress = currentWord ? spacedRepetition.getWordProgress(currentWord.id) : undefined;
   const isLeech = currentWord ? spacedRepetition.isLeechWord(currentWord.id) : false;
 
   // Dynamic Options Generator based on Quiz Mode
   const { options, correctAnswer } = useMemo(() => {
+    if (!currentWord) return { options: [], correctAnswer: '' };
     const lang = currentWord.lang;
     const langWords = VOCABULARY_DATABASE.filter((w) => w.lang === lang);
 
@@ -124,6 +123,8 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
       return { options: combined, correctAnswer: correct };
     }
   }, [currentWord, activeQuizMode]);
+
+  if (!isOpen || words.length === 0 || !currentWord) return null;
 
   const handleSpeakWord = () => {
     soundSynth.playTactileClick();
