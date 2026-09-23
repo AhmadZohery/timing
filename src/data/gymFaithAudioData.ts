@@ -1992,11 +1992,11 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
       {
         "id": "uth_sl_04",
         "episodeNumber": 4,
-        "titleAr": "الدرس 4: أحكام السنن الرواتب القبلية والبعدية وصلاة الوتر",
+        "titleAr": "الدرس 4: أحكام السنن الرواتب قبل الصلوات وبعدها وصلاة الوتر",
         "titleEn": "Sunnah Mu'akkadah & Night Witr",
         "durationFormatted": "39:30",
         "audioUrl": "https://archive.org/download/uthaymeen_salah/04.mp3",
-        "summaryAr": "السنن الرواتب الـ 12 ركعة، سنة الظهر القبلية والبعدية، سنة الفجر، وفضل الوتر وأوقاته."
+        "summaryAr": "السنن الرواتب الـ 12 ركعة، سنة الظهر قبلها وبعدها، سنة الفجر، وفضل الوتر وأوقاته."
       }
     ]
   },

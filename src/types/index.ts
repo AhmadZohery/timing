@@ -186,6 +186,17 @@ export interface DailyLog {
   surahMulkDone?: boolean;
   qiyamNightDone?: boolean;
   qiyamRakats?: number;
+  dhuhaDone?: boolean;
+  dhuhaRakats?: number;
+  witrDone?: boolean;
+  istikharaDone?: boolean;
+  hajahDone?: boolean;
+  tawbahDone?: boolean;
+  wuduSunnahDone?: boolean;
+  tahiyyatMasjidDone?: boolean;
+  ishraqDone?: boolean;
+  tasabihDone?: boolean;
+  qiyamAyatTarget?: number;
   adhkarMorningDone?: boolean;
   adhkarEveningDone?: boolean;
   adhkarSleepDone?: boolean;
