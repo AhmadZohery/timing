@@ -419,6 +419,27 @@ export interface DeconstructedStep {
   completed: boolean;
 }
 
+export interface UserOnboardingAnswers {
+  name: string;
+  professionDomain: ProfessionDomain;
+  customRoleTitle?: string;
+  wakePattern: 'early_bird' | 'night_owl' | 'flexible';
+  primaryStruggle: 'fajr_prayer' | 'procrastination' | 'distraction' | 'afternoon_crash' | 'consistency';
+  spiritualPriority: 'fajr_and_sunan' | 'quran_wird' | 'qiyam_and_witr' | 'all_around';
+  focusPreference: 'short_bursts' | 'deep_flow';
+}
+
+export interface AiOnboardingBlueprint {
+  circadianArchetype: string;
+  recommendedSpiritualPreset: SpiritualPresetId;
+  recommendedQiyamAyatTarget: number;
+  recommendedSprintMinutes: number;
+  dailyStepGoal: number;
+  psychologicalDiagnosis: string;
+  atomicFrictionHacks: string[];
+  recommendedScheduleSummary: string;
+}
+
 export interface PrayerLocationConfig {
   city: string;
   latitude: number;
@@ -541,6 +562,7 @@ export interface AppSettings {
   smartNudgeDismissedUntil?: string; // ISO timestamp
   dismissedNudgeIds?: string[];
   spiritualWirdConfig?: SpiritualWirdConfig;
+  dailyStepGoal?: number;
   lifestylePersona?: LifestylePersonaId;
   stationCustomOverrides?: Partial<Record<StationId, StationCustomOverride>>;
   themePalette?: ThemePaletteId;

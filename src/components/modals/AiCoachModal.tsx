@@ -39,7 +39,7 @@ interface AiCoachModalProps {
   onOpenSettings?: () => void;
 }
 
-type TabMode = 'chat' | 'deconstruct' | 'diagnostics' | 'dna';
+type TabMode = 'chat' | 'decisions' | 'deconstruct' | 'diagnostics' | 'dna';
 
 export const AiCoachModal: React.FC<AiCoachModalProps> = ({
   isOpen,
@@ -78,6 +78,18 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [showQuickKeyInput, setShowQuickKeyInput] = useState(false);
+  const [quickApiKey, setQuickApiKey] = useState('');
+  const [isSavingQuickKey, setIsSavingQuickKey] = useState(false);
+  const [quickKeySuccess, setQuickKeySuccess] = useState<boolean | null>(null);
+
+  // Decisions state
+  const [isAnalyzingDecisions, setIsAnalyzingDecisions] = useState(false);
+  const [decisionsResult, setDecisionsResult] = useState<{
+    headline: string;
+    analysisPoints: string[];
+    suggestedAdjustments: Array<{ title: string; actionText: string; actionType: string }>;
+  } | null>(null);
 
   // Deconstructor state
   const [taskToDeconstruct, setTaskToDeconstruct] = useState('');
@@ -254,6 +266,52 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
     }
   };
 
+  const handleAnalyzeDecisions = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsAnalyzingDecisions(true);
+    try {
+      const res = await aiCoach.analyzeBehavioralDecisions(dailyLogs, coachingContext);
+      setDecisionsResult(res);
+      soundSynth.playCompletionChime();
+      haptic.vibrateSprintCelebration();
+    } finally {
+      setIsAnalyzingDecisions(false);
+    }
+  };
+
+  const handleSaveQuickKey = async () => {
+    if (!quickApiKey.trim()) return;
+    setIsSavingQuickKey(true);
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    try {
+      const res = await aiCoach.testConnection({
+        provider: 'gemini',
+        apiKey: quickApiKey.trim(),
+        model: 'gemini-2.0-flash',
+        enabled: true,
+      });
+      setQuickKeySuccess(res.success);
+      if (res.success) {
+        soundSynth.playCompletionChime();
+        haptic.vibrateSprintCelebration();
+        await aiCoach.saveConfig({
+          provider: 'gemini',
+          apiKey: quickApiKey.trim(),
+          model: 'gemini-2.0-flash',
+          enabled: true,
+        });
+        setHasApiKey(true);
+        setTimeout(() => setShowQuickKeyInput(false), 2000);
+      } else {
+        soundSynth.playTactileClick();
+      }
+    } finally {
+      setIsSavingQuickKey(false);
+    }
+  };
+
   const quickPrompts = isAr
     ? [
         'حاسس بكسل ومقاومة ومش قادر أبدأ 🥱',
@@ -309,13 +367,25 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setShowQuickKeyInput(!showQuickKeyInput)}
+              className={`p-2 rounded-xl transition-colors cursor-pointer ${
+                hasApiKey
+                  ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+                  : 'text-amber-600 bg-amber-500/10 hover:bg-amber-500/20 animate-pulse'
+              }`}
+              title={isAr ? 'ربط مفتاح الذكاء الاصطناعي السريع' : 'Quick AI API Setup'}
+            >
+              <Key className="w-4 h-4" />
+            </button>
+
             {onOpenSettings && (
               <button
                 onClick={onOpenSettings}
                 className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                 title={isAr ? 'إعدادات مفتاح الـ API' : 'AI API Settings'}
               >
-                <Key className="w-4 h-4" />
+                <Bot className="w-4 h-4" />
               </button>
             )}
 
@@ -328,14 +398,57 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           </div>
         </div>
 
+        {/* Quick API Key Collapsible Bar */}
+        {showQuickKeyInput && (
+          <div className="p-3.5 bg-gradient-to-r from-indigo-50 via-white to-purple-50 dark:from-zinc-900 dark:via-zinc-900/90 dark:to-purple-950/20 border-b border-indigo-200 dark:border-zinc-800 space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-indigo-600" />
+                <span>ربط مفتاح Gemini API المجاني:</span>
+              </span>
+              <a
+                href="https://aistudio.google.com/app/apikey"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+              >
+                احصل على مفتاح مجاني من Google ↗
+              </a>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="password"
+                value={quickApiKey}
+                onChange={(e) => {
+                  setQuickApiKey(e.target.value);
+                  setQuickKeySuccess(null);
+                }}
+                placeholder="AIzaSy... الصق مفتاح الـ API هنا"
+                className="flex-1 px-3 py-1.5 rounded-xl bg-white dark:bg-black/40 border border-slate-300 dark:border-zinc-700 text-xs font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleSaveQuickKey}
+                disabled={!quickApiKey.trim() || isSavingQuickKey}
+                className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs cursor-pointer disabled:opacity-50"
+              >
+                {isSavingQuickKey ? 'جاري الفحص...' : quickKeySuccess ? 'متصل ✔' : 'حفظ وتفعيل'}
+              </button>
+            </div>
+            {quickKeySuccess && (
+              <p className="text-[10px] text-emerald-600 font-bold">تم تفعيل Gemini API بنجاح! يعمل بكامل طاقته الآن.</p>
+            )}
+          </div>
+        )}
+
         {/* Tab Selector */}
-        <div className="flex items-center px-4 pt-2 border-b border-slate-200 dark:border-zinc-800 bg-slate-50/40 dark:bg-zinc-900/40 gap-2">
+        <div className="flex items-center px-4 pt-2 border-b border-slate-200 dark:border-zinc-800 bg-slate-50/40 dark:bg-zinc-900/40 gap-2 overflow-x-auto scrollbar-none">
           <button
             onClick={() => {
               soundSynth.playTactileClick();
               setActiveTab('chat');
             }}
-            className={`py-2 px-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`py-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'chat'
                 ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-zinc-950 rounded-t-lg shadow-2xs'
                 : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
@@ -348,16 +461,31 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           <button
             onClick={() => {
               soundSynth.playTactileClick();
+              setActiveTab('decisions');
+            }}
+            className={`py-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              activeTab === 'decisions'
+                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-zinc-950 rounded-t-lg shadow-2xs'
+                : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>{isAr ? 'الخيارات المنطقية المناسبة ✨' : 'Adaptive Decisions ✨'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundSynth.playTactileClick();
               setActiveTab('deconstruct');
             }}
-            className={`py-2 px-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`py-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'deconstruct'
                 ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-zinc-950 rounded-t-lg shadow-2xs'
                 : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
             }`}
           >
             <Split className="w-3.5 h-3.5" />
-            <span>{isAr ? 'تفكيك مهمة صعبة' : 'Deconstruct Task'}</span>
+            <span>{isAr ? 'تفكيك مهمة' : 'Deconstruct'}</span>
           </button>
 
           <button
@@ -365,14 +493,14 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
               soundSynth.playTactileClick();
               setActiveTab('diagnostics');
             }}
-            className={`py-2 px-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`py-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'diagnostics'
                 ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-zinc-950 rounded-t-lg shadow-2xs'
                 : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
             }`}
           >
             <BarChart2 className="w-3.5 h-3.5" />
-            <span>{isAr ? 'تحليل صعوبة الالتزام' : 'Habit Diagnostics'}</span>
+            <span>{isAr ? 'تشخيص الالتزام' : 'Diagnostics'}</span>
           </button>
 
           <button
@@ -380,14 +508,14 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
               soundSynth.playTactileClick();
               setActiveTab('dna');
             }}
-            className={`py-2 px-3.5 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`py-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'dna'
                 ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400 bg-white dark:bg-zinc-950 rounded-t-lg shadow-2xs'
                 : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
             }`}
           >
             <Dna className="w-3.5 h-3.5 text-purple-500" />
-            <span>{isAr ? 'بصمتك السلوكية 🧬' : 'Behavioral DNA 🧬'}</span>
+            <span>{isAr ? 'البصمة السلوكية 🧬' : 'Behavioral DNA'}</span>
           </button>
         </div>
 
@@ -479,7 +607,113 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           </div>
         )}
 
-        {/* Tab 2: Task Deconstructor */}
+        {/* Tab 2: Adaptive Logical Decisions & Behavior Analysis */}
+        {activeTab === 'decisions' && (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/30 space-y-2">
+              <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black text-xs sm:text-sm">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <span>{isAr ? 'الخيارات والقرارات المنطقية المناسبة ليومك' : 'Adaptive Daily Decisions'}</span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-medium">
+                {isAr
+                  ? 'يقوم الذكاء الاصطناعي بفحص سجلات الأيام الماضية، وساعات نومك، ومعدل إنجاز المهام والصلوات، لاقتراح القرارات الأكثر منطقية وملاءمة لطاقتك اليوم.'
+                  : 'AI analyzes your recent logs, sleep patterns, and completion rates to propose optimal adaptive decisions.'}
+              </p>
+            </div>
+
+            {/* Analysis Trigger CTA */}
+            <div className="text-center py-1">
+              <button
+                type="button"
+                onClick={handleAnalyzeDecisions}
+                disabled={isAnalyzingDecisions}
+                className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-indigo-600/25 active:scale-98 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {isAnalyzingDecisions ? (
+                  <>
+                    <span className="animate-spin text-base">🪄</span>
+                    <span>{isAr ? 'جاري تحليل سلوكك واستخلاص القرارات المنطقية...' : 'Analyzing behavior...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>{isAr ? 'حلل سلوكي واقترح الخيارات المنطقية لليوم ✨' : 'Analyze My Behavior & Recommend Decisions ✨'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Results Display */}
+            {decisionsResult && (
+              <div className="space-y-4 animate-scale-in">
+                {/* Headline Card */}
+                <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border-2 border-indigo-500/40 shadow-sm space-y-1">
+                  <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-bold text-[11px]">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span>{isAr ? 'التشخيص العام للحالة التشغيلية:' : 'Operational Diagnosis:'}</span>
+                  </div>
+                  <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight">
+                    {decisionsResult.headline}
+                  </h4>
+                </div>
+
+                {/* Behavioral Observations */}
+                {decisionsResult.analysisPoints.length > 0 && (
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900/60 border border-slate-200 dark:border-zinc-800 space-y-2">
+                    <span className="text-xs font-black text-slate-900 dark:text-white block flex items-center gap-1.5">
+                      <span>🔍</span>
+                      <span>{isAr ? 'ملاحظات سلوكية مستخلصة من أسبوعك الأخير:' : 'Behavioral Observations:'}</span>
+                    </span>
+                    <ul className="space-y-1.5 text-xs text-slate-700 dark:text-zinc-300 leading-relaxed pr-2">
+                      {decisionsResult.analysisPoints.map((pt, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <span className="text-indigo-500 font-bold shrink-0">•</span>
+                          <span>{pt}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Suggested Logical Adjustments */}
+                {decisionsResult.suggestedAdjustments.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-xs font-black text-slate-900 dark:text-white block flex items-center gap-1.5">
+                      <span>🎯</span>
+                      <span>{isAr ? 'القرارات والتعديلات المنطقية الموصى بها:' : 'Recommended Decisions:'}</span>
+                    </span>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {decisionsResult.suggestedAdjustments.map((adj, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xs space-y-1.5 flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-black text-slate-900 dark:text-white leading-tight">
+                                {adj.title}
+                              </span>
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                                {adj.actionType}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-relaxed mt-1">
+                              {adj.actionText}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 3: Task Deconstructor */}
         {activeTab === 'deconstruct' && (
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
             <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/40 space-y-2">
