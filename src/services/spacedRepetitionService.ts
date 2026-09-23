@@ -195,6 +195,11 @@ class SpacedRepetitionService {
       combined.push(...extra);
     }
 
+    if (combined.length === 0 && all.length > 0) {
+      // Always guarantee active quiz items so the user can continually practice and review
+      return [...all].sort(() => 0.5 - Math.random()).slice(0, limit);
+    }
+
     return combined.slice(0, limit);
   }
 

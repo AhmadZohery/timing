@@ -185,19 +185,31 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
 
   // Smart recommended next best action
   const getNextRecommendedAction = () => {
+    const dayOfWeek = now.getDay();
+
     if (currentTimeDec >= 21 || currentTimeDec < 4) {
       if (!todayLog?.surahMulkDone) {
         return {
-          title: 'قراءة سورة الملك المنجية (30 آية)',
-          detail: 'تشفع لصاحبها وتمنحك سكينة تامة قبل النوم (+15 نقطة)',
-          cta: 'فتح بروتوكول النوم 🌙',
+          title: 'قراءة سورة الملك (المنجية) وتسبيح فاطمة 33/33/34',
+          detail: '30 آية كاملة تشفع لصاحبها، تسبيح النوم، وأذكار التحصين النبوي (+15 نقطة)',
+          cta: 'فتح سورة الملك وبروتوكول النوم 🌙',
           action: onOpenSleepRest,
         };
       }
       return {
-        title: 'أذكار النوم والاسترخاء الهادئ',
-        detail: 'إغلاق الشاشات الزرقاء لحماية إفراز الميلاتونين والنوم العميق',
-        cta: 'تسجيل النوم 😴',
+        title: 'أذكار النوم الصحيحة والاسترخاء الهادئ',
+        detail: 'إغلاق الشاشات لحماية الميلاتونين، تسبيح 33/33/34، والنوم على الشق الأيمن',
+        cta: 'بروتوكول النوم 😴',
+        action: onOpenSleepRest,
+      };
+    }
+
+    // Fasting reminder for Sunday evening or Wednesday evening
+    if (currentTimeDec >= 17 && (dayOfWeek === 0 || dayOfWeek === 3)) {
+      return {
+        title: `تذكير بسنة صيام غداً (${dayOfWeek === 0 ? 'الإثنين' : 'الخميس'}) المبارك 🌙`,
+        detail: '«تُعرض الأعمال يومي الإثنين والخميس فأحب أن يُعرض عملي وأنا صائم»',
+        cta: 'عقد نية الصيام والفضائل 🌙',
         action: onOpenSleepRest,
       };
     }

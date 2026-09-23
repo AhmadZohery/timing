@@ -190,6 +190,8 @@ export interface DailyLog {
   adhkarEveningDone?: boolean;
   adhkarSleepDone?: boolean;
   spiritualHabitsDone?: string[];
+  fastingDone?: boolean;
+  fastingType?: 'monday' | 'thursday' | 'white_days' | 'voluntary';
   // V16 Tasbih & Spiritual Beads Fields
   tasbihDailyProgress?: Record<string, { count: number; target: number; completed: boolean }>;
   salawatFridayCount?: number;
@@ -209,6 +211,10 @@ export interface PrayerRecord {
   status: PrayerStatus;
   completedAt?: string;
   pointsAwarded?: number;
+  sunnahPerformed?: boolean;
+  sunnahQabliyahRakats?: number; // e.g. 2, 4
+  sunnahBadiyahRakats?: number;  // e.g. 2, 4
+  witrRakats?: number;           // e.g. 1, 3
 }
 
 export interface DailyBaqarahProgress {

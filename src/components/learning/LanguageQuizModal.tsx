@@ -124,7 +124,36 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     }
   }, [currentWord, activeQuizMode]);
 
-  if (!isOpen || words.length === 0 || !currentWord) return null;
+  if (!isOpen) return null;
+
+  if (words.length === 0 || !currentWord) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="bg-white dark:bg-[#14151F] rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-slate-200 dark:border-white/[0.1] shadow-2xl">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl">
+            🎉
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-black text-slate-900 dark:text-white">
+              {isAr ? 'أحسنت! لا توجد كلمات متبقية للاختبار اليوم' : 'All caught up! No words due today'}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
+              {isAr
+                ? 'لقد راجعت نصاب كلماتك بنجاح، يمكنك التدرب على كلمات إضافية من بنك المفردات في أي وقت!'
+                : "You have completed today's vocabulary quota! Great job!"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs cursor-pointer shadow-md transition-all"
+          >
+            {isAr ? 'حسناً، تم ✔' : 'Done ✔'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleSpeakWord = () => {
     soundSynth.playTactileClick();

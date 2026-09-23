@@ -6,6 +6,7 @@ import { initializeDatabaseSeed } from './db/db';
 import { authService } from './services/authService';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Initialize zero-cloud IndexedDB seed data & master owner credentials
 initializeDatabaseSeed()
@@ -32,7 +33,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <LanguageProvider>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
       </LanguageProvider>
     </ThemeProvider>
   </StrictMode>

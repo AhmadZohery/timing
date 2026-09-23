@@ -145,11 +145,19 @@ export async function awardStationPoints(
   return reward;
 }
 
+export interface PrayerSunnahDetails {
+  sunnahPerformed?: boolean;
+  qabliyahRakats?: number;
+  badiyahRakats?: number;
+  witrRakats?: number;
+}
+
 // Dedicated High-Weight Prayer Points Award Function
 export async function awardPrayerPoints(
   prayer: PrayerName,
   status: 'on_time' | 'in_group' | 'late',
-  isFriday = false
+  isFriday = false,
+  sunnahDetails?: PrayerSunnahDetails
 ): Promise<RewardResult> {
   const user = await db.user_state.get('current_user');
   if (!user) return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
@@ -174,14 +182,21 @@ export async function awardPrayerPoints(
     basePoints = status === 'in_group' ? 30 : status === 'on_time' ? 20 : 10;
   }
 
+  // Bonus for Sunnah
+  if (sunnahDetails?.sunnahPerformed) {
+    const totalRakats = (sunnahDetails.qabliyahRakats || 0) + (sunnahDetails.badiyahRakats || 0) + (sunnahDetails.witrRakats || 0);
+    const sunnahBonus = totalRakats >= 4 ? 15 : 10;
+    basePoints += sunnahBonus;
+  }
+
   // Dopamine lottery roll + bonus
   const reward = rollDopamineLottery(basePoints);
   // Special bonus: Fajr on time grants guaranteed or extra high chance shield!
   if (prayer === 'fajr' && (status === 'on_time' || status === 'in_group')) {
     reward.wonShield = true;
-    reward.message = `👑 تقبل الله فجرك! هنيئاً لك أداء الفجر في وقته (+${basePoints} نقطة + درع حماية الشعلة)!`;
+    reward.message = `👑 تقبل الله فجرك! هنيئاً لك أداء الفجر في وقته${sunnahDetails?.sunnahPerformed ? ' وسنتها العظيمة' : ''} (+${basePoints} نقطة + درع حماية الشعلة)!`;
   } else {
-    reward.message = `🕌 تقبل الله طاعتكم! أداء ${prayerTitle} (+${basePoints} نقطة)`;
+    reward.message = `🕌 تقبل الله طاعتكم! أداء ${prayerTitle}${sunnahDetails?.sunnahPerformed ? ' مع السنن المباركة' : ''} (+${basePoints} نقطة)`;
   }
 
   const totalEarned = reward.basePoints + reward.bonusPoints;
@@ -209,6 +224,10 @@ export async function awardPrayerPoints(
       status,
       completedAt: new Date().toISOString(),
       pointsAwarded: totalEarned,
+      sunnahPerformed: sunnahDetails?.sunnahPerformed,
+      sunnahQabliyahRakats: sunnahDetails?.qabliyahRakats,
+      sunnahBadiyahRakats: sunnahDetails?.badiyahRakats,
+      witrRakats: sunnahDetails?.witrRakats,
     },
   };
 

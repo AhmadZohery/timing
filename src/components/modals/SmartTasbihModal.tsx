@@ -33,6 +33,7 @@ import {
   getCommunityPendingDhikrs,
   approveCommunityDhikr,
   rejectCommunityDhikr,
+  getYesterdayTasbihSummary,
 } from '../../utils/tasbihEngine';
 import { authService } from '../../services/authService';
 import type { UserState, CustomDhikrItem } from '../../types';
@@ -87,6 +88,10 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
   const session = authService.getSession();
   const isAdmin = session?.username?.toLowerCase() === 'ahmad' || session?.userId === 'account_owner_ahmad';
 
+  // In-progress session continuation prompt & Yesterday achievements banner
+  const [inProgressPrompt, setInProgressPrompt] = useState<{ count: number; stageIndex: number } | null>(null);
+  const [yesterdaySummary, setYesterdaySummary] = useState<string | null>(null);
+
   // Check Friday Salawat window
   const prayerLoc = userState?.settings?.prayerLocation;
   const fridayStatus = checkIsFridaySalawatWindow(new Date(), prayerLoc);
@@ -94,6 +99,10 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
   // Synchronize and restore active count when opened
   useEffect(() => {
     if (isOpen) {
+      getYesterdayTasbihSummary().then((res) => {
+        if (res.hasData) setYesterdaySummary(res.summaryTextAr);
+      });
+
       const merged = getAllTasbihPresets();
       setAllPresets(merged);
       const mode = defaultMode || (fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100');
@@ -102,14 +111,16 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
       setCustomTarget(null);
       setUseAlternativeFormula(false);
 
-      // Restore active saved session for this mode without resetting to zero
+      // Restore active saved session for this mode: prompt user to continue or restart!
       getActiveTasbihSession(mode).then((saved) => {
-        if (saved && !saved.completed) {
+        if (saved && !saved.completed && saved.count > 0) {
           setCount(saved.count);
           setStageIndex(saved.stageIndex);
+          setInProgressPrompt({ count: saved.count, stageIndex: saved.stageIndex });
         } else {
           setCount(0);
           setStageIndex(0);
+          setInProgressPrompt(null);
         }
       });
     }
@@ -198,12 +209,14 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     setCustomTarget(null);
     setUseAlternativeFormula(false);
     getActiveTasbihSession(mode).then((saved) => {
-      if (saved && !saved.completed) {
+      if (saved && !saved.completed && saved.count > 0) {
         setCount(saved.count);
         setStageIndex(saved.stageIndex);
+        setInProgressPrompt({ count: saved.count, stageIndex: saved.stageIndex });
       } else {
         setCount(0);
         setStageIndex(0);
+        setInProgressPrompt(null);
       }
     });
   };
@@ -468,6 +481,66 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
                 {isAr ? 'الورد الإبراهيمي 🌸' : 'Salawat'}
               </button>
             )}
+          </div>
+        )}
+
+        {/* Yesterday Achievements Banner */}
+        {yesterdaySummary && (
+          <div className="w-full p-2.5 rounded-2xl bg-indigo-950/60 border border-indigo-500/30 text-indigo-200 text-xs flex items-center justify-between gap-2 z-10 animate-fade-in shadow-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base shrink-0">🌟</span>
+              <span className="text-[11px] font-medium truncate">
+                {yesterdaySummary} • <span className="font-bold text-indigo-300">{isAr ? 'مسجل في إنجازاتك' : 'Saved in history'}</span>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setYesterdaySummary(null)}
+              className="text-indigo-400 hover:text-white text-xs cursor-pointer p-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* In-Progress Session Continuation vs Restart Prompt Banner */}
+        {inProgressPrompt && (
+          <div className="w-full p-2.5 rounded-2xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-between gap-2 z-10 animate-fade-in shadow-md">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-base shrink-0">⏸️</span>
+              <span className="text-[11px] font-bold text-amber-200 truncate">
+                {isAr
+                  ? `جلسة متوقفة عند (${inProgressPrompt.count}) تسبيحة:`
+                  : `Paused at (${inProgressPrompt.count}) taps:`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setInProgressPrompt(null);
+                }}
+                className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[10px] flex items-center gap-1 cursor-pointer active:scale-95 shadow-xs"
+              >
+                <span>{isAr ? `استمرار من ${inProgressPrompt.count} ⏩` : `Continue`}</span>
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setCount(0);
+                  setStageIndex(0);
+                  setInProgressPrompt(null);
+                  await resetTasbihSession(activeMode);
+                }}
+                className="px-2 py-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-[10px] cursor-pointer"
+              >
+                <span>{isAr ? 'إعادة من 0 🔄' : 'Reset'}</span>
+              </button>
+            </div>
           </div>
         )}
 

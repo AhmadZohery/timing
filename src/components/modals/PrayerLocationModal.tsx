@@ -141,14 +141,14 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const currentLoc = userState?.settings?.prayerLocation;
   const activeCityId = currentLoc?.city || detectDefaultCityFromTimezone().id;
   const activeMethod = currentLoc?.calculationMethod || 'egyptian';
   const currentLat = currentLoc?.latitude ?? 30.0444;
   const currentLng = currentLoc?.longitude ?? 31.2357;
   const qiblaAngle = useMemo(() => calculateQiblaDirection(currentLat, currentLng), [currentLat, currentLng]);
+
+  if (!isOpen) return null;
 
   const filteredCities = PRESET_CITIES.filter(
     (c) =>

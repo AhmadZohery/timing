@@ -42,6 +42,11 @@ import { gymFaithAudio, type GymFaithAudioState } from '../../services/gymFaithA
 import { GymFaithAudioPlayer } from '../spiritual/GymFaithAudioPlayer';
 import { scheduleService, type LearnedSportPattern } from '../../services/scheduleService';
 import { ScheduleAnomalyModal } from '../modals/ScheduleAnomalyModal';
+import { ErrorBoundary } from '../common/ErrorBoundary';
+import { MorningEveningAdhkarModal } from '../spiritual/MorningEveningAdhkarModal';
+import { SurahMulkModal } from '../spiritual/SurahMulkModal';
+import { FastingReminderModal } from '../spiritual/FastingReminderModal';
+import { awardSpiritualHabitPoints } from '../../utils/gamification';
 
 interface HomeDashboardViewProps {
   userState?: UserState;
@@ -133,6 +138,17 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   }, []);
 
   const resumePoint = faithAudioState.resumePoint || gymFaithAudio.getSavedResumePoint();
+
+  // Spiritual Modals & Smart Time-Based Nudges (Adhkar, Mulk, Fasting)
+  const [isAdhkarModalOpen, setIsAdhkarModalOpen] = useState(false);
+  const [adhkarMode, setAdhkarMode] = useState<'morning' | 'evening'>('morning');
+  const [isHomeSurahMulkOpen, setIsHomeSurahMulkOpen] = useState(false);
+  const [isFastingModalOpen, setIsFastingModalOpen] = useState(false);
+
+  const currentDayOfWeek = now.getDay();
+  const isMorningTime = currentHour >= 3 && currentHour < 15;
+  const isTomorrowMonOrThu = currentDayOfWeek === 0 || currentDayOfWeek === 3;
+  const isTodayMonOrThu = currentDayOfWeek === 1 || currentDayOfWeek === 4;
 
   // Habit Learning & Sports Flexibility Engine
   const [learnedPattern, setLearnedPattern] = useState<LearnedSportPattern | null>(null);
@@ -510,6 +526,165 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* ============================================================ */}
+      {/* 1.6. SMART TIME-BASED ADHKAR & SUNNAH FASTING SUITE          */}
+      {/* ============================================================ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* A. Smart Morning / Evening Adhkar Card */}
+        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-amber-500/10 via-slate-50 to-amber-500/5 dark:from-amber-950/30 dark:via-[#12131A] dark:to-amber-950/20 border border-amber-500/20 dark:border-amber-500/30 flex flex-col justify-between gap-2.5 shadow-xs">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className={`w-9 h-9 rounded-2xl flex items-center justify-center text-lg shrink-0 ${
+                isMorningTime ? 'bg-amber-500/20 text-amber-500' : 'bg-indigo-600/20 text-indigo-400'
+              }`}>
+                {isMorningTime ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-indigo-400" />}
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-900 dark:text-white">
+                    {isMorningTime ? 'أذكار الصباح المباركة ☀️' : 'أذكار المساء وحصن المسلم 🌙'}
+                  </span>
+                  {(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone) && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                      مكتملة ✔
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                  {isMorningTime
+                    ? (todayLog?.adhkarMorningDone ? 'تقبل الله منك! كُتبت في صحيفة حسناتك اليوم' : '«مَنْ قَالَهَا حِينَ يُصْبِحُ أُجِيرَ مِنَ الْجِنِّ حَتَّى يُمْسِيَ»')
+                    : (todayLog?.adhkarEveningDone ? 'حرسك الله! كُتبت لك الحماية من كل سوء' : '«مَنْ قَالَهَا حِينَ يُمْسِي كَانَ فِي حِفْظِ اللَّهِ حَتَّى يُصْبِحَ»')}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setAdhkarMode(isMorningTime ? 'morning' : 'evening');
+                setIsAdhkarModalOpen(true);
+              }}
+              className="text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:underline cursor-pointer shrink-0"
+            >
+              {isAr ? 'فتح النافذة 📖' : 'Open 📖'}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1 border-t border-amber-500/15">
+            <button
+              type="button"
+              onClick={async () => {
+                soundSynth.playStreakMilestoneChime();
+                haptic.vibrateWorkDone();
+                const habitKey = isMorningTime ? 'adhkar_morning' : 'adhkar_evening';
+                const habitLabel = isMorningTime ? 'أذكار الصباح المباركة' : 'أذكار المساء وحصن المسلم';
+                const res = await awardSpiritualHabitPoints(habitKey, habitLabel);
+                onRewardToast(res.message || '✨ تم تسجيل الأذكار بنجاح (+20 نقطة)!');
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                (isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
+                  ? 'bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                  : 'bg-amber-600 hover:bg-amber-500 text-white shadow-xs'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>
+                {(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
+                  ? 'تمت القراءة بنجاح اليوم ✔'
+                  : 'أتممت القراءة 🤍 (+20 XP)'}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setAdhkarMode(isMorningTime ? 'morning' : 'evening');
+                setIsAdhkarModalOpen(true);
+              }}
+              className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer shrink-0"
+            >
+              <span>وضع الحافظ ⚡</span>
+            </button>
+          </div>
+        </div>
+
+        {/* B. Smart Fasting Reminder & Schedule Card */}
+        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-slate-50 to-emerald-500/5 dark:from-emerald-950/30 dark:via-[#12131A] dark:to-emerald-950/20 border border-emerald-500/20 dark:border-emerald-500/30 flex flex-col justify-between gap-2.5 shadow-xs">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-emerald-600/20 text-emerald-500 flex items-center justify-center text-lg shrink-0">
+                🌙
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-900 dark:text-white">
+                    {isTodayMonOrThu
+                      ? 'صيام التطوع اليوم (الإثنين / الخميس) 🤍'
+                      : isTomorrowMonOrThu
+                      ? 'تذكير: غداً صيام مستحب (الإثنين / الخميس) 🌙'
+                      : 'سُنن الصيام ومواعيد الأيام البيض 🌙'}
+                  </span>
+                  {todayLog?.fastingDone && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
+                      صائم ✔
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                  «تُعْرَضُ الأَعْمَالُ يَوْمَ الاِثْنَيْنِ وَالْخَمِيسِ فَأُحِبُّ أَنْ يُعْرَضَ عَمَلِي وَأَنَا صَائِمٌ»
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setIsFastingModalOpen(true);
+              }}
+              className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 hover:underline cursor-pointer shrink-0"
+            >
+              {isAr ? 'الأحاديث والمواعيد 📖' : 'Schedule 📖'}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1 border-t border-emerald-500/15">
+            <button
+              type="button"
+              onClick={async () => {
+                soundSynth.playStreakMilestoneChime();
+                haptic.vibrateSprintCelebration();
+                const res = await awardSpiritualHabitPoints('fasting' as any, 'صيام التطوع المبارك');
+                onRewardToast(res.message || '🤍 تقبل الله طاعتك! تم تسجيل صيام اليوم بنجاح (+25 نقطة)');
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                todayLog?.fastingDone
+                  ? 'bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>
+                {todayLog?.fastingDone ? 'تم تسجيل الصيام بنجاح اليوم ✔' : 'أنا صائم اليوم 🤍 (+25 XP)'}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setIsFastingModalOpen(true);
+              }}
+              className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer shrink-0"
+            >
+              <span>جدول الصيام 📅</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* ============================================================ */}
       {/* 2. DAILY STATIONS ROADMAP: خريطة محطات اليوم المبارك           */}
@@ -1014,29 +1189,33 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       </div>
 
       {/* Language Quiz Modal from Home Dashboard */}
-      <LanguageQuizModal
-        isOpen={isHomeQuizOpen}
-        onClose={() => {
-          setIsHomeQuizOpen(false);
-          setLanguageStats(spacedRepetition.getStats());
-        }}
-        words={todayWords}
-        speechCode={currentLangObj.speechCode}
-        onCompleted={handleHomeQuizCompleted}
-      />
+      <ErrorBoundary fallbackTitle="تنبيه في اختبار الكلمات اليومي">
+        <LanguageQuizModal
+          isOpen={isHomeQuizOpen}
+          onClose={() => {
+            setIsHomeQuizOpen(false);
+            setLanguageStats(spacedRepetition.getStats());
+          }}
+          words={todayWords}
+          speechCode={currentLangObj.speechCode}
+          onCompleted={handleHomeQuizCompleted}
+        />
+      </ErrorBoundary>
 
       {/* Language Moves & Full Flashcards Modal */}
-      <LanguageMovesModal
-        isOpen={isLanguageMovesOpen}
-        onClose={() => {
-          setIsLanguageMovesOpen(false);
-          setLanguageStats(spacedRepetition.getStats());
-        }}
-        words={todayWords}
-        speechCode={currentLangObj.speechCode}
-        isAr={isAr}
-        languageName={currentLangObj.nameAr}
-      />
+      <ErrorBoundary fallbackTitle="تنبيه في بطاقات الكلمات">
+        <LanguageMovesModal
+          isOpen={isLanguageMovesOpen}
+          onClose={() => {
+            setIsLanguageMovesOpen(false);
+            setLanguageStats(spacedRepetition.getStats());
+          }}
+          words={todayWords}
+          speechCode={currentLangObj.speechCode}
+          isAr={isAr}
+          languageName={currentLangObj.nameAr}
+        />
+      </ErrorBoundary>
 
       {/* Schedule Anomaly Modal */}
       <ScheduleAnomalyModal
@@ -1149,6 +1328,31 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Morning & Evening Adhkar Modal */}
+      <MorningEveningAdhkarModal
+        isOpen={isAdhkarModalOpen}
+        onClose={() => setIsAdhkarModalOpen(false)}
+        initialMode={adhkarMode}
+        isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Surah Al-Mulk Interactive Reader Modal */}
+      <SurahMulkModal
+        isOpen={isHomeSurahMulkOpen}
+        onClose={() => setIsHomeSurahMulkOpen(false)}
+        isCompleted={todayLog?.surahMulkDone}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Sunnah Fasting Reminder Modal */}
+      <FastingReminderModal
+        isOpen={isFastingModalOpen}
+        onClose={() => setIsFastingModalOpen(false)}
+        isFastingToday={todayLog?.fastingDone}
+        onRewardToast={onRewardToast}
+      />
     </div>
   );
 };

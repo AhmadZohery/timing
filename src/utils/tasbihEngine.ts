@@ -14,6 +14,7 @@ export type TasbihPresetId =
   | 'tahlil_fajr_maghrib'  // دبر صلاتي الفجر والمغرب (10x)
   | 'istighfar'            // الاستغفار والتوبة (100x)
   | 'hawqala'              // الحوقلة (100x كنز الجنة)
+  | 'tasbih_sleep'         // تسبيح النوم وسكينة الفراش (33+33+34)
   | 'free';                // تسبيح حر مفتوح
 
 export interface DhikrStage {
@@ -281,7 +282,95 @@ export const TASBIH_PRESETS: Record<TasbihPresetId, TasbihPreset> = {
       },
     ],
   },
+
+  // 10. تسبيح النوم وسكينة الفراش (وصية فاطمة وعلي)
+  tasbih_sleep: {
+    id: 'tasbih_sleep',
+    category: 'daily_core',
+    titleAr: 'تسبيح النوم وسكينة الفراش (33×2 + 34)',
+    titleEn: 'Bedtime Tasbih of Fatima & Ali (100x)',
+    badgeAr: '🌙 وصية النبي ﷺ لفاطمة وعلي (خير من خادم)',
+    icon: '✨',
+    descriptionAr: 'سبحان الله (33) والحمد لله (33) والله أكبر (34) عند أخذ المضجع.. يمنح الجسد قوة وطاقة وبركة تغني عن خادم، وسكينة تامة للنوم.',
+    hadithVirtueAr: '«ألا أعلمكما خيراً مما سألتما؟ إذا أخذتما مضاجعكما، تكبرا أربعاً وثلاثين، وتسبحا ثلاثاً وثلاثين، وتحمدا ثلاثاً وثلاثين، فهو خير لكما من خادم» (متفق عليه)',
+    pointsReward: 25,
+    stages: [
+      {
+        id: 'sleep_subhanallah',
+        text: 'سُبْحَانَ اللَّهِ',
+        target: 33,
+        virtueAr: 'المرحلة 1: تنزيه الله وبث السكينة في النفس (33 مرة)',
+        referenceAr: 'صحيح البخاري ومسلم',
+      },
+      {
+        id: 'sleep_alhamdulillah',
+        text: 'الْحَمْدُ لِلَّهِ',
+        target: 33,
+        virtueAr: 'المرحلة 2: شكر الله على نعم اليوم وعافية الجسد (33 مرة)',
+        referenceAr: 'صحيح البخاري ومسلم',
+      },
+      {
+        id: 'sleep_allahuakbar',
+        text: 'اللَّهُ أَكْبَرُ',
+        target: 34,
+        virtueAr: 'المرحلة 3: كبرياء الله وعظمته، تمام المئة وخير من خادم (34 مرة)',
+        referenceAr: 'صحيح البخاري ومسلم',
+      },
+    ],
+  },
 };
+
+/**
+ * Summarizes yesterday's completed tasbihs and total taps for the achievements banner
+ */
+export async function getYesterdayTasbihSummary(): Promise<{
+  hasData: boolean;
+  totalCount: number;
+  completedListAr: string[];
+  summaryTextAr: string;
+}> {
+  try {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+
+    const log = await db.daily_logs.get(yStr);
+    if (!log || !log.tasbihDailyProgress) {
+      return { hasData: false, totalCount: 0, completedListAr: [], summaryTextAr: '' };
+    }
+
+    const allPresets = getAllTasbihPresets();
+    const completedListAr: string[] = [];
+    let totalCount = 0;
+
+    for (const [presetId, data] of Object.entries(log.tasbihDailyProgress)) {
+      totalCount += data.count || 0;
+      if (data.completed) {
+        const p = allPresets[presetId] || TASBIH_PRESETS[presetId as TasbihPresetId];
+        if (p) completedListAr.push(p.titleAr);
+      }
+    }
+
+    if (totalCount === 0 && completedListAr.length === 0) {
+      return { hasData: false, totalCount: 0, completedListAr: [], summaryTextAr: '' };
+    }
+
+    const summaryTextAr = completedListAr.length > 0
+      ? `أنجزت أمس: ${completedListAr.slice(0, 3).join('، ')} (بمجموع ${totalCount} تسبيحة)`
+      : `قمت أمس بـ ${totalCount} تسبيحة مباركة`;
+
+    return {
+      hasData: true,
+      totalCount,
+      completedListAr,
+      summaryTextAr,
+    };
+  } catch (err) {
+    console.warn('Error fetching yesterday tasbih summary:', err);
+    return { hasData: false, totalCount: 0, completedListAr: [], summaryTextAr: '' };
+  }
+}
 
 /**
  * Friday Salawat Temporal Status Checker:

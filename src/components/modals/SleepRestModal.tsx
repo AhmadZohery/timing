@@ -14,6 +14,8 @@ import {
   Heart,
   BookOpen,
   Shield,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { db } from '../../db/db';
 import type { UserState, DailyLog, SleepScheduleConfig } from '../../types';
@@ -21,6 +23,58 @@ import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { calculatePrayerTimes } from '../../utils/prayerCalculator';
 import { getBiologicalDate, awardSpiritualHabitPoints, upsertDailyLog } from '../../utils/gamification';
+import {
+  recordTasbihTap,
+  getActiveTasbihSession,
+  resetTasbihSession,
+  updateDailyTasbihProgress,
+} from '../../utils/tasbihEngine';
+import { SurahMulkModal } from '../spiritual/SurahMulkModal';
+
+export const AUTHENTIC_SLEEP_ADHKAR = [
+  {
+    id: 'ayat_kursi',
+    title: 'آية الكرسي (سورة البقرة: 255)',
+    virtue: 'من قرأها إذا أوى إلى فراشه لم يزل عليه من الله حافظ ولا يقربه شيطان حتى يصبح (صحيح البخاري)',
+    target: 1,
+    text: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+  },
+  {
+    id: 'muawwidhat',
+    title: 'المعوذات وسورة الإخلاص (3 مرات مع النفث)',
+    virtue: 'كان النبي ﷺ يجمع كفيه ثم ينفث فيهما فيقرأ الإخلاص والفلق والناس، ثم يمسح بهما ما استطاع من جسده (متفق عليه)',
+    target: 3,
+    text: 'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ قُلْ أَعُوذُ بِرَبِّ النَّاسِ',
+  },
+  {
+    id: 'bismika_rabbi',
+    title: 'دعاء وضع الجنب الرئيسي',
+    virtue: '«فإن أمسكت نفسي فارحمها وإن أرسلتها فاحفظها» (متفق عليه عن أبي هريرة)',
+    target: 1,
+    text: 'بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ',
+  },
+  {
+    id: 'allahumma_aslamtu',
+    title: 'دعاء التوكل والتسليم (سيد أدعية النوم)',
+    virtue: 'قال ﷺ: واجعلهن من آخر كلامك، فإن مت من ليلتك مت على الفطرة (متفق عليه)',
+    target: 1,
+    text: 'اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ، آمَنْتُ بِكِتَابِكَ الَّذِي أَنْزَلْتَ، وَبِنَبِيِّكَ الَّذِي أَرْسَلْتَ',
+  },
+  {
+    id: 'allahumma_qini',
+    title: 'دعاء الوقاية من عذاب القبر (3 مرات)',
+    virtue: 'كان ﷺ يضع يده اليمنى تحت خده الشريف ويقوله ثلاثاً (أبو داود والترمذي)',
+    target: 3,
+    text: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ',
+  },
+  {
+    id: 'alhamdu_lillah_atama',
+    title: 'حمد الله على الكفاية والمأوى',
+    virtue: '«فكم ممن لا كافي له ولا مؤوي» (صحيح مسلم عن أنس)',
+    target: 1,
+    text: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا، وَكَفَانَا وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْوِيَ',
+  },
+];
 
 interface SleepRestModalProps {
   isOpen: boolean;
@@ -28,6 +82,7 @@ interface SleepRestModalProps {
   userState?: UserState;
   todayLog?: DailyLog;
   onRewardToast?: (msg: string) => void;
+  onOpenSmartTasbih?: (mode?: any) => void;
 }
 
 export const SleepRestModal: React.FC<SleepRestModalProps> = ({
@@ -36,8 +91,31 @@ export const SleepRestModal: React.FC<SleepRestModalProps> = ({
   userState,
   todayLog,
   onRewardToast,
+  onOpenSmartTasbih,
 }) => {
   const [activeTab, setActiveTab] = useState<'circadian' | 'nap' | 'winddown'>('circadian');
+
+  // Bedtime Tasbih State (Fatima & Ali: 33 SubhanAllah, 33 Alhamdulillah, 34 Allahu Akbar)
+  const [sleepTasbihStage, setSleepTasbihStage] = useState<0 | 1 | 2>(0);
+  const [sleepTasbihCount, setSleepTasbihCount] = useState<number>(0);
+  const [sleepTasbihPrompt, setSleepTasbihPrompt] = useState<number | null>(null);
+  const [showAdhkarReader, setShowAdhkarReader] = useState(false);
+  const [isSurahMulkOpen, setIsSurahMulkOpen] = useState(false);
+  const [adhkarCounters, setAdhkarCounters] = useState<Record<string, number>>({});
+
+  const handleSleepDhikrTap = (dhikrId: string, maxCount: number) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setAdhkarCounters((prev) => {
+      const current = prev[dhikrId] || 0;
+      const next = current >= maxCount ? 0 : current + 1;
+      if (next === maxCount) {
+        soundSynth.playStreakMilestoneChime();
+        haptic.vibrateWorkDone();
+      }
+      return { ...prev, [dhikrId]: next };
+    });
+  };
 
   // Sleep Config State
   const defaultSchedule: SleepScheduleConfig = {
@@ -114,6 +192,73 @@ export const SleepRestModal: React.FC<SleepRestModalProps> = ({
     }
     return () => soundSynth.stopAmbient();
   }, [isNapRunning, napAmbient]);
+
+  // Restore sleep tasbih session if user stopped midway (e.g. at 5 taps)
+  useEffect(() => {
+    if (isOpen) {
+      getActiveTasbihSession('tasbih_sleep').then((saved) => {
+        if (saved && !saved.completed && saved.count > 0) {
+          setSleepTasbihCount(saved.count);
+          setSleepTasbihStage((saved.stageIndex % 3) as 0 | 1 | 2);
+          setSleepTasbihPrompt(saved.count);
+        } else {
+          setSleepTasbihCount(0);
+          setSleepTasbihStage(0);
+          setSleepTasbihPrompt(null);
+        }
+      });
+    }
+  }, [isOpen]);
+
+  const sleepStages = [
+    { text: 'سُبْحَانَ اللَّهِ', target: 33, label: 'سبحان الله (33 مرة)' },
+    { text: 'الْحَمْدُ لِلَّهِ', target: 33, label: 'الحمد لله (33 مرة)' },
+    { text: 'اللَّهُ أَكْبَرُ', target: 34, label: 'الله أكبر (34 مرة)' },
+  ];
+
+  const handleSleepTasbihTap = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const currentTarget = sleepStages[sleepTasbihStage].target;
+    const nextCount = sleepTasbihCount + 1;
+
+    if (nextCount >= currentTarget) {
+      if (sleepTasbihStage < 2) {
+        soundSynth.playStreakMilestoneChime();
+        haptic.vibrateWorkDone();
+        const nextStage = (sleepTasbihStage + 1) as 0 | 1 | 2;
+        setSleepTasbihStage(nextStage);
+        setSleepTasbihCount(0);
+        setSleepTasbihPrompt(null);
+        recordTasbihTap('tasbih_sleep', nextStage, 0, sleepStages[nextStage].target);
+      } else {
+        // Complete all 100!
+        soundSynth.playCompletionChime();
+        haptic.vibrateSprintCelebration();
+        setSleepTasbihCount(0);
+        setSleepTasbihStage(0);
+        setSleepTasbihPrompt(null);
+        await updateDailyTasbihProgress('tasbih_sleep', 34, 34);
+        recordTasbihTap('tasbih_sleep', 0, 0, 33);
+        awardSpiritualHabitPoints('adhkar_sleep', 'تسبيح النوم النبوي (+20 XP)').then((res) => {
+          if (onRewardToast && res.message) onRewardToast(res.message);
+        });
+      }
+    } else {
+      setSleepTasbihCount(nextCount);
+      setSleepTasbihPrompt(null);
+      recordTasbihTap('tasbih_sleep', sleepTasbihStage, nextCount, currentTarget);
+    }
+  };
+
+  const handleResetSleepTasbih = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setSleepTasbihCount(0);
+    setSleepTasbihStage(0);
+    setSleepTasbihPrompt(null);
+    await resetTasbihSession('tasbih_sleep');
+  };
 
   if (!isOpen) return null;
 
@@ -589,86 +734,242 @@ export const SleepRestModal: React.FC<SleepRestModalProps> = ({
                 </p>
               </div>
 
-              {/* Checklist Items */}
-              <div className="space-y-2">
-                {/* Surah Al-Mulk */}
-                <button
-                  type="button"
-                  onClick={handleToggleMulk}
-                  className={`w-full p-3.5 rounded-2xl border text-right transition-all flex items-center justify-between cursor-pointer ${
-                    todayLog?.surahMulkDone
-                      ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-200'
-                      : 'bg-slate-800/80 border-slate-700/70 text-slate-200 hover:border-slate-600'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`p-2 rounded-xl ${
-                        todayLog?.surahMulkDone
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-700 text-slate-300'
-                      }`}
+              {/* Checklist & Interactive Faith Suite */}
+              <div className="space-y-3">
+                {/* 1. Surah Al-Mulk Card */}
+                <div className={`p-4 rounded-2xl border transition-all text-right space-y-3 ${
+                  todayLog?.surahMulkDone
+                    ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-200'
+                    : 'bg-slate-800/80 border-slate-700/70 text-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-xl ${
+                        todayLog?.surahMulkDone ? 'bg-emerald-600 text-white' : 'bg-indigo-600/30 text-indigo-300'
+                      }`}>
+                        <BookOpen className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-black text-xs sm:text-sm text-white">سورة الملك (المنجية من عذاب القبر)</div>
+                        <div className="text-[11px] text-slate-400">
+                          {todayLog?.surahMulkDone ? 'تمت القراءة بنجاح الليلة (+15 نقطة) ✔' : '30 آية تشفع لصاحبها وتنجيه من عذاب القبر'}
+                        </div>
+                      </div>
+                    </div>
+                    {todayLog?.surahMulkDone ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-slate-500 shrink-0" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsSurahMulkOpen(true)}
+                      className="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-indigo-600/25 transition-all cursor-pointer active:scale-95"
                     >
                       <BookOpen className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs">قراءة سورة الملك (المنجية)</div>
-                      <div className="text-[10px] text-slate-400">
-                        {todayLog?.surahMulkDone ? 'تمت القراءة بنجاح (+15 نقطة)' : '30 آية تشفع لصاحبها'}
-                      </div>
-                    </div>
-                  </div>
-                  {todayLog?.surahMulkDone ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-slate-500" />
-                  )}
-                </button>
-
-                {/* Sleep Adhkar */}
-                <button
-                  type="button"
-                  onClick={handleToggleSleepAdhkar}
-                  className={`w-full p-3.5 rounded-2xl border text-right transition-all flex items-center justify-between cursor-pointer ${
-                    todayLog?.adhkarSleepDone
-                      ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-200'
-                      : 'bg-slate-800/80 border-slate-700/70 text-slate-200 hover:border-slate-600'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`p-2 rounded-xl ${
-                        todayLog?.adhkarSleepDone
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-slate-700 text-slate-300'
-                      }`}
+                      <span>افتح واقرأ سورة الملك كاملة 📖 (30 آية)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleToggleMulk}
+                      className="py-2 px-3 rounded-xl bg-slate-700/80 hover:bg-slate-600 text-slate-200 font-bold text-xs transition-colors cursor-pointer shrink-0"
                     >
-                      <Heart className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-xs">أذكار النوم الصحيحة</div>
-                      <div className="text-[10px] text-slate-400">
-                        {todayLog?.adhkarSleepDone ? 'تم التسجيل (+10 نقاط)' : 'آية الكرسي، المعوذات، وباسمك ربي'}
+                      {todayLog?.surahMulkDone ? 'إلغاء' : 'تسجيل سريع'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Fatima Bedtime Tasbih Card (33 / 33 / 34) */}
+                <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/40 text-right space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-purple-600/30 text-purple-300">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-black text-white">تسبيح النوم النبوي (وصية النبي لفاطمة وعلي)</h4>
+                        <p className="text-[10px] text-purple-300/80">«خير لكما من خادم» • 33 سبحان الله، 33 الحمد لله، 34 الله أكبر</p>
                       </div>
                     </div>
-                  </div>
-                  {todayLog?.adhkarSleepDone ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-slate-500" />
-                  )}
-                </button>
 
-                {/* Sleep Hygiene Tips */}
+                    <div className="flex items-center gap-1.5">
+                      {onOpenSmartTasbih && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenSmartTasbih('tasbih_sleep')}
+                          className="px-2 py-1 rounded-lg bg-purple-900/60 hover:bg-purple-800 text-purple-200 hover:text-white transition-colors cursor-pointer text-[10px] font-bold"
+                          title="المسبحة الذكية الموسعة"
+                        >
+                          المسبحة الموسعة
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleResetSleepTasbih}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        title="إعادة من البداية"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Continuation Prompt Banner */}
+                  {sleepTasbihPrompt !== null && sleepTasbihPrompt > 0 && (
+                    <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-between gap-2 text-xs">
+                      <span className="text-amber-300 font-medium text-[11px]">
+                        توقفت سابقاً عند العدة ({sleepTasbihPrompt}):
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSleepTasbihPrompt(null)}
+                          className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] cursor-pointer"
+                        >
+                          استمرار ⏩
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleResetSleepTasbih}
+                          className="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 text-[10px] cursor-pointer"
+                        >
+                          من البداية 🔄
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3 Stage Progress Chips */}
+                  <div className="grid grid-cols-3 gap-1.5 text-center text-[11px]">
+                    {sleepStages.map((stg, idx) => {
+                      const isActive = sleepTasbihStage === idx;
+                      const isPast = sleepTasbihStage > idx;
+                      return (
+                        <div
+                          key={stg.text}
+                          className={`p-1.5 rounded-xl border transition-all ${
+                            isActive
+                              ? 'bg-purple-600/30 border-purple-500 text-white font-bold'
+                              : isPast
+                              ? 'bg-emerald-950/40 border-emerald-600/40 text-emerald-300'
+                              : 'bg-slate-900/40 border-slate-800 text-slate-500'
+                          }`}
+                        >
+                          <div>{stg.text}</div>
+                          <div className="text-[9px] font-mono opacity-80">
+                            {isActive ? `${sleepTasbihCount}/${stg.target}` : isPast ? '✔ أُنجز' : `0/${stg.target}`}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Big Tap Button */}
+                  <button
+                    type="button"
+                    onClick={handleSleepTasbihTap}
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-base shadow-lg shadow-purple-600/30 flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer select-none"
+                  >
+                    <span>{sleepStages[sleepTasbihStage].text}</span>
+                    <span className="text-xs font-mono font-normal opacity-90">
+                      اضغط للتسبيح ({sleepTasbihCount} / {sleepStages[sleepTasbihStage].target}) 🤍
+                    </span>
+                  </button>
+                </div>
+
+                {/* 3. Authentic Sleep Adhkar Expandable Reader */}
+                <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 overflow-hidden text-right space-y-2">
+                  <div
+                    onClick={() => setShowAdhkarReader(!showAdhkarReader)}
+                    className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-slate-800/60 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-emerald-600/20 text-emerald-400">
+                        <Heart className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-xs sm:text-sm text-white flex items-center gap-2">
+                          <span>أذكار النوم الصحيحة كاملة من السنة</span>
+                          <span className="text-[10px] font-normal px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">
+                            6 أذكار محققة
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          {todayLog?.adhkarSleepDone ? 'تم التسجيل بنجاح (+10 نقاط) ✔' : 'آية الكرسي، المعوذات، وباسمك ربي'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleSleepAdhkar();
+                        }}
+                        className="py-1 px-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-[10px] font-bold transition-colors cursor-pointer"
+                      >
+                        {todayLog?.adhkarSleepDone ? '✔ مسجلة' : 'تسجيل'}
+                      </button>
+                      {showAdhkarReader ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                    </div>
+                  </div>
+
+                  {showAdhkarReader && (
+                    <div className="px-3.5 pb-3.5 space-y-2.5 animate-fade-in border-t border-slate-700/40 pt-3">
+                      {AUTHENTIC_SLEEP_ADHKAR.map((item) => {
+                        const count = adhkarCounters[item.id] || 0;
+                        const isDhikrDone = count >= item.target;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className={`p-3 rounded-xl border transition-all space-y-1.5 ${
+                              isDhikrDone
+                                ? 'bg-emerald-950/30 border-emerald-600/40'
+                                : 'bg-slate-900/60 border-slate-700/50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-xs text-amber-300">{item.title}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleSleepDhikrTap(item.id, item.target)}
+                                className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                                  isDhikrDone
+                                    ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                                    : 'bg-slate-800 hover:bg-indigo-600 text-slate-200'
+                                }`}
+                              >
+                                {count} / {item.target} {isDhikrDone ? '✔' : 'اضغط'}
+                              </button>
+                            </div>
+                            <p className="text-xs leading-relaxed font-serif text-slate-100 select-text">
+                              {item.text}
+                            </p>
+                            <div className="text-[10px] text-slate-400 italic">
+                              {item.virtue}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Sleep Hygiene Tips */}
                 <div className="p-3 bg-slate-800/40 rounded-2xl border border-slate-700/50 space-y-1.5 text-[11px] text-slate-400">
                   <div className="font-bold text-slate-300 flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>خطوات ذهبية لنوم عميق:</span>
+                    <span>خطوات ذهبية لنوم عميق وفق السنن والطب البيولوجي:</span>
                   </div>
                   <div className="space-y-1 text-[10px]">
-                    <div>• شحن الهاتف خارج متناول اليد في غرفة النوم.</div>
-                    <div>• غرفة مظلمة وباردة لتحفيز الميلاتونين الطبيعي.</div>
-                    <div>• شرب نصف كوب ماء دافئ وتجنب الوجبات الثقيلة قبل النوم بساعتين.</div>
+                    <div>• الوضوء قبل النوم والنوم على الشق الأيمن اقتداءً بسنة الحبيب ﷺ.</div>
+                    <div>• شحن الهاتف خارج متناول اليد في غرفة النوم لتجنب الأرق والشاشات الزرقاء.</div>
+                    <div>• غرفة مظلمة وباردة لتحفيز إفراز الميلاتونين الطبيعي وسرعة الاستغراق في النوم.</div>
                   </div>
                 </div>
               </div>
@@ -687,6 +988,14 @@ export const SleepRestModal: React.FC<SleepRestModalProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Surah Al-Mulk Interactive Reader Modal */}
+      <SurahMulkModal
+        isOpen={isSurahMulkOpen}
+        onClose={() => setIsSurahMulkOpen(false)}
+        isCompleted={todayLog?.surahMulkDone}
+        onRewardToast={onRewardToast}
+      />
     </div>
   );
 };

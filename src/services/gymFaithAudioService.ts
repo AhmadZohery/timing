@@ -480,6 +480,23 @@ class GymFaithAudioService {
       this.state.currentEpisodeId !== episode.id ||
       !this.audio.src;
 
+    if (isYouTubeUrl(episode.audioUrl)) {
+      this.pause(0);
+      this.updateState({
+        mode: 'series',
+        currentSeriesId: series.id,
+        currentEpisodeId: episode.id,
+        currentTitleAr: `${series.titleAr} • ${episode.titleAr}`,
+        currentSheikhAr: series.sheikhAr,
+        isPlaying: true,
+        isLoading: false,
+        hasError: false,
+        errorMessage: null,
+      });
+      this.saveResumePoint();
+      return;
+    }
+
     if (isDifferent) {
       const playableUrl = await offlineAudioService.getPlayableUrl(episode.id, episode.audioUrl);
       // Cancel stale requests if a newer track was requested while loading
@@ -731,6 +748,23 @@ class GymFaithAudioService {
   }
 
   public async playCustomUrl(url: string, titleAr: string, sheikhAr: string) {
+    if (isYouTubeUrl(url)) {
+      this.pause(0);
+      this.updateState({
+        mode: 'channel',
+        currentChannelId: 'custom_' + Date.now(),
+        currentSeriesId: null,
+        currentEpisodeId: null,
+        currentTitleAr: titleAr,
+        currentSheikhAr: sheikhAr,
+        isPlaying: true,
+        isLoading: false,
+        hasError: false,
+        errorMessage: null,
+      });
+      return;
+    }
+
     this.initAudio();
     if (!this.audio) return;
 
@@ -792,6 +826,35 @@ export const getSoundCloudEmbedUrl = (url: string): string => {
   return `https://w.soundcloud.com/player/?url=${encodeURIComponent(
     url
   )}&color=%23d97706&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
+};
+
+export const isYouTubeUrl = (url?: string): boolean => {
+  if (!url) return false;
+  return /(?:youtube\.com\/(?:watch\?v=|embed\/|playlist\?list=)|youtu\.be\/)/i.test(url);
+};
+
+export const extractYouTubeId = (url: string): { videoId?: string; playlistId?: string } => {
+  try {
+    if (url.includes('playlist?list=')) {
+      const match = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+      return { playlistId: match ? match[1] : undefined };
+    }
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
+    return { videoId: match ? match[1] : undefined };
+  } catch {
+    return {};
+  }
+};
+
+export const getYouTubeEmbedUrl = (url: string, autoPlay = true): string => {
+  const { videoId, playlistId } = extractYouTubeId(url);
+  if (playlistId) {
+    return `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=${autoPlay ? 1 : 0}&playsinline=1&modestbranding=1&rel=0`;
+  }
+  if (videoId) {
+    return `https://www.youtube.com/embed/${videoId}?autoplay=${autoPlay ? 1 : 0}&playsinline=1&modestbranding=1&rel=0`;
+  }
+  return url;
 };
 
 export const gymFaithAudio = new GymFaithAudioService();
