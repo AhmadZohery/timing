@@ -18,6 +18,9 @@ import {
   type TasbihCategory,
   checkIsFridaySalawatWindow,
   updateDailyTasbihProgress,
+  recordTasbihTap,
+  getActiveTasbihSession,
+  resetTasbihSession,
 } from '../../utils/tasbihEngine';
 import type { UserState } from '../../types';
 
@@ -58,16 +61,25 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
   const prayerLoc = userState?.settings?.prayerLocation;
   const fridayStatus = checkIsFridaySalawatWindow(new Date(), prayerLoc);
 
-  // Synchronize default mode when opened
+  // Synchronize and restore active count when opened
   useEffect(() => {
     if (isOpen) {
       const mode = defaultMode || (fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100');
       setActiveMode(mode);
       setActiveCategory(TASBIH_PRESETS[mode]?.category || 'daily_core');
-      setStageIndex(0);
-      setCount(0);
       setCustomTarget(null);
       setUseAlternativeFormula(false);
+
+      // Restore active saved session for this mode without resetting to zero
+      getActiveTasbihSession(mode).then((saved) => {
+        if (saved && !saved.completed) {
+          setCount(saved.count);
+          setStageIndex(saved.stageIndex);
+        } else {
+          setCount(0);
+          setStageIndex(0);
+        }
+      });
     }
   }, [isOpen, defaultMode]);
 
@@ -103,8 +115,10 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
         // Move to next stage in multi-stage (e.g. Khitam Salah: 33 SubhanAllah -> 33 Alhamdulillah)
         soundSynth.playStreakMilestoneChime();
         haptic.vibrateWorkDone();
-        setStageIndex((prev) => prev + 1);
+        const nextStage = stageIndex + 1;
+        setStageIndex(nextStage);
         setCount(0);
+        recordTasbihTap(activeMode, nextStage, 0, currentPreset.stages[nextStage]?.target || 33);
       } else {
         // Completed entire preset!
         soundSynth.playCompletionChime();
@@ -115,6 +129,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
 
         // Save progress to Dexie DB and award XP
         const res = await updateDailyTasbihProgress(activeMode, nextCount, target);
+        recordTasbihTap(activeMode, 0, 0, target);
 
         if (onRewardToast) {
           onRewardToast(
@@ -131,24 +146,34 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
       }
     } else {
       setCount(nextCount);
+      // Persist every intermediate tap immediately
+      recordTasbihTap(activeMode, stageIndex, nextCount, target);
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (soundEnabled) soundSynth.playTactileClick();
     if (hapticEnabled) haptic.vibrateLight();
     setCount(0);
     setStageIndex(0);
+    await resetTasbihSession(activeMode);
   };
 
   const handleSwitchMode = (mode: TasbihPresetId) => {
     if (soundEnabled) soundSynth.playTactileClick();
     setActiveMode(mode);
     setActiveCategory(TASBIH_PRESETS[mode].category);
-    setStageIndex(0);
-    setCount(0);
     setCustomTarget(null);
     setUseAlternativeFormula(false);
+    getActiveTasbihSession(mode).then((saved) => {
+      if (saved && !saved.completed) {
+        setCount(saved.count);
+        setStageIndex(saved.stageIndex);
+      } else {
+        setCount(0);
+        setStageIndex(0);
+      }
+    });
   };
 
   // Keyboard Space / Enter support

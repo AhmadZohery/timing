@@ -407,3 +407,99 @@ export async function updateDailyTasbihProgress(
       : undefined,
   };
 }
+
+/**
+ * Instantly persists every single tap into Dexie tasbih_counters table
+ */
+export async function recordTasbihTap(
+  presetId: TasbihPresetId,
+  stageIndex: number,
+  currentCount: number,
+  target: number
+): Promise<void> {
+  try {
+    const todayDateStr = getBiologicalDate(true);
+    const id = `${todayDateStr}_${presetId}`;
+    const completed = target > 0 ? currentCount >= target : currentCount >= 33;
+
+    await db.tasbih_counters.put({
+      id,
+      presetId,
+      date: todayDateStr,
+      currentCount,
+      target,
+      stageIndex,
+      completed,
+      lastUpdated: Date.now(),
+    });
+
+    // Also mirror into localStorage for zero-latency instant hydration
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(`midmar_active_tasbih_${presetId}`, JSON.stringify({
+        date: todayDateStr,
+        count: currentCount,
+        stageIndex,
+        completed,
+      }));
+    }
+  } catch (err) {
+    console.error('Error persisting tasbih tap:', err);
+  }
+}
+
+/**
+ * Recovers today's active count and stage for a given preset
+ */
+export async function getActiveTasbihSession(
+  presetId: TasbihPresetId
+): Promise<{ count: number; stageIndex: number; completed: boolean } | null> {
+  const todayDateStr = getBiologicalDate(true);
+  const id = `${todayDateStr}_${presetId}`;
+
+  try {
+    // Check Dexie DB first
+    const record = await db.tasbih_counters.get(id);
+    if (record && record.date === todayDateStr) {
+      return {
+        count: record.currentCount,
+        stageIndex: record.stageIndex,
+        completed: record.completed,
+      };
+    }
+
+    // Fallback to localStorage
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(`midmar_active_tasbih_${presetId}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.date === todayDateStr) {
+          return {
+            count: parsed.count || 0,
+            stageIndex: parsed.stageIndex || 0,
+            completed: parsed.completed || false,
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Error reading active tasbih session:', err);
+  }
+  return null;
+}
+
+/**
+ * Resets the session for a given preset
+ */
+export async function resetTasbihSession(presetId: TasbihPresetId): Promise<void> {
+  const todayDateStr = getBiologicalDate(true);
+  const id = `${todayDateStr}_${presetId}`;
+
+  try {
+    await db.tasbih_counters.delete(id);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(`midmar_active_tasbih_${presetId}`);
+    }
+  } catch (err) {
+    console.warn('Error resetting tasbih session:', err);
+  }
+}

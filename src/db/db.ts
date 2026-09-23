@@ -16,6 +16,7 @@ import type {
   WorkoutLogRecord,
   LanguageProgressRecord,
   AuthAccount,
+  TasbihCounterRecord,
 } from '../types';
 
 export class LifeOSDatabase extends Dexie {
@@ -36,6 +37,7 @@ export class LifeOSDatabase extends Dexie {
   match_logs!: Table<any, string>;
   language_progress!: Table<LanguageProgressRecord, string>;
   auth_accounts!: Table<AuthAccount, string>;
+  tasbih_counters!: Table<TasbihCounterRecord, string>;
 
   constructor() {
     super('LifeOS_Database');
@@ -138,10 +140,23 @@ export class LifeOSDatabase extends Dexie {
     this.version(8).stores({
       auth_accounts: 'id, username',
     });
+
+    this.version(9).stores({
+      tasbih_counters: 'id, presetId, date, [date+presetId], lastUpdated',
+    });
   }
 }
 
 export const db = new LifeOSDatabase();
+
+// Request persistent storage so browsers (mobile Safari/Chrome) never evict data
+if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().then((persisted) => {
+    if (persisted) {
+      console.log('✅ LifeOS: Persistent storage granted by browser.');
+    }
+  }).catch(() => {});
+}
 
 export interface StorageQuotaStatus {
   usageBytes: number;

@@ -730,6 +730,48 @@ class GymFaithAudioService {
     return false;
   }
 
+  public async playCustomUrl(url: string, titleAr: string, sheikhAr: string) {
+    this.initAudio();
+    if (!this.audio) return;
+
+    this.audio.src = url;
+    this.audio.load();
+    this.updateState({
+      mode: 'channel',
+      currentChannelId: 'custom_' + Date.now(),
+      currentSeriesId: null,
+      currentEpisodeId: null,
+      currentTitleAr: titleAr,
+      currentSheikhAr: sheikhAr,
+      isLoading: true,
+      hasError: false,
+    });
+
+    try {
+      audioCoordinator.requestExclusive('gym_faith');
+      this.audio.playbackRate = this.state.playbackRate;
+      await this.audio.play();
+      this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
+      this.updateMediaSession();
+    } catch (e: any) {
+      console.warn('Custom audio play failed:', e);
+      this.updateState({
+        isPlaying: false,
+        isLoading: false,
+        hasError: true,
+        errorMessage: 'تعذر تشغيل هذا المقطع الصوتي حالياً.',
+      });
+    }
+  }
+
+  public stop() {
+    this.pause(0);
+    if (this.audio) {
+      this.audio.currentTime = 0;
+    }
+    this.updateState({ isPlaying: false, isLoading: false, currentTime: 0 });
+  }
+
   public stopAndUnload() {
     if (this.audio) {
       this.saveResumePoint();

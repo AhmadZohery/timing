@@ -21,9 +21,9 @@ import {
   Activity,
   ShieldCheck,
   Feather,
-  Brain,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, UserProfile } from '../../types';
+import { TARGET_LANGUAGES } from '../../data/languages/vocabularyDatabase';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
@@ -35,8 +35,9 @@ import { resolveStationMetadata, LIFESTYLE_PERSONAS } from '../../utils/lifestyl
 import type { DailyTadabburItem } from '../../data/dailyTadabburData';
 import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
-import { TARGET_LANGUAGES } from '../../data/languages/vocabularyDatabase';
 import { LanguageQuizModal } from '../learning/LanguageQuizModal';
+import { LanguageMovesModal } from '../learning/LanguageMovesModal';
+import { getDailyWisdom } from '../../data/lifeWisdomData';
 import { gymFaithAudio, type GymFaithAudioState } from '../../services/gymFaithAudioService';
 import { GymFaithAudioPlayer } from '../spiritual/GymFaithAudioPlayer';
 import { scheduleService, type LearnedSportPattern } from '../../services/scheduleService';
@@ -118,6 +119,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         : `🏆 Well done! ${score}/${total} correct in daily quiz! (+20 XP)`
     );
   };
+
+  // Dynamic Daily Wisdom & Language Moves State
+  const [wisdomCategory, setWisdomCategory] = useState<string>('all');
+  const [isReadMoreWisdomOpen, setIsReadMoreWisdomOpen] = useState(false);
+  const [isLanguageMovesOpen, setIsLanguageMovesOpen] = useState(false);
+  const dailyWisdom = useMemo(() => getDailyWisdom(new Date(), wisdomCategory), [wisdomCategory]);
 
   // Faith Audio Live Sync & Resume State
   const [faithAudioState, setFaithAudioState] = useState<GymFaithAudioState>(() => gymFaithAudio.getState());
@@ -692,49 +699,94 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </button>
         </div>
 
-        {/* Life Wisdom & Mental Models Card */}
-        <div className="rounded-3xl bg-gradient-to-br from-cyan-500/10 via-cyan-500/5 to-transparent dark:from-cyan-950/20 dark:via-zinc-900 dark:to-transparent border border-cyan-300/40 dark:border-cyan-500/20 p-5 shadow-xs flex flex-col justify-between space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
+        {/* Dynamic Daily Wisdom & Mental Models Card */}
+        <div className="rounded-3xl bg-gradient-to-br from-cyan-500/10 via-cyan-500/5 to-transparent dark:from-cyan-950/20 dark:via-zinc-900 dark:to-transparent border border-cyan-300/40 dark:border-cyan-500/20 p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-3.5">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 flex items-center justify-center font-bold">
-                  <Brain className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 flex items-center justify-center font-bold text-base shrink-0">
+                  <span>{dailyWisdom.icon}</span>
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
-                    {isAr ? 'خزانة النماذج الفكرية والمعارف' : 'Mental Models & Life Hacks'}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+                      {isAr ? 'حكمة ونموذج اليوم' : 'Daily Mental Model'}
+                    </h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/40">
+                      {dailyWisdom.categoryLabelAr}
+                    </span>
+                  </div>
                   <span className="text-[10px] font-bold text-cyan-700 dark:text-cyan-400">
-                    {isAr ? 'قوانين التفكير، الإنتاجية، وإسعافات الحياة' : '80/20, Parkinson, Health & Mind'}
+                    {dailyWisdom.titleAr} ({dailyWisdom.titleEn})
                   </span>
                 </div>
               </div>
 
-              <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-800 dark:text-cyan-300 font-bold">
-                💡 {isAr ? 'وعي وعمل' : 'Wisdom'}
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-600/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30">
+                💡 {isAr ? 'متجدد يومياً' : 'Daily Fresh'}
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-medium">
-              {isAr
-                ? 'مبدأ باريتو، قانون باركنسون، سكين هانلون، والتنهيدة الفسيولوجية لتفريغ التوتر في 30 ثانية.'
-                : 'Actionable mental models, time laws, and practical life hacks for everyday clarity.'}
+            {/* Category Filter Pills on Dashboard */}
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
+              {[
+                { id: 'all', label: isAr ? 'الكل' : 'All' },
+                { id: 'mental_models', label: isAr ? 'تفكير' : 'Models' },
+                { id: 'productivity_decisions', label: isAr ? 'إنتاجية' : 'Productivity' },
+                { id: 'health_body', label: isAr ? 'صحة وجسد' : 'Health' },
+                { id: 'psychology_relations', label: isAr ? 'علاقات' : 'Psychology' },
+              ].map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setWisdomCategory(c.id);
+                  }}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
+                    wisdomCategory === c.id
+                      ? 'bg-cyan-600 text-white font-black'
+                      : 'bg-white/70 dark:bg-zinc-800/80 text-slate-600 dark:text-zinc-300 border border-slate-200/60 dark:border-white/[0.06]'
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-xs text-slate-700 dark:text-zinc-200 leading-relaxed font-medium bg-white/60 dark:bg-zinc-900/60 p-2.5 rounded-xl border border-cyan-100 dark:border-cyan-900/30">
+              «{dailyWisdom.summaryAr}»
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              onOpenLifeWisdom?.();
-            }}
-            className="w-full py-2.5 px-4 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95 cursor-pointer"
-          >
-            <span>🧠</span>
-            <span>{isAr ? 'فتح خزانة النماذج والمعارف الحياتية' : 'Open Life Wisdom Vault'}</span>
-            <span>←</span>
-          </button>
+          <div className="flex items-center gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsReadMoreWisdomOpen(true);
+              }}
+              className="flex-1 py-2 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
+            >
+              <span>📖</span>
+              <span>{isAr ? 'اقرأ أكثر والشرح العملي' : 'Read Deep Dive'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenLifeWisdom?.();
+              }}
+              className="py-2 px-3 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-bold text-xs border border-slate-200 dark:border-zinc-700 transition-colors cursor-pointer shrink-0"
+              title={isAr ? 'فتح الخزانة الكاملة' : 'Open Vault'}
+            >
+              <span>{isAr ? 'الخزانة الكاملة ←' : 'All Vault →'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -873,12 +925,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               onClick={() => {
                 soundSynth.playTactileClick();
                 haptic.vibrateLight();
-                onSelectStation('EVENING_SPRINT');
+                setIsLanguageMovesOpen(true);
               }}
-              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-700 dark:text-zinc-300 font-bold text-xs border border-slate-200 dark:border-zinc-700 transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-200 dark:border-indigo-800/40 transition-colors cursor-pointer"
               title={isAr ? 'عرض بطاقات الكلمات الكاملة' : 'View full cards'}
             >
-              <span>{isAr ? 'عرض البطاقات ←' : 'Full Cards →'}</span>
+              <span>{isAr ? 'عرض البطاقات والتدريب ←' : 'Full Cards & Drill →'}</span>
             </button>
           </div>
         </div>
@@ -973,6 +1025,19 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         onCompleted={handleHomeQuizCompleted}
       />
 
+      {/* Language Moves & Full Flashcards Modal */}
+      <LanguageMovesModal
+        isOpen={isLanguageMovesOpen}
+        onClose={() => {
+          setIsLanguageMovesOpen(false);
+          setLanguageStats(spacedRepetition.getStats());
+        }}
+        words={todayWords}
+        speechCode={currentLangObj.speechCode}
+        isAr={isAr}
+        languageName={currentLangObj.nameAr}
+      />
+
       {/* Schedule Anomaly Modal */}
       <ScheduleAnomalyModal
         isOpen={isAnomalyModalOpen}
@@ -986,6 +1051,104 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           );
         }}
       />
+
+      {/* Deep-Dive Read More Wisdom Modal */}
+      {isReadMoreWisdomOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setIsReadMoreWisdomOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg bg-white dark:bg-[#12131A] border border-cyan-400/40 dark:border-cyan-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.08]">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">{dailyWisdom.icon}</span>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 dark:text-zinc-100">
+                    {dailyWisdom.titleAr}
+                  </h3>
+                  <span className="text-xs font-mono text-cyan-600 dark:text-cyan-400">
+                    {dailyWisdom.titleEn}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsReadMoreWisdomOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs leading-relaxed">
+              <div className="p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-900/40 text-cyan-900 dark:text-cyan-200 font-bold">
+                «{dailyWisdom.summaryAr}»
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-black text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                  <span>🧠</span>
+                  <span>{isAr ? 'الخلفية العلمية والشرح' : 'Scientific Explanation'}</span>
+                </h4>
+                <p className="text-slate-600 dark:text-zinc-300">
+                  {dailyWisdom.detailedExplanationAr}
+                </p>
+              </div>
+
+              <div className="space-y-1 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40">
+                <h4 className="font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                  <span>📌</span>
+                  <span>{isAr ? 'الخطوة العملية المباشرة' : 'Practical Action'}</span>
+                </h4>
+                <p className="text-emerald-700 dark:text-emerald-200 font-medium">
+                  {dailyWisdom.practicalActionAr}
+                </p>
+              </div>
+
+              {dailyWisdom.realLifeExampleAr && (
+                <div className="space-y-1 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40">
+                  <h4 className="font-black text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                    <span>💡</span>
+                    <span>{isAr ? 'مثال واقعي تطبيقي' : 'Real-Life Example'}</span>
+                  </h4>
+                  <p className="text-amber-700 dark:text-amber-200">
+                    {dailyWisdom.realLifeExampleAr}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  const txt = `💡 ${dailyWisdom.titleAr} (${dailyWisdom.titleEn})\n\n«${dailyWisdom.summaryAr}»\n\n📌 الخطوة العملية: ${dailyWisdom.practicalActionAr}`;
+                  navigator.clipboard.writeText(txt);
+                  onRewardToast(isAr ? '📋 تم نسخ النموذج بنجاح!' : 'Copied to clipboard!');
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
+              >
+                <span>📋</span>
+                <span>{isAr ? 'نسخ الحكمة' : 'Copy Wisdom'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsReadMoreWisdomOpen(false)}
+                className="py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-bold text-xs transition-colors cursor-pointer"
+              >
+                {isAr ? 'إغلاق' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

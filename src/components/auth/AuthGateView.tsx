@@ -29,11 +29,12 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccount, setHasAccount] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isPinMode, setIsPinMode] = useState(false);
 
-  // Setup Form State (First Time)
+  // Setup / Register Form State
   const [setupName, setSetupName] = useState(DEFAULT_MASTER_ACCOUNT.displayName);
-  const [setupUsername, setSetupUsername] = useState(DEFAULT_MASTER_ACCOUNT.username);
+  const [setupUsername, setSetupUsername] = useState('');
   const [setupPassword, setSetupPassword] = useState('');
   const [setupConfirmPass, setSetupConfirmPass] = useState('');
   const [setupPin, setSetupPin] = useState('');
@@ -52,6 +53,11 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   useEffect(() => {
     authService.hasRegisteredAccount().then((exists) => {
       setHasAccount(exists);
+      if (!exists) {
+        setAuthMode('register');
+      } else {
+        setAuthMode('login');
+      }
       if (exists) {
         authService.getOwnerAccount().then((owner) => {
           if (owner) {
@@ -95,12 +101,13 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
     setIsSubmitting(true);
 
     try {
-      const res = await authService.registerOwner(
-        setupName.trim() || (isAr ? 'صاحب المنظومة' : 'Owner'),
-        setupUsername.trim(),
-        setupPassword,
-        setupPin.trim() || undefined
-      );
+      const cleanDisplayName = setupName.trim() || (isAr ? 'مستخدم جديد' : 'New User');
+      const cleanUser = setupUsername.trim();
+      const pinVal = setupPin.trim() || undefined;
+
+      const res = !hasAccount
+        ? await authService.registerOwner(cleanDisplayName, cleanUser, setupPassword, pinVal)
+        : await authService.registerNewUser(cleanDisplayName, cleanUser, setupPassword, pinVal);
 
       if (res.success) {
         soundSynth.playCompletionChime();
@@ -260,8 +267,44 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
             </div>
           )}
 
-          {!hasAccount ? (
-            /* 1. REGISTRATION FORM (First-time setup) */
+          {/* Dual Tabs: Login vs Register */}
+          <div className="flex items-center p-1 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setAuthMode('login');
+                setErrorMsg(null);
+              }}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                authMode === 'login'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {isAr ? '🔑 تسجيل الدخول' : '🔑 Sign In'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setAuthMode('register');
+                setErrorMsg(null);
+              }}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                authMode === 'register'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {isAr ? '✨ إنشاء حساب جديد' : '✨ Sign Up'}
+            </button>
+          </div>
+
+          {authMode === 'register' ? (
+            /* 1. REGISTRATION FORM (Create Account) */
             <form onSubmit={handleRegisterOwner} className="space-y-4 text-xs">
               <div className="space-y-1.5">
                 <label className="block text-slate-300 font-bold">
@@ -291,7 +334,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                     required
                     value={setupUsername}
                     onChange={(e) => setSetupUsername(e.target.value)}
-                    placeholder="admin"
+                    placeholder="user123"
                     className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                   />
                 </div>
@@ -299,7 +342,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
 
               <div className="space-y-1.5">
                 <label className="block text-slate-300 font-bold">
-                  {isAr ? 'كلمة المرور الرئيسية:' : 'Master Password:'}
+                  {isAr ? 'كلمة المرور:' : 'Password:'}
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -341,7 +384,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
               <div className="space-y-1.5 pt-1">
                 <label className="block text-slate-400 font-bold flex items-center justify-between">
                   <span>{isAr ? 'رمز PIN رقمي سريع (اختياري 4-6 أرقام):' : 'Quick Numeric PIN (optional 4-6 digits):'}</span>
-                  <span className="text-[10px] text-amber-400/80">فتح خاطف</span>
+                  <span className="text-[10px] text-amber-400/80">دخول سريع</span>
                 </label>
                 <div className="relative">
                   <KeyRound className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -361,9 +404,24 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                 disabled={isSubmitting}
                 className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50"
               >
-                <span>{isAr ? 'تأسيس الحساب وتأمين المنظومة' : 'Establish Master Account & Lock System'}</span>
+                <span>{isAr ? 'إنشاء الحساب وتأمين المنظومة' : 'Create Account & Secure'}</span>
                 <ArrowIcon className="w-4 h-4" />
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setAuthMode('login');
+                    setErrorMsg(null);
+                  }}
+                  className="text-xs text-amber-400/90 hover:text-amber-300 font-bold underline cursor-pointer"
+                >
+                  {isAr ? 'لديك حساب بالفعل؟ سجل دخولك الآن' : 'Already have an account? Sign in'}
+                </button>
+              </div>
             </form>
           ) : (
             /* 2. LOGIN FORM (Returning User) */
@@ -402,7 +460,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                 <>
                   <div className="space-y-1.5">
                     <label className="block text-slate-300 font-bold">
-                      {isAr ? 'اسم المستخدم:' : 'Username:'}
+                      {isAr ? 'اسم المستخدم أو البريد الإلكتروني:' : 'Username or Email:'}
                     </label>
                     <div className="relative">
                       <User className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -411,7 +469,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                         required
                         value={loginUsername}
                         onChange={(e) => setLoginUsername(e.target.value)}
-                        placeholder="admin"
+                        placeholder={isAr ? 'مثال: Ahmad أو البريد' : 'e.g. Ahmad or email'}
                         className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                       />
                     </div>
@@ -482,6 +540,21 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                 <span>{isAr ? 'دخول آمن وفك القفل' : 'Unlock Workspace'}</span>
                 <ArrowIcon className="w-4 h-4" />
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setAuthMode('register');
+                    setErrorMsg(null);
+                  }}
+                  className="text-xs text-amber-400/90 hover:text-amber-300 font-bold underline cursor-pointer"
+                >
+                  {isAr ? 'ليس لديك حساب؟ أنشئ حساباً جديداً الآن بضغطة زر' : "Don't have an account? Sign up now"}
+                </button>
+              </div>
             </form>
           )}
 

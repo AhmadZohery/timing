@@ -212,6 +212,83 @@ class AuthService {
   }
 
   /**
+   * Register a new user account (supporting multiple users / profiles)
+   */
+  public async registerNewUser(
+    displayName: string,
+    username: string,
+    password: string,
+    pin?: string,
+    email?: string
+  ): Promise<{ success: boolean; error?: string; account?: AuthAccount }> {
+    const cleanUsername = username.trim();
+    const cleanName = displayName.trim() || cleanUsername;
+    const cleanEmail = email?.trim() || undefined;
+
+    if (!cleanUsername) {
+      return { success: false, error: 'يرجى إدخال اسم المستخدم' };
+    }
+    if (!password || password.length < 4) {
+      return { success: false, error: 'كلمة المرور يجب ألا تقل عن 4 أحرف أو أرقام' };
+    }
+
+    try {
+      const existing = await db.auth_accounts
+        .where('username')
+        .equalsIgnoreCase(cleanUsername)
+        .first();
+      if (existing) {
+        return { success: false, error: 'اسم المستخدم مسجل مسبقاً، يرجى اختيار اسم آخر' };
+      }
+
+      const count = await db.auth_accounts.count();
+      const isFirst = count === 0;
+
+      const salt = this.generateSalt();
+      const passwordHash = await this.hashSecret(password, salt);
+      let pinHash: string | undefined;
+
+      if (pin && pin.trim().length >= 4) {
+        pinHash = await this.hashSecret(pin.trim(), salt);
+      }
+
+      const account: AuthAccount = {
+        id: `account_user_${Date.now()}`,
+        username: cleanUsername,
+        displayName: cleanName,
+        email: cleanEmail,
+        passwordHash,
+        salt,
+        pinHash,
+        isOwner: isFirst,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      };
+
+      await db.auth_accounts.add(account);
+
+      // Create matching user profile
+      const newProfileId = `profile_${account.id}`;
+      try {
+        await db.profiles.add({
+          id: newProfileId,
+          name: cleanName,
+          roleTemplate: 'software_engineer',
+          email: cleanEmail,
+          isDefault: isFirst,
+          createdAt: new Date().toISOString(),
+        });
+      } catch (_) {}
+
+      // Create active session
+      this.createSession(account, true);
+      return { success: true, account };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'فشل إنشاء الحساب' };
+    }
+  }
+
+  /**
    * Authenticate via username/email and password
    */
   public async login(

@@ -49,6 +49,17 @@ export interface QuranProgress {
   history: Array<{ date: string; page: number; ayah: number }>;
 }
 
+export interface TasbihCounterRecord {
+  id: string;
+  presetId: string;
+  date: string;
+  currentCount: number;
+  target: number;
+  stageIndex: number;
+  completed: boolean;
+  lastUpdated: number;
+}
+
 export interface BookProgress {
   id?: number;
   title: string;
