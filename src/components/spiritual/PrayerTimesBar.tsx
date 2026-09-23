@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Clock,
   CheckCircle2,
   Sparkles,
   MapPin,
@@ -9,7 +8,6 @@ import {
   Volume2,
   VolumeX,
   BellRing,
-  Check,
 } from 'lucide-react';
 import {
   calculatePrayerTimes,
@@ -187,6 +185,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   // Nawafil & Sunan Guide Modal State
   const [isNawafilModalOpen, setIsNawafilModalOpen] = useState(false);
   const [nawafilModalTab, setNawafilModalTab] = useState<NafilaTab>('dhuha');
+  const [isNawafilExpanded, setIsNawafilExpanded] = useState(true);
 
   const handleStopAdhan = () => {
     soundSynth.playTactileClick();
@@ -430,193 +429,289 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       ? `متبقي ${minsRemaining} دقيقة`
       : `${minsRemaining}m left`;
 
+  const nawafilCompletedCount = [
+    todayLog?.dhuhaDone,
+    todayLog?.qiyamNightDone,
+    todayLog?.witrDone,
+    todayLog?.tawbahDone,
+  ].filter(Boolean).length;
+
+  const heroTheme = CELESTIAL_THEMES[nextPrayer.name as PrayerName] || CELESTIAL_THEMES.fajr;
+  const nextPrayerRecord = prayers[nextPrayer.name as PrayerName];
+  const isNextPrayerDone = Boolean(
+    nextPrayerRecord &&
+      (nextPrayerRecord.status === 'on_time' ||
+        nextPrayerRecord.status === 'in_group' ||
+        nextPrayerRecord.status === 'late')
+  );
+
   return (
-    <div className={`p-4 sm:p-6 rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] shadow-sm space-y-4 ${className}`}>
-      {/* Radiant Next Prayer Hero Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-white/[0.06] pb-3.5">
-        <div className="flex items-center gap-3">
-          <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-teal-500/15 to-emerald-600/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-inner">
-            <Clock className="w-5 h-5 animate-pulse" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#12131A] animate-ping" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                {isAr ? 'الصلاة القادمة' : 'Next Prayer'}
-              </span>
-              <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 shadow-2xs">
-                <span>🕌</span>
-                <span>{nextPrayer.arabicName}</span>
-                <span className="font-mono text-[11px] opacity-80">({nextPrayer.formattedTime})</span>
-              </span>
-              <span className="text-[11px] font-black text-amber-700 dark:text-amber-400 bg-amber-500/10 dark:bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/30 font-mono">
-                ⏳ {timeRemainingFormatted}
-              </span>
-              {isOnlineLive && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 inline-flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{isAr ? 'مواقيت رسمية' : 'Live'}</span>
+    <div
+      className={`rounded-3xl bg-white/95 dark:bg-[#12131A]/95 backdrop-blur-xl border border-slate-200/90 dark:border-white/[0.08] shadow-lg shadow-slate-900/5 dark:shadow-black/25 p-4 sm:p-6 space-y-5 transition-all ${className}`}
+    >
+      {/* 🌟 1. Atmospheric Circadian Hero Stage */}
+      <div
+        className={`group relative overflow-hidden rounded-3xl p-4 sm:p-6 border transition-all duration-300 shadow-sm ${
+          isNextPrayerDone
+            ? 'bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-teal-500/10 dark:from-emerald-950/40 dark:via-[#131b1f] dark:to-teal-950/30 border-emerald-500/30 dark:border-emerald-500/20'
+            : `bg-gradient-to-br ${heroTheme.gradientLight} dark:${heroTheme.gradientDark} ${heroTheme.borderLight} dark:${heroTheme.borderDark}`
+        }`}
+      >
+        {/* Subtle Ambient Celestial Glow */}
+        <div
+          className="absolute -top-16 -left-16 w-48 h-48 rounded-full opacity-20 dark:opacity-30 blur-3xl pointer-events-none transition-all duration-700"
+          style={{ backgroundColor: heroTheme.accentGlow }}
+        />
+
+        {/* Top Control Bar: Location & Quick Spiritual Tools */}
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 pb-4 border-b border-slate-200/60 dark:border-white/[0.08]">
+          {/* Right (RTL): City Picker & Live Sync Status */}
+          <div className="flex items-center gap-2">
+            <div className="relative shrink-0" ref={cityPickerRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  if (onOpenLocationModal) {
+                    onOpenLocationModal();
+                  } else {
+                    setIsCityPickerOpen(!isCityPickerOpen);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-slate-200/90 dark:border-white/[0.1] text-xs font-bold text-slate-800 dark:text-zinc-100 shadow-2xs transition-all cursor-pointer"
+                title={isAr ? 'تغيير المدينة أو ضبط إحداثيات GPS' : 'Change City'}
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="font-bold">
+                  {(() => {
+                    const raw = loc?.city
+                      ? PRESET_CITIES.find((c) => c.id === loc.city)?.nameAr || loc.city
+                      : activeCity.nameAr;
+                    return raw.replace('العربية المتحدة', '').trim();
+                  })()}
                 </span>
+                <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
+              </button>
+
+              {/* City Switcher Dropdown */}
+              {isCityPickerOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 backdrop-blur-2xs cursor-pointer pointer-events-auto"
+                    onClick={() => setIsCityPickerOpen(false)}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      setIsCityPickerOpen(false);
+                    }}
+                  />
+                  <div className="absolute top-full mt-2 right-0 z-50 w-64 max-h-72 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-2 space-y-1 text-xs">
+                    <button
+                      type="button"
+                      onClick={handleUseGps}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100 cursor-pointer text-start"
+                    >
+                      <Navigation className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{isAr ? 'استخدام موقعي عبر GPS 📍' : 'Use Current GPS'}</span>
+                    </button>
+                    <div className="border-t border-slate-100 dark:border-zinc-800 my-1" />
+                    {PRESET_CITIES.map((city) => (
+                      <button
+                        key={city.id}
+                        type="button"
+                        onClick={() => handleSelectCity(city.id)}
+                        className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-start cursor-pointer ${
+                          selectedCityId === city.id
+                            ? 'bg-emerald-600 text-white font-bold'
+                            : 'hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300'
+                        }`}
+                      >
+                        <span>{isAr ? city.nameAr : city.nameEn}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 truncate mt-1 font-medium">
-              {isAr
-                ? `الصلاة على وقتها أحب الأعمال إلى الله • تهيأ بالسكينة وإسباغ الوضوء`
-                : `Upcoming prayer: ${nextPrayer.arabicName} in ${timeRemainingFormatted}`}
-            </p>
-          </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-start sm:justify-end mt-1 sm:mt-0">
-          {/* Friday Salawat Quick Chip */}
-          {(() => {
-            const fridayStatus = checkIsFridaySalawatWindow(currentTime, loc);
-            if (fridayStatus.isWindow) {
-              return (
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    if (onOpenSmartTasbih) onOpenSmartTasbih('salawat_ibrahimiyyah');
-                  }}
-                  className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] sm:text-xs font-bold cursor-pointer transition-all active:scale-95 whitespace-nowrap"
-                  title="موسم ليلة الجمعة ويومها الأغر - الصلاة الإبراهيمية"
-                >
-                  <span>🌸</span>
-                  <span>{isAr ? 'الصلاة الإبراهيمية' : 'Salawat'}</span>
-                </button>
-              );
-            }
-            return null;
-          })()}
-
-          {/* Smart Haptic Tasbih Trigger Button */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              if (onOpenSmartTasbih) onOpenSmartTasbih('khitam_salah');
-            }}
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-700 dark:text-zinc-200 text-[11px] sm:text-xs font-bold cursor-pointer transition-all active:scale-95 whitespace-nowrap border border-slate-200/80 dark:border-white/[0.08]"
-            title={isAr ? 'المسبحة اللمسية الذكية لختام الصلاة والأذكار' : 'Smart Haptic Tasbih'}
-          >
-            <span>📿</span>
-            <span className="hidden sm:inline">{isAr ? 'مسبحة ختام الصلاة' : 'Smart Tasbih'}</span>
-            <span className="sm:hidden">{isAr ? 'المسبحة' : 'Tasbih'}</span>
-          </button>
-
-          {/* Nawafil & Sunan Guide Quick Button */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setNawafilModalTab('dhuha');
-              setIsNawafilModalOpen(true);
-            }}
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-indigo-500/15 hover:from-amber-500/25 hover:to-indigo-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-[11px] sm:text-xs font-bold cursor-pointer transition-all active:scale-95 whitespace-nowrap shadow-2xs"
-            title="دليل السنن والنوافل والمأثورات النبوية"
-          >
-            <span>🕊️</span>
-            <span className="hidden sm:inline">{isAr ? 'السنن والنوافل' : 'Nawafil Guide'}</span>
-            <span className="sm:hidden">{isAr ? 'السنن' : 'Sunan'}</span>
-          </button>
-
-          {/* Adhan Audio Play / Stop Quick Button */}
-          <button
-            type="button"
-            onClick={() => {
-              if (isAdhanPlaying) {
-                handleStopAdhan();
-              } else {
-                handlePlayAdhan();
-              }
-            }}
-            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl border text-[11px] sm:text-xs font-bold cursor-pointer transition-all active:scale-95 whitespace-nowrap ${
-              isAdhanPlaying
-                ? 'bg-amber-500 text-black border-amber-400 animate-pulse font-black'
-                : userState?.settings?.prayerAudioSettings?.adhanEnabled
-                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
-                : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-700 dark:text-zinc-300 border-slate-200/80 dark:border-white/[0.08]'
-            }`}
-            title={
-              isAdhanPlaying
-                ? 'كتم وإيقاف صوت الأذان 🔇'
-                : 'الاستماع لصوت الأذان أو تجربة المؤذن'
-            }
-          >
-            {isAdhanPlaying ? (
-              <>
-                <VolumeX className="w-3.5 h-3.5 text-black shrink-0" />
-                <span>{isAr ? 'كتم 🔇' : 'Mute'}</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span className="hidden sm:inline">{isAr ? 'صوت الأذان' : 'Adhan'}</span>
-                <span className="sm:hidden">{isAr ? 'الأذان' : 'Adhan'}</span>
-              </>
+            {isOnlineLive && (
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{isAr ? 'مواقيت رسمية' : 'Live'}</span>
+              </span>
             )}
-          </button>
+          </div>
 
-          {/* City Switcher Dropdown */}
-          <div className="relative shrink-0" ref={cityPickerRef}>
+          {/* Left (RTL): Utility Trio (Adhan, Tasbih, Sunan) */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* Friday Salawat Quick Chip */}
+            {(() => {
+              const fridayStatus = checkIsFridaySalawatWindow(currentTime, loc);
+              if (fridayStatus.isWindow) {
+                return (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      if (onOpenSmartTasbih) onOpenSmartTasbih('salawat_ibrahimiyyah');
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs font-bold cursor-pointer transition-all active:scale-95 shadow-2xs"
+                    title="موسم ليلة الجمعة ويومها الأغر - الصلاة الإبراهيمية"
+                  >
+                    <span>🌸</span>
+                    <span>{isAr ? 'الصلاة الإبراهيمية' : 'Salawat'}</span>
+                  </button>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Smart Haptic Tasbih */}
             <button
               type="button"
               onClick={() => {
-                if (onOpenLocationModal) {
-                  onOpenLocationModal();
-                } else {
-                  setIsCityPickerOpen(!isCityPickerOpen);
-                }
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                if (onOpenSmartTasbih) onOpenSmartTasbih('khitam_salah');
               }}
-              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-slate-200/80 dark:border-white/[0.08] text-[11px] sm:text-xs font-bold text-slate-700 dark:text-zinc-200 cursor-pointer transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-slate-700 dark:text-zinc-200 text-xs font-bold cursor-pointer transition-all active:scale-95 border border-slate-200/80 dark:border-white/[0.08] shadow-2xs"
+              title={isAr ? 'المسبحة اللمسية الذكية لختام الصلاة والأذكار' : 'Smart Haptic Tasbih'}
             >
-              <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className="max-w-[70px] sm:max-w-none truncate">
-                {loc?.city ? (PRESET_CITIES.find((c) => c.id === loc.city)?.nameAr || loc.city) : activeCity.nameAr}
-              </span>
-              <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
+              <span>📿</span>
+              <span>{isAr ? 'المسبحة' : 'Tasbih'}</span>
             </button>
 
-            {isCityPickerOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 backdrop-blur-2xs cursor-pointer pointer-events-auto"
-                  onClick={() => setIsCityPickerOpen(false)}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    setIsCityPickerOpen(false);
-                  }}
-                />
-                <div className="absolute top-full mt-2 left-0 sm:right-0 z-50 w-64 max-h-72 overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-2 space-y-1 text-xs">
-                <button
-                  type="button"
-                  onClick={handleUseGps}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100 cursor-pointer text-start"
-                >
-                  <Navigation className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{isAr ? 'استخدام موقعي عبر GPS 📍' : 'Use Current GPS'}</span>
-                </button>
-                <div className="border-t border-slate-100 dark:border-zinc-800 my-1" />
-                {PRESET_CITIES.map((city) => (
-                  <button
-                    key={city.id}
-                    type="button"
-                    onClick={() => handleSelectCity(city.id)}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-start cursor-pointer ${
-                      selectedCityId === city.id
-                        ? 'bg-emerald-600 text-white font-bold'
-                        : 'hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300'
-                    }`}
-                  >
-                    <span>{isAr ? city.nameAr : city.nameEn}</span>
-                  </button>
-                ))}
+            {/* Nawafil Guide */}
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setNawafilModalTab('qiyam');
+                setIsNawafilModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 hover:bg-white dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-slate-700 dark:text-zinc-200 text-xs font-bold cursor-pointer transition-all active:scale-95 border border-slate-200/80 dark:border-white/[0.08] shadow-2xs"
+              title="دليل السنن والنوافل والمأثورات النبوية"
+            >
+              <span>🕊️</span>
+              <span>{isAr ? 'دليل السنن' : 'Sunan'}</span>
+            </button>
+
+            {/* Adhan Audio Play / Stop */}
+            <button
+              type="button"
+              onClick={() => {
+                if (isAdhanPlaying) {
+                  handleStopAdhan();
+                } else {
+                  handlePlayAdhan();
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all active:scale-95 shadow-2xs ${
+                isAdhanPlaying
+                  ? 'bg-amber-500 text-black border-amber-400 animate-pulse font-black'
+                  : 'bg-white/90 hover:bg-white dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-slate-700 dark:text-zinc-200 border-slate-200/80 dark:border-white/[0.08]'
+              }`}
+              title={isAdhanPlaying ? 'كتم وإيقاف صوت الأذان 🔇' : 'الاستماع لصوت الأذان أو تجربة المؤذن'}
+            >
+              {isAdhanPlaying ? (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-black shrink-0" />
+                  <span>{isAr ? 'كتم 🔇' : 'Mute'}</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span>{isAr ? 'الأذان' : 'Adhan'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Center Stage: The Meeqat Focus & Primary One-Tap Action */}
+        <div className="relative z-10 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Right Side (RTL): Prayer Identity & Countdown */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-white/90 dark:bg-white/[0.08] border border-slate-200/80 dark:border-white/[0.1] flex items-center justify-center text-2xl shadow-inner shrink-0">
+                {heroTheme.celestialIcon}
               </div>
-              </>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    {isAr ? 'الصلاة القادمة' : 'Next Prayer'}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[11px] font-black font-mono">
+                    ⏳ {timeRemainingFormatted}
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-baseline gap-2 mt-0.5">
+                  <span>{nextPrayer.arabicName}</span>
+                  <span className="font-mono text-base sm:text-lg text-emerald-700 dark:text-emerald-400 font-bold">
+                    ({nextPrayer.formattedTime})
+                  </span>
+                </h3>
+              </div>
+            </div>
+
+            {/* Prophetic Virtue / Hadith in full */}
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-xl leading-relaxed pt-1">
+              {heroTheme.virtueAr || (isAr ? 'الصلاة على وقتها أحب الأعمال إلى الله • تهيأ بالسكينة وإسباغ الوضوء' : 'On-time prayer is beloved to Allah')}
+            </p>
+          </div>
+
+          {/* Left Side (RTL): One-Tap Quick Log Hero Button */}
+          <div className="shrink-0 flex items-center gap-2 pt-2 md:pt-0">
+            {nextPrayer.name === 'sunrise' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setNawafilModalTab('dhuha');
+                  setIsNawafilModalOpen(true);
+                }}
+                className="w-full md:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm shadow-md cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span>☀️</span>
+                <span>{isAr ? 'صلاة الضحى والإشراق (+20ن)' : 'Dhuha Prayer (+20 XP)'}</span>
+              </button>
+            ) : isNextPrayerDone ? (
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  handleOpenPrayerModal(nextPrayer.name as PrayerName);
+                }}
+                className="w-full md:w-auto px-5 py-3 rounded-2xl bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/40 text-emerald-900 dark:text-emerald-200 font-black text-sm shadow-xs cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>
+                  {isAr
+                    ? `أُديت صلاة ${nextPrayer.arabicName} بفضل الله (${nextPrayerRecord?.status === 'in_group' ? 'جماعة 🕌' : 'في وقتها ✓'})`
+                    : `${nextPrayer.arabicName} logged`}
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  handleOpenPrayerModal(nextPrayer.name as PrayerName);
+                }}
+                className="w-full md:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-md hover:shadow-lg shadow-emerald-600/20 cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span className="text-base">🤲</span>
+                <span>
+                  {isAr
+                    ? `تسجيل صلاة ${nextPrayer.arabicName} الآن (+25ن)`
+                    : `Log ${nextPrayer.arabicName} (+25 XP)`}
+                </span>
+              </button>
             )}
           </div>
         </div>
@@ -750,11 +845,11 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
         </div>
       )}
 
-      {/* Daily Prayer Fulfillment Micro-Ribbon */}
-      <div className="flex items-center justify-between gap-2 px-1 pt-1">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-zinc-300">
+      {/* 6. Daily Prayer Fulfillment Track Header */}
+      <div className="flex items-center justify-between gap-2 px-1 pt-2">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
           <span className="text-amber-500">✨</span>
-          <span>{isAr ? 'الفرائض والسنن اليومية:' : 'Daily Prayers:'}</span>
+          <span>{isAr ? 'الفرائض الخمس والسنن الرواتب:' : 'Daily Prayers:'}</span>
           <span className="font-mono font-black text-emerald-600 dark:text-emerald-400">
             {completedPrayersCount}/5
           </span>
@@ -786,8 +881,8 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
         </div>
       </div>
 
-      {/* 5 Celestial Prayer Cards: Responsive Grid, Atmospheric Circadian Depth, Zero Truncation */}
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5 md:gap-3">
+      {/* 7. 5 Celestial Prayer Cards: Responsive Snap-Track on Mobile & Spacious 5-Grid on Desktop */}
+      <div className="flex sm:grid sm:grid-cols-5 gap-2.5 sm:gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 scrollbar-none snap-x snap-mandatory pt-1 px-0.5">
         {prayerCards.map((p) => {
           const record = prayers[p.name];
           const isDone = record && (record.status === 'on_time' || record.status === 'in_group' || record.status === 'late');
@@ -818,7 +913,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                   handleOpenPrayerModal(p.name);
                 }
               }}
-              className={`group relative p-2 sm:p-3.5 rounded-2xl sm:rounded-3xl border transition-all duration-200 flex flex-col justify-between cursor-pointer select-none overflow-hidden ${
+              className={`group relative w-[116px] sm:w-auto shrink-0 snap-center p-3 sm:p-4 rounded-3xl border transition-all duration-200 flex flex-col justify-between cursor-pointer select-none overflow-hidden min-h-[155px] sm:min-h-[165px] ${
                 isDone
                   ? 'bg-gradient-to-b from-emerald-50/90 via-white to-emerald-50/50 dark:from-emerald-950/40 dark:via-[#151a1e] dark:to-emerald-950/20 border-emerald-300 dark:border-emerald-800/80 shadow-2xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
                   : isNext
@@ -826,31 +921,35 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                   : `bg-gradient-to-b ${theme.gradientLight} dark:${theme.gradientDark} ${theme.borderLight} dark:${theme.borderDark} shadow-2xs hover:shadow-md hover:border-slate-300 dark:hover:border-white/20 hover:scale-[1.02] active:scale-[0.98]`
               }`}
             >
-              {/* Subtle Atmospheric Aurora Glow */}
+              {/* Atmospheric Glow */}
               <div
                 className="absolute -top-6 -right-6 w-16 h-16 sm:w-20 sm:h-20 rounded-full opacity-15 dark:opacity-25 blur-xl pointer-events-none transition-opacity group-hover:opacity-40"
                 style={{ backgroundColor: isNext ? '#f59e0b' : isDone ? '#10b981' : theme.accentGlow }}
               />
 
-              {/* Top Header: Celestial Icon + Title + Status Pill */}
+              {/* Top: Icon + Status */}
               <div className="relative z-10 space-y-1">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-sm sm:text-base md:text-lg transform group-hover:scale-110 transition-transform shrink-0">
+                  <span className="text-base sm:text-lg md:text-xl transform group-hover:scale-110 transition-transform shrink-0">
                     {celestialIcon}
                   </span>
                   {isDone ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   ) : isNext ? (
-                    <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
+                    <span className="relative flex h-2.5 w-2.5 shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-amber-500" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                    </span>
+                  ) : isFajr ? (
+                    <span className="px-1 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold text-[9px] whitespace-nowrap">
+                      👑 +35
                     </span>
                   ) : null}
                 </div>
 
-                <div className="flex items-center justify-between gap-1">
+                <div className="flex items-center justify-between gap-1 pt-0.5">
                   <h4
-                    className={`text-[11px] sm:text-xs md:text-sm font-black truncate leading-tight ${
+                    className={`text-xs sm:text-sm font-black truncate leading-tight ${
                       isNext
                         ? 'text-amber-800 dark:text-amber-300'
                         : isDone
@@ -861,70 +960,62 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                     {p.title}
                   </h4>
                   {isNext && (
-                    <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] shadow-2xs whitespace-nowrap">
+                    <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] shadow-2xs whitespace-nowrap">
                       المقبلة ⏳
-                    </span>
-                  )}
-                  {isFajr && !isNext && !isDone && (
-                    <span className="hidden md:inline-block px-1 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold text-[9px] whitespace-nowrap">
-                      👑 +35
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Middle Section: Crisp Proportional Time */}
-              <div className="relative z-10 my-1 sm:my-2 text-center">
+              {/* Middle: Crisp Time */}
+              <div className="relative z-10 my-1.5 sm:my-2 text-center">
                 <div className="flex items-baseline justify-center gap-0.5 sm:gap-1 font-mono">
-                  <span className="text-xs sm:text-sm md:text-lg lg:text-xl font-black text-slate-950 dark:text-white tracking-tight leading-none">
+                  <span className="text-sm sm:text-base md:text-lg lg:text-xl font-black text-slate-950 dark:text-white tracking-tight leading-none">
                     {timeDigits}
                   </span>
-                  <span className="text-[9px] sm:text-[11px] font-bold text-slate-500 dark:text-zinc-400 leading-none">
+                  <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-zinc-400 leading-none">
                     {timeAmPm}
                   </span>
                 </div>
                 {isNext && nextPrayer.minutesRemaining > 0 && (
-                  <div className="text-[9px] sm:text-[10px] font-mono text-amber-700 dark:text-amber-400 font-black mt-0.5 whitespace-nowrap leading-tight">
+                  <div className="text-[10px] font-mono text-amber-700 dark:text-amber-400 font-black mt-1 whitespace-nowrap leading-tight">
                     {isAr ? `${nextPrayer.minutesRemaining}د ⏳` : `${nextPrayer.minutesRemaining}m ⏳`}
                   </div>
                 )}
               </div>
 
-              {/* Bottom Section: Action Button or Completed Acceptance Seal */}
-              <div className="relative z-10 pt-1 border-t border-slate-200/50 dark:border-white/[0.06]">
+              {/* Bottom: Action Status / Button */}
+              <div className="relative z-10 pt-1.5 border-t border-slate-200/50 dark:border-white/[0.06]">
                 {isDone ? (
                   <div className="w-full flex items-center justify-center">
                     {record.status === 'in_group' ? (
-                      <div className="w-full py-1 px-1 rounded-xl bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-[10px] sm:text-[11px] font-black flex items-center justify-center gap-1 shadow-2xs">
+                      <div className="w-full py-1.5 px-1 rounded-xl bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-[10px] sm:text-[11px] font-black flex items-center justify-center gap-1 shadow-2xs">
                         <span>🕌</span>
                         <span className="truncate">{isAr ? 'جماعة' : 'Group'}</span>
                         {record.sunnahPerformed && <span title="مع السنن">✨</span>}
-                        <span className="font-mono text-[9px] opacity-80 hidden md:inline">+{record.pointsAwarded}</span>
                       </div>
                     ) : record.status === 'late' ? (
-                      <div className="w-full py-1 px-1 rounded-xl bg-slate-200/80 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1">
+                      <div className="w-full py-1.5 px-1 rounded-xl bg-slate-200/80 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1">
                         <span>⏳</span>
                         <span className="truncate">{isAr ? 'قضاءً' : 'Late'}</span>
-                        <span className="font-mono text-[9px] opacity-70 hidden md:inline">+10</span>
                       </div>
                     ) : (
-                      <div className="w-full py-1 px-1 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 text-[10px] sm:text-[11px] font-black flex items-center justify-center gap-1 shadow-2xs">
+                      <div className="w-full py-1.5 px-1 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 text-[10px] sm:text-[11px] font-black flex items-center justify-center gap-1 shadow-2xs">
                         <span>✓</span>
                         <span className="truncate">{isAr ? 'في وقتها' : 'On-time'}</span>
                         {record.sunnahPerformed && <span title="مع السنن">✨</span>}
-                        <span className="font-mono text-[9px] opacity-80 hidden md:inline">+{record.pointsAwarded}</span>
                       </div>
                     )}
                   </div>
                 ) : (
                   <div
-                    className={`w-full py-1 sm:py-1.5 px-1 rounded-xl text-[10px] sm:text-xs font-black flex items-center justify-center gap-1 transition-all shadow-2xs ${
+                    className={`w-full py-1.5 px-1 rounded-xl text-xs font-black flex items-center justify-center gap-1 transition-all shadow-2xs ${
                       isNext
                         ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black shadow-xs'
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white font-bold'
                     }`}
                   >
-                    <span className="text-[10px] sm:text-xs">🤲</span>
+                    <span className="text-xs">🤲</span>
                     <span className="whitespace-nowrap">{isAr ? 'تسجيل' : 'Log'}</span>
                   </div>
                 )}
@@ -934,116 +1025,214 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
         })}
       </div>
 
-      {/* Daily Nawafil & Special Prayers Quick Hub (الضحى، قيام الليل، الوتر، الاستخارة) */}
-      <div className="p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/70 dark:border-white/[0.06] flex items-center justify-between gap-2 flex-wrap text-xs">
-        <div className="flex items-center gap-2">
-          <span className="text-amber-500 text-sm">🕊️</span>
-          <span className="font-black text-slate-900 dark:text-white text-[11px] sm:text-xs">
-            {isAr ? 'نوافل وسنن اليوم الكبرى:' : 'Daily Nawafil:'}
-          </span>
+      {/* 8. 🕊️ Sanctuary of Sunan & Nawafil */}
+      <div className="rounded-3xl p-4 sm:p-5 bg-slate-50/80 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/[0.06] space-y-3.5 transition-all">
+        {/* Sanctuary Header with Expand/Collapse & Progress */}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base shrink-0 shadow-2xs">
+              🕊️
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                {isAr ? 'روضة النوافل والسنن الكبرى' : 'Daily Sunan & Nawafil'}
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
+                {isAr
+                  ? `مؤدى اليوم: ${nawafilCompletedCount} من ٤ سنن كبرى`
+                  : `${nawafilCompletedCount} of 4 core sunan completed`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Progress badge */}
+            <span className="hidden sm:inline-flex px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-black">
+              {Math.round((nawafilCompletedCount / 4) * 100)}% ✨
+            </span>
+
+            {/* Toggle Expand/Collapse */}
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsNawafilExpanded(!isNawafilExpanded);
+              }}
+              className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/[0.08] text-xs font-bold text-slate-600 dark:text-zinc-300 flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+            >
+              <span>{isNawafilExpanded ? (isAr ? 'طي السنن' : 'Collapse') : (isAr ? 'عرض السنن' : 'Expand')}</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isNawafilExpanded ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {/* Dhuha Chip */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setNawafilModalTab('dhuha');
-              setIsNawafilModalOpen(true);
-            }}
-            className={`px-2.5 py-1 rounded-xl border text-[11px] font-bold cursor-pointer transition-all flex items-center gap-1 ${
-              todayLog?.dhuhaDone
-                ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300'
-                : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-zinc-300 hover:border-amber-400'
-            }`}
-            title="صلاة الضحى (صلاة الأوّابين)"
-          >
-            <span>☀️</span>
-            <span>{isAr ? 'صلاة الضحى' : 'Dhuha'}</span>
-            {todayLog?.dhuhaDone ? <Check className="w-3 h-3 text-amber-500" /> : <span className="opacity-60 text-[9px]">+20ن</span>}
-          </button>
+        {/* Expandable 4-Sanctuary Grid */}
+        {isNawafilExpanded && (
+          <div className="space-y-3 pt-1 animate-fade-in">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {/* Dhuha Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setNawafilModalTab('dhuha');
+                  setIsNawafilModalOpen(true);
+                }}
+                className={`p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs hover:scale-[1.01] active:scale-[0.99] ${
+                  todayLog?.dhuhaDone
+                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-900 dark:text-amber-200'
+                    : 'bg-white dark:bg-white/[0.04] border-slate-200/80 dark:border-white/[0.08] text-slate-700 dark:text-zinc-200 hover:border-amber-400'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-black text-xs">
+                    <span>☀️</span>
+                    <span>{isAr ? 'صلاة الضحى' : 'Dhuha'}</span>
+                  </div>
+                  {todayLog?.dhuhaDone ? (
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
+                      ✓ أُديت
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
+                      +20ن
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                  {isAr ? 'صلاة الأوّابين • صدقة عن ٣٦٠ مفصل' : '360 charity points'}
+                </p>
+              </button>
 
-          {/* Qiyam Chip */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setNawafilModalTab('qiyam');
-              setIsNawafilModalOpen(true);
-            }}
-            className={`px-2.5 py-1 rounded-xl border text-[11px] font-bold cursor-pointer transition-all flex items-center gap-1 ${
-              todayLog?.qiyamNightDone
-                ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-700 dark:text-indigo-300'
-                : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-zinc-300 hover:border-indigo-400'
-            }`}
-            title="قيام الليل والتهجد"
-          >
-            <span>🌌</span>
-            <span>{isAr ? 'قيام الليل' : 'Qiyam'}</span>
-            {todayLog?.qiyamNightDone ? <Check className="w-3 h-3 text-indigo-500" /> : <span className="opacity-60 text-[9px]">+30ن</span>}
-          </button>
+              {/* Qiyam Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setNawafilModalTab('qiyam');
+                  setIsNawafilModalOpen(true);
+                }}
+                className={`p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs hover:scale-[1.01] active:scale-[0.99] ${
+                  todayLog?.qiyamNightDone
+                    ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-900 dark:text-indigo-200'
+                    : 'bg-white dark:bg-white/[0.04] border-slate-200/80 dark:border-white/[0.08] text-slate-700 dark:text-zinc-200 hover:border-indigo-400'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-black text-xs">
+                    <span>🌌</span>
+                    <span>{isAr ? 'قيام الليل والتهجد' : 'Qiyam'}</span>
+                  </div>
+                  {todayLog?.qiyamNightDone ? (
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
+                      ✓ أُديت
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 text-[10px] font-bold">
+                      +30ن
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                  {isAr ? 'شرف المؤمن • مراتب ١٠ و١٠٠ و١٠٠٠ آية' : 'Night Vigil'}
+                </p>
+              </button>
 
-          {/* Witr Chip */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setNawafilModalTab('witr');
-              setIsNawafilModalOpen(true);
-            }}
-            className={`px-2.5 py-1 rounded-xl border text-[11px] font-bold cursor-pointer transition-all flex items-center gap-1 ${
-              todayLog?.witrDone
-                ? 'bg-purple-500/15 border-purple-500/40 text-purple-700 dark:text-purple-300'
-                : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-zinc-300 hover:border-purple-400'
-            }`}
-            title="صلاة الشفع والوتر والقنوت"
-          >
-            <span>🌙</span>
-            <span>{isAr ? 'الشفع والوتر' : 'Witr'}</span>
-            {todayLog?.witrDone ? <Check className="w-3 h-3 text-purple-500" /> : <span className="opacity-60 text-[9px]">+25ن</span>}
-          </button>
+              {/* Witr Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setNawafilModalTab('witr');
+                  setIsNawafilModalOpen(true);
+                }}
+                className={`p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs hover:scale-[1.01] active:scale-[0.99] ${
+                  todayLog?.witrDone
+                    ? 'bg-purple-500/15 border-purple-500/40 text-purple-900 dark:text-purple-200'
+                    : 'bg-white dark:bg-white/[0.04] border-slate-200/80 dark:border-white/[0.08] text-slate-700 dark:text-zinc-200 hover:border-purple-400'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-black text-xs">
+                    <span>🌙</span>
+                    <span>{isAr ? 'الشفع والوتر' : 'Witr'}</span>
+                  </div>
+                  {todayLog?.witrDone ? (
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
+                      ✓ أُديت
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-800 dark:text-purple-300 text-[10px] font-bold">
+                      +25ن
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                  {isAr ? 'ختام صلاة الليل • مع دعاء القنوت' : 'Night closing prayer'}
+                </p>
+              </button>
 
-          {/* Tawbah Chip */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setNawafilModalTab('tawbah');
-              setIsNawafilModalOpen(true);
-            }}
-            className={`px-2.5 py-1 rounded-xl border text-[11px] font-bold cursor-pointer transition-all flex items-center gap-1 ${
-              todayLog?.tawbahDone
-                ? 'bg-teal-500/15 border-teal-500/40 text-teal-700 dark:text-teal-300'
-                : 'bg-white dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-zinc-300 hover:border-teal-400'
-            }`}
-            title="صلاة التوبة والاستغفار ومحو الذنوب"
-          >
-            <span>🌿</span>
-            <span>{isAr ? 'صلاة التوبة' : 'Tawbah'}</span>
-            {todayLog?.tawbahDone ? <Check className="w-3 h-3 text-teal-500" /> : <span className="opacity-60 text-[9px]">+25ن</span>}
-          </button>
+              {/* Tawbah Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setNawafilModalTab('tawbah');
+                  setIsNawafilModalOpen(true);
+                }}
+                className={`p-3 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-2 shadow-2xs hover:scale-[1.01] active:scale-[0.99] ${
+                  todayLog?.tawbahDone
+                    ? 'bg-teal-500/15 border-teal-500/40 text-teal-900 dark:text-teal-200'
+                    : 'bg-white dark:bg-white/[0.04] border-slate-200/80 dark:border-white/[0.08] text-slate-700 dark:text-zinc-200 hover:border-teal-400'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 font-black text-xs">
+                    <span>🌿</span>
+                    <span>{isAr ? 'صلاة التوبة' : 'Tawbah'}</span>
+                  </div>
+                  {todayLog?.tawbahDone ? (
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-black">
+                      ✓ أُديت
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded-md bg-teal-500/20 text-teal-800 dark:text-teal-300 text-[10px] font-bold">
+                      +25ن
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                  {isAr ? 'سُنّة الإنابة • طهور وركعتان واستغفار' : 'Repentance & Istighfar'}
+                </p>
+              </button>
+            </div>
 
-          {/* Istikhara / All Sunan Hub Button */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setNawafilModalTab('qiyam');
-              setIsNawafilModalOpen(true);
-            }}
-            className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-indigo-500/10 hover:from-amber-500/20 hover:to-indigo-500/20 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] font-black cursor-pointer transition-all flex items-center gap-1 shadow-2xs"
-            title="موسوعة السنن والنوافل المأثورة الكاملة"
-          >
-            <span>🕊️</span>
-            <span>{isAr ? 'موسوعة السنن (١٢ صلاة)' : 'Sunan Encyclopedia'}</span>
-          </button>
-        </div>
+            {/* Full 12 Sunan Gateway */}
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setNawafilModalTab('qiyam');
+                setIsNawafilModalOpen(true);
+              }}
+              className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-indigo-500/10 hover:from-amber-500/20 hover:to-indigo-500/20 border border-emerald-500/30 text-slate-900 dark:text-white text-xs font-black cursor-pointer transition-all flex items-center justify-between gap-2 shadow-2xs group"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base group-hover:scale-110 transition-transform">🕊️</span>
+                <span>{isAr ? 'موسوعة السنن والنوافل النبوية الكاملة (١٢ صلاة وعبادة مأثورة مع الأدعية والتفاصيل)' : 'Full 12 Sunan & Nawafil Encyclopedia'}</span>
+              </div>
+              <span className="text-emerald-600 dark:text-emerald-400 font-bold group-hover:translate-x-1 transition-transform">
+                ←
+              </span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Centered Floating Pop-up Modal for Prayer & Sunnah Logging */}
