@@ -6,6 +6,9 @@ import {
   MapPin,
   ChevronDown,
   Navigation,
+  Volume2,
+  VolumeX,
+  BellRing,
 } from 'lucide-react';
 import {
   calculatePrayerTimes,
@@ -23,6 +26,7 @@ import { useTranslation } from '../../i18n/LanguageContext';
 import type { DailyLog, PrayerName, UserState } from '../../types';
 import { checkIsFridaySalawatWindow, type TasbihPresetId } from '../../utils/tasbihEngine';
 import { autoDetectAndSyncPrayerLocation, fetchAladhanPrayerTimings } from '../../services/onlinePrayerService';
+import { MUADHIN_OPTIONS } from '../modals/PrayerLocationModal';
 
 interface PrayerTimesBarProps {
   todayLog?: DailyLog;
@@ -55,6 +59,50 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   const [selectedPrayerAction, setSelectedPrayerAction] = useState<PrayerName | null>(null);
   const [isOnlineLive, setIsOnlineLive] = useState(false);
   const [justLoggedPrayer, setJustLoggedPrayer] = useState<{ name: PrayerName; title: string } | null>(null);
+
+  // Adhan & Pre-Prayer Audio State
+  const [activeAdhanAudio, setActiveAdhanAudio] = useState<HTMLAudioElement | null>(null);
+  const [isAdhanPlaying, setIsAdhanPlaying] = useState(false);
+  const [dismissedAlertPrayer, setDismissedAlertPrayer] = useState<string | null>(null);
+
+  const handleStopAdhan = () => {
+    soundSynth.playTactileClick();
+    if (activeAdhanAudio) {
+      activeAdhanAudio.pause();
+      activeAdhanAudio.currentTime = 0;
+    }
+    setIsAdhanPlaying(false);
+  };
+
+  const handlePlayAdhan = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const pAudio = userState?.settings?.prayerAudioSettings;
+    const muadhinKey = pAudio?.muadhin || 'makkah';
+    const opt = MUADHIN_OPTIONS.find((m) => m.id === muadhinKey) || MUADHIN_OPTIONS[0];
+
+    if (activeAdhanAudio) {
+      activeAdhanAudio.pause();
+    }
+    const aud = new Audio(opt.audioUrl);
+    aud.volume = 0.9;
+    aud.play().then(() => {
+      setIsAdhanPlaying(true);
+      setActiveAdhanAudio(aud);
+      onRewardToast?.(isAr ? `📢 يُرفع الأذان الآن بصوت: ${opt.nameAr}` : `Adhan playing: ${opt.nameAr}`);
+    }).catch(() => {});
+    aud.onended = () => {
+      setIsAdhanPlaying(false);
+    };
+  };
+
+  useEffect(() => {
+    return () => {
+      if (activeAdhanAudio) {
+        activeAdhanAudio.pause();
+      }
+    };
+  }, [activeAdhanAudio]);
 
   const cityPickerRef = React.useRef<HTMLDivElement>(null);
 
@@ -290,6 +338,42 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             <span className="sm:hidden">{isAr ? 'المسبحة' : 'Tasbih'}</span>
           </button>
 
+          {/* Adhan Audio Play / Stop Quick Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (isAdhanPlaying) {
+                handleStopAdhan();
+              } else {
+                handlePlayAdhan();
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all active:scale-95 shrink-0 whitespace-nowrap ${
+              isAdhanPlaying
+                ? 'bg-amber-500 text-black border-amber-400 animate-pulse font-black'
+                : userState?.settings?.prayerAudioSettings?.adhanEnabled
+                ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/25'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-slate-700 dark:text-zinc-300 border-slate-200/80 dark:border-white/[0.08]'
+            }`}
+            title={
+              isAdhanPlaying
+                ? 'كتم وإيقاف صوت الأذان 🔇'
+                : 'الاستماع لصوت الأذان أو تجربة المؤذن'
+            }
+          >
+            {isAdhanPlaying ? (
+              <>
+                <VolumeX className="w-3.5 h-3.5 text-black" />
+                <span>{isAr ? 'كتم الأذان 🔇' : 'Mute'}</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="hidden sm:inline">{isAr ? 'صوت الأذان' : 'Adhan'}</span>
+              </>
+            )}
+          </button>
+
           {/* City Switcher Dropdown */}
           <div className="relative shrink-0" ref={cityPickerRef}>
             <button
@@ -350,6 +434,78 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 1. Active Adhan Audio Playing Bar */}
+      {isAdhanPlaying && (
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 border border-amber-500/40 flex items-center justify-between gap-3 animate-pulse shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+              <Volume2 className="w-4 h-4 animate-bounce" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm font-black text-amber-950 dark:text-amber-200 truncate">
+                {isAr ? '📢 يُرفع الآن صوت الأذان الشريف' : 'Adhan is currently playing'}
+              </h4>
+              <p className="text-[11px] text-amber-800 dark:text-amber-300 truncate">
+                {isAr
+                  ? `بصوت: ${MUADHIN_OPTIONS.find((m) => m.id === userState?.settings?.prayerAudioSettings?.muadhin)?.nameAr || 'الحرم المكي'}`
+                  : 'Call to prayer is live'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleStopAdhan}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 text-xs font-black shadow-md cursor-pointer transition-all shrink-0"
+          >
+            <VolumeX className="w-3.5 h-3.5" />
+            <span>{isAr ? 'إيقاف / كتم 🔇' : 'Mute'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* 2. 10-Minute Pre-Prayer Reminder Alert */}
+      {(() => {
+        const pAudio = userState?.settings?.prayerAudioSettings;
+        const preMinutes = pAudio?.prePrayerAlertMinutes ?? 10;
+        const isPreDue =
+          (pAudio?.prePrayerAlertEnabled ?? true) &&
+          nextPrayer.minutesRemaining <= preMinutes &&
+          nextPrayer.minutesRemaining > 0;
+
+        if (isPreDue && dismissedAlertPrayer !== nextPrayer.arabicName) {
+          return (
+            <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 border border-emerald-500/30 flex items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <BellRing className="w-4 h-4 animate-pulse" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-emerald-900 dark:text-emerald-200 truncate">
+                    {isAr
+                      ? `🔔 اقترب موعد صلاة ${nextPrayer.arabicName} (متبقي ${nextPrayer.minutesRemaining} دقيقة تقريباً)`
+                      : `Upcoming: ${nextPrayer.arabicName} in ${nextPrayer.minutesRemaining}m`}
+                  </p>
+                  <span className="text-[10px] text-emerald-700 dark:text-emerald-300 block truncate">
+                    {isAr ? 'استعد للوضوء وإجابة النداء والتهيؤ للسكينة' : 'Prepare for prayer'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setDismissedAlertPrayer(nextPrayer.arabicName)}
+                className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 p-1 text-xs font-bold shrink-0 cursor-pointer"
+                title="إخفاء التنبيه"
+              >
+                ✕
+              </button>
+            </div>
+          );
+        }
+        return null;
+      })()}
 
       {/* Friday Notification Note Banner */}
       {prayerTimes.isFriday && (

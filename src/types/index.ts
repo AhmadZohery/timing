@@ -295,10 +295,29 @@ export type LifeRoleTemplate =
 export type ProfessionDomain =
   | 'software_dev'
   | 'ui_ux_design'
-  | 'student_academia'
+  | 'data_ai'
+  | 'product_management'
   | 'business_freelance'
+  | 'content_marketing'
+  | 'finance_trading'
   | 'healthcare'
+  | 'engineering_architecture'
+  | 'law_legal'
+  | 'education_teaching'
+  | 'ecommerce_retail'
+  | 'student_academia'
   | 'custom';
+
+export interface CustomDhikrItem {
+  id: string;
+  titleAr: string;
+  targetCount: number;
+  category: 'daily_core' | 'prayer_adhkar' | 'treasures' | 'custom';
+  isPublicProposal?: boolean;
+  authorName?: string;
+  status: 'local_only' | 'pending_approval' | 'approved_global';
+  createdAt: string;
+}
 
 export type DayWorkRhythm = 'full_day' | 'half_day' | 'rest_day' | 'friday_special';
 
@@ -403,12 +422,62 @@ export interface SleepScheduleConfig {
 }
 
 export type LifestylePersonaId =
-  | 'builder_exec'      // رائد أعمال ومهندس (Default)
-  | 'academic_student'  // طالب وباحث أكاديمي
-  | 'sharia_seeker'     // طالب علم شرعي وباحث
-  | 'freelancer_creator'// مستقل وصانع محتوى
-  | 'flexible_home'     // تنظيم الحياة المرنة ورب الأسرة (غير موظف)
-  | 'custom';           // مخصص بالكامل
+  | 'builder_exec'             // رائد أعمال ومهندس (Default)
+  | 'academic_student'         // طالب وباحث أكاديمي
+  | 'sharia_seeker'            // طالب علم شرعي وباحث
+  | 'freelancer_creator'       // مستقل وصانع محتوى
+  | 'remote_teacher_flexible'  // معلّم ومدرّس عن بعد بمواعيد مرنة
+  | 'dedicated_learner'        // متفرغ للتعلم الذاتي وبناء المهارات
+  | 'homemaker_family'         // ربة منزل وإدارة الأسرة والطهي والسكينة
+  | 'seeker_nonworking'        // متفرغ حالياً / باحث عن شغف (تنظيم الحياة بدون ضغط وظيفي)
+  | 'flexible_home'            // تنظيم الحياة المرنة (للتوافق العكسي)
+  | 'custom';                  // مخصص بالكامل
+
+export interface DailyRoutineAnswers {
+  activityType:
+    | 'office_job'
+    | 'freelance_remote'
+    | 'remote_teacher'
+    | 'dedicated_learning'
+    | 'homemaker_cooking'
+    | 'seeking_flexible'
+    | 'student';
+  commuteMinutes: number; // 0 for home/remote
+  cooksFood: boolean;
+  cookingWindow?: 'pre_dhuhr' | 'after_dhuhr' | 'pre_maghrib' | 'evening';
+  cookingMinutes?: number; // e.g. 60
+  workoutPreference: 'gym_iron' | 'home_calisthenics' | 'outdoor_walk' | 'none_rest';
+  workStartHour?: number; // e.g. 9
+  workEndHour?: number; // e.g. 17
+  targetSleepHours: number; // default 7
+  autoSuggestWakeup: boolean;
+  customWakeupTime?: string; // e.g. "05:00"
+  suggestedWakeupTime?: string;
+  calculatedAt?: string;
+}
+
+export interface LearningTrackItem {
+  id: string;
+  title: string;
+  category: 'programming' | 'languages' | 'teaching' | 'reading' | 'islamic' | 'business' | 'other';
+  currentTopic: string;
+  totalLessons?: number;
+  completedLessons: number;
+  targetHoursWeekly?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LearningSessionLog {
+  id: string;
+  trackId: string;
+  date: string;
+  durationMinutes: number;
+  summary: string;
+  takeaway: string;
+  createdAt: string;
+}
 
 export interface StationCustomOverride {
   customTitle?: string;
@@ -423,6 +492,13 @@ export type ThemePaletteId =
   | 'cosmic_titanium' // تيتانيوم الفضاء الأبل برو (Space Tech)
   | 'nordic_slate';   // الصلصال الشمالي النقي (Minimalist)
 
+export interface PrayerAudioSettings {
+  adhanEnabled: boolean;
+  muadhin: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary';
+  prePrayerAlertEnabled: boolean; // default true
+  prePrayerAlertMinutes: number; // default 10
+}
+
 export interface AppSettings {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
@@ -434,6 +510,7 @@ export interface AppSettings {
   aiConfig?: AiProviderConfig;
   prayerLocation?: PrayerLocationConfig;
   prayerNotificationsEnabled?: boolean;
+  prayerAudioSettings?: PrayerAudioSettings;
   followUpReminderMinutes?: number; // default 15
   secondReminderMinutes?: number; // default 30
   fridayReminderDelayMinutes?: number; // default 120 (2 hours)
@@ -450,6 +527,7 @@ export interface AppSettings {
   lifestylePersona?: LifestylePersonaId;
   stationCustomOverrides?: Partial<Record<StationId, StationCustomOverride>>;
   themePalette?: ThemePaletteId;
+  dailyRoutineAnswers?: DailyRoutineAnswers;
 }
 
 export interface UserBehavioralDNA {

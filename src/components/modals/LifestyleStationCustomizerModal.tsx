@@ -20,6 +20,8 @@ import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 
+import { SmartRoutineWizardModal } from './SmartRoutineWizardModal';
+
 interface LifestyleStationCustomizerModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -51,6 +53,7 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
   const [selectedPersona, setSelectedPersona] = useState<LifestylePersonaId>(currentPersona);
   const [overrides, setOverrides] = useState<Partial<Record<StationId, StationCustomOverride>>>(currentOverrides);
   const [editingStation, setEditingStation] = useState<StationId | null>(null);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
 
   // Form edit fields
   const [editTitle, setEditTitle] = useState('');
@@ -171,20 +174,49 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
 
         {/* Scrollable Body */}
         <div className="p-4 sm:p-5 overflow-y-auto space-y-5 flex-1">
+          {/* Smart Wizard Quick Launch Banner */}
+          <div className="p-4 rounded-2xl bg-linear-to-r from-amber-500/15 via-orange-500/10 to-indigo-500/15 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                  {isAr ? 'المُعالج الذكي لبناء الروتين وحساب المواعيد 🧭' : 'Interactive Routine Wizard'}
+                </h3>
+                <p className="text-[11px] text-slate-600 dark:text-zinc-300 mt-0.5">
+                  {isAr
+                    ? 'يسألك عن طبيعة عملك، مدة المواصلات، إعداد الطعام، والرياضة، ويقترح جدولاً متناسقاً مع الفجر!'
+                    : 'Asks about work, commute, cooking, and workout, suggesting ideal wake-up time.'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsWizardOpen(true)}
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 text-xs font-black shadow-md shadow-amber-500/20 transition-all cursor-pointer shrink-0"
+            >
+              {isAr ? 'بدء الاستبيان الذكي 🚀' : 'Start Wizard 🚀'}
+            </button>
+          </div>
+
           {/* Lifestyle Personas Selection */}
           <div className="space-y-2.5">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-mono block">
-              {isAr ? '1. اختر نمط حياتك الأساسي:' : '1. Select Your Lifestyle Persona:'}
+              {isAr ? '1. أو اختر نمط حياتك الأساسي مباشرة:' : '1. Or Select Your Lifestyle Persona:'}
             </label>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {(
                 [
                   'builder_exec',
+                  'homemaker_family',
+                  'remote_teacher_flexible',
+                  'dedicated_learner',
+                  'seeker_nonworking',
+                  'freelancer_creator',
                   'academic_student',
                   'sharia_seeker',
-                  'freelancer_creator',
-                  'flexible_home',
                   'custom',
                 ] as LifestylePersonaId[]
               ).map((pId) => {
@@ -405,6 +437,14 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
           </div>
         </div>
       </div>
+
+      {/* Interactive Smart Routine Wizard Modal */}
+      <SmartRoutineWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        userState={userState}
+        onRewardToast={onRewardToast}
+      />
     </div>
   );
 };

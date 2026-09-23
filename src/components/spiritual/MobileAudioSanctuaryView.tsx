@@ -10,6 +10,7 @@ import {
   Radio,
   Disc3,
   Heart,
+  Moon,
 } from 'lucide-react';
 import {
   gymFaithAudio,
@@ -388,7 +389,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const isAr = language === 'ar';
 
   const [audioState, setAudioState] = useState<GymFaithAudioState>(gymFaithAudio.getState());
-  const [activeCategory, setActiveCategory] = useState<'all' | 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'favorites' | 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
@@ -399,23 +400,50 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     }
   });
 
+  // Sleep Timer State
+  const [sleepSecondsLeft, setSleepSecondsLeft] = useState<number | null>(null);
+  const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
+
   useEffect(() => {
     const unsub = gymFaithAudio.subscribe(setAudioState);
     return () => unsub();
   }, []);
 
+  // Sleep timer countdown effect
+  useEffect(() => {
+    if (sleepSecondsLeft === null) return;
+    if (sleepSecondsLeft <= 0) {
+      gymFaithAudio.pause();
+      setSleepSecondsLeft(null);
+      onRewardToast?.(isAr ? '🌙 تم إيقاف الصوت تلقائياً عبر مؤقت النوم' : 'Audio stopped by Sleep Timer');
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setSleepSecondsLeft((prev) => (prev !== null && prev > 0 ? prev - 1 : null));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [sleepSecondsLeft, isAr, onRewardToast]);
+
   const categories = useMemo(() => [
     { id: 'all', label: isAr ? '✨ الكل' : 'All', count: VERIFIED_FAITH_TRACKS.length },
+    { id: 'favorites', label: isAr ? '💖 المفضلة' : 'Favorites', count: favoriteIds.length },
     { id: 'khutbah', label: isAr ? '🎙️ خطب ومواعظ مدوية' : 'Khutbahs', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'khutbah').length },
     { id: 'quran', label: isAr ? '📖 روائع التلاوات' : 'Recitations', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'quran').length },
     { id: 'adhkar', label: isAr ? '🌸 أذكار ورقية' : 'Adhkar', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'adhkar').length },
     { id: 'tazkiyah', label: isAr ? '💖 تزكية وبناء' : 'Tazkiyah', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'tazkiyah').length },
     { id: 'radio', label: isAr ? '📻 إذاعات حية 24/7' : 'Live Radios', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'radio').length },
-  ], [isAr]);
+  ], [isAr, favoriteIds]);
 
   const filteredTracks = useMemo(() => {
     return VERIFIED_FAITH_TRACKS.filter((track) => {
-      const matchCat = activeCategory === 'all' || track.category === activeCategory;
+      const matchCat =
+        activeCategory === 'all'
+          ? true
+          : activeCategory === 'favorites'
+          ? favoriteIds.includes(track.id)
+          : track.category === activeCategory;
       const q = searchQuery.trim().toLowerCase();
       const matchSearch =
         !q ||
@@ -424,7 +452,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         track.badgeAr.toLowerCase().includes(q);
       return matchCat && matchSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, favoriteIds]);
 
   const handleTogglePlayTrack = (track: MobileAudioTrack) => {
     soundSynth.playTactileClick();
@@ -486,13 +514,39 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Sleep Timer Trigger Button */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setIsSleepModalOpen(true);
+            }}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+              sleepSecondsLeft !== null
+                ? 'bg-indigo-600 text-white border-indigo-400 font-mono shadow-sm animate-pulse'
+                : 'bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white border-white/10'
+            }`}
+            title="مؤقت النوم لإيقاف الصوت تلقائياً"
+          >
+            <Moon className="w-3.5 h-3.5" />
+            <span>
+              {sleepSecondsLeft !== null
+                ? `${Math.floor(sleepSecondsLeft / 60)}:${String(sleepSecondsLeft % 60).padStart(2, '0')}`
+                : isAr
+                ? 'مؤقت النوم'
+                : 'Sleep'}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* 2. Search & Category Horizontal Scroller */}
@@ -715,6 +769,65 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sleep Timer Selection Modal */}
+      {isSleepModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-xs rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-5 space-y-4 text-center">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto shadow-inner">
+              <Moon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white">مؤقت النوم الهادئ 🌙</h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                إيقاف تشغيل المقاطع تلقائياً بعد فترة محددة للنوم بسلام
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[15, 30, 45, 60].map((mins) => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setSleepSecondsLeft(mins * 60);
+                    setIsSleepModalOpen(false);
+                    onRewardToast?.(`🌙 تم ضبط مؤقت النوم على ${mins} دقيقة`);
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 border border-slate-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  {mins} دقيقة
+                </button>
+              ))}
+            </div>
+
+            {sleepSecondsLeft !== null && (
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  setSleepSecondsLeft(null);
+                  setIsSleepModalOpen(false);
+                  onRewardToast?.('تم إلغاء مؤقت النوم');
+                }}
+                className="w-full py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+              >
+                إلغاء المؤقت
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsSleepModalOpen(false)}
+              className="text-xs text-slate-400 hover:text-white block mx-auto cursor-pointer"
+            >
+              إغلاق
+            </button>
           </div>
         </div>
       )}

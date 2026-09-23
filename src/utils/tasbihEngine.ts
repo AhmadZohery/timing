@@ -1,9 +1,9 @@
-import type { PrayerLocationConfig } from '../types';
+import type { PrayerLocationConfig, CustomDhikrItem } from '../types';
 import { calculatePrayerTimes, detectDefaultCityFromTimezone } from './prayerCalculator';
 import { db } from '../db/db';
 import { getBiologicalDate, upsertDailyLog } from './gamification';
 
-export type TasbihCategory = 'daily_core' | 'prayer_adhkar' | 'treasures';
+export type TasbihCategory = 'daily_core' | 'prayer_adhkar' | 'treasures' | 'custom';
 
 export type TasbihPresetId =
   | 'tahlil_100'          // حرز الصباح الأكبر (100x لا إله إلا الله...)
@@ -350,7 +350,7 @@ export function checkIsFridaySalawatWindow(
  * Saves completed tasbih count in Dexie daily_logs with XP rewards
  */
 export async function updateDailyTasbihProgress(
-  presetId: TasbihPresetId,
+  presetId: TasbihPresetId | string,
   count: number,
   target: number
 ): Promise<{ completedNow: boolean; pointsAwarded: number; message?: string }> {
@@ -359,7 +359,7 @@ export async function updateDailyTasbihProgress(
   const todayLog = await db.daily_logs.get(todayDateStr);
 
   const existingMap = todayLog?.tasbihDailyProgress || {};
-  const currentRecord = existingMap[presetId];
+  const currentRecord = existingMap[presetId as TasbihPresetId];
   const wasAlreadyCompleted = currentRecord?.completed ?? false;
   const completedNow = isCompleted && !wasAlreadyCompleted;
 
@@ -374,7 +374,8 @@ export async function updateDailyTasbihProgress(
     },
   };
 
-  const preset = TASBIH_PRESETS[presetId];
+  const allPresets = getAllTasbihPresets();
+  const preset = allPresets[presetId] || TASBIH_PRESETS[presetId as TasbihPresetId];
   let pointsAwarded = 0;
 
   if (completedNow) {
@@ -403,7 +404,7 @@ export async function updateDailyTasbihProgress(
     completedNow,
     pointsAwarded,
     message: completedNow
-      ? `✨ تقبل الله طاعتك ورطب لسانك بذكره! أتممت ${preset?.titleAr} (+${pointsAwarded} XP)`
+      ? `✨ تقبل الله طاعتك ورطب لسانك بذكره! أتممت ${preset?.titleAr || 'الذكر'} (+${pointsAwarded} XP)`
       : undefined,
   };
 }
@@ -412,7 +413,7 @@ export async function updateDailyTasbihProgress(
  * Instantly persists every single tap into Dexie tasbih_counters table
  */
 export async function recordTasbihTap(
-  presetId: TasbihPresetId,
+  presetId: TasbihPresetId | string,
   stageIndex: number,
   currentCount: number,
   target: number
@@ -451,7 +452,7 @@ export async function recordTasbihTap(
  * Recovers today's active count and stage for a given preset
  */
 export async function getActiveTasbihSession(
-  presetId: TasbihPresetId
+  presetId: TasbihPresetId | string
 ): Promise<{ count: number; stageIndex: number; completed: boolean } | null> {
   const todayDateStr = getBiologicalDate(true);
   const id = `${todayDateStr}_${presetId}`;
@@ -490,7 +491,7 @@ export async function getActiveTasbihSession(
 /**
  * Resets the session for a given preset
  */
-export async function resetTasbihSession(presetId: TasbihPresetId): Promise<void> {
+export async function resetTasbihSession(presetId: TasbihPresetId | string): Promise<void> {
   const todayDateStr = getBiologicalDate(true);
   const id = `${todayDateStr}_${presetId}`;
 
@@ -502,4 +503,135 @@ export async function resetTasbihSession(presetId: TasbihPresetId): Promise<void
   } catch (err) {
     console.warn('Error resetting tasbih session:', err);
   }
+}
+
+// ==========================================
+// Custom Dhikrs & Community Moderation
+// ==========================================
+const STORAGE_CUSTOM_DHIKRS = 'midmar_custom_dhikrs_v1';
+const STORAGE_COMMUNITY_PENDING = 'midmar_community_dhikr_pending_v1';
+
+export function getCustomDhikrs(): CustomDhikrItem[] {
+  if (typeof localStorage === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_CUSTOM_DHIKRS);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  return [];
+}
+
+export function saveCustomDhikr(data: {
+  titleAr: string;
+  targetCount: number;
+  category?: TasbihCategory;
+  isPublicProposal?: boolean;
+  authorName?: string;
+}): CustomDhikrItem {
+  const existing = getCustomDhikrs();
+  const newItem: CustomDhikrItem = {
+    id: `custom_dhikr_${Date.now()}`,
+    titleAr: data.titleAr.trim(),
+    targetCount: Number(data.targetCount) || 100,
+    category: data.category || 'custom',
+    isPublicProposal: !!data.isPublicProposal,
+    authorName: data.authorName?.trim() || 'صاحب الهمة',
+    status: data.isPublicProposal ? 'pending_approval' : 'local_only',
+    createdAt: new Date().toISOString(),
+  };
+
+  const updated = [newItem, ...existing];
+  try {
+    localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updated));
+
+    // If it's proposed for community review, add to pending pool for admin review
+    if (data.isPublicProposal) {
+      const pending = getCommunityPendingDhikrs();
+      localStorage.setItem(
+        STORAGE_COMMUNITY_PENDING,
+        JSON.stringify([newItem, ...pending.filter((p) => p.id !== newItem.id)])
+      );
+    }
+  } catch (_) {}
+
+  return newItem;
+}
+
+export function deleteCustomDhikr(id: string): void {
+  const existing = getCustomDhikrs();
+  const updated = existing.filter((d) => d.id !== id);
+  try {
+    localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updated));
+  } catch (_) {}
+}
+
+export function getCommunityPendingDhikrs(): CustomDhikrItem[] {
+  if (typeof localStorage === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_COMMUNITY_PENDING);
+    if (raw) return JSON.parse(raw);
+  } catch (_) {}
+  return [];
+}
+
+export function approveCommunityDhikr(id: string): void {
+  const pending = getCommunityPendingDhikrs();
+  const target = pending.find((p) => p.id === id);
+  if (!target) return;
+
+  target.status = 'approved_global';
+  const updatedPending = pending.filter((p) => p.id !== id);
+
+  // Update in custom list as approved
+  const custom = getCustomDhikrs();
+  const updatedCustom = custom.map((c) => (c.id === id ? { ...c, status: 'approved_global' as const } : c));
+
+  try {
+    localStorage.setItem(STORAGE_COMMUNITY_PENDING, JSON.stringify(updatedPending));
+    localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updatedCustom));
+  } catch (_) {}
+}
+
+export function rejectCommunityDhikr(id: string): void {
+  const pending = getCommunityPendingDhikrs();
+  const updatedPending = pending.filter((p) => p.id !== id);
+
+  const custom = getCustomDhikrs();
+  const updatedCustom = custom.map((c) => (c.id === id ? { ...c, status: 'local_only' as const } : c));
+
+  try {
+    localStorage.setItem(STORAGE_COMMUNITY_PENDING, JSON.stringify(updatedPending));
+    localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updatedCustom));
+  } catch (_) {}
+}
+
+/**
+ * Returns merged dictionary of Built-in Presets + User Custom Dhikrs
+ */
+export function getAllTasbihPresets(): Record<string, TasbihPreset> {
+  const all: Record<string, TasbihPreset> = { ...TASBIH_PRESETS };
+  const customItems = getCustomDhikrs();
+
+  for (const item of customItems) {
+    all[item.id] = {
+      id: item.id as any,
+      category: item.category || 'custom',
+      titleAr: item.titleAr,
+      titleEn: 'Custom Dhikr',
+      badgeAr: item.status === 'approved_global' ? '🌐 معتمد للجميع' : '🌸 ورد خاص بك',
+      icon: '✨',
+      descriptionAr: `ورد شخصي مستهدف: ${item.targetCount} مرة`,
+      hadithVirtueAr: 'الذكر غذاء القلوب وطمأنينة الأرواح.',
+      pointsReward: 20,
+      stages: [
+        {
+          id: `stage_${item.id}`,
+          text: item.titleAr,
+          target: item.targetCount,
+          virtueAr: 'ذكر مخصص من العبد لربه سبحانه وتعالى.',
+        },
+      ],
+    };
+  }
+
+  return all;
 }

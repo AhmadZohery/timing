@@ -65,11 +65,18 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
   );
   const nextP = getNextPrayer(pTimes);
 
+  const routineAns = userState?.settings?.dailyRoutineAnswers;
+  const isHomemaker = routineAns?.activityType === 'homemaker_cooking' || userState?.settings?.lifestylePersona === 'homemaker_family';
+  const isLearner = routineAns?.activityType === 'dedicated_learning' || userState?.settings?.lifestylePersona === 'dedicated_learner';
+  const isRemoteTeacher = routineAns?.activityType === 'remote_teacher' || userState?.settings?.lifestylePersona === 'remote_teacher_flexible';
+
   const phases: CircadianPhase[] = [
     {
       id: 'fajr_morning',
       title: 'الفجر وبداية البركة',
-      subtitle: 'صلاة الفجر، أذكار الصباح، ورد سورة البقرة',
+      subtitle: routineAns?.commuteMinutes && routineAns.commuteMinutes > 0
+        ? `صلاة الفجر، أذكار الصباح، والمواصلات (${routineAns.commuteMinutes} دقيقة)`
+        : 'صلاة الفجر، أذكار الصباح، ورد سورة البقرة والسكينة المنزلية',
       timeRange: '05:00 - 08:30',
       startHour: 5,
       endHour: 8.5,
@@ -83,11 +90,23 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
         ? `واحة الراحة (${rhythm.dayNameAr})`
         : rhythm.isHalfDay
         ? `نصف يوم عمل (${rhythm.dayNameAr})`
+        : isHomemaker
+        ? 'إدارة شؤون المنزل وفترة الطهي الصحي'
+        : isLearner
+        ? 'جلسات التعلم الذاتي وبناء المهارات'
+        : isRemoteTeacher
+        ? 'الحصص والتدريس التفاعلي المرن'
         : 'التركيز والعمل العميق',
       subtitle: rhythm.isRestDay
         ? 'استجمام وتجديد الطاقة وحماية مسار الراحة'
         : rhythm.isHalfDay
         ? 'إنجاز مهام سريعة أساسية قبل بدء عطلتك'
+        : isHomemaker
+        ? 'إعداد وجبات الأسرة، تنظيم أركان البيت، وتفريغ المهام'
+        : isLearner
+        ? 'دراسة الموضوع المختار، حل التطبيقات وتوثيق الفوائد'
+        : isRemoteTeacher
+        ? 'شرح الدروس للطلاب، إعداد المناهج والمتابعة'
         : 'جلسات العمل ذات الأولوية القصوى والإنتاجية',
       timeRange: '08:30 - 12:30',
       startHour: 8.5,
@@ -114,8 +133,20 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
     },
     {
       id: 'afternoon_gym',
-      title: 'العصر وتجديد الإندورفين',
-      subtitle: 'صلاة العصر، التمارين البدنية، وجلسات المساء',
+      title: routineAns?.workoutPreference === 'none_rest'
+        ? 'العصر والاسترخاء والعناية الذاتية'
+        : routineAns?.workoutPreference === 'home_calisthenics'
+        ? 'العصر واللياقة المنزلية'
+        : routineAns?.workoutPreference === 'outdoor_walk'
+        ? 'العصر والمشي وتجديد الهواء'
+        : 'العصر وتجديد الإندورفين',
+      subtitle: routineAns?.workoutPreference === 'none_rest'
+        ? 'صلاة العصر، جلسة راحة وشاي هادئ وعناية شخصية'
+        : routineAns?.workoutPreference === 'home_calisthenics'
+        ? 'صلاة العصر، تمارين لياقة وتمدد خفيف في البيت'
+        : routineAns?.workoutPreference === 'outdoor_walk'
+        ? 'صلاة العصر، مشي وتصفية الذهن واستنشاق الأكسجين'
+        : 'صلاة العصر، التمارين البدنية، وجلسات المساء',
       timeRange: '15:30 - 18:30',
       startHour: 15.5,
       endHour: 18.5,

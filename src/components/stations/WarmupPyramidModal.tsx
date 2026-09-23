@@ -23,7 +23,7 @@ export const WarmupPyramidModal: React.FC<WarmupPyramidModalProps> = ({
   const [targetWeight, setTargetWeight] = useState(80);
   const [barWeight, setBarWeight] = useState(20);
 
-  const [activeTab, setActiveTab] = useState<'pyramid' | 'one_rm'>('pyramid');
+  const [activeTab, setActiveTab] = useState<'pyramid' | 'one_rm' | 'plates'>('pyramid');
   const [liftWeight, setLiftWeight] = useState(70);
   const [liftReps, setLiftReps] = useState(8);
 
@@ -55,6 +55,38 @@ export const WarmupPyramidModal: React.FC<WarmupPyramidModalProps> = ({
     }
 
     return platesUsed.join(' + ') || (isAr ? 'بدون أوزان' : 'No Plates');
+  };
+
+  const plateDefinitions = [
+    { weight: 25, colorBg: 'bg-red-600', colorBorder: 'border-red-700', textColor: 'text-white', nameAr: 'حمراء (25 كجم)', height: 'h-24' },
+    { weight: 20, colorBg: 'bg-blue-600', colorBorder: 'border-blue-700', textColor: 'text-white', nameAr: 'زرقاء (20 كجم)', height: 'h-22' },
+    { weight: 15, colorBg: 'bg-amber-500', colorBorder: 'border-amber-600', textColor: 'text-black font-black', nameAr: 'صفراء (15 كجم)', height: 'h-19' },
+    { weight: 10, colorBg: 'bg-emerald-600', colorBorder: 'border-emerald-700', textColor: 'text-white', nameAr: 'خضراء (10 كجم)', height: 'h-16' },
+    { weight: 5, colorBg: 'bg-slate-200 dark:bg-zinc-200', colorBorder: 'border-slate-300', textColor: 'text-black font-black', nameAr: 'بيضاء (5 كجم)', height: 'h-14' },
+    { weight: 2.5, colorBg: 'bg-zinc-800', colorBorder: 'border-zinc-900', textColor: 'text-white', nameAr: 'سوداء (2.5 كجم)', height: 'h-12' },
+    { weight: 1.25, colorBg: 'bg-slate-400', colorBorder: 'border-slate-500', textColor: 'text-white', nameAr: 'فضية (1.25 كجم)', height: 'h-10' },
+  ];
+
+  const getDetailedPlates = (totalWeight: number, bar: number) => {
+    let weightPerSide = Math.max(0, (totalWeight - bar) / 2);
+    const platesList: Array<{ weight: number; count: number; colorBg: string; colorBorder: string; textColor: string; nameAr: string; height: string }> = [];
+
+    for (const def of plateDefinitions) {
+      let count = 0;
+      while (weightPerSide >= def.weight) {
+        count++;
+        weightPerSide = Math.round((weightPerSide - def.weight) * 100) / 100;
+      }
+      if (count > 0) {
+        platesList.push({ ...def, count });
+      }
+    }
+
+    return {
+      weightPerSide: Math.max(0, (totalWeight - bar) / 2),
+      platesList,
+      remainingUnloaded: weightPerSide,
+    };
   };
 
   const pyramidSets = [
@@ -152,13 +184,27 @@ export const WarmupPyramidModal: React.FC<WarmupPyramidModalProps> = ({
               soundSynth.playTactileClick();
               setActiveTab('pyramid');
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'pyramid'
                 ? 'bg-white dark:bg-zinc-800 text-orange-600 dark:text-orange-400 shadow-xs'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
-            {isAr ? 'هرم الإحماء العصبي' : 'Warmup Pyramid'}
+            {isAr ? 'هرم الإحماء' : 'Pyramid'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setActiveTab('plates');
+            }}
+            className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'plates'
+                ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-xs'
+                : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
+            }`}
+          >
+            {isAr ? 'رص طارات البار 🏋️' : 'Plate Loader'}
           </button>
           <button
             type="button"
@@ -166,52 +212,78 @@ export const WarmupPyramidModal: React.FC<WarmupPyramidModalProps> = ({
               soundSynth.playTactileClick();
               setActiveTab('one_rm');
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'one_rm'
                 ? 'bg-white dark:bg-zinc-800 text-orange-600 dark:text-orange-400 shadow-xs'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
-            {isAr ? 'حاسبة 1RM المزدوجة الآمنة' : 'Dual 1RM Calculator'}
+            {isAr ? 'حاسبة 1RM' : '1RM Calc'}
           </button>
         </div>
 
         {/* Inputs Bar */}
-        {activeTab === 'pyramid' ? (
-          <div className="p-4 bg-slate-50 dark:bg-zinc-950/60 border-b border-slate-100 dark:border-zinc-800 grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 block mb-1">
-                {isAr ? 'الوزن المستهدف للجولة (كجم):' : 'Target Work Weight (kg):'}
-              </label>
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="number"
-                  min="20"
-                  max="400"
-                  step="2.5"
-                  value={targetWeight}
-                  onChange={(e) => setTargetWeight(Number(e.target.value))}
-                  className="w-full py-1.5 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-sm font-mono font-black text-slate-900 dark:text-white"
-                />
-                <span className="text-xs font-mono font-bold text-slate-500">kg</span>
+        {activeTab === 'pyramid' || activeTab === 'plates' ? (
+          <div className="p-4 bg-slate-50 dark:bg-zinc-950/60 border-b border-slate-100 dark:border-zinc-800 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 block mb-1">
+                  {isAr ? 'الوزن الإجمالي المطلوب (كجم):' : 'Total Target Weight (kg):'}
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    min="20"
+                    max="400"
+                    step="2.5"
+                    value={targetWeight}
+                    onChange={(e) => setTargetWeight(Number(e.target.value))}
+                    className="w-full py-1.5 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-sm font-mono font-black text-slate-900 dark:text-white"
+                  />
+                  <span className="text-xs font-mono font-bold text-slate-500">kg</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 block mb-1">
+                  {isAr ? 'وزن البار الأولمبي (كجم):' : 'Barbell Weight (kg):'}
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <select
+                    value={barWeight}
+                    onChange={(e) => setBarWeight(Number(e.target.value))}
+                    className="w-full py-1.5 px-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-black text-slate-900 dark:text-white"
+                  >
+                    <option value={20}>20 كجم (بار أولمبي قياسي رجالي)</option>
+                    <option value={15}>15 كجم (بار أولمبي نسائي / تكنيك)</option>
+                    <option value={10}>10 كجم (بار خفيف / ستاندرد)</option>
+                    <option value={0}>0 كجم (أجهزة سميث / بدون وزن بار)</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 block mb-1">
-                {isAr ? 'وزن البار فقط (كجم):' : 'Barbell Weight (kg):'}
-              </label>
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="number"
-                  min="0"
-                  max="30"
-                  step="2.5"
-                  value={barWeight}
-                  onChange={(e) => setBarWeight(Number(e.target.value))}
-                  className="w-full py-1.5 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-sm font-mono font-black text-slate-900 dark:text-white"
-                />
-                <span className="text-xs font-mono font-bold text-slate-500">kg</span>
+            {/* Quick Adjust Buttons */}
+            <div className="flex items-center justify-between gap-1 flex-wrap pt-1 border-t border-slate-200/60 dark:border-zinc-800">
+              <span className="text-[10px] text-slate-400 font-bold">تعديل سريع:</span>
+              <div className="flex items-center gap-1">
+                {[-10, -5, -2.5, 2.5, 5, 10].map((delta) => (
+                  <button
+                    key={delta}
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      setTargetWeight((prev) => Math.max(barWeight, prev + delta));
+                    }}
+                    className={`px-2 py-0.5 rounded-lg font-mono text-[10px] font-bold cursor-pointer transition-all active:scale-90 ${
+                      delta > 0
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'
+                        : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20 hover:bg-rose-500/20'
+                    }`}
+                  >
+                    {delta > 0 ? `+${delta}` : delta}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -289,9 +361,115 @@ export const WarmupPyramidModal: React.FC<WarmupPyramidModalProps> = ({
           </div>
         )}
 
-        {/* Content Area: Pyramid Sets List or 1RM Percentages */}
-        <div className="p-4 space-y-2.5 overflow-y-auto flex-1">
-          {activeTab === 'pyramid' ? (
+        {/* Content Area */}
+        <div className="p-4 space-y-3 overflow-y-auto flex-1">
+          {activeTab === 'plates' ? (
+            (() => {
+              const analysis = getDetailedPlates(targetWeight, barWeight);
+              return (
+                <div className="space-y-4 animate-fade-in">
+                  {/* Summary Bar */}
+                  <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block uppercase">
+                        المطلوب على كل جهة من البار:
+                      </span>
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white mt-0.5">
+                        {analysis.weightPerSide} كجم لكل جانب
+                      </h4>
+                    </div>
+                    <span className="text-xs font-black font-mono px-3 py-1 rounded-xl bg-blue-600 text-white">
+                      إجمالي: {targetWeight} kg
+                    </span>
+                  </div>
+
+                  {/* Visual Barbell Graphic */}
+                  <div className="p-5 rounded-3xl bg-slate-950 border border-slate-800 text-center space-y-3 shadow-inner">
+                    <span className="text-[10px] font-mono text-slate-400 font-bold block uppercase tracking-wider">
+                      رسم توضيحي لذراع البار (Sleeve View)
+                    </span>
+
+                    <div className="h-32 flex items-center justify-center px-4 overflow-x-auto">
+                      {/* Left: Barbell Shaft */}
+                      <div className="w-16 sm:w-24 h-4 bg-linear-to-b from-slate-400 via-slate-200 to-slate-500 rounded-l-md shrink-0 shadow-sm" />
+
+                      {/* Collar Ring Stop */}
+                      <div className="w-4 h-20 bg-linear-to-r from-slate-300 via-white to-slate-400 rounded-sm shrink-0 border border-slate-500 shadow-md" />
+
+                      {/* Stacked Plates */}
+                      {analysis.platesList.length === 0 ? (
+                        <div className="px-4 py-2 text-xs text-slate-400 font-mono">
+                          (البار فارغ - لا توجد طارات)
+                        </div>
+                      ) : (
+                        analysis.platesList.flatMap((p) =>
+                          Array.from({ length: p.count }).map((_, cIdx) => (
+                            <div
+                              key={`${p.weight}-${cIdx}`}
+                              className={`w-6 sm:w-8 ${p.height} ${p.colorBg} ${p.colorBorder} border-2 rounded-md shrink-0 mx-0.5 flex flex-col items-center justify-center shadow-lg transition-transform hover:scale-105`}
+                              title={`${p.nameAr}`}
+                            >
+                              <span
+                                className={`text-[10px] font-mono font-black ${p.textColor} transform -rotate-90 select-none`}
+                              >
+                                {p.weight}
+                              </span>
+                            </div>
+                          ))
+                        )
+                      )}
+
+                      {/* Barbell Sleeve Remaining */}
+                      <div className="w-12 sm:w-16 h-5 bg-linear-to-b from-slate-300 via-slate-100 to-slate-400 rounded-r-md shrink-0 border-y border-slate-500" />
+
+                      {/* Barbell Collar Clamp */}
+                      {analysis.platesList.length > 0 && (
+                        <div className="w-2.5 h-10 bg-amber-400 border border-amber-600 rounded-sm shrink-0 shadow-md ml-0.5" title="مشبك الأمان" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Plates Breakdown List */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 block">
+                      تفصيل الطارات لكل جانب:
+                    </span>
+
+                    {analysis.platesList.length === 0 ? (
+                      <div className="p-3 text-center text-xs text-slate-400 bg-slate-50 dark:bg-zinc-800/40 rounded-xl">
+                        الوزن الإجمالي مساوٍ لوزن البار فقط، ارفع البار بدون أي طارات إضافية.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {analysis.platesList.map((p) => (
+                          <div
+                            key={p.weight}
+                            className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={`w-3.5 h-3.5 rounded-full ${p.colorBg} shrink-0`} />
+                              <span className="text-xs font-bold text-slate-900 dark:text-white">
+                                {p.count} × طارة {p.nameAr}
+                              </span>
+                            </div>
+                            <span className="text-xs font-mono font-black text-slate-600 dark:text-zinc-300">
+                              {p.count * p.weight} kg
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {analysis.remainingUnloaded > 0 && (
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-bold">
+                        ⚠️ تنبيه: متبقي {analysis.remainingUnloaded} كجم لكل جهة لا يمكن رصها بالطارات القياسية المتاحة.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
+          ) : activeTab === 'pyramid' ? (
             pyramidSets.map((s, idx) => (
               <div
                 key={idx}

@@ -15,12 +15,14 @@ import {
   Target,
   FileCheck,
   Zap,
+  GraduationCap,
 } from 'lucide-react';
 import { useWorkerTimer } from '../../hooks/useWorkerTimer';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { WorkdayPlanner } from '../work/WorkdayPlanner';
+import { SelfLearningTracker } from '../learning/SelfLearningTracker';
 import { db } from '../../db/db';
 
 interface WorkMicroSprintViewProps {
@@ -47,10 +49,10 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   const { t, language } = useTranslation();
   const effectiveToday = todayDate || new Date().toISOString().split('T')[0];
 
-  const [workViewMode, setWorkViewModeState] = useState<'planner' | 'sprint'>(() => {
-    return (localStorage.getItem('midmar_work_view_mode') as 'planner' | 'sprint') || 'planner';
+  const [workViewMode, setWorkViewModeState] = useState<'planner' | 'sprint' | 'learning_tracker'>(() => {
+    return (localStorage.getItem('midmar_work_view_mode') as 'planner' | 'sprint' | 'learning_tracker') || 'planner';
   });
-  const setWorkViewMode = (mode: 'planner' | 'sprint') => {
+  const setWorkViewMode = (mode: 'planner' | 'sprint' | 'learning_tracker') => {
     setWorkViewModeState(mode);
     localStorage.setItem('midmar_work_view_mode', mode);
   };
@@ -260,20 +262,35 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
       </div>
 
       {/* Work Mode Switcher Tabs */}
-      <div className="flex items-center gap-2 p-1.5 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+      <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
         <button
           onClick={() => {
             soundSynth.playTactileClick();
             setWorkViewMode('planner');
           }}
-          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             workViewMode === 'planner'
               ? 'bg-white dark:bg-zinc-800 text-sky-700 dark:text-cyan-400 shadow-xs'
               : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
           }`}
         >
-          <Briefcase className="w-4 h-4" />
-          <span>{t('workday_planner_title')}</span>
+          <Briefcase className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">{t('workday_planner_title')}</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundSynth.playTactileClick();
+            setWorkViewMode('learning_tracker');
+          }}
+          className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+            workViewMode === 'learning_tracker'
+              ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-xs'
+              : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+          }`}
+        >
+          <GraduationCap className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+          <span className="truncate">{language === 'ar' ? 'مسار وسجل التعلم 📖' : 'Learning Tracker'}</span>
         </button>
 
         <button
@@ -281,14 +298,14 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
             soundSynth.playTactileClick();
             setWorkViewMode('sprint');
           }}
-          className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+          className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             workViewMode === 'sprint'
-              ? 'bg-white dark:bg-zinc-800 text-sky-700 dark:text-cyan-400 shadow-xs'
+              ? 'bg-white dark:bg-zinc-800 text-amber-600 dark:text-amber-400 shadow-xs'
               : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
           }`}
         >
-          <Zap className="w-4 h-4" />
-          <span>{language === 'ar' ? 'جلسة التعلم السريع (20 دقيقة)' : 'Quick 20m Protocol'}</span>
+          <Zap className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+          <span className="truncate">{language === 'ar' ? 'شوط 20 دقيقة' : 'Quick Sprint'}</span>
         </button>
       </div>
 
@@ -298,6 +315,10 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           onDeferToBuffer={onDeferToBuffer}
           bufferAvailableCount={bufferAvailableCount}
           onOpenTwoMinuteRule={onOpenTwoMinuteRule}
+        />
+      ) : workViewMode === 'learning_tracker' ? (
+        <SelfLearningTracker
+          onRewardToast={(msg) => alert(msg)}
         />
       ) : (
         <>

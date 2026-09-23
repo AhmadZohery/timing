@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MapPin,
   Compass,
@@ -7,9 +7,14 @@ import {
   X,
   Info,
   Globe2,
+  Volume2,
+  VolumeX,
+  BellRing,
+  Play,
+  Pause,
 } from 'lucide-react';
 import { db } from '../../db/db';
-import type { UserState, PrayerLocationConfig } from '../../types';
+import type { UserState, PrayerLocationConfig, PrayerAudioSettings } from '../../types';
 import {
   PRESET_CITIES,
   CALCULATION_METHODS,
@@ -27,15 +32,114 @@ interface PrayerLocationModalProps {
   onLocationUpdated?: (cityTitle: string) => void;
 }
 
+export const MUADHIN_OPTIONS = [
+  {
+    id: 'makkah' as const,
+    nameAr: 'أذان الحرم المكي الشريف (الشيخ علي ملا)',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/ali_ibn_ahmed_malla.mp3',
+    icon: '🕋',
+  },
+  {
+    id: 'madinah' as const,
+    nameAr: 'أذان المسجد النبوي الشريف (الشيخ عصام بخاري)',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/essam_boukhari.mp3',
+    icon: '🕌',
+  },
+  {
+    id: 'aqsa' as const,
+    nameAr: 'أذان المسجد الأقصى المبارك',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/al-aqsa.mp3',
+    icon: '✨',
+  },
+  {
+    id: 'abdulbasit' as const,
+    nameAr: 'أذان الشيخ عبد الباسط عبد الصمد (مصر)',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/abdelbasset_abdessamad.mp3',
+    icon: '🎙️',
+  },
+  {
+    id: 'mishary' as const,
+    nameAr: 'أذان الشيخ مشاري بن راشد العفاسي',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/mishary_rashid_alafasy.mp3',
+    icon: '🌟',
+  },
+];
+
 export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
   isOpen,
   onClose,
   userState,
   onLocationUpdated,
 }) => {
+  const [activeTab, setActiveTab] = useState<'location' | 'adhan'>('location');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLocatingGps, setIsLocatingGps] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
+
+  // Adhan state
+  const prayerAudio = userState?.settings?.prayerAudioSettings || {
+    adhanEnabled: false,
+    muadhin: 'makkah',
+    prePrayerAlertEnabled: true,
+    prePrayerAlertMinutes: 10,
+  };
+  const [adhanEnabled, setAdhanEnabled] = useState(prayerAudio.adhanEnabled);
+  const [selectedMuadhin, setSelectedMuadhin] = useState(prayerAudio.muadhin || 'makkah');
+  const [prePrayerAlert, setPrePrayerAlert] = useState(prayerAudio.prePrayerAlertEnabled ?? true);
+  const [prePrayerMins, setPrePrayerMins] = useState(prayerAudio.prePrayerAlertMinutes || 10);
+
+  const [previewAudio, setPreviewAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (previewAudio) {
+        previewAudio.pause();
+      }
+    };
+  }, [previewAudio]);
+
+  const togglePlayPreview = (url: string) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (isPlayingPreview && previewAudio) {
+      previewAudio.pause();
+      previewAudio.currentTime = 0;
+      setIsPlayingPreview(false);
+      return;
+    }
+    if (previewAudio) {
+      previewAudio.pause();
+    }
+    const aud = new Audio(url);
+    aud.volume = 0.85;
+    aud.play().catch(() => {});
+    aud.onended = () => setIsPlayingPreview(false);
+    setPreviewAudio(aud);
+    setIsPlayingPreview(true);
+  };
+
+  const handleUpdateAdhanSettings = async (partial: Partial<PrayerAudioSettings>) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const updated: PrayerAudioSettings = {
+      adhanEnabled,
+      muadhin: selectedMuadhin,
+      prePrayerAlertEnabled: prePrayerAlert,
+      prePrayerAlertMinutes: prePrayerMins,
+      ...partial,
+    };
+    if (partial.adhanEnabled !== undefined) setAdhanEnabled(partial.adhanEnabled);
+    if (partial.muadhin !== undefined) setSelectedMuadhin(partial.muadhin);
+    if (partial.prePrayerAlertEnabled !== undefined) setPrePrayerAlert(partial.prePrayerAlertEnabled);
+    if (partial.prePrayerAlertMinutes !== undefined) setPrePrayerMins(partial.prePrayerAlertMinutes);
+
+    if (userState) {
+      await db.user_state.update(userState.id, {
+        'settings.prayerAudioSettings': updated,
+      });
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -169,10 +273,10 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-white">
-                تحديد الدولة والمدينة ومواقيت الصلاة
+                إعدادات القبلة، المواقيت وصوت الأذان
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                حساب فلكي دقيق 100% بدون إنترنت حسب خطوط الطول والعرض
+                حساب فلكي دقيق وخيارات التنبيهات والأذان لمختلف المؤذنين
               </p>
             </div>
           </div>
@@ -184,8 +288,189 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
           </button>
         </div>
 
+        {/* Tab Switcher */}
+        <div className="px-6 pt-3 pb-1 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-800/40">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setActiveTab('location');
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              activeTab === 'location'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <MapPin className="w-3.5 h-3.5" />
+            <span>الموقع والقبلة</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setActiveTab('adhan');
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              activeTab === 'adhan'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>صوت الأذان والتنبيه المسبق</span>
+          </button>
+        </div>
+
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
+          {activeTab === 'adhan' ? (
+            /* ADHAN & PRE-PRAYER NOTIFICATION SETTINGS */
+            <div className="space-y-5 animate-fade-in">
+              {/* Adhan Toggle Card */}
+              <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                      {adhanEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                        تشغيل صوت الأذان عند دخول الفريضة
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        يمكنك إيقافه لمنع الإحراج في بيئات العمل والأماكن العامة
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateAdhanSettings({ adhanEnabled: !adhanEnabled })}
+                    className={`w-12 h-6.5 rounded-full transition-colors p-1 cursor-pointer flex items-center ${
+                      adhanEnabled ? 'bg-amber-500 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                    }`}
+                  >
+                    <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                  </button>
+                </div>
+              </div>
+
+              {/* 10-Minute Pre-Prayer Reminder */}
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <BellRing className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                        تنبيه اقتراب الصلاة المسبق (للاستعداد والوضوء)
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        إشعار ورنين هادئ قبل الأذان لإدراك تكبيرة الإحرام
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateAdhanSettings({ prePrayerAlertEnabled: !prePrayerAlert })}
+                    className={`w-12 h-6.5 rounded-full transition-colors p-1 cursor-pointer flex items-center ${
+                      prePrayerAlert ? 'bg-emerald-600 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                    }`}
+                  >
+                    <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                  </button>
+                </div>
+
+                {prePrayerAlert && (
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-700 dark:text-slate-300">وقت التنبيه قبل الأذان:</span>
+                    <div className="flex items-center gap-1.5">
+                      {[5, 10, 15].map((mins) => (
+                        <button
+                          key={mins}
+                          type="button"
+                          onClick={() => handleUpdateAdhanSettings({ prePrayerAlertMinutes: mins })}
+                          className={`px-3 py-1 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                            prePrayerMins === mins
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          {mins} دقيقة
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Muadhin Voice Selector */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  اختر صوت المؤذن المفضل:
+                </label>
+                <div className="space-y-2">
+                  {MUADHIN_OPTIONS.map((m) => {
+                    const isSelected = selectedMuadhin === m.id;
+                    const isThisPlaying = isPlayingPreview && previewAudio?.src === m.audioUrl;
+                    return (
+                      <div
+                        key={m.id}
+                        onClick={() => handleUpdateAdhanSettings({ muadhin: m.id })}
+                        className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs'
+                            : 'bg-white dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <span className="text-xl">{m.icon}</span>
+                          <div className="truncate">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                              {m.nameAr}
+                            </p>
+                            <span className="text-[10px] text-amber-500 font-mono">
+                              {isSelected ? 'المؤذن المعتمد حالياً ✔' : 'انقر للاختيار'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePlayPreview(m.audioUrl);
+                          }}
+                          className={`p-2 rounded-xl border flex items-center gap-1 text-[11px] font-bold shrink-0 transition-colors cursor-pointer ${
+                            isThisPlaying
+                              ? 'bg-amber-500 text-black border-amber-400'
+                              : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600'
+                          }`}
+                        >
+                          {isThisPlaying ? (
+                            <>
+                              <Pause className="w-3.5 h-3.5 fill-current" />
+                              <span>إيقاف</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-3.5 h-3.5 fill-current" />
+                              <span>استماع</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* LOCATION, GPS & QIBLA SETTINGS (ORIGINAL TAB) */
+            <>
           {/* How dynamic calculation works banner */}
           <div className="p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-xs text-sky-900 dark:text-sky-200 space-y-1.5">
             <div className="flex items-center gap-2 font-bold text-sky-800 dark:text-sky-300">
@@ -329,6 +614,8 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
               })}
             </div>
           </div>
+            </>
+          )}
         </div>
 
         {/* Modal Footer */}

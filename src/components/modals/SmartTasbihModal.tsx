@@ -8,6 +8,12 @@ import {
   Vibrate,
   ScrollText,
   Zap,
+  Plus,
+  Hand,
+  Globe,
+  Lock,
+  Trash2,
+  ShieldCheck,
 } from 'lucide-react';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
@@ -21,10 +27,17 @@ import {
   recordTasbihTap,
   getActiveTasbihSession,
   resetTasbihSession,
+  getAllTasbihPresets,
+  saveCustomDhikr,
+  deleteCustomDhikr,
+  getCommunityPendingDhikrs,
+  approveCommunityDhikr,
+  rejectCommunityDhikr,
 } from '../../utils/tasbihEngine';
-import type { UserState } from '../../types';
+import { authService } from '../../services/authService';
+import type { UserState, CustomDhikrItem } from '../../types';
 
-export type TasbihMode = TasbihPresetId;
+export type TasbihMode = TasbihPresetId | string;
 
 interface SmartTasbihModalProps {
   isOpen: boolean;
@@ -44,8 +57,9 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
   const { language } = useTranslation();
   const isAr = language === 'ar';
 
+  const [allPresets, setAllPresets] = useState(() => getAllTasbihPresets());
   const [activeCategory, setActiveCategory] = useState<TasbihCategory>('daily_core');
-  const [activeMode, setActiveMode] = useState<TasbihPresetId>(defaultMode);
+  const [activeMode, setActiveMode] = useState<string>(defaultMode);
   const [useAlternativeFormula, setUseAlternativeFormula] = useState(false);
   const [customTarget, setCustomTarget] = useState<number | null>(null);
   const [stageIndex, setStageIndex] = useState(0);
@@ -57,6 +71,22 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
   const [hapticEnabled, setHapticEnabled] = useState(true);
   const [isPressing, setIsPressing] = useState(false);
 
+  // Blind Full-Screen Tap Mode
+  const [isBlindTapMode, setIsBlindTapMode] = useState(false);
+
+  // Custom Dhikr Builder Modal State
+  const [isAddCustomOpen, setIsAddCustomOpen] = useState(false);
+  const [newDhikrText, setNewDhikrText] = useState('');
+  const [newDhikrTarget, setNewDhikrTarget] = useState<number>(100);
+  const [newDhikrIsPublic, setNewDhikrIsPublic] = useState(false);
+
+  // Admin Community Moderation State
+  const [pendingCommunityList, setPendingCommunityList] = useState<CustomDhikrItem[]>(() =>
+    getCommunityPendingDhikrs()
+  );
+  const session = authService.getSession();
+  const isAdmin = session?.username?.toLowerCase() === 'ahmad' || session?.userId === 'account_owner_ahmad';
+
   // Check Friday Salawat window
   const prayerLoc = userState?.settings?.prayerLocation;
   const fridayStatus = checkIsFridaySalawatWindow(new Date(), prayerLoc);
@@ -64,9 +94,11 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
   // Synchronize and restore active count when opened
   useEffect(() => {
     if (isOpen) {
+      const merged = getAllTasbihPresets();
+      setAllPresets(merged);
       const mode = defaultMode || (fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100');
       setActiveMode(mode);
-      setActiveCategory(TASBIH_PRESETS[mode]?.category || 'daily_core');
+      setActiveCategory(merged[mode]?.category || 'daily_core');
       setCustomTarget(null);
       setUseAlternativeFormula(false);
 
@@ -83,7 +115,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     }
   }, [isOpen, defaultMode]);
 
-  const currentPreset = TASBIH_PRESETS[activeMode] || TASBIH_PRESETS.tahlil_100;
+  const currentPreset = allPresets[activeMode] || allPresets.tahlil_100 || TASBIH_PRESETS.tahlil_100;
   const currentStage = currentPreset.stages[stageIndex] || currentPreset.stages[0];
   const target = customTarget !== null ? customTarget : currentStage.target;
   const isTargetMode = target > 0;
@@ -159,10 +191,10 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     await resetTasbihSession(activeMode);
   };
 
-  const handleSwitchMode = (mode: TasbihPresetId) => {
+  const handleSwitchMode = (mode: string) => {
     if (soundEnabled) soundSynth.playTactileClick();
     setActiveMode(mode);
-    setActiveCategory(TASBIH_PRESETS[mode].category);
+    setActiveCategory(allPresets[mode]?.category || 'daily_core');
     setCustomTarget(null);
     setUseAlternativeFormula(false);
     getActiveTasbihSession(mode).then((saved) => {
@@ -174,6 +206,72 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
         setStageIndex(0);
       }
     });
+  };
+
+  const handleCreateCustomDhikr = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDhikrText.trim()) return;
+
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+
+    const created = saveCustomDhikr({
+      titleAr: newDhikrText.trim(),
+      targetCount: Number(newDhikrTarget) || 100,
+      category: 'custom',
+      isPublicProposal: newDhikrIsPublic,
+      authorName: session?.displayName || session?.username || 'أحمد',
+    });
+
+    const updated = getAllTasbihPresets();
+    setAllPresets(updated);
+    setActiveCategory('custom');
+    setActiveMode(created.id);
+    setIsAddCustomOpen(false);
+    setNewDhikrText('');
+    setNewDhikrTarget(100);
+
+    if (newDhikrIsPublic) {
+      setPendingCommunityList(getCommunityPendingDhikrs());
+      onRewardToast?.(
+        isAr
+          ? '✨ تم حفظ الورد، ورُفع كطلب مجتمعي لمراجعته واعتماده للجميع!'
+          : 'Custom dhikr saved and submitted for global review!'
+      );
+    } else {
+      onRewardToast?.(
+        isAr ? '🌸 تم حفظ وردك الشخصي بنجاح!' : 'Personal dhikr saved successfully!'
+      );
+    }
+  };
+
+  const handleDeleteCustom = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    deleteCustomDhikr(id);
+    const updated = getAllTasbihPresets();
+    setAllPresets(updated);
+    setActiveMode('tahlil_100');
+    setActiveCategory('daily_core');
+  };
+
+  const handleApprove = (id: string) => {
+    approveCommunityDhikr(id);
+    setPendingCommunityList(getCommunityPendingDhikrs());
+    setAllPresets(getAllTasbihPresets());
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+    onRewardToast?.(isAr ? '✅ تم اعتماد الذكر ونشره لجميع المستخدمين!' : 'Approved globally!');
+  };
+
+  const handleReject = (id: string) => {
+    rejectCommunityDhikr(id);
+    setPendingCommunityList(getCommunityPendingDhikrs());
+    setAllPresets(getAllTasbihPresets());
+    soundSynth.playWarningSound();
+    haptic.vibrateWarning();
+    onRewardToast?.(isAr ? '❌ تم رفض المقترح واقتصاره على صاحبه فقط.' : 'Proposal rejected.');
   };
 
   // Keyboard Space / Enter support
@@ -203,8 +301,8 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     : 0;
 
   // Filter presets by active category
-  const categoryPresets = (Object.keys(TASBIH_PRESETS) as TasbihPresetId[]).filter(
-    (key) => TASBIH_PRESETS[key].category === activeCategory
+  const categoryPresets = Object.keys(allPresets).filter(
+    (key) => allPresets[key]?.category === activeCategory
   );
 
   return (
@@ -247,6 +345,19 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
+            {/* Blind Tap Fullscreen Mode */}
+            <button
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsBlindTapMode(true);
+              }}
+              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition-all cursor-pointer"
+              title="نمط النقرة العمياء للشاشة بالكامل"
+            >
+              <Hand className="w-4 h-4" />
+            </button>
+
             {/* Sound Toggle */}
             <button
               onClick={() => setSoundEnabled((prev) => !prev)}
@@ -292,9 +403,51 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
           </div>
         </div>
 
+        {/* Admin Community Dhikr Moderation Card (For Ahmad) */}
+        {isAdmin && pendingCommunityList.length > 0 && (
+          <div className="w-full p-2.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-2 z-10 animate-fade-in shadow-md">
+            <div className="flex items-center justify-between text-xs font-bold text-amber-300">
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" />
+                <span>طلبات الأوراد المجتمعية قيد المراجعة ({pendingCommunityList.length})</span>
+              </span>
+              <span className="text-[10px] text-amber-400 font-mono">لوحة تحكم المدير</span>
+            </div>
+            <div className="space-y-1.5 max-h-32 overflow-y-auto">
+              {pendingCommunityList.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-2 rounded-xl bg-zinc-900/90 border border-zinc-800 flex items-center justify-between gap-2 text-xs"
+                >
+                  <div className="min-w-0">
+                    <p className="font-bold text-zinc-100 truncate">{item.titleAr}</p>
+                    <p className="text-[10px] text-zinc-400">
+                      بواسطة: {item.authorName} • الهدف: {item.targetCount}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => handleApprove(item.id)}
+                      className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] cursor-pointer"
+                    >
+                      اعتماد للجميع ✅
+                    </button>
+                    <button
+                      onClick={() => handleReject(item.id)}
+                      className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-red-950 text-zinc-400 hover:text-red-300 font-bold text-[10px] cursor-pointer"
+                    >
+                      رفض ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Friday Salawat Season Celebration Banner */}
         {fridayStatus.isWindow && (
-          <div className="w-full mt-2 p-2.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-emerald-900/40 to-amber-950/80 border border-amber-500/40 flex items-center justify-between gap-2 z-10 animate-fade-in shadow-lg">
+          <div className="w-full mt-1 p-2.5 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-emerald-900/40 to-amber-950/80 border border-amber-500/40 flex items-center justify-between gap-2 z-10 animate-fade-in shadow-lg">
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-lg">🕌</span>
               <div className="min-w-0">
@@ -318,63 +471,100 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
           </div>
         )}
 
-        {/* Category Tabs: Daily Core / Prayer / Treasures */}
-        <div className="w-full flex items-center justify-center gap-1 p-1 bg-zinc-900/90 rounded-2xl border border-zinc-800/80 z-10 mt-2 shrink-0">
+        {/* Category Tabs: Daily Core / Prayer / Treasures / Custom */}
+        <div className="w-full flex items-center justify-center gap-1 p-1 bg-zinc-900/90 rounded-2xl border border-zinc-800/80 z-10 mt-1 shrink-0 overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveCategory('daily_core')}
-            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
               activeCategory === 'daily_core'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            🌟 {isAr ? 'أوراد اليوم الكبرى' : 'Daily Core'}
+            🌟 {isAr ? 'أوراد اليوم' : 'Daily'}
           </button>
           <button
             type="button"
             onClick={() => setActiveCategory('prayer_adhkar')}
-            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
               activeCategory === 'prayer_adhkar'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            🕌 {isAr ? 'أذكار الصلوات' : 'Prayer Dhikr'}
+            🕌 {isAr ? 'الصلوات' : 'Prayer'}
           </button>
           <button
             type="button"
             onClick={() => setActiveCategory('treasures')}
-            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
+            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
               activeCategory === 'treasures'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            📿 {isAr ? 'كنوز الذكر' : 'Treasures'}
+            📿 {isAr ? 'الكنوز' : 'Treasures'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveCategory('custom')}
+            className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap ${
+              activeCategory === 'custom'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            🌸 {isAr ? 'أوراد خاصة' : 'Custom'}
           </button>
         </div>
 
-        {/* Preset Selector Pill Strip for active category */}
+        {/* Preset Selector Pill Strip */}
         <div className="w-full overflow-x-auto py-1 flex items-center gap-1.5 scrollbar-none z-10 shrink-0">
           {categoryPresets.map((modeKey) => {
-            const preset = TASBIH_PRESETS[modeKey];
+            const preset = allPresets[modeKey];
+            if (!preset) return null;
             const isActive = activeMode === modeKey;
+            const isCustomItem = modeKey.startsWith('custom_dhikr_');
             return (
-              <button
-                key={modeKey}
-                onClick={() => handleSwitchMode(modeKey)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer border ${
-                  isActive
-                    ? 'bg-emerald-500/25 text-emerald-200 border-emerald-500/70 shadow-xs scale-102 ring-1 ring-emerald-500/40'
-                    : 'bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'
-                }`}
-              >
-                <span>{preset.icon}</span>
-                <span>{isAr ? preset.titleAr : preset.titleEn}</span>
-              </button>
+              <div key={modeKey} className="flex items-center gap-0.5 shrink-0">
+                <button
+                  onClick={() => handleSwitchMode(modeKey)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer border ${
+                    isActive
+                      ? 'bg-emerald-500/25 text-emerald-200 border-emerald-500/70 shadow-xs scale-102 ring-1 ring-emerald-500/40'
+                      : 'bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'
+                  }`}
+                >
+                  <span>{preset.icon}</span>
+                  <span>{isAr ? preset.titleAr : preset.titleEn}</span>
+                </button>
+                {isCustomItem && (
+                  <button
+                    onClick={(e) => handleDeleteCustom(modeKey, e)}
+                    className="p-1 text-zinc-500 hover:text-red-400 rounded-full"
+                    title="حذف هذا الورد"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
             );
           })}
+
+          {/* Add Custom Dhikr Button */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsAddCustomOpen(true);
+            }}
+            className="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer border border-amber-500/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 shrink-0"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>{isAr ? 'إضافة ورد خاص' : 'Add Custom'}</span>
+          </button>
         </div>
 
         {/* Active Dhikr Text & Virtue Card */}
@@ -550,6 +740,200 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             <span>+1 تسبيحة</span>
           </button>
         </div>
+
+        {/* 1. Blind Full-Screen Tap Mode Overlay */}
+        {isBlindTapMode && (
+          <div
+            onClick={handleTap}
+            className="absolute inset-0 z-40 bg-zinc-950/98 flex flex-col items-center justify-between p-6 cursor-pointer select-none animate-fade-in"
+          >
+            {/* Top Indicator */}
+            <div className="w-full flex items-center justify-between text-xs text-zinc-400">
+              <span className="flex items-center gap-1.5 text-amber-400 font-bold">
+                <Hand className="w-4 h-4 animate-bounce" />
+                <span>{isAr ? 'نمط النقرة العمياء (المس أي مكان بالشاشة)' : 'Blind Tap Mode Active'}</span>
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setIsBlindTapMode(false);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs cursor-pointer shadow-sm"
+              >
+                {isAr ? 'خروج ✕' : 'Exit ✕'}
+              </button>
+            </div>
+
+            {/* Giant Center Display */}
+            <div className="flex flex-col items-center text-center space-y-4 my-auto">
+              <p className="text-xl sm:text-2xl font-bold font-serif text-amber-200/90 max-w-md px-4 leading-relaxed">
+                {displayedText}
+              </p>
+              <div className="text-8xl sm:text-9xl font-mono font-black text-white tracking-wider my-4 drop-shadow-lg">
+                {count}
+              </div>
+              {isTargetMode && (
+                <div className="space-y-1">
+                  <p className="text-sm font-mono text-emerald-400 font-bold">
+                    من أصل {target} ({progressPercent}%)
+                  </p>
+                  <div className="w-48 bg-zinc-800 h-2 rounded-full overflow-hidden mx-auto border border-zinc-700">
+                    <div
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-150"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Hint */}
+            <p className="text-xs text-zinc-500 animate-pulse">
+              {isAr ? 'اضغط بأي إصبع في أي موضع للتسبيح باللمس' : 'Tap anywhere with any finger to increment'}
+            </p>
+          </div>
+        )}
+
+        {/* 2. Add Custom Dhikr Modal Dialog */}
+        {isAddCustomOpen && (
+          <div className="absolute inset-0 z-40 bg-zinc-950/95 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+            <div className="w-full max-w-md bg-zinc-900 border border-amber-500/30 rounded-3xl p-5 shadow-2xl space-y-4 text-white">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                    <Plus className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white">
+                      {isAr ? 'صانع الأوراد والأذكار المخصصة' : 'Custom Dhikr Builder'}
+                    </h4>
+                    <p className="text-[10px] text-zinc-400">
+                      {isAr ? 'أضف ذكرك المفضل وحدد عدد تكراراتك' : 'Create personal or community dhikr'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCustomOpen(false)}
+                  className="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 flex items-center justify-center cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateCustomDhikr} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 mb-1">
+                    {isAr ? 'نص الذكر أو الدعاء:' : 'Dhikr / Dua Text:'}
+                  </label>
+                  <textarea
+                    required
+                    value={newDhikrText}
+                    onChange={(e) => setNewDhikrText(e.target.value)}
+                    placeholder={
+                      isAr
+                        ? 'مثال: سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته...'
+                        : 'Enter dhikr or prayer text...'
+                    }
+                    className="w-full h-20 px-3 py-2 bg-zinc-800/80 border border-zinc-700 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500 leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-zinc-300 mb-1">
+                    {isAr ? 'العدد المستهدف للتكرار:' : 'Target Count:'}
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {[33, 70, 100, 500, 1000].map((num) => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setNewDhikrTarget(num)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-bold border transition-colors cursor-pointer ${
+                          newDhikrTarget === num
+                            ? 'bg-amber-500 text-black border-amber-400'
+                            : 'bg-zinc-800 text-zinc-300 border-zinc-700'
+                        }`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10000"
+                    value={newDhikrTarget}
+                    onChange={(e) => setNewDhikrTarget(Number(e.target.value) || 100)}
+                    className="w-full mt-2 px-3 py-1.5 bg-zinc-800 border border-zinc-700 rounded-xl text-xs text-white font-mono text-center"
+                    placeholder="أو اكتب رقماً مخصصاً..."
+                  />
+                </div>
+
+                {/* Privacy & Governance Selection */}
+                <div className="p-3 rounded-2xl bg-zinc-800/60 border border-zinc-700 space-y-2">
+                  <span className="text-[11px] font-bold text-zinc-300 block">
+                    {isAr ? 'نطاق المشاركة والخصوصية:' : 'Sharing & Privacy:'}
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setNewDhikrIsPublic(false)}
+                      className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                        !newDhikrIsPublic
+                          ? 'border-emerald-500 bg-emerald-950/40 text-emerald-300'
+                          : 'border-zinc-700 bg-zinc-800 text-zinc-400'
+                      }`}
+                    >
+                      <Lock className="w-3.5 h-3.5 mx-auto mb-1" />
+                      <span className="text-[10px] font-bold block">
+                        {isAr ? '🔒 خاص بي فقط' : 'Private'}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewDhikrIsPublic(true)}
+                      className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                        newDhikrIsPublic
+                          ? 'border-amber-500 bg-amber-950/40 text-amber-300'
+                          : 'border-zinc-700 bg-zinc-800 text-zinc-400'
+                      }`}
+                    >
+                      <Globe className="w-3.5 h-3.5 mx-auto mb-1" />
+                      <span className="text-[10px] font-bold block">
+                        {isAr ? '🌐 اقتراح للنشر العام' : 'Community Proposal'}
+                      </span>
+                    </button>
+                  </div>
+                  {newDhikrIsPublic && (
+                    <p className="text-[10px] text-amber-400 leading-normal">
+                      💡 سيُحفظ الورد لك فوراً، وسيُرفع كطلب مجتمعي للمدير (أحمد) للمراجعة وتعميمه على كافة المستخدمين.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs cursor-pointer shadow-md transition-transform active:scale-95"
+                  >
+                    {isAr ? '✨ حفظ الورد والبدء' : 'Save & Start'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddCustomOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700 text-xs font-bold cursor-pointer"
+                  >
+                    {isAr ? 'إلغاء' : 'Cancel'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
