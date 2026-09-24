@@ -648,44 +648,44 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
                 {/* Fajr Sunnah */}
                 <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-1.5">
                   <div className="flex items-center justify-between font-black text-emerald-950 dark:text-emerald-200">
-                    <span>🌅 سُنّة الفجر (ركعتان قبل الصلاة)</span>
+                    <span>🌅 سُنّة الفجر الاستفتاحية (السنة السابقة للصلاة - ركعتان)</span>
                     <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px]">مؤكدة جداً</span>
                   </div>
                   <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
-                    «رَكْعَتَا الْفَجْرِ خَيْرٌ مِنَ الدُّنْيَا وَمَا فِيهَا» (صحيح مسلم). خفيفتان يُقرأ فيهما بالكافرون والإخلاص.
+                    «رَكْعَتَا الْفَجْرِ خَيْرٌ مِنَ الدُّنْيَا وَمَا فِيهَا» (صحيح مسلم). ركعتان خفيفتان يُقرأ فيهما بالكافرون والإخلاص.
                   </p>
                 </div>
 
                 {/* Dhuhr Sunnah */}
                 <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1.5">
                   <div className="flex items-center justify-between font-black text-amber-950 dark:text-amber-200">
-                    <span>☀️ سُنّة الظهر (٤ قبلها و٢ بعدها)</span>
+                    <span>☀️ سُنّة الظهر (٤ سابقة استفتاحية، و٢ لاحقة معقبة)</span>
                     <span className="px-2 py-0.5 rounded-full bg-amber-600 text-slate-950 text-[10px]">٦ ركعات</span>
                   </div>
                   <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
-                    أربع ركعات بتسليمتين قبل الظهر، وركعتان بعدها. ومن صلى أربعاً بعدها حرّمه الله على النار (الترمذي).
+                    أربع ركعات بتسليمتين سابقة للصلاة، وركعتان لاحقة بعدها. ومن صلى أربعاً بعدها حرّمه الله على النار (الترمذي).
                   </p>
                 </div>
 
                 {/* Maghrib Sunnah */}
                 <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 space-y-1.5">
                   <div className="flex items-center justify-between font-black text-purple-950 dark:text-purple-200">
-                    <span>🌆 سُنّة المغرب (ركعتان بعد الصلاة)</span>
+                    <span>🌆 سُنّة المغرب (ركعتان لاحقة معقبة للصلاة)</span>
                     <span className="px-2 py-0.5 rounded-full bg-purple-600 text-white text-[10px]">مؤكدة</span>
                   </div>
                   <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
-                    ركعتان خفيفتان بعد صلاة المغرب، ويستحب أداؤهما في البيت كما كان هدي النبي ﷺ.
+                    ركعتان خفيفتان لاحقتان بعد صلاة المغرب، ويستحب أداؤهما في البيت كما كان هدي النبي ﷺ.
                   </p>
                 </div>
 
                 {/* Isha Sunnah */}
                 <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 space-y-1.5">
                   <div className="flex items-center justify-between font-black text-indigo-950 dark:text-indigo-200">
-                    <span>🌙 سُنّة العشاء (ركعتان بعد الصلاة)</span>
+                    <span>🌙 سُنّة العشاء (ركعتان لاحقة معقبة للصلاة)</span>
                     <span className="px-2 py-0.5 rounded-full bg-indigo-600 text-white text-[10px]">مؤكدة</span>
                   </div>
                   <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
-                    ركعتان بعد صلاة العشاء يتبعهما بعد ذلك الشفع والوتر قبل النوم أو في جوف الليل.
+                    ركعتان لاحقتان بعد صلاة العشاء يتبعهما بعد ذلك الشفع والوتر قبل النوم أو في جوف الليل.
                   </p>
                 </div>
               </div>
@@ -693,17 +693,17 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
               {/* Non-confirmed beneficial Sunan */}
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.08] space-y-2 text-xs">
                 <span className="font-black text-slate-900 dark:text-white block">
-                  🌟 سنن مستحبة غير مؤكدة ورد فيها أجر خاص:
+                  🌟 سنن مستحبة غير مؤكدة ورد فيها أجر وفضل خاص:
                 </span>
                 <ul className="space-y-1.5 list-disc list-inside text-slate-700 dark:text-zinc-300 leading-relaxed">
                   <li>
-                    <strong>سُنّة ما قبل العصر (٤ ركعات):</strong> «رَحِمَ اللَّهُ امْرَأً صَلَّى قَبْلَ الْعَصْرِ أَرْبَعًا» (أبو داود والترمذي، حسن).
+                    <strong>السنة السابقة المستحبة لصلاة العصر (٤ ركعات):</strong> «رَحِمَ اللَّهُ امْرَأً صَلَّى قَبْلَ الْعَصْرِ أَرْبَعًا» (أبو داود والترمذي، حسن).
                   </li>
                   <li>
-                    <strong>سُنّة ما قبل المغرب (ركعتان):</strong> «صَلُّوا قَبْلَ صَلَاةِ الْمَغْرِبِ... لِمَنْ شَاءَ» (صحيح البخاري).
+                    <strong>السنة السابقة المستحبة لصلاة المغرب (ركعتان):</strong> «صَلُّوا قَبْلَ صَلَاةِ الْمَغْرِبِ... لِمَنْ شَاءَ» (صحيح البخاري).
                   </li>
                   <li>
-                    <strong>سُنّة ما قبل العشاء:</strong> لعموم حديث: «بَيْنَ كُلِّ أَذَانَيْنِ صَلَاةٌ» (متفق عليه).
+                    <strong>السنة السابقة المستحبة لصلاة العشاء:</strong> لعموم حديث: «بَيْنَ كُلِّ أَذَانَيْنِ صَلَاةٌ» (متفق عليه).
                   </li>
                 </ul>
               </div>

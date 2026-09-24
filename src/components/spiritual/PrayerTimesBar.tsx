@@ -657,9 +657,12 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             </div>
 
             {/* Prophetic Virtue / Hadith in full */}
-            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium max-w-xl leading-relaxed pt-1">
-              {heroTheme.virtueAr || (isAr ? 'الصلاة على وقتها أحب الأعمال إلى الله • تهيأ بالسكينة وإسباغ الوضوء' : 'On-time prayer is beloved to Allah')}
-            </p>
+            <div className="flex items-start gap-2 pt-1 text-xs text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
+              <span className="text-amber-500 shrink-0 mt-0.5">✨</span>
+              <p className="font-serif text-xs sm:text-sm text-slate-700 dark:text-zinc-200 leading-relaxed">
+                «{heroTheme.virtueAr || (isAr ? 'الصلاة على وقتها أحب الأعمال إلى الله • تهيأ بالسكينة وإسباغ الوضوء' : 'On-time prayer is beloved to Allah')}»
+              </p>
+            </div>
           </div>
 
           {/* Left Side (RTL): One-Tap Quick Log Hero Button */}
@@ -858,26 +861,31 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           </span>
         </div>
 
-        {/* 5 Indicator Beads */}
-        <div className="flex items-center gap-1 sm:gap-1.5">
-          {prayerCards.map((p) => {
-            const rec = prayers[p.name];
-            const done = rec && (rec.status === 'on_time' || rec.status === 'in_group' || rec.status === 'late');
-            const isNextP = nextPrayer.arabicName === p.title || (p.isJumuah && nextPrayer.arabicName.includes('الجمعة'));
-            return (
-              <div
-                key={p.name}
-                className={`h-1.5 rounded-full transition-all ${
-                  done
-                    ? 'w-4 sm:w-6 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                    : isNextP
-                    ? 'w-4 sm:w-6 bg-amber-400 animate-pulse ring-1 ring-amber-400/50'
-                    : 'w-2 sm:w-3 bg-slate-200 dark:bg-zinc-800'
-                }`}
-                title={`${p.title}: ${done ? 'أُديت' : 'قيد الانتظار'}`}
-              />
-            );
-          })}
+        {/* 5 Indicator Beads & Mobile Swipe Hint */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium sm:hidden flex items-center gap-1">
+            ↔ اسحب للصلوات
+          </span>
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {prayerCards.map((p) => {
+              const rec = prayers[p.name];
+              const done = rec && (rec.status === 'on_time' || rec.status === 'in_group' || rec.status === 'late');
+              const isNextP = nextPrayer.arabicName === p.title || (p.isJumuah && nextPrayer.arabicName.includes('الجمعة'));
+              return (
+                <div
+                  key={p.name}
+                  className={`h-1.5 rounded-full transition-all ${
+                    done
+                      ? 'w-4 sm:w-6 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                      : isNextP
+                      ? 'w-4 sm:w-6 bg-amber-400 animate-pulse ring-1 ring-amber-400/50'
+                      : 'w-2 sm:w-3 bg-slate-200 dark:bg-zinc-800'
+                  }`}
+                  title={`${p.title}: ${done ? 'أُديت' : 'قيد الانتظار'}`}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -913,7 +921,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                   handleOpenPrayerModal(p.name);
                 }
               }}
-              className={`group relative w-[116px] sm:w-auto shrink-0 snap-center p-3 sm:p-4 rounded-3xl border transition-all duration-200 flex flex-col justify-between cursor-pointer select-none overflow-hidden min-h-[155px] sm:min-h-[165px] ${
+              className={`group relative w-[136px] min-w-[136px] sm:w-auto shrink-0 snap-center p-3.5 sm:p-4 rounded-3xl border transition-all duration-200 flex flex-col justify-between cursor-pointer select-none overflow-hidden min-h-[160px] sm:min-h-[165px] ${
                 isDone
                   ? 'bg-gradient-to-b from-emerald-50/90 via-white to-emerald-50/50 dark:from-emerald-950/40 dark:via-[#151a1e] dark:to-emerald-950/20 border-emerald-300 dark:border-emerald-800/80 shadow-2xs hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
                   : isNext
@@ -1136,9 +1144,16 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
-                  {isAr ? 'شرف المؤمن • مراتب ١٠ و١٠٠ و١٠٠٠ آية' : 'Night Vigil'}
-                </p>
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                    {isAr ? 'شرف المؤمن • المراتب النبوية الثلاث:' : 'Night Vigil'}
+                  </p>
+                  <div className="flex items-center gap-1 text-[9px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-900 dark:text-amber-200" title="لم يكتب من الغافلين">١٠ آيات</span>
+                    <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200" title="كتب من القانتين">١٠٠ آية</span>
+                    <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/15 border border-indigo-500/30 text-indigo-900 dark:text-indigo-200" title="كتب من المقنطرين">١٠٠٠ آية</span>
+                  </div>
+                </div>
               </button>
 
               {/* Witr Card */}

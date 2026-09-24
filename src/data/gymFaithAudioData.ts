@@ -275,6 +275,24 @@ export const SCHOLARS_DIRECTORY: ScholarProfile[] = [
     descriptionAr: 'مواعظ تبكي العيون وترقق القلوب، تفيض بالخشية وحب الله والتفقه في الدين.',
     category: 'tazkiyah',
   },
+  {
+    id: 'ahmed_al_sayed',
+    nameAr: 'الشيخ أحمد بن يوسف السيد',
+    nameEn: 'Sheikh Ahmad Al-Sayed',
+    avatarEmoji: '💡',
+    specialityAr: 'صناعة المحاور، كامل الصورة، البناء الفكري والعقدي، وتزكية الجيل الصاعد',
+    descriptionAr: 'مربٍّ ومؤصل معرفي فذ، حراسة الوحي، تفكيك الشبهات المعاصرة، وبناء الجيل القرآني المتين.',
+    category: 'mindset',
+  },
+  {
+    id: 'hazem_shouman',
+    nameAr: 'د. حازم شومان',
+    nameEn: 'Dr. Hazem Shouman',
+    avatarEmoji: '🔥',
+    specialityAr: 'طريق النجاة، شحذ الهمم، ومفاتيح القلوب والتوبة النصوح',
+    descriptionAr: 'طبيب وداعية ملهب للقلوب، خطاب شبابي حيوي ينتزع الغفلة ويشعل محبة الله والحرص على الصلاة.',
+    category: 'khutbah',
+  },
 ];
 
 export const GYM_FAITH_CHANNELS: GymAudioChannel[] = [
@@ -1646,28 +1664,28 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
     "sheikhAr": "م. أيمن عبد الرحيم (فك الله أسره)",
     "sheikhEn": "Eng. Ayman Abdelrahim",
     "category": "mindset",
-    "badgeAr": "تأسيس البيت المسلم • 5 محاضرات",
-    "badgeEn": "Marriage & Home • 5 Lectures",
+    "badgeAr": "تأسيس البيت المسلم • 8 محاضرات",
+    "badgeEn": "Marriage & Home • 8 Lectures",
     "icon": "🏡",
     "descriptionAr": "الدورة الشهيرة المتميزة في فلسفة الزواج في الإسلام، معايير اختيار الشريك، فقه الخطبة، توزيع الأدوار، وحل الخلافات الزوجية لبناء بيت صالح مستقر.",
-    "totalEpisodes": 5,
+    "totalEpisodes": 8,
     "episodes": [
       {
         "id": "aym_zw_01",
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: فلسفة الزواج في الإسلام ومفهوم السكن والمودة والرحمة",
         "titleEn": "Philosophy of Marriage & Divine Compassion",
-        "durationFormatted": "58:30",
-        "audioUrl": "https://www.youtube.com/watch?v=d_k6W0Ld8k8",
-        "summaryAr": "لماذا شرع الله الزواج؟ مفهوم السكن الروحي والنفسي وعمارة الأرض بالنسل الصالح."
+        "durationFormatted": "50:57",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/01.mp3",
+        "summaryAr": "لماذا شرع الله الزواج؟ مفهوم السكن الروحي والنفسي وعمارة الأرض بالنسل الصالح والتحصين من الفتن."
       },
       {
         "id": "aym_zw_02",
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: معايير اختيار شريك الحياة: تنكح المرأة لأربع وحقيقة الدين والخلق",
         "titleEn": "Criteria for Choosing a Spouse: Deen & Character",
-        "durationFormatted": "55:10",
-        "audioUrl": "https://www.youtube.com/watch?v=J3yN6x9aV5k",
+        "durationFormatted": "103:04",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/02.mp3",
         "summaryAr": "فاظفر بذات الدين تربت يداك؛ إذا أتاكم من ترضون دينه وخلقه؛ كيف تختبر الأثر العملي للتدين والخلق قبل الزواج."
       },
       {
@@ -1675,8 +1693,8 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: فقه الخطبة والرؤية الشرعية وضوابط التعارف قبل العقد",
         "titleEn": "Engagement Fiqh & Legitimate Courtship Boundaries",
-        "durationFormatted": "52:40",
-        "audioUrl": "https://www.youtube.com/watch?v=R9_mK3vT4xI",
+        "durationFormatted": "142:15",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/03.mp3",
         "summaryAr": "الرؤية الشرعية، الأسئلة الجوهرية لمعرفة نمط الشخصية والتوافق الفكري والتربوي دون تجاوز الحدود الشرعية."
       },
       {
@@ -1684,8 +1702,8 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المحاضرة 4: بناء البيت المسلم وتوزيع الأدوار والمسؤوليات بين الزوجين",
         "titleEn": "Building the Muslim Home: Roles & Responsibilities",
-        "durationFormatted": "57:15",
-        "audioUrl": "https://www.youtube.com/watch?v=V7_pL2bC9dE",
+        "durationFormatted": "135:48",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/04.mp3",
         "summaryAr": "مفهوم القوامة العادلة، رعاية البيت، الحقوق والواجبات المتبادلة وتجنب صراع الأدوار المستورد."
       },
       {
@@ -1693,9 +1711,36 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 5,
         "titleAr": "المحاضرة 5: إدارة الخلافات الزوجية وفن حل المشكلات وتجنب الطلاق",
         "titleEn": "Conflict Management & Problem Solving in Marriage",
-        "durationFormatted": "54:20",
-        "audioUrl": "https://www.youtube.com/watch?v=P2_tX8wQ1zA",
+        "durationFormatted": "109:42",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/05.mp3",
         "summaryAr": "كيف تحاصر الخلاف في مهده؟ الصبر على الطباع المختلفة، فضيلة التغافل، وحفظ أسرار البيوت."
+      },
+      {
+        "id": "aym_zw_06",
+        "episodeNumber": 6,
+        "titleAr": "المحاضرة 6: تربية الأبناء وبناء المناعة الإيمانية والأخلاقية في البيت",
+        "titleEn": "Parenting & Building Moral Immunity in Children",
+        "durationFormatted": "106:36",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/06.mp3",
+        "summaryAr": "أصول التربية الإيمانية، القدوة الصامتة، حماية الأبناء من الانحرافات المعاصرة وبناء شخصية مسلمة قوية."
+      },
+      {
+        "id": "aym_zw_07",
+        "episodeNumber": 7,
+        "titleAr": "المحاضرة 7: صيانة ميزانية الأسرة وفقه الاقتصاد المنزلي والقناعة",
+        "titleEn": "Family Budget, Home Economics & Contentment",
+        "durationFormatted": "103:36",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/07.mp3",
+        "summaryAr": "التدبير المالي في البيت المسلم، تجنب التبذير والديون، وبركة الرزق الحلال والتكافل الأسري."
+      },
+      {
+        "id": "aym_zw_08",
+        "episodeNumber": 8,
+        "titleAr": "المحاضرة 8: حفظ ميثاق الزوجية وتوريث القيم للأجيال وصناعة الأثر",
+        "titleEn": "Preserving the Marital Covenant & Transmitting Values",
+        "durationFormatted": "130:16",
+        "audioUrl": "https://archive.org/download/03_20191120_20191120/08.mp3",
+        "summaryAr": "الميثاق الغليظ؛ كيف تصنع من بيتك محراباً للعلم والعبادة، وثمرة الاستقرار الأسري على نهضة الأمة."
       }
     ]
   },
@@ -2839,6 +2884,230 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "durationFormatted": "41:50",
         "audioUrl": "https://archive.org/download/shinqitee_birr/03.mp3",
         "summaryAr": "انقطاع العمل إلا من ولد صالح يدعو له؛ استمرار البر والصلة ورفع درجاتهم في الجنان."
+      }
+    ]
+  },
+  {
+    "id": "series_kamel_al_soorah",
+    "scholarId": "ahmed_al_sayed",
+    "titleAr": "برنامج كامل الصورة: معالم في الفكر وبناء اليقين",
+    "titleEn": "The Complete Picture: Foundations of Thought & Certainty",
+    "sheikhAr": "الشيخ أحمد بن يوسف السيد",
+    "sheikhEn": "Sheikh Ahmad Al-Sayed",
+    "category": "mindset",
+    "badgeAr": "بناء اليقين • 4 حلقات",
+    "badgeEn": "Intellectual Certainty • 4 Episodes",
+    "icon": "💡",
+    "descriptionAr": "تأصيل منهجي متين لتثبيت مرجعية الوحي، مواجهة الشبهات الفكرية المعاصرة، وإدراك الصورة الكاملة لشمول الإسلام.",
+    "totalEpisodes": 4,
+    "episodes": [
+      {
+        "id": "as_ks_01",
+        "episodeNumber": 1,
+        "titleAr": "الحلقة 1: مدخل كامل الصورة وأزمة النظرة الجزئية للدين",
+        "titleEn": "The Partial View Crisis & Comprehensive Islam",
+        "durationFormatted": "42:30",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_kamel/01.mp3",
+        "summaryAr": "كيف تؤدي النظرة التجزيئية للإسلام إلى الاضطراب الفكري، وضرورة استيعاب المنظومة العقدية والتشريعية كاملة."
+      },
+      {
+        "id": "as_ks_02",
+        "episodeNumber": 2,
+        "titleAr": "الحلقة 2: أصول تثبيت اليقين ومحاربة سيولة الشكوك العصرية",
+        "titleEn": "Principles of Consolidating Certainty",
+        "durationFormatted": "46:15",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_kamel/02.mp3",
+        "summaryAr": "الأدلة البدهية والقرآنية على صدق الرسالة، ومنهجية التفكير النقدي الرصين أمام الدعاوى الفكرية الجارفة."
+      },
+      {
+        "id": "as_ks_03",
+        "episodeNumber": 3,
+        "titleAr": "الحلقة 3: حجية السنة النبوية وتفكيك دعاوى الطعن في الرواة",
+        "titleEn": "Authority of Prophetic Sunnah & Hadith Transmission",
+        "durationFormatted": "48:50",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_kamel/03.mp3",
+        "summaryAr": "كيف حُفظت السنة النبوية بأدق معايير التوثيق التاريخي في الحضارة الإنسانية والرد على التشكيك المعاصر."
+      },
+      {
+        "id": "as_ks_04",
+        "episodeNumber": 4,
+        "titleAr": "الحلقة 4: صناعة المصلح والنهوض بمسؤولية حراسة الثغور",
+        "titleEn": "Cultivating Reformers & Defending Truth",
+        "durationFormatted": "44:10",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_kamel/04.mp3",
+        "summaryAr": "الانتقال من مرحلة التحصين الذاتي إلى مرحلة العمل الإيجابي المثمر وبناء المجتمع وإحياء الأمل."
+      }
+    ]
+  },
+  {
+    "id": "series_anwar_seerah",
+    "scholarId": "ahmed_al_sayed",
+    "titleAr": "أنوار السيرة النبوية وبناء الشخصية القيادية المسلمة",
+    "titleEn": "Lights of Prophetic Seerah & Leadership Character",
+    "sheikhAr": "الشيخ أحمد بن يوسف السيد",
+    "sheikhEn": "Sheikh Ahmad Al-Sayed",
+    "category": "siyra",
+    "badgeAr": "السيرة النبوية • 3 حلقات",
+    "badgeEn": "Prophetic Seerah • 3 Episodes",
+    "icon": "🕌",
+    "descriptionAr": "دروس وعبر تربوية ملهمة من حياة سيد المرسلين ﷺ لاستلهام الثبات، الشجاعة، وحسن الخلق والتربية القيادية.",
+    "totalEpisodes": 3,
+    "episodes": [
+      {
+        "id": "as_sn_01",
+        "episodeNumber": 1,
+        "titleAr": "الدرس 1: تربية الجيل الأول في دار الأرقم والثبات على المبدأ",
+        "titleEn": "Nurturing the First Generation at Dar Al-Arqam",
+        "durationFormatted": "39:40",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_seerah/01.mp3",
+        "summaryAr": "كيف بنى النبي ﷺ نواة الصحابة الأولى في مكة بالقرآن والتزكية رغم قلة العدد واستضعاف البيئة."
+      },
+      {
+        "id": "as_sn_02",
+        "episodeNumber": 2,
+        "titleAr": "الدرس 2: الهجرة النبوية: كمال التوكل مع استنفاد الأسباب",
+        "titleEn": "The Hijrah: Divine Trust and Strategic Planning",
+        "durationFormatted": "43:20",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_seerah/02.mp3",
+        "summaryAr": "التخطيط الدقيق للهجرة مع اليقين المطلق: «ما ظنك باثنين الله ثالثهما»؛ درس خالد في الأخذ بالأسباب."
+      },
+      {
+        "id": "as_sn_03",
+        "episodeNumber": 3,
+        "titleAr": "الدرس 3: خلق الرحمة والوفاء والحزم في قيادة الأمة",
+        "titleEn": "Compassion, Loyalty & Decisiveness in Leadership",
+        "durationFormatted": "41:10",
+        "audioUrl": "https://archive.org/download/ahmed_sayed_seerah/03.mp3",
+        "summaryAr": "التوازن النبوي الفريد بين عاطفة الرحمة الخالصة والحزم العادل لصيانة الجماعة ونشر السلام."
+      }
+    ]
+  },
+  {
+    "id": "series_tareeq_najah",
+    "scholarId": "hazem_shouman",
+    "titleAr": "طريق النجاة: التوبة الصادقة وإحياء القلوب",
+    "titleEn": "Path to Salvation: Sincere Repentance & Heart Revival",
+    "sheikhAr": "د. حازم شومان",
+    "sheikhEn": "Dr. Hazem Shouman",
+    "category": "khutbah",
+    "badgeAr": "مواعظ حية • 3 محاضرات",
+    "badgeEn": "Heart Awakening • 3 Lectures",
+    "icon": "🔥",
+    "descriptionAr": "خطاب إيماني حيوي ملتهب يوقظ القلب من رقدة الغفلة، ويدعو للتوبة الصادقة وبدء حياة جديدة مليئة بالطاعة والنور.",
+    "totalEpisodes": 3,
+    "episodes": [
+      {
+        "id": "hs_tn_01",
+        "episodeNumber": 1,
+        "titleAr": "المحاضرة 1: فِرَّ إلى الله: حان وقت كسر قيود الغفلة",
+        "titleEn": "Flee to Allah: Breaking the Chains of Heedlessness",
+        "durationFormatted": "36:45",
+        "audioUrl": "https://archive.org/download/shouman_najah/01.mp3",
+        "summaryAr": "استيقظ قبل فوات الأوان؛ نداء التوبة العاجل وعظمة مغفرة الله التي تسع كل الذنوب لمن صدق."
+      },
+      {
+        "id": "hs_tn_02",
+        "episodeNumber": 2,
+        "titleAr": "المحاضرة 2: روشتة عملية للثبات والتخلص من ذنوب الخلوات",
+        "titleEn": "Prescription for Steadfastness Against Secret Sins",
+        "durationFormatted": "40:15",
+        "audioUrl": "https://archive.org/download/shouman_najah/02.mp3",
+        "summaryAr": "مراقبة الله في السر والعلن، خطوات عملية لسد منافذ وسوسة الشيطان واستبدال المعصية بلذة الطاعة."
+      },
+      {
+        "id": "hs_tn_03",
+        "episodeNumber": 3,
+        "titleAr": "المحاضرة 3: أول يوم في الجنة: نعيم لا يفنى ورؤية وجه الله",
+        "titleEn": "First Day in Paradise: Eternal Bliss",
+        "durationFormatted": "38:20",
+        "audioUrl": "https://archive.org/download/shouman_najah/03.mp3",
+        "summaryAr": "وصف جنات النعيم ولقاء الأحبه في الفردوس الأعلى، شحذ الهمم وتهوين مصائب الدنيا في جنب الآخرة."
+      }
+    ]
+  },
+  {
+    "id": "series_asrar_salah",
+    "scholarId": "hazem_shouman",
+    "titleAr": "سلسلة محتاج أصلي: أسرار الخشوع والتلذذ بالصلاة",
+    "titleEn": "I Need to Pray: Secrets of Khushu in Salah",
+    "sheikhAr": "د. حازم شومان",
+    "sheikhEn": "Dr. Hazem Shouman",
+    "category": "fiqh",
+    "badgeAr": "أسرار الصلاة • 3 محاضرات",
+    "badgeEn": "Secrets of Salah • 3 Lectures",
+    "icon": "🤲",
+    "descriptionAr": "كيف تحول صلاتك من مجرد حركات رتيبة مجهدة إلى جنة روحية وسكينة تناجي بها ملك الملوك.",
+    "totalEpisodes": 3,
+    "episodes": [
+      {
+        "id": "hs_sl_01",
+        "episodeNumber": 1,
+        "titleAr": "المحاضرة 1: لماذا نتثاقل عن الصلاة؟ فك عقدة السرحان والتشتت",
+        "titleEn": "Why Do We Feel Heavy About Salah? Overcoming Distraction",
+        "durationFormatted": "35:10",
+        "audioUrl": "https://archive.org/download/shouman_salah/01.mp3",
+        "summaryAr": "تفكيك أسباب انشغال القلب بالدنيا أثناء الوقوف بين يدي الله، وحيل الشيطان لصرف العبد عن صلاته."
+      },
+      {
+        "id": "hs_sl_02",
+        "episodeNumber": 2,
+        "titleAr": "المحاضرة 2: ذوق حلاوة تكبيرة الإحرام والفاتحة وركوع التذلل",
+        "titleEn": "Tasting the Sweetness of Takbir, Fatihah & Ruku",
+        "durationFormatted": "37:55",
+        "audioUrl": "https://archive.org/download/shouman_salah/02.mp3",
+        "summaryAr": "استشعار جواب الله لك في كل آية من الفاتحة: «حمدني عبدي... أثنى علي عبدي»؛ تعظيم الله في الركوع."
+      },
+      {
+        "id": "hs_sl_03",
+        "episodeNumber": 3,
+        "titleAr": "المحاضرة 3: أقرب ما يكون العبد من ربه وهو ساجد",
+        "titleEn": "Nearest to the Lord While in Prostration",
+        "durationFormatted": "39:30",
+        "audioUrl": "https://archive.org/download/shouman_salah/03.mp3",
+        "summaryAr": "أسرار السجود، انكسار القلب لله، واستجابة الدعوات وتفريج الهموم عند وضع الجبهة على التراب خضوعاً."
+      }
+    ]
+  },
+  {
+    "id": "series_qunaibi_tarbiyah",
+    "scholarId": "eyad_qunaibi",
+    "titleAr": "كيف نربي أبناءنا في زمان الفتن والشبهات",
+    "titleEn": "Raising Children in Times of Trials & Doubts",
+    "sheikhAr": "د. إياد قنيبي",
+    "sheikhEn": "Dr. Eyad Qunaibi",
+    "category": "mindset",
+    "badgeAr": "تربية الأبناء • 3 محاضرات",
+    "badgeEn": "Child Raising • 3 Lectures",
+    "icon": "🌱",
+    "descriptionAr": "دليل عملي تربوي متكامل للآباء والأمهات لصناعة جيل معتز بإسلامه، صلب في عقيدته، ومحصن من التغريب.",
+    "totalEpisodes": 3,
+    "episodes": [
+      {
+        "id": "eq_tb_01",
+        "episodeNumber": 1,
+        "titleAr": "المحاضرة 1: غرس محبة الله والقرآن في نفوس الأبناء منذ الصغر",
+        "titleEn": "Instilling Love of Allah & Quran in Children",
+        "durationFormatted": "38:15",
+        "audioUrl": "https://archive.org/download/qunaibi_tarbiya/01.mp3",
+        "summaryAr": "كيف نربط قلوب الأطفال بجمال الخالق ونعمه قبل الترهيب، وبناء علاقة حب وثقة مع الوحي الشريف."
+      },
+      {
+        "id": "eq_tb_02",
+        "episodeNumber": 2,
+        "titleAr": "المحاضرة 2: حماية الأبناء من إدمان الشاشات والشبهات الفكرية",
+        "titleEn": "Protecting Kids from Screen Addiction & Skepticism",
+        "durationFormatted": "42:00",
+        "audioUrl": "https://archive.org/download/qunaibi_tarbiya/02.mp3",
+        "summaryAr": "صيانة عقول الناشئة من الإباحية والمحتوى الإلحادي والنسوي، وبناء الحوار الصديق بين الأب وأبنائه."
+      },
+      {
+        "id": "eq_tb_03",
+        "episodeNumber": 3,
+        "titleAr": "المحاضرة 3: صناعة الهمة والاعتزاز بالهوية الإسلامية",
+        "titleEn": "Building High Zeal & Pride in Islamic Identity",
+        "durationFormatted": "40:40",
+        "audioUrl": "https://archive.org/download/qunaibi_tarbiya/03.mp3",
+        "summaryAr": "كيف ننشئ طفلاً صاحب رسالة وهدف سامٍ ينفع أمته، ولا يذوب في ثقافة الاستهلاك والتقليد الأعمى."
       }
     ]
   }

@@ -11,6 +11,10 @@ import {
   Disc3,
   Heart,
   Moon,
+  BookOpen,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import {
   gymFaithAudio,
@@ -19,6 +23,12 @@ import {
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
+import {
+  SCHOLARS_DIRECTORY,
+  FAITH_AUDIO_SERIES,
+  type FaithAudioSeries,
+  type FaithAudioEpisode,
+} from '../../data/gymFaithAudioData';
 
 export interface MobileAudioTrack {
   id: string;
@@ -26,7 +36,7 @@ export interface MobileAudioTrack {
   titleEn: string;
   sheikhAr: string;
   sheikhEn: string;
-  category: 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio';
+  category: 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio' | 'mindset' | 'zawaj' | 'siyra';
   audioUrl: string;
   durationFormatted: string;
   badgeAr: string;
@@ -308,7 +318,167 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     icon: '🌱',
   },
 
-  // --- 5. إذاعات القرآن الكريم الحية (24/7 Live Stream) ---
+  // --- 5. دورة تأسيس البيت المسلم والزواج (م. أيمن عبد الرحيم) ---
+  {
+    id: 'track_ayman_zw_01',
+    titleAr: 'البيت المسلم: فلسفة الزواج ومفهوم السكن والمودة والرحمة',
+    titleEn: 'Muslim Home: Philosophy of Marriage',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'zawaj',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/01.mp3',
+    durationFormatted: '50:57',
+    badgeAr: '🏡 البيت المسلم 1',
+    icon: '💍',
+  },
+  {
+    id: 'track_ayman_zw_02',
+    titleAr: 'البيت المسلم: معايير اختيار شريك الحياة: تنكح المرأة لأربع',
+    titleEn: 'Criteria for Choosing a Spouse',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'zawaj',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/02.mp3',
+    durationFormatted: '103:04',
+    badgeAr: '🏡 البيت المسلم 2',
+    icon: '💍',
+  },
+  {
+    id: 'track_ayman_zw_03',
+    titleAr: 'البيت المسلم: فقه الخطبة والرؤية الشرعية وضوابط التعارف قبل العقد',
+    titleEn: 'Engagement Fiqh & Legitimate Boundaries',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'zawaj',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/03.mp3',
+    durationFormatted: '142:15',
+    badgeAr: '🏡 البيت المسلم 3',
+    icon: '💍',
+  },
+  {
+    id: 'track_ayman_zw_04',
+    titleAr: 'البيت المسلم: بناء البيت وتوزيع الأدوار والمسؤوليات والقوامة العادلة',
+    titleEn: 'Building the Muslim Home: Roles & Responsibilities',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'zawaj',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/04.mp3',
+    durationFormatted: '135:48',
+    badgeAr: '🏡 البيت المسلم 4',
+    icon: '💍',
+  },
+  {
+    id: 'track_ayman_zw_05',
+    titleAr: 'البيت المسلم: إدارة الخلافات الزوجية وفن حل المشكلات والتغافل',
+    titleEn: 'Marital Conflict Management & Problem Solving',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'zawaj',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/05.mp3',
+    durationFormatted: '109:42',
+    badgeAr: '🏡 البيت المسلم 5',
+    icon: '💍',
+  },
+  {
+    id: 'track_ayman_waay_01',
+    titleAr: 'تأسيس وعي المسلم المعاصر وفك الارتهان الحضاري',
+    titleEn: 'Foundations of Modern Muslim Awareness',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'mindset',
+    audioUrl: 'https://archive.org/download/Establishing_contemporary_Muslim_awareness/01.mp3',
+    durationFormatted: '48:30',
+    badgeAr: '🧭 تأسيس الوعي',
+    icon: '🧠',
+  },
+  {
+    id: 'track_ayman_history_01',
+    titleAr: 'فلسفة التاريخ في المنظور القرآني وسنن صعود وسقوط الأمم',
+    titleEn: 'Quranic Philosophy of History',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'mindset',
+    audioUrl: 'https://archive.org/download/ayman_history/01.mp3',
+    durationFormatted: '56:30',
+    badgeAr: '🏛️ سنن التاريخ',
+    icon: '⚔️',
+  },
+
+  // --- 6. نفائس الشيوخ (أحمد السيد، إياد قنيبي، حازم شومان) ---
+  {
+    id: 'track_ahmed_sayed_kamel_01',
+    titleAr: 'كامل الصورة: أصول تثبيت اليقين ومحاربة الشبهات والشكوك',
+    titleEn: 'Principles of Consolidating Certainty',
+    sheikhAr: 'الشيخ أحمد بن يوسف السيد',
+    sheikhEn: 'Sheikh Ahmad Al-Sayed',
+    category: 'mindset',
+    audioUrl: 'https://archive.org/download/ahmed_sayed_kamel/02.mp3',
+    durationFormatted: '46:15',
+    badgeAr: '💡 بناء اليقين',
+    icon: '🌱',
+  },
+  {
+    id: 'track_ahmed_sayed_seerah_01',
+    titleAr: 'أنوار السيرة: تربية الجيل الأول في دار الأرقم والثبات على الحق',
+    titleEn: 'Seerah: Nurturing the First Generation',
+    sheikhAr: 'الشيخ أحمد بن يوسف السيد',
+    sheikhEn: 'Sheikh Ahmad Al-Sayed',
+    category: 'siyra',
+    audioUrl: 'https://archive.org/download/ahmed_sayed_seerah/01.mp3',
+    durationFormatted: '39:40',
+    badgeAr: '🕌 السيرة النبوية',
+    icon: '✨',
+  },
+  {
+    id: 'track_qunaibi_yaqeen_01',
+    titleAr: 'رحلة اليقين: براهين وجود الله وعظمة الصانع في خلق الكون',
+    titleEn: 'Journey of Certainty: Proofs of Creation',
+    sheikhAr: 'د. إياد قنيبي',
+    sheikhEn: 'Dr. Eyad Qunaibi',
+    category: 'mindset',
+    audioUrl: 'https://archive.org/download/qunaibi_jeel/01.mp3',
+    durationFormatted: '38:20',
+    badgeAr: '🛡️ رحلة اليقين',
+    icon: '🌱',
+  },
+  {
+    id: 'track_qunaibi_tarbiyah_01',
+    titleAr: 'كيف نربي أبناءنا: غرس محبة الله والقرآن في نفوس الأبناء',
+    titleEn: 'Child Raising: Love of Allah & Quran',
+    sheikhAr: 'د. إياد قنيبي',
+    sheikhEn: 'Dr. Eyad Qunaibi',
+    category: 'zawaj',
+    audioUrl: 'https://archive.org/download/qunaibi_tarbiya/01.mp3',
+    durationFormatted: '38:15',
+    badgeAr: '🌱 تربية الأبناء',
+    icon: '👨‍👩‍👧',
+  },
+  {
+    id: 'track_shouman_salah_01',
+    titleAr: 'محتاج أصلي: كيف تذوق حلاوة تكبيرة الإحرام والخشوع في صلاتك',
+    titleEn: 'Secrets of Khushu in Salah',
+    sheikhAr: 'د. حازم شومان',
+    sheikhEn: 'Dr. Hazem Shouman',
+    category: 'khutbah',
+    audioUrl: 'https://archive.org/download/shouman_salah/02.mp3',
+    durationFormatted: '37:55',
+    badgeAr: '🤲 أسرار الصلاة',
+    icon: '🔥',
+  },
+  {
+    id: 'track_shouman_najah_01',
+    titleAr: 'طريق النجاة: فِرَّ إلى الله واكسر قيود الغفلة والتسويف الآن',
+    titleEn: 'Flee to Allah & Break Chains of Procrastination',
+    sheikhAr: 'د. حازم شومان',
+    sheikhEn: 'Dr. Hazem Shouman',
+    category: 'khutbah',
+    audioUrl: 'https://archive.org/download/shouman_najah/01.mp3',
+    durationFormatted: '36:45',
+    badgeAr: '🔥 موعظة نجاة',
+    icon: '⚡',
+  },
+
+  // --- 7. إذاعات القرآن الكريم الحية (24/7 Live Stream) ---
   {
     id: 'track_radio_tarateel',
     titleAr: 'إذاعة تلاوات قرآنية خاشعة ومختارة 24 ساعة',
@@ -389,7 +559,12 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const isAr = language === 'ar';
 
   const [audioState, setAudioState] = useState<GymFaithAudioState>(gymFaithAudio.getState());
-  const [activeCategory, setActiveCategory] = useState<'all' | 'favorites' | 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio'>('all');
+  const [viewMode, setViewMode] = useState<'tracks' | 'scholars'>('tracks');
+  const [selectedScholarId, setSelectedScholarId] = useState<string>('ayman_abdelrahim');
+  const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>('series_ayman_zawaj_bayt_muslim');
+  const [activeCategory, setActiveCategory] = useState<
+    'all' | 'favorites' | 'zawaj' | 'mindset' | 'siyra' | 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio'
+  >('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
@@ -429,10 +604,13 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const categories = useMemo(() => [
     { id: 'all', label: isAr ? '✨ الكل' : 'All', count: VERIFIED_FAITH_TRACKS.length },
     { id: 'favorites', label: isAr ? '💖 المفضلة' : 'Favorites', count: favoriteIds.length },
+    { id: 'zawaj', label: isAr ? '🏡 البيت المسلم والزواج' : 'Marriage & Home', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'zawaj').length },
+    { id: 'mindset', label: isAr ? '🧠 فكر وتأسيس وعي' : 'Mindset & Awareness', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'mindset').length },
+    { id: 'siyra', label: isAr ? '🕌 السيرة النبوية' : 'Prophetic Seerah', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'siyra').length },
     { id: 'khutbah', label: isAr ? '🎙️ خطب ومواعظ مدوية' : 'Khutbahs', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'khutbah').length },
     { id: 'quran', label: isAr ? '📖 روائع التلاوات' : 'Recitations', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'quran').length },
     { id: 'adhkar', label: isAr ? '🌸 أذكار ورقية' : 'Adhkar', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'adhkar').length },
-    { id: 'tazkiyah', label: isAr ? '💖 تزكية وبناء' : 'Tazkiyah', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'tazkiyah').length },
+    { id: 'tazkiyah', label: isAr ? '💖 تزكية ورقائق' : 'Tazkiyah', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'tazkiyah').length },
     { id: 'radio', label: isAr ? '📻 إذاعات حية 24/7' : 'Live Radios', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'radio').length },
   ], [isAr, favoriteIds]);
 
@@ -453,6 +631,26 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       return matchCat && matchSearch;
     });
   }, [activeCategory, searchQuery, favoriteIds]);
+
+  const currentScholar = useMemo(() => {
+    return (
+      SCHOLARS_DIRECTORY.find((s) => s.id === selectedScholarId) ||
+      SCHOLARS_DIRECTORY.find((s) => s.id === 'ayman_abdelrahim') ||
+      SCHOLARS_DIRECTORY[0]
+    );
+  }, [selectedScholarId]);
+
+  const scholarSeriesList = useMemo(() => {
+    return FAITH_AUDIO_SERIES.filter((s) => s.scholarId === currentScholar.id);
+  }, [currentScholar]);
+
+  const handlePlayScholarEpisode = (series: FaithAudioSeries, episode: FaithAudioEpisode) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setPlayingTrackId(`ep_${episode.id}`);
+    gymFaithAudio.playEpisode(series.id, episode.id, 0);
+    onRewardToast?.(isAr ? `▶️ جاري تشغيل: ${episode.titleAr}` : `Playing: ${episode.titleEn}`);
+  };
 
   const handleTogglePlayTrack = (track: MobileAudioTrack) => {
     soundSynth.playTactileClick();
@@ -549,154 +747,368 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       </div>
 
-      {/* 2. Search & Category Horizontal Scroller */}
-      <div className="p-3 bg-slate-900/60 border-b border-white/[0.06] space-y-2.5 shrink-0">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={isAr ? 'ابحث عن خطبة، شيخ، تلاوة، أو سورة...' : 'Search khutbah, sheikh, or reciter...'}
-            className="w-full h-9 ps-9 pe-8 rounded-xl bg-slate-800/80 border border-white/[0.08] focus:border-amber-500 text-xs text-white placeholder-slate-400 focus:outline-none transition-colors"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
+      {/* View Mode Toggle: Quick Tracks vs Scholars & Full Series */}
+      <div className="flex items-center border-b border-white/[0.08] bg-slate-900/80 p-1.5 gap-1.5 shrink-0">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setViewMode('tracks');
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            viewMode === 'tracks'
+              ? 'bg-amber-500 text-slate-950 shadow-md scale-101'
+              : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>{isAr ? 'المختارات السريعة (SoundCloud) 🎧' : 'Curated Audio Tracks'}</span>
+        </button>
 
-        {/* Horizontal Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
-          {categories.map((cat) => {
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => {
-                  soundSynth.playTactileClick();
-                  haptic.vibrateLight();
-                  setActiveCategory(cat.id as any);
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                  isActive
-                    ? 'bg-amber-500 text-slate-950 shadow-md font-black scale-102'
-                    : 'bg-slate-800/90 hover:bg-slate-800 text-slate-300 border border-white/[0.06]'
-                }`}
-              >
-                <span>{cat.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                    isActive ? 'bg-slate-950/20 text-slate-900 font-mono font-black' : 'bg-slate-700 text-slate-400 font-mono'
-                  }`}
-                >
-                  {cat.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setViewMode('scholars');
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            viewMode === 'scholars'
+              ? 'bg-amber-500 text-slate-950 shadow-md scale-101'
+              : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>{isAr ? 'موسوعة الشيوخ والسلاسل 🏛️' : 'Scholars & Full Series'}</span>
+        </button>
       </div>
 
-      {/* 3. Feed Track Cards (Compact 64px Mobile Cards) */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2 pb-24 overscroll-contain">
-        {filteredTracks.length === 0 ? (
-          <div className="text-center py-16 text-slate-400 text-xs">
-            {isAr ? 'لم يتم العثور على أي مقطع مطابق لبحثك' : 'No tracks found matching your query'}
+      {viewMode === 'tracks' ? (
+        <>
+          {/* 2. Search & Category Horizontal Scroller */}
+          <div className="p-3 bg-slate-900/60 border-b border-white/[0.06] space-y-2.5 shrink-0">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isAr ? 'ابحث عن خطبة، شيخ، تلاوة، أو سورة...' : 'Search khutbah, sheikh, or reciter...'}
+                className="w-full h-9 ps-9 pe-8 rounded-xl bg-slate-800/80 border border-white/[0.08] focus:border-amber-500 text-xs text-white placeholder-slate-400 focus:outline-none transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Horizontal Category Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
+              {categories.map((cat) => {
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setActiveCategory(cat.id as any);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                      isActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md font-black scale-102'
+                        : 'bg-slate-800/90 hover:bg-slate-800 text-slate-300 border border-white/[0.06]'
+                    }`}
+                  >
+                    <span>{cat.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                        isActive ? 'bg-slate-950/20 text-slate-900 font-mono font-black' : 'bg-slate-700 text-slate-400 font-mono'
+                      }`}
+                    >
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        ) : (
-          filteredTracks.map((track) => {
-            const isPlayingThis = playingTrackId === track.id && audioState.isPlaying;
-            const isFav = favoriteIds.includes(track.id);
 
-            return (
-              <div
-                key={track.id}
-                onClick={() => handleTogglePlayTrack(track)}
-                className={`p-2.5 sm:p-3 rounded-2xl transition-all flex items-center justify-between gap-3 cursor-pointer border ${
-                  isPlayingThis
-                    ? 'bg-gradient-to-r from-amber-500/20 via-slate-900 to-slate-900 border-amber-500/50 shadow-lg shadow-amber-500/10'
-                    : 'bg-slate-900/60 hover:bg-slate-900/90 border-white/[0.06]'
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  {/* Category / Sheikh Icon */}
+          {/* 3. Feed Track Cards (Compact 64px Mobile Cards) */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 pb-24 overscroll-contain">
+            {filteredTracks.length === 0 ? (
+              <div className="text-center py-16 text-slate-400 text-xs">
+                {isAr ? 'لم يتم العثور على أي مقطع مطابق لبحثك' : 'No tracks found matching your query'}
+              </div>
+            ) : (
+              filteredTracks.map((track) => {
+                const isPlayingThis = playingTrackId === track.id && audioState.isPlaying;
+                const isFav = favoriteIds.includes(track.id);
+
+                return (
                   <div
-                    className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 transition-transform ${
+                    key={track.id}
+                    onClick={() => handleTogglePlayTrack(track)}
+                    className={`p-2.5 sm:p-3 rounded-2xl transition-all flex items-center justify-between gap-3 cursor-pointer border ${
                       isPlayingThis
-                        ? 'bg-amber-500 text-slate-950 shadow-md animate-pulse scale-105'
-                        : 'bg-slate-800 text-slate-300 border border-white/[0.08]'
+                        ? 'bg-gradient-to-r from-amber-500/20 via-slate-900 to-slate-900 border-amber-500/50 shadow-lg shadow-amber-500/10'
+                        : 'bg-slate-900/60 hover:bg-slate-900/90 border-white/[0.06]'
                     }`}
                   >
-                    {isPlayingThis ? (
-                      <Disc3 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <span>{track.icon}</span>
-                    )}
-                  </div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Category / Sheikh Icon */}
+                      <div
+                        className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 transition-transform ${
+                          isPlayingThis
+                            ? 'bg-amber-500 text-slate-950 shadow-md animate-pulse scale-105'
+                            : 'bg-slate-800 text-slate-300 border border-white/[0.08]'
+                        }`}
+                      >
+                        {isPlayingThis ? (
+                          <Disc3 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <span>{track.icon}</span>
+                        )}
+                      </div>
 
-                  {/* Title & Sheikh */}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-xs sm:text-sm font-bold text-white truncate max-w-[220px] sm:max-w-md">
-                        {track.titleAr}
-                      </span>
+                      {/* Title & Sheikh */}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs sm:text-sm font-bold text-white truncate max-w-[220px] sm:max-w-md">
+                            {track.titleAr}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400">
+                          <span className="text-amber-400/90 font-medium truncate">
+                            {track.sheikhAr}
+                          </span>
+                          <span>•</span>
+                          <span className="font-mono text-slate-400 text-[10px]">
+                            {track.durationFormatted}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-white/[0.06] text-slate-300">
+                            {track.badgeAr}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400">
-                      <span className="text-amber-400/90 font-medium truncate">
-                        {track.sheikhAr}
-                      </span>
-                      <span>•</span>
-                      <span className="font-mono text-slate-400 text-[10px]">
-                        {track.durationFormatted}
-                      </span>
-                      <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-white/[0.06] text-slate-300">
-                        {track.badgeAr}
-                      </span>
+                    {/* Right Actions: Favorite & Play/Pause */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => toggleFavorite(track.id, e)}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          isFav ? 'text-rose-400 bg-rose-500/10' : 'text-slate-500 hover:text-slate-300'
+                        }`}
+                      >
+                        <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-transform active:scale-95 shadow-md ${
+                          isPlayingThis
+                            ? 'bg-amber-500 text-slate-950 font-black'
+                            : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/[0.1]'
+                        }`}
+                      >
+                        {isPlayingThis ? (
+                          <Pause className="w-4 h-4 fill-current" />
+                        ) : (
+                          <Play className="w-4 h-4 fill-current ms-0.5" />
+                        )}
+                      </button>
                     </div>
                   </div>
-                </div>
-
-                {/* Right Actions: Favorite & Play/Pause */}
-                <div className="flex items-center gap-2 shrink-0">
+                );
+              })
+            )}
+          </div>
+        </>
+      ) : (
+        /* Scholars & Full Series Encyclopedia View */
+        <div className="flex-1 overflow-y-auto p-3 space-y-3 pb-24 overscroll-contain">
+          {/* Horizontal Scholar Selector Chips */}
+          <div className="space-y-1">
+            <span className="text-[11px] text-slate-400 font-bold px-1 block">
+              {isAr ? 'اختر العالم أو المفكر لعرض كافة سلاسله ومحاضراته:' : 'Select Scholar to view all series:'}
+            </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
+              {SCHOLARS_DIRECTORY.map((scholar) => {
+                const isSelected = selectedScholarId === scholar.id;
+                const seriesCount = FAITH_AUDIO_SERIES.filter((s) => s.scholarId === scholar.id).length;
+                return (
                   <button
+                    key={scholar.id}
                     type="button"
-                    onClick={(e) => toggleFavorite(track.id, e)}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                      isFav ? 'text-rose-400 bg-rose-500/10' : 'text-slate-500 hover:text-slate-300'
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setSelectedScholarId(scholar.id);
+                      const firstSeries = FAITH_AUDIO_SERIES.find((s) => s.scholarId === scholar.id);
+                      if (firstSeries) setExpandedSeriesId(firstSeries.id);
+                    }}
+                    className={`px-3 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 cursor-pointer border ${
+                      isSelected
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-md scale-102'
+                        : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-white/[0.08]'
                     }`}
                   >
-                    <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
+                    <span>{scholar.avatarEmoji}</span>
+                    <span>{scholar.nameAr}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                        isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-amber-400'
+                      }`}
+                    >
+                      {seriesCount}
+                    </span>
                   </button>
+                );
+              })}
+            </div>
+          </div>
 
-                  <button
-                    type="button"
-                    className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-transform active:scale-95 shadow-md ${
-                      isPlayingThis
-                        ? 'bg-amber-500 text-slate-950 font-black'
-                        : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/[0.1]'
-                    }`}
-                  >
-                    {isPlayingThis ? (
-                      <Pause className="w-4 h-4 fill-current" />
-                    ) : (
-                      <Play className="w-4 h-4 fill-current ms-0.5" />
-                    )}
-                  </button>
+          {/* Scholar Bio Header Card */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-900 border border-amber-500/30 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{currentScholar.avatarEmoji}</span>
+                <div>
+                  <h3 className="text-sm font-black text-white">{currentScholar.nameAr}</h3>
+                  <p className="text-[11px] text-amber-400 font-medium">{currentScholar.specialityAr}</p>
                 </div>
               </div>
-            );
-          })
-        )}
-      </div>
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold">
+                {scholarSeriesList.length} {isAr ? 'سلاسل متاحة' : 'Series Available'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-300/90 leading-relaxed font-normal">
+              {currentScholar.descriptionAr}
+            </p>
+          </div>
+
+          {/* Scholar's Series List */}
+          <div className="space-y-2.5">
+            {scholarSeriesList.length === 0 ? (
+              <div className="text-center py-10 text-slate-400 text-xs">
+                {isAr ? 'لا توجد سلاسل مسجلة حالياً لهذا الشيخ' : 'No series available for this scholar currently'}
+              </div>
+            ) : (
+              scholarSeriesList.map((series) => {
+                const isExpanded = expandedSeriesId === series.id;
+
+                return (
+                  <div
+                    key={series.id}
+                    className="rounded-2xl border border-white/[0.08] bg-slate-900/70 overflow-hidden text-right transition-all"
+                  >
+                    {/* Series Header Bar */}
+                    <div
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setExpandedSeriesId(isExpanded ? null : series.id);
+                      }}
+                      className="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/60 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-lg shrink-0">
+                          {series.icon}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs sm:text-sm font-bold text-white truncate max-w-[220px] sm:max-w-md">
+                            {series.titleAr}
+                          </h4>
+                          <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                            <span className="text-amber-400">{series.badgeAr}</span>
+                            <span>•</span>
+                            <span>{series.episodes.length} {isAr ? 'محاضرات صوتية' : 'Episodes'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-1 rounded-lg bg-slate-800 text-slate-400 shrink-0">
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </div>
+                    </div>
+
+                    {/* Series Episodes List */}
+                    {isExpanded && (
+                      <div className="px-3 pb-3 space-y-2 border-t border-white/[0.06] pt-2.5 animate-in fade-in duration-150">
+                        <p className="text-[11px] text-slate-400 px-1 leading-relaxed">
+                          {series.descriptionAr}
+                        </p>
+
+                        <div className="space-y-1.5 pt-1">
+                          {series.episodes.map((ep) => {
+                            const isEpPlaying =
+                              audioState.currentSeriesId === series.id &&
+                              audioState.currentEpisodeId === ep.id &&
+                              audioState.isPlaying;
+
+                            return (
+                              <div
+                                key={ep.id}
+                                onClick={() => handlePlayScholarEpisode(series, ep)}
+                                className={`p-2.5 rounded-xl border flex items-center justify-between gap-2.5 cursor-pointer transition-all ${
+                                  isEpPlaying
+                                    ? 'bg-amber-500/20 border-amber-500 text-white font-bold'
+                                    : 'bg-slate-800/60 hover:bg-slate-800 border-white/[0.06] text-slate-200'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div
+                                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 ${
+                                      isEpPlaying ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-700 text-slate-300'
+                                    }`}
+                                  >
+                                    {isEpPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current ms-0.5" />}
+                                  </div>
+
+                                  <div className="min-w-0">
+                                    <div className="text-xs font-bold text-white truncate max-w-[200px] sm:max-w-sm">
+                                      {ep.titleAr}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                                      <span className="font-mono text-amber-400">{ep.durationFormatted}</span>
+                                      <span className="truncate max-w-[150px] sm:max-w-xs">{ep.summaryAr}</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold shrink-0 transition-colors ${
+                                    isEpPlaying
+                                      ? 'bg-amber-500 text-slate-950'
+                                      : 'bg-slate-700 hover:bg-amber-600 hover:text-white text-slate-300'
+                                  }`}
+                                >
+                                  {isEpPlaying ? (isAr ? 'يعمل 🔊' : 'Playing') : (isAr ? 'استماع 🎧' : 'Play')}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 4. Sticky Floating Bottom Mini-Player Dock */}
       {playingTrackId && (
