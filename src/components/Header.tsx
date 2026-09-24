@@ -222,7 +222,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white/95 dark:bg-zinc-950/90 backdrop-blur-md border-b border-slate-200 dark:border-zinc-900 px-3 sm:px-6 py-2.5 transition-colors duration-200">
+    <header className="sticky top-0 z-30 w-full bg-white/80 dark:bg-[#0c0e14]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] px-3 sm:px-6 py-2.5 transition-colors duration-200 shadow-2xs">
       <div className={`w-full ${isFullWidth ? 'max-w-none px-1 sm:px-2' : 'max-w-[1720px] mx-auto'} flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300`}>
         {/* Logo & Brand (Click to return Home) */}
         <button
@@ -233,10 +233,10 @@ export const Header: React.FC<HeaderProps> = ({
             onGoHome?.();
             if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="flex items-center gap-2.5 shrink-0 text-start cursor-pointer group active:scale-95 transition-transform select-none"
+          className="flex items-center gap-2.5 shrink-0 text-start cursor-pointer group active:scale-95 transition-transform select-none tap-spring"
           title={language === 'ar' ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home'}
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-500/20 group-hover:scale-105 group-hover:shadow-emerald-500/40 transition-all">
             {language === 'ar' ? 'مِ' : 'M'}
           </div>
           <div className="hidden sm:block">

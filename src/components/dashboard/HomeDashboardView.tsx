@@ -33,7 +33,8 @@ import { DailyCircadianTimeline } from '../spiritual/DailyCircadianTimeline';
 import { SmartAmbientNudgeCard } from './SmartAmbientNudgeCard';
 import { AiBehavioralCopilotCard } from './AiBehavioralCopilotCard';
 import { DailyTadabburCard } from '../spiritual/DailyTadabburCard';
-import { resolveStationMetadata, LIFESTYLE_PERSONAS } from '../../utils/lifestyleEngine';
+import { DailyStationsRoadmap } from './DailyStationsRoadmap';
+import { LIFESTYLE_PERSONAS } from '../../utils/lifestyleEngine';
 import type { DailyTadabburItem } from '../../data/dailyTadabburData';
 import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
@@ -695,116 +696,19 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
       {/* ============================================================ */}
       {/* 2. DAILY STATIONS ROADMAP: خريطة محطات اليوم المبارك           */}
-      {/* Full 6-station interactive grid for instant immersion         */}
+      {/* Deluxe 6-station milestone journey with glowing progress track */}
       {/* ============================================================ */}
-      <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-base">
-              🧭
-            </div>
-            <div>
-              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
-                {isAr ? 'خريطة محطات اليوم' : 'Daily Stations Roadmap'}
-              </h3>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                {isAr
-                  ? `${completedStations.length} من 6 محطات مكتملة • ${personaConfig.titleAr}`
-                  : `${completedStations.length} of 6 stations completed • ${personaConfig.titleEn}`}
-                {onOpenLifestyleModal && (
-                  <button
-                    type="button"
-                    onClick={onOpenLifestyleModal}
-                    className="ms-2 text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
-                  >
-                    ({isAr ? 'تعديل النمط' : 'Change'})
-                  </button>
-                )}
-              </p>
-            </div>
-          </div>
-
-          <span className="font-mono text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/[0.06] font-bold text-slate-600 dark:text-zinc-300">
-            {completedStations.length}/6 {isAr ? 'مكتمل' : 'Done'}
-          </span>
-        </div>
-
-        {/* 6 Stations Responsive Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
-          {allStationIds.map((stId, idx) => {
-            const meta = resolveStationMetadata(stId, personaId, overrides, isAr);
-            const Icon = meta.icon;
-            const isCompleted = completedStations.includes(stId);
-            const isCurrentSuggested = currentSuggestedStation.id === stId;
-
-            return (
-              <button
-                key={stId}
-                type="button"
-                onClick={() => {
-                  soundSynth.playTactileClick();
-                  haptic.vibrateLight();
-                  onSelectStation(stId);
-                }}
-                className={`p-3 rounded-2xl border text-start flex flex-col justify-between transition-all cursor-pointer select-none active:scale-95 group relative ${
-                  isCompleted
-                    ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300/80 dark:border-emerald-800/60'
-                    : isCurrentSuggested
-                    ? 'bg-sky-50/80 dark:bg-sky-950/30 border-sky-400/80 dark:border-sky-700/80 ring-2 ring-sky-400/20'
-                    : 'bg-slate-50/80 dark:bg-white/[0.03] border-slate-200/80 dark:border-white/[0.06] hover:border-emerald-300 dark:hover:border-emerald-700'
-                }`}
-              >
-                {/* Station Card Header */}
-                <div className="flex items-center justify-between w-full mb-2">
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${
-                      isCompleted
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : isCurrentSuggested
-                        ? 'bg-sky-600 text-white shadow-xs'
-                        : 'bg-slate-200/80 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'
-                    }`}
-                  >
-                    {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                  </div>
-
-                  <span className="font-mono text-[10px] text-slate-400 dark:text-zinc-500 font-bold">
-                    #{idx + 1}
-                  </span>
-                </div>
-
-                {/* Station Title & Time */}
-                <div className="space-y-0.5 min-w-0">
-                  <h4 className="text-xs font-black text-slate-900 dark:text-white truncate">
-                    {isAr ? meta.shortLabelAr : meta.shortLabelEn}
-                  </h4>
-                  <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 block truncate">
-                    {meta.shortTime}
-                  </span>
-                </div>
-
-                {/* Status Indicator Pill */}
-                <div className="mt-2 pt-1.5 border-t border-slate-200/60 dark:border-white/[0.06] flex items-center justify-between">
-                  {isCompleted ? (
-                    <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                      ✓ {isAr ? 'مكتملة' : 'Done'}
-                    </span>
-                  ) : isCurrentSuggested ? (
-                    <span className="text-[10px] font-bold text-sky-700 dark:text-sky-400 flex items-center gap-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                      <span>{isAr ? 'جارية' : 'Active'}</span>
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-medium text-slate-400 dark:text-zinc-500 group-hover:text-emerald-600 transition-colors">
-                      {isAr ? 'دخول ←' : 'Open →'}
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <DailyStationsRoadmap
+        allStationIds={allStationIds}
+        completedStations={completedStations}
+        currentSuggestedStation={currentSuggestedStation}
+        personaId={personaId}
+        personaConfig={personaConfig}
+        overrides={overrides}
+        isAr={isAr}
+        onSelectStation={onSelectStation}
+        onOpenLifestyleModal={onOpenLifestyleModal}
+      />
 
       {/* ============================================================ */}
       {/* 3. OFFICIAL REAL-TIME PRAYER TIMES BAR                       */}
