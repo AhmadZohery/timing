@@ -51,12 +51,14 @@ interface GymFaithAudioPlayerProps {
   className?: string;
   onRewardToast?: (msg: string) => void;
   onClose?: () => void;
+  onOpenFullModal?: () => void;
 }
 
 export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
   className = '',
   onRewardToast,
   onClose,
+  onOpenFullModal,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
@@ -67,9 +69,8 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
   const [selectedSeries, setSelectedSeries] = useState<FaithAudioSeries>(
     () => gymFaithAudio.getAllSeries()[0] || FAITH_AUDIO_SERIES[0]
   );
-  const [isSeriesListOpen, setIsSeriesListOpen] = useState(true);
+  const [isSeriesListOpen, setIsSeriesListOpen] = useState(false);
   const [showQuoteCard, setShowQuoteCard] = useState(false);
-  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const [randomQuoteIndex, setRandomQuoteIndex] = useState(0);
   const [, setOfflineTick] = useState(0);
 
@@ -313,52 +314,57 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
   return (
     <div
       data-no-swipe="true"
-      className={`relative overflow-hidden rounded-3xl bg-gradient-to-b from-amber-500/[0.07] via-white dark:via-[#14151E] to-white dark:to-[#12131A] border border-amber-500/25 dark:border-amber-500/20 shadow-sm p-4 sm:p-5 space-y-3.5 ${className}`}
+      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/[0.08] via-white dark:via-[#14151E] to-amber-500/[0.04] dark:to-[#12131A] border border-amber-500/25 dark:border-amber-500/20 shadow-sm p-3.5 sm:p-4 space-y-2.5 ${className}`}
     >
       {/* Top Ambient Glow */}
       <div className="absolute top-0 right-1/4 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* 1. Header Bar: Title, Live Status, Add Custom, & Wisdom */}
-      <div className="flex items-center justify-between gap-2 flex-wrap relative z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-2xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold text-sm">
-            🎙️
+      {/* 1. Integrated Header & Identity Bar */}
+      <div className="relative z-10 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg shrink-0 border border-amber-500/20 ${audioState.isPlaying ? 'ring-2 ring-amber-500/40 animate-pulse' : ''}`}>
+            {audioState.mode === 'series' ? '🎙️' : currentChannel.icon}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-black text-slate-950 dark:text-white">
-                {isAr ? 'أثير الوعي والدروس الإيمانية والفكرية' : 'Faith & Knowledge Audio Sanctuary'}
+          <div className="min-w-0 space-y-0.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800/40">
+                {audioState.mode === 'series'
+                  ? isAr ? 'أثير الوعي والدروس' : 'Faith Stream'
+                  : isAr ? currentChannel.badgeAr : currentChannel.badgeEn}
+              </span>
+              <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium truncate max-w-[130px] sm:max-w-none">
+                {audioState.currentSheikhAr}
               </span>
               {audioState.isPlaying && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300/60 animate-pulse">
+                <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300/60 animate-pulse">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>{isAr ? 'يعمل الآن' : 'Playing'}</span>
+                  <span>{isAr ? 'يعمل' : 'Playing'}</span>
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-amber-800/80 dark:text-amber-400/80 font-medium">
-              {isAr
-                ? 'نخبة علماء ومفكري أهل السنة، التزكية، وتأسيس الوعي المعاصر'
-                : 'Orthodox Sunni Scholars, Tazkiyah & Contemporary Awareness'}
-            </p>
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-zinc-100 truncate">
+              {audioState.currentTitleAr}
+            </h3>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setIsAddCustomOpen(true);
-            }}
-            className="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer active:scale-95"
-            title={isAr ? 'إضافة درس أو رابط ساوندكلاود أو MP3' : 'Add custom lecture / SoundCloud link'}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{isAr ? 'أضف درساً خاصاً' : 'Add Custom'}</span>
-          </button>
+        {/* Action Buttons Cluster */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {onOpenFullModal && (
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenFullModal();
+              }}
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-[11px] font-black shadow-xs flex items-center gap-1 cursor-pointer active:scale-95 transition-all"
+              title={isAr ? 'فتح المكتبة الصوتية الشاملة (40+ درساً)' : 'Open Full Sanctuary'}
+            >
+              <span>🎙️</span>
+              <span>{isAr ? 'المكتبة (40+)' : 'Library (40+)'}</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -367,337 +373,262 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
               haptic.vibrateLight();
               setShowQuoteCard(!showQuoteCard);
             }}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+            className={`p-1.5 rounded-xl border text-xs transition-colors cursor-pointer ${
               showQuoteCard
-                ? 'bg-amber-700 text-white shadow-xs'
-                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/50 hover:bg-amber-100'
+                ? 'bg-amber-700 text-white border-amber-700 shadow-xs'
+                : 'bg-white dark:bg-zinc-800/80 text-amber-800 dark:text-amber-300 border-amber-300/60 dark:border-amber-700/50 hover:bg-amber-50'
             }`}
-            title={isAr ? 'قبسات من عزائم السيرة والهمم' : 'Faith & Resolve Quotes'}
+            title={isAr ? 'قبس من السيرة والهمم' : 'Faith & Resolve Quotes'}
           >
             <span>💡</span>
-            <span>{isAr ? 'قبس' : 'Quote'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsAddCustomOpen(true);
+            }}
+            className="p-1.5 rounded-xl bg-white dark:bg-zinc-800/80 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 text-xs transition-colors cursor-pointer"
+            title={isAr ? 'إضافة درس أو رابط ساوندكلاود أو MP3' : 'Add custom lecture'}
+          >
+            <Plus className="w-3.5 h-3.5" />
           </button>
 
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-500 dark:text-zinc-400 transition-colors cursor-pointer"
               title={isAr ? 'إغلاق' : 'Close'}
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
       </div>
 
-      {/* 2. Quick Resume Banner (Cross-Station Continuity across Gym, Commute & Dashboard) */}
-      {audioState.resumePoint && !audioState.isPlaying && (
-        <div className="relative z-10 p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-amber-500/15 border border-amber-400/40 dark:border-amber-600/30 flex items-center justify-between gap-3 shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 text-xs">
-              ⏳
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 block">
-                {isAr ? 'استئناف من حيث توقفت (الجيم أو الطريق):' : 'Resume where you left off:'}
+      {/* 2. Compact Scrubber Progress Bar */}
+      {!isCurrentSoundCloud && audioState.duration > 0 && (
+        <div className="relative z-10 space-y-0.5">
+          <input
+            type="range"
+            min="0"
+            max={audioState.duration}
+            value={audioState.currentTime}
+            onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
+            className="w-full accent-amber-600 h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg cursor-pointer"
+          />
+          <div className="flex items-center justify-between text-[9px] font-mono text-slate-500 dark:text-zinc-400 px-0.5">
+            <span>{formatSeconds(audioState.currentTime)}</span>
+            {audioState.resumePoint && !audioState.isPlaying && (
+              <span className="text-amber-600 dark:text-amber-400 font-sans font-bold">
+                {isAr ? `جاهز للاستئناف (${formatSeconds(audioState.resumePoint.currentTime)})` : 'Ready to resume'}
               </span>
-              <span className="text-xs font-black text-slate-900 dark:text-white truncate block">
-                {audioState.resumePoint.episodeTitleAr || audioState.resumePoint.channelTitleAr}
-              </span>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">
-                {audioState.resumePoint.sheikhAr} • {formatSeconds(audioState.resumePoint.currentTime)}
-              </span>
-            </div>
+            )}
+            <span>{formatSeconds(audioState.duration)}</span>
           </div>
+        </div>
+      )}
+
+      {/* 3. Sleek Compact Controls Strip */}
+      <div className="relative z-10 flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800/80">
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          {/* Prev Episode */}
           <button
             type="button"
             onClick={() => {
               soundSynth.playTactileClick();
               haptic.vibrateLight();
-              gymFaithAudio.resumeLastPlayback();
+              gymFaithAudio.playPrevEpisode();
             }}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shrink-0 flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95 transition-all"
+            disabled={!gymFaithAudio.hasPrevEpisode()}
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            title={isAr ? 'الحلقة السابقة ⏮️' : 'Previous Episode'}
           >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>{isAr ? 'استئناف' : 'Resume'}</span>
+            <SkipBack className="w-3.5 h-3.5" />
           </button>
+
+          {/* Rewind 15s */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              gymFaithAudio.seekBy(-15);
+            }}
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors cursor-pointer"
+            title={isAr ? 'تأخير 15 ثانية' : 'Rewind 15s'}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Main Play/Pause Button */}
+          <button
+            type="button"
+            onClick={() => handleTogglePlay()}
+            className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-black text-xs cursor-pointer select-none active:scale-95 transition-all shadow-xs ${
+              audioState.isPlaying
+                ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/30'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30'
+            }`}
+          >
+            {audioState.isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : audioState.isPlaying ? (
+              <Pause className="w-4 h-4 fill-current" />
+            ) : (
+              <Play className="w-4 h-4 fill-current" />
+            )}
+            <span>
+              {audioState.isLoading
+                ? (isAr ? 'اتصال...' : 'Loading...')
+                : audioState.isPlaying
+                ? (isAr ? 'إيقاف' : 'Pause')
+                : audioState.resumePoint
+                ? (isAr ? 'استئناف 🎙️' : 'Resume 🎙️')
+                : (isAr ? 'استماع 🎙️' : 'Play 🎙️')}
+            </span>
+            {audioState.isPlaying && (
+              <div className="flex items-end gap-0.5 h-2.5 ms-0.5">
+                <span className="w-0.5 bg-white rounded-full animate-bounce" style={{ height: '70%', animationDuration: '0.45s' }} />
+                <span className="w-0.5 bg-white rounded-full animate-bounce" style={{ height: '100%', animationDuration: '0.3s' }} />
+                <span className="w-0.5 bg-white rounded-full animate-bounce" style={{ height: '40%', animationDuration: '0.6s' }} />
+              </div>
+            )}
+          </button>
+
+          {/* Fast-forward 15s */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              gymFaithAudio.seekBy(15);
+            }}
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors cursor-pointer"
+            title={isAr ? 'تقديم 15 ثانية' : 'Fast forward 15s'}
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Next Episode */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              gymFaithAudio.playNextEpisode();
+            }}
+            disabled={!gymFaithAudio.hasNextEpisode()}
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            title={isAr ? 'الحلقة التالية ⏭️' : 'Next Episode'}
+          >
+            <SkipForward className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          {/* Speed Toggle */}
+          <button
+            type="button"
+            onClick={handleCycleSpeed}
+            className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-mono text-[11px] font-black cursor-pointer"
+            title={isAr ? 'سرعة التشغيل' : 'Playback Speed'}
+          >
+            {audioState.playbackRate}x
+          </button>
+
+          {/* Mute Toggle */}
+          <button
+            type="button"
+            onClick={() => gymFaithAudio.setVolume(audioState.isMuted ? 0.8 : 0)}
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-500 dark:text-zinc-400 cursor-pointer"
+            title={audioState.isMuted ? (isAr ? 'إلغاء الكتم' : 'Unmute') : (isAr ? 'كتم الصوت' : 'Mute')}
+          >
+            {audioState.isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-500" /> : <Volume2 className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Inline Series Drawer Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setIsSeriesListOpen(!isSeriesListOpen);
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/20 text-[11px] font-bold transition-colors cursor-pointer"
+            title={isAr ? 'تصفح السلاسل هنا' : 'Browse'}
+          >
+            <span>{isAr ? (isSeriesListOpen ? 'طي القائمة' : 'تصفح السلاسل') : (isSeriesListOpen ? 'Collapse' : 'Browse')}</span>
+            {isSeriesListOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        </div>
+      </div>
+
+      {/* SoundCloud Embedded Widget if current track is from SoundCloud */}
+      {isCurrentSoundCloud && activeEpisode?.audioUrl && (
+        <div className="rounded-xl overflow-hidden border border-amber-500/30 bg-black/5 dark:bg-black/30 p-2 space-y-1 animate-fade-in relative z-10">
+          <div className="flex items-center justify-between text-[10px] font-bold text-amber-800 dark:text-amber-300 px-1">
+            <span>🟠 {isAr ? 'مشغل ساوندكلاود مدمج' : 'SoundCloud Player'}</span>
+            <span className="font-mono text-slate-500 dark:text-zinc-400 truncate max-w-[200px]">
+              {activeEpisode.titleAr}
+            </span>
+          </div>
+          <iframe
+            width="100%"
+            height="140"
+            scrolling="no"
+            frameBorder="no"
+            allow="autoplay"
+            src={getSoundCloudEmbedUrl(activeEpisode.audioUrl)}
+            className="w-full rounded-lg"
+          />
         </div>
       )}
 
-      {/* 3. Primary Player Spotlight Card (Compact Mobile-First Architecture) */}
-      <div className="relative z-10 p-3 sm:p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 shadow-xs space-y-2.5">
-        <div className="flex items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg shrink-0 ${audioState.isPlaying ? 'ring-2 ring-amber-500/40 animate-pulse' : ''}`}>
-              {audioState.mode === 'series' ? '🎙️' : currentChannel.icon}
-            </div>
-            <div className="min-w-0 space-y-0.5">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800/40">
-                  {audioState.mode === 'series'
-                    ? isAr ? 'سلسلة محددة' : 'Selected'
-                    : isAr ? currentChannel.badgeAr : currentChannel.badgeEn}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium truncate max-w-[120px] sm:max-w-none">
-                  {audioState.currentSheikhAr}
-                </span>
-              </div>
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-zinc-100 truncate">
-                {audioState.currentTitleAr}
-              </h3>
-            </div>
-          </div>
-
-          {/* Action buttons: Browse Drawer & Advanced Controls */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => setShowAdvancedControls(!showAdvancedControls)}
-              className={`p-1.5 rounded-xl border text-xs transition-colors cursor-pointer ${
-                showAdvancedControls
-                  ? 'bg-amber-500 text-white border-amber-500'
-                  : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700'
-              }`}
-              title={isAr ? 'خيارات الصوت والسرعة' : 'Audio Settings'}
-            >
-              <Volume2 className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                setIsSeriesListOpen(!isSeriesListOpen);
-              }}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-[11px] font-bold border border-slate-200 dark:border-zinc-700 transition-colors cursor-pointer"
-            >
-              <span>{isAr ? 'تصفح الشيوخ' : 'Browse'}</span>
-              {isSeriesListOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Compact Scrubber Progress Bar */}
-        {!isCurrentSoundCloud && audioState.duration > 0 && (
-          <div className="space-y-0.5">
-            <input
-              type="range"
-              min="0"
-              max={audioState.duration}
-              value={audioState.currentTime}
-              onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
-              className="w-full accent-amber-600 h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg cursor-pointer"
-            />
-            <div className="flex items-center justify-between text-[9px] font-mono text-slate-500 dark:text-zinc-400 px-0.5">
-              <span>{formatSeconds(audioState.currentTime)}</span>
-              <span>{formatSeconds(audioState.duration)}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Sleek Compact Controls Strip */}
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800/80">
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            {/* Prev Episode */}
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                gymFaithAudio.playPrevEpisode();
-              }}
-              disabled={!gymFaithAudio.hasPrevEpisode()}
-              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              title={isAr ? 'الحلقة السابقة ⏮️' : 'Previous Episode'}
-            >
-              <SkipBack className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Rewind 15s */}
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                gymFaithAudio.seekBy(-15);
-              }}
-              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors cursor-pointer"
-              title={isAr ? 'تأخير 15 ثانية' : 'Rewind 15s'}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Main Play/Pause Button */}
-            <button
-              type="button"
-              onClick={() => handleTogglePlay()}
-              className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl font-black text-xs cursor-pointer select-none active:scale-95 transition-all shadow-xs ${
-                audioState.isPlaying
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/30'
-                  : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30'
-              }`}
-            >
-              {audioState.isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : audioState.isPlaying ? (
-                <Pause className="w-4 h-4 fill-current" />
-              ) : (
-                <Play className="w-4 h-4 fill-current" />
-              )}
-              <span>
-                {audioState.isLoading
-                  ? (isAr ? 'اتصال...' : 'Loading...')
-                  : audioState.isPlaying
-                  ? (isAr ? 'إيقاف' : 'Pause')
-                  : (isAr ? 'استماع 🎙️' : 'Play 🎙️')}
-              </span>
-              {audioState.isPlaying && (
-                <div className="flex items-end gap-0.5 h-2.5 ms-0.5">
-                  <span className="w-0.5 bg-white rounded-full animate-bounce" style={{ height: '70%', animationDuration: '0.45s' }} />
-                  <span className="w-0.5 bg-white rounded-full animate-bounce" style={{ height: '100%', animationDuration: '0.3s' }} />
-                  <span className="w-0.5 bg-white rounded-full animate-bounce" style={{ height: '40%', animationDuration: '0.6s' }} />
-                </div>
-              )}
-            </button>
-
-            {/* Fast-forward 15s */}
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                gymFaithAudio.seekBy(15);
-              }}
-              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors cursor-pointer"
-              title={isAr ? 'تقديم 15 ثانية' : 'Fast forward 15s'}
-            >
-              <RotateCw className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Next Episode */}
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                gymFaithAudio.playNextEpisode();
-              }}
-              disabled={!gymFaithAudio.hasNextEpisode()}
-              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-              title={isAr ? 'الحلقة التالية ⏭️' : 'Next Episode'}
-            >
-              <SkipForward className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            {/* Speed Toggle */}
-            <button
-              type="button"
-              onClick={handleCycleSpeed}
-              className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-mono text-[11px] font-black cursor-pointer"
-              title={isAr ? 'سرعة التشغيل' : 'Playback Speed'}
-            >
-              {audioState.playbackRate}x
-            </button>
-
-            {/* Mute Toggle */}
-            <button
-              type="button"
-              onClick={() => gymFaithAudio.setVolume(audioState.isMuted ? 0.8 : 0)}
-              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-500 dark:text-zinc-400 cursor-pointer"
-            >
-              {audioState.isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-500" /> : <Volume2 className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Collapsible Advanced Settings (SoundCloud & Volume Slider) */}
-        {showAdvancedControls && (
-          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-3 animate-fade-in text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-500 font-medium">{isAr ? 'درجة الصوت:' : 'Volume:'}</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
-                value={audioState.isMuted ? 0 : audioState.volume}
-                onChange={(e) => gymFaithAudio.setVolume(parseFloat(e.target.value))}
-                className="w-20 accent-amber-600 h-1 bg-slate-200 dark:bg-zinc-700 rounded-lg cursor-pointer"
-              />
-            </div>
-            <span className="text-[10px] font-mono text-slate-400">
-              {Math.round((audioState.isMuted ? 0 : audioState.volume) * 100)}%
+      {/* YouTube Embedded Audio Player if current track is from YouTube */}
+      {isCurrentYouTube && activeEpisode?.audioUrl && (
+        <div className="rounded-xl overflow-hidden border border-red-500/40 bg-red-950/10 dark:bg-red-950/30 p-2.5 space-y-2 animate-fade-in relative z-10">
+          <div className="flex items-center justify-between text-[11px] font-bold text-red-700 dark:text-red-300 px-1">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span>🔴 {isAr ? 'أثير يوتيوب الصوتي الخفيف (استهلاك بيانات منخفض)' : 'YouTube Audio-Only Stream'}</span>
+            </span>
+            <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 truncate max-w-[180px]">
+              {activeEpisode.titleAr}
             </span>
           </div>
-        )}
-
-        {/* SoundCloud Embedded Widget if current track is from SoundCloud */}
-        {isCurrentSoundCloud && activeEpisode?.audioUrl && (
-          <div className="rounded-xl overflow-hidden border border-amber-500/30 bg-black/5 dark:bg-black/30 p-2 space-y-1 animate-fade-in">
-            <div className="flex items-center justify-between text-[10px] font-bold text-amber-800 dark:text-amber-300 px-1">
-              <span>🟠 {isAr ? 'مشغل ساوندكلاود مدمج' : 'SoundCloud Player'}</span>
-              <span className="font-mono text-slate-500 dark:text-zinc-400 truncate max-w-[200px]">
-                {activeEpisode.titleAr}
-              </span>
-            </div>
+          <div className="relative rounded-lg overflow-hidden aspect-video max-h-48 sm:max-h-56 bg-black shadow-inner">
             <iframe
               width="100%"
-              height="140"
-              scrolling="no"
-              frameBorder="no"
-              allow="autoplay"
-              src={getSoundCloudEmbedUrl(activeEpisode.audioUrl)}
-              className="w-full rounded-lg"
+              height="100%"
+              src={getYouTubeEmbedUrl(activeEpisode.audioUrl, true)}
+              title={activeEpisode.titleAr}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full"
             />
           </div>
-        )}
-
-        {/* YouTube Embedded Audio Player if current track is from YouTube */}
-        {isCurrentYouTube && activeEpisode?.audioUrl && (
-          <div className="rounded-xl overflow-hidden border border-red-500/40 bg-red-950/10 dark:bg-red-950/30 p-2.5 space-y-2 animate-fade-in">
-            <div className="flex items-center justify-between text-[11px] font-bold text-red-700 dark:text-red-300 px-1">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span>🔴 {isAr ? 'أثير يوتيوب الصوتي الخفيف (استهلاك بيانات منخفض)' : 'YouTube Audio-Only Stream'}</span>
-              </span>
-              <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 truncate max-w-[180px]">
-                {activeEpisode.titleAr}
-              </span>
-            </div>
-            <div className="relative rounded-lg overflow-hidden aspect-video max-h-48 sm:max-h-56 bg-black shadow-inner">
-              <iframe
-                width="100%"
-                height="100%"
-                src={getYouTubeEmbedUrl(activeEpisode.audioUrl, true)}
-                title={activeEpisode.titleAr}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
-            <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-zinc-400 px-1">
-              <span>⚡ {isAr ? 'يعمل بصوت مباشر وبجودة خفيفة لتوفير الإنترنت' : 'Optimized for low-bandwidth audio'}</span>
-              <span>{activeEpisode.durationFormatted}</span>
-            </div>
+          <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-zinc-400 px-1">
+            <span>⚡ {isAr ? 'يعمل بصوت مباشر وبجودة خفيفة لتوفير الإنترنت' : 'Optimized for low-bandwidth audio'}</span>
+            <span>{activeEpisode.durationFormatted}</span>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Error Notification */}
-        {audioState.hasError && (
-          <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-[11px] text-rose-700 dark:text-rose-300 font-medium flex items-center justify-between">
-            <span>⚠️ {audioState.errorMessage}</span>
-            <button
-              type="button"
-              onClick={() => handleTogglePlay()}
-              className="underline font-bold cursor-pointer"
-            >
-              {isAr ? 'إعادة المحاولة' : 'Retry'}
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Error Notification */}
+      {audioState.hasError && (
+        <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-[11px] text-rose-700 dark:text-rose-300 font-medium flex items-center justify-between relative z-10">
+          <span>⚠️ {audioState.errorMessage}</span>
+          <button
+            type="button"
+            onClick={() => handleTogglePlay()}
+            className="underline font-bold cursor-pointer"
+          >
+            {isAr ? 'إعادة المحاولة' : 'Retry'}
+          </button>
+        </div>
+      )}
 
       {/* 4. Seerah Determination Quote Card */}
       {showQuoteCard && (

@@ -13,9 +13,6 @@ import {
   Sunrise,
   Volume2,
   Globe,
-  Play,
-  Pause,
-  Radio,
   Activity,
   ShieldCheck,
   Feather,
@@ -39,7 +36,6 @@ import { speechService } from '../../services/speechService';
 import { LanguageQuizModal } from '../learning/LanguageQuizModal';
 import { LanguageMovesModal } from '../learning/LanguageMovesModal';
 import { getDailyWisdom } from '../../data/lifeWisdomData';
-import { gymFaithAudio, type GymFaithAudioState } from '../../services/gymFaithAudioService';
 import { GymFaithAudioPlayer } from '../spiritual/GymFaithAudioPlayer';
 import { scheduleService, type LearnedSportPattern } from '../../services/scheduleService';
 import { ScheduleAnomalyModal } from '../modals/ScheduleAnomalyModal';
@@ -133,13 +129,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const [isLanguageMovesOpen, setIsLanguageMovesOpen] = useState(false);
   const dailyWisdom = useMemo(() => getDailyWisdom(new Date(), wisdomCategory), [wisdomCategory]);
 
-  // Faith Audio Live Sync & Resume State
-  const [faithAudioState, setFaithAudioState] = useState<GymFaithAudioState>(() => gymFaithAudio.getState());
-  useEffect(() => {
-    return gymFaithAudio.subscribe(setFaithAudioState);
-  }, []);
 
-  const resumePoint = faithAudioState.resumePoint || gymFaithAudio.getSavedResumePoint();
 
   // Spiritual Modals & Smart Time-Based Nudges (Adhkar, Mulk, Fasting, Nawafil)
   const [isAdhkarModalOpen, setIsAdhkarModalOpen] = useState(false);
@@ -419,78 +409,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         onOpenLifestyleModal={onOpenLifestyleModal}
       />
 
-      {/* ============================================================ */}
-      {/* 1.5. FAITH AUDIO QUICK-RESUME CONTROLLER                     */}
-      {/* ============================================================ */}
-      {resumePoint && (
-        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-slate-50 to-emerald-500/5 dark:from-emerald-950/30 dark:via-[#12131A] dark:to-emerald-950/20 border border-emerald-500/20 dark:border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center gap-3 min-w-0">
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                if (faithAudioState.isPlaying) {
-                  gymFaithAudio.pause();
-                } else {
-                  gymFaithAudio.resumeLastPlayback();
-                }
-              }}
-              className="w-11 h-11 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md active:scale-95 transition-all cursor-pointer shrink-0"
-              title={faithAudioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'استئناف الاستماع' : 'Resume Playback')}
-            >
-              {faithAudioState.isPlaying ? (
-                <Pause className="w-5 h-5 fill-white" />
-              ) : (
-                <Play className="w-5 h-5 fill-white ps-0.5" />
-              )}
-            </button>
 
-            <div className="min-w-0 space-y-0.5">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 flex items-center gap-1">
-                  <Radio className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                  <span>{isAr ? 'أثير السيرة وبطولات الصحابة' : 'Prophetic Faith Stream'}</span>
-                </span>
-                {faithAudioState.isPlaying && (
-                  <span className="flex items-center gap-0.5">
-                    <span className="w-1 h-3 bg-emerald-500 rounded-full animate-pulse" />
-                    <span className="w-1 h-4 bg-emerald-500 rounded-full animate-pulse delay-75" />
-                    <span className="w-1 h-2 bg-emerald-500 rounded-full animate-pulse delay-150" />
-                  </span>
-                )}
-              </div>
-              <h4 className="text-xs sm:text-sm font-black text-slate-950 dark:text-white truncate">
-                {resumePoint.seriesTitleAr
-                  ? `${resumePoint.seriesTitleAr} • ${resumePoint.episodeTitleAr || ''}`
-                  : resumePoint.channelTitleAr || resumePoint.sheikhAr}
-              </h4>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
-                {resumePoint.sheikhAr} • {Math.floor(resumePoint.currentTime / 60)}:
-                {(resumePoint.currentTime % 60).toString().padStart(2, '0')}{' '}
-                {resumePoint.duration > 0 &&
-                  `/ ${Math.floor(resumePoint.duration / 60)}:${(resumePoint.duration % 60).toString().padStart(2, '0')}`}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                if (onOpenFaithAudio) {
-                  onOpenFaithAudio();
-                }
-              }}
-              className="px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-800/80 hover:bg-slate-100 text-slate-700 dark:text-zinc-200 text-xs font-bold border border-slate-200 dark:border-zinc-700 transition-colors cursor-pointer"
-            >
-              <span>{isAr ? 'فتح المشغل الكامل 🎙️' : 'Full Player 🎙️'}</span>
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ============================================================ */}
       {/* 1.6. SMART TIME-BASED ADHKAR & SUNNAH FASTING SUITE          */}
@@ -915,6 +834,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ============================================================ */}
       <GymFaithAudioPlayer
         onRewardToast={onRewardToast}
+        onOpenFullModal={onOpenFaithAudio}
       />
 
       {/* ============================================================ */}
