@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
   Compass,
-  Moon,
-  Award,
   Sparkles,
   CheckCircle2,
   X,
   ChevronRight,
   ChevronLeft,
+  Radio,
 } from 'lucide-react';
 import type { StationId, UserState } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { resolveStationMetadata, LIFESTYLE_PERSONAS } from '../../utils/lifestyleEngine';
+import { gymFaithAudio } from '../../services/gymFaithAudioService';
 
 interface MobileBottomTabBarProps {
   currentStation: StationId;
@@ -51,6 +51,15 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
 
   const [isStationsSheetOpen, setIsStationsSheetOpen] = useState(false);
   const [isSpiritualSheetOpen, setIsSpiritualSheetOpen] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(
+    () => gymFaithAudio.getState().isPlaying
+  );
+
+  useEffect(() => {
+    return gymFaithAudio.subscribe((state) => {
+      setIsPlayingAudio(state.isPlaying);
+    });
+  }, []);
 
   const personaId = userState?.settings?.lifestylePersona || 'builder_exec';
   const personaConfig = LIFESTYLE_PERSONAS[personaId] || LIFESTYLE_PERSONAS.builder_exec;
@@ -80,17 +89,20 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
 
   return (
     <>
-      {/* Native Apple-Tier Floating Glass Bottom Navigation Bar (< lg screens only) */}
+      {/* Supreme Floating Dynamic Island Dock (< lg screens only) */}
       <nav
-        aria-label={isAr ? 'شريط التنقل السفلي' : 'Bottom Navigation'}
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-2xl border-t border-slate-200/80 dark:border-zinc-800/80 px-2 pt-1.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.5)] transition-colors"
+        aria-label={isAr ? 'منصة التحكم التنفيذية العائمة' : 'Floating Command Dock'}
+        className="lg:hidden fixed bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-8 max-w-md mx-auto z-40 transition-all duration-300"
       >
-        <div className="max-w-md mx-auto grid grid-cols-5 items-center justify-items-center">
+        <div className="relative rounded-[26px] bg-white/90 dark:bg-[#0c0d16]/90 backdrop-blur-2xl border border-slate-200/90 dark:border-white/[0.12] p-1.5 shadow-[0_12px_45px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_55px_rgba(0,0,0,0.7)] flex items-center justify-between select-none">
+          {/* Subtle Ambient Rim Glow */}
+          <div className="absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent pointer-events-none" />
+
           {/* TAB 1: 🏠 الرئيسية (Home Sanctuary) */}
           <button
             type="button"
             onClick={() => handleSelect('HOME')}
-            className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all cursor-pointer select-none active:scale-92 ${
+            className={`relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-90 ${
               currentStation === 'HOME'
                 ? 'text-emerald-600 dark:text-emerald-400 font-black'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
@@ -98,18 +110,23 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
           >
             {currentStation === 'HOME' && (
               <motion.div
-                layoutId="mobile-active-tab-glow"
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                className="absolute inset-0 rounded-2xl bg-emerald-500/12 dark:bg-emerald-400/15"
+                layoutId="floating-dock-active-glow"
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                className="absolute inset-0 rounded-2xl bg-emerald-500/12 dark:bg-emerald-400/15 border border-emerald-500/20"
               />
             )}
-            <Home className={`w-5 h-5 transition-transform stroke-[1.75] ${currentStation === 'HOME' ? 'scale-110' : ''}`} />
+            <div className="relative">
+              <Home className={`w-5 h-5 transition-transform stroke-[1.8] ${currentStation === 'HOME' ? 'scale-110 text-emerald-600 dark:text-emerald-400' : ''}`} />
+              {currentStation === 'HOME' && (
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-500 shadow-xs" />
+              )}
+            </div>
             <span className="text-[10px] mt-0.5 tracking-tight relative z-10">
               {isAr ? 'الرئيسية' : 'Home'}
             </span>
           </button>
 
-          {/* TAB 2: 🧭 المحطات (Stations Journey) */}
+          {/* TAB 2: 🧭 مسار المحطات (Stations Journey & Velocity) */}
           <button
             type="button"
             onClick={() => {
@@ -117,22 +134,22 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               haptic.vibrateLight();
               setIsStationsSheetOpen(true);
             }}
-            className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all cursor-pointer select-none active:scale-92 ${
+            className={`relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-90 ${
               isStationActive
-                ? 'text-emerald-600 dark:text-emerald-400 font-black'
+                ? 'text-sky-600 dark:text-sky-400 font-black'
                 : 'text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200'
             }`}
           >
             {isStationActive && (
               <motion.div
-                layoutId="mobile-active-tab-glow"
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                className="absolute inset-0 rounded-2xl bg-emerald-500/12 dark:bg-emerald-400/15"
+                layoutId="floating-dock-active-glow"
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                className="absolute inset-0 rounded-2xl bg-sky-500/12 dark:bg-sky-400/15 border border-sky-500/20"
               />
             )}
             <div className="relative">
-              <Compass className={`w-5 h-5 transition-transform stroke-[1.75] ${isStationActive ? 'scale-110' : ''}`} />
-              <span className="absolute -top-1 -end-2 px-1 py-0.2 rounded-full bg-emerald-600 text-[8px] font-bold text-white font-mono leading-none">
+              <Compass className={`w-5 h-5 transition-transform stroke-[1.8] ${isStationActive ? 'scale-110 text-sky-600 dark:text-sky-400' : ''}`} />
+              <span className="absolute -top-1 -end-2.5 px-1.5 py-0.2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-[8px] font-black text-white font-mono leading-none shadow-xs">
                 {completedStations.length}/6
               </span>
             </div>
@@ -141,42 +158,69 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
             </span>
           </button>
 
-          {/* TAB 3: 📿 المحراب (Spiritual Sanctuary) */}
+          {/* TAB 3 (CENTER HERO): 📿 النواة التفاعلية المركزية المرتفعة (The Magnetic Elevated Core - المحراب) */}
+          <div className="relative -mt-6 sm:-mt-7 shrink-0 px-1">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playStreakMilestoneChime();
+                haptic.vibrateSprintCelebration();
+                setIsSpiritualSheetOpen(true);
+              }}
+              className="group relative w-13 h-13 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-amber-500 text-white flex flex-col items-center justify-center shadow-lg shadow-emerald-600/35 ring-4 ring-white/95 dark:ring-[#0c0d16] active:scale-90 transition-transform cursor-pointer overflow-hidden"
+              title={isAr ? 'محراب السكينة والقرآن والأذكار' : 'Spiritual Sanctuary'}
+            >
+              {/* Dynamic Aura / Breathing Shine */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/20 pointer-events-none" />
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400/30 rounded-full blur-xs pointer-events-none" />
+
+              <span className="text-xl sm:text-2xl filter drop-shadow-xs group-hover:scale-110 transition-transform">
+                📿
+              </span>
+              <span className="text-[8px] font-black tracking-tighter uppercase opacity-90 mt-0.2">
+                {isAr ? 'المحراب' : 'Core'}
+              </span>
+
+              {/* Pulsing beacon ring */}
+              <span className="absolute inset-0 rounded-2xl sm:rounded-3xl border border-white/40 animate-ping opacity-25 pointer-events-none" />
+            </button>
+          </div>
+
+          {/* TAB 4: 🎙️ أثير الوعي والدروس (Faith Audio Sanctuary) */}
           <button
             type="button"
             onClick={() => {
               soundSynth.playTactileClick();
               haptic.vibrateLight();
-              setIsSpiritualSheetOpen(true);
+              if (onOpenFaithAudio) {
+                onOpenFaithAudio();
+              } else {
+                setIsSpiritualSheetOpen(true);
+              }
             }}
-            className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all cursor-pointer select-none active:scale-92 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
+            className="relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-90 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
           >
             <div className="relative">
-              <Moon className="w-5 h-5 stroke-[1.75]" />
-              <span className="absolute -top-0.5 -end-1 w-2 h-2 rounded-full bg-amber-400" />
+              {isPlayingAudio ? (
+                /* Real-time Bouncing Equalizer Bars when audio is playing! */
+                <div className="w-5 h-5 flex items-end justify-center gap-0.5 py-0.5">
+                  <span className="w-1 bg-amber-500 rounded-full animate-bounce h-2.5" />
+                  <span className="w-1 bg-amber-500 rounded-full animate-pulse h-4" />
+                  <span className="w-1 bg-amber-500 rounded-full animate-bounce h-2" />
+                </div>
+              ) : (
+                <Radio className="w-5 h-5 stroke-[1.8] text-amber-600 dark:text-amber-400" />
+              )}
+              {isPlayingAudio && (
+                <span className="absolute -top-1 -end-1 w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              )}
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight relative z-10">
-              {isAr ? 'الورد والقرآن' : 'Spiritual'}
+            <span className={`text-[10px] mt-0.5 tracking-tight relative z-10 ${isPlayingAudio ? 'text-amber-600 dark:text-amber-400 font-black' : ''}`}>
+              {isPlayingAudio ? (isAr ? 'بث حي' : 'Live') : (isAr ? 'الأثير' : 'Audio')}
             </span>
           </button>
 
-          {/* TAB 4: 📊 التقييم (Daily Evaluation & Pride) */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              onOpenEvaluationModal?.();
-            }}
-            className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all cursor-pointer select-none active:scale-92 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
-          >
-            <Award className="w-5 h-5 stroke-[1.75]" />
-            <span className="text-[10px] mt-0.5 tracking-tight relative z-10">
-              {isAr ? 'التقييم' : 'Review'}
-            </span>
-          </button>
-
-          {/* TAB 5: ⚡ المساعد (Companion Command & Tools) */}
+          {/* TAB 5: ⚡ المساعد والأدوات (Companion & AI Coach) */}
           <button
             type="button"
             onClick={() => {
@@ -184,9 +228,14 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               haptic.vibrateLight();
               onOpenCompanionHub?.();
             }}
-            className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all cursor-pointer select-none active:scale-92 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
+            className="relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-90 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
           >
-            <Sparkles className="w-5 h-5 stroke-[1.75] text-amber-500" />
+            <div className="relative">
+              <Sparkles className="w-5 h-5 stroke-[1.8] text-indigo-500 dark:text-indigo-400 transition-transform group-hover:scale-110" />
+              <span className="absolute -top-1 -end-1.5 px-1 py-0.2 rounded-full bg-indigo-600 text-[8px] font-black text-white leading-none">
+                AI
+              </span>
+            </div>
             <span className="text-[10px] mt-0.5 tracking-tight relative z-10">
               {isAr ? 'المساعد' : 'Tools'}
             </span>
@@ -330,6 +379,23 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                   );
                 })}
               </div>
+
+              {/* Quick Daily Evaluation & Pride Ticket Trigger */}
+              {onOpenEvaluationModal && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setIsStationsSheetOpen(false);
+                    onOpenEvaluationModal();
+                  }}
+                  className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-500/30 text-slate-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98 transition-all hover:bg-amber-500/20"
+                >
+                  <span className="text-base">📊</span>
+                  <span>{isAr ? 'تقييم اليوم وتذكرة الفخر المسائية' : 'Daily Review & Pride Ticket'}</span>
+                </button>
+              )}
             </motion.div>
           </div>
         )}
