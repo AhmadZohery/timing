@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Compass,
-  Bot,
+  Lightbulb,
   Calendar,
   Zap,
   CheckCircle2,
@@ -102,17 +102,17 @@ export const MobileBottomDock: React.FC<MobileBottomDockProps> = ({
             <span className="text-[10px] font-bold">{isAr ? 'المحطات' : 'Stations'}</span>
           </button>
 
-          {/* 3. Center AI Coach Button (Prominent & Glow) */}
+          {/* 3. Center Mentor Button (Prominent & Glow) */}
           <button
             onClick={() => {
               soundSynth.playTactileClick();
               haptic.vibrateLight();
               onOpenAiCoach();
             }}
-            className="relative -top-3 p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-sky-500 text-white shadow-lg shadow-indigo-500/40 border-2 border-white dark:border-zinc-900 active:scale-95 transition-all cursor-pointer flex flex-col items-center"
-            title={isAr ? 'المرشد الذكي' : 'AI Coach'}
+            className="tap-spring relative -top-3 p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-sky-500 text-white shadow-lg shadow-indigo-500/40 border-2 border-white dark:border-zinc-900 active:scale-95 transition-all cursor-pointer flex flex-col items-center"
+            title={isAr ? 'المرشد السلوكي' : 'Behavioral Guide'}
           >
-            <Bot className="w-6 h-6 animate-pulse" />
+            <Lightbulb className="w-6 h-6" />
           </button>
 
           {/* 4. 2-Minute Micro-Action Easy Start */}

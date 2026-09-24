@@ -332,6 +332,7 @@ export const translations = {
     sleep_item_2: 'غرفة مظلمة وباردة لتحفيز الميلاتونين الطبيعي',
     sleep_item_3: 'إيقاف الشاشات الزرقاء قبل النوم بنصف ساعة',
     gratitude_title: 'امتنان اليوم (3 نعم تستشعر فضلها الليلة):',
+    gratitude_desc: '3 نِعَم جليلة استشعرت قيمتها في يومك لتهدئة الجهاز العصبي واستجلاب السكينة قبل النوم.',
     gratitude_placeholder: 'الحمد لله على نعمة...',
     victory_badge: 'تم إنجاز كافة محطات اليوم بنجاح أسطوري!',
 
@@ -401,7 +402,7 @@ export const translations = {
     link_copied: 'تم نسخ الرابط بنجاح ✔',
 
     // AI Behavioral Coach & Mobile Ergonomics
-    ai_coach_title: 'المرشد السلوكي الذكي (مِضمار AI)',
+    ai_coach_title: 'المرشد السلوكي والاستراتيجي',
     ai_coach_sub: 'تفكيك المهام الصعبة، فهم سياقك، وتسهيل الالتزام',
     two_minute_rule_title: 'قاعدة الدقيقتين (Atomic Habits)',
     two_minute_rule_desc: 'صعب عليك تبدأ؟ التزم بـ 120 ثانية فقط دون أي التزام بما بعدها!',
@@ -743,6 +744,7 @@ export const translations = {
     sleep_item_2: 'Keep bedroom cool and pitch black for natural melatonin',
     sleep_item_3: 'Shut off blue light screens 30 minutes before sleep',
     gratitude_title: 'Evening Gratitude (3 blessings felt tonight):',
+    gratitude_desc: '3 simple blessings to ground your nervous system in peace before sleep.',
     gratitude_placeholder: 'Grateful for...',
     victory_badge: 'All 6 daily stations successfully completed!',
 
@@ -812,13 +814,13 @@ export const translations = {
     link_copied: 'Share Link Copied ✔',
 
     // AI Behavioral Coach & Mobile Ergonomics
-    ai_coach_title: 'AI Behavioral Coach (Midmar AI)',
+    ai_coach_title: 'Behavioral Mindset Guide',
     ai_coach_sub: 'Deconstruct tasks, learn your patterns, make sticking easy',
     two_minute_rule_title: 'The 2-Minute Rule (Atomic Habits)',
     two_minute_rule_desc: 'High friction? Commit to just 120 seconds with zero guilt!',
     mobile_dock_stations: 'Stations',
     mobile_dock_two_min: '2-Min ⚡',
-    mobile_dock_ai: 'AI Coach',
+    mobile_dock_ai: 'Guide',
     mobile_dock_archive: 'Archive',
     ai_api_settings_title: 'AI Coach API Settings (Gemini API)',
   },

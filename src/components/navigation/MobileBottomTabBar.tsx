@@ -149,7 +149,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
             <div className="relative">
               <Compass className={`w-5 h-5 transition-transform stroke-[1.8] ${isStationActive ? 'scale-110 text-sky-600 dark:text-sky-400' : ''}`} />
               <span className="absolute -top-1 -end-2.5 px-1.5 py-0.2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-[8px] font-black text-white font-mono leading-none shadow-xs">
-                {completedStations.length}/6
+                <bdi dir="ltr">{completedStations.length}/6</bdi>
               </span>
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight relative z-10">

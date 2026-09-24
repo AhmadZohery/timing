@@ -96,8 +96,8 @@ const CELESTIAL_THEMES: Record<PrayerName, CelestialTheme> = {
     celestialIcon: '🌆',
     virtueAr: 'إقبال الليل وإدبار النهار وسنة المغرب',
     virtueEn: 'Sunset twilight & prayer of dusk',
-    badgeAr: 'سنة المغرب ✨',
-    badgeEn: 'Sunnah ✨',
+    badgeAr: 'سنة مؤكدة',
+    badgeEn: 'Sunnah',
     gradientDark: 'from-rose-950/70 via-purple-950/40 to-slate-900/90',
     gradientLight: 'from-rose-50/90 via-white to-purple-50/50',
     borderDark: 'border-rose-500/30 hover:border-rose-400/60',
@@ -405,7 +405,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       ...logKey,
       pointsEarned: (todayLog?.pointsEarned || 0) + points,
     });
-    onRewardToast?.(`✨ تقبل الله منك! تم تسجيل ${title} (+${points}ن) بنجاح.`);
+    onRewardToast?.(`تقبل الله منك! تم تسجيل ${title} (+${points}ن) بنجاح.`);
   };
 
   const handleCopyText = (text: string, id: string) => {
@@ -781,7 +781,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       {justLoggedPrayer && (
         <div className="p-3.5 rounded-2xl bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-between gap-3 animate-fade-in">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-xl shrink-0">✨</span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <div className="min-w-0">
               <h5 className="text-xs font-black text-emerald-900 dark:text-emerald-200 truncate">
                 {isAr ? `تقبل الله صلاة ${justLoggedPrayer.title}!` : `Prayer logged!`}
@@ -862,7 +862,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
                 {/* Prophetic Virtue / Hadith in full without truncation */}
                 <div className="flex items-start gap-2 pt-1 text-xs text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
-                  <span className="text-amber-500 shrink-0 mt-0.5">✨</span>
+                  <span className="text-amber-500 font-bold shrink-0 mt-0.5">❖</span>
                   <p className="font-serif text-xs sm:text-sm text-slate-700 dark:text-zinc-200 leading-relaxed font-medium">
                     «{heroTheme.virtueAr || (isAr ? 'الصلاة على وقتها أحب الأعمال إلى الله • تهيأ بالسكينة وإسباغ الوضوء' : 'On-time prayer is beloved to Allah')}»
                   </p>
@@ -927,10 +927,10 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           {/* Daily 5 Prayers Header Track */}
           <div className="flex items-center justify-between gap-2 px-1 pt-1">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-zinc-300">
-              <span className="text-amber-500">✨</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
               <span>{isAr ? 'الفرائض الخمس والسنن الرواتب:' : 'Daily Prayers:'}</span>
               <span className="font-mono font-black text-emerald-600 dark:text-emerald-400">
-                {completedPrayersCount}/5
+                <bdi dir="ltr">{completedPrayersCount}/5</bdi>
               </span>
               <span className="text-[11px] text-slate-400 font-normal">
                 ({Math.round((completedPrayersCount / 5) * 100)}%)
@@ -1076,7 +1076,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                           <div className="w-full py-1.5 px-1 rounded-xl bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs font-black flex items-center justify-center gap-1 shadow-2xs">
                             <span>🕌</span>
                             <span className="truncate">{isAr ? 'جماعة' : 'Group'}</span>
-                            {record.sunnahPerformed && <span title="مع السنن">✨</span>}
+                            {record.sunnahPerformed && <span title="مع السنن" className="text-amber-500 font-bold text-[10px]">★</span>}
                           </div>
                         ) : record.status === 'late' ? (
                           <div className="w-full py-1.5 px-1 rounded-xl bg-slate-200/80 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold flex items-center justify-center gap-1">
@@ -1087,7 +1087,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                           <div className="w-full py-1.5 px-1 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 text-xs font-black flex items-center justify-center gap-1 shadow-2xs">
                             <span>✓</span>
                             <span className="truncate">{isAr ? 'في وقتها' : 'On-time'}</span>
-                            {record.sunnahPerformed && <span title="مع السنن">✨</span>}
+                            {record.sunnahPerformed && <span title="مع السنن" className="text-amber-500 font-bold text-[10px]">★</span>}
                           </div>
                         )}
                       </div>
@@ -1136,7 +1136,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
               {nightIntervals.isCurrentlyLastThird ? (
                 <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-black animate-pulse flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span>{isAr ? '✨ وقت النزول الإلهي قائم الآن!' : 'Last Third Active Now!'}</span>
+                  <span>{isAr ? 'وقت النزول الإلهي قائم الآن!' : 'Last Third Active Now!'}</span>
                 </span>
               ) : (
                 <span className="px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-200 text-xs font-bold font-mono">
@@ -1352,7 +1352,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
               {/* Progress Ring / Percentage */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-900 dark:text-amber-200">
-                  {Math.round((totalSunnahRakatsCompleted / 12) * 100)}% تم أداؤه ✨
+                  {Math.round((totalSunnahRakatsCompleted / 12) * 100)}% تم أداؤه
                 </span>
               </div>
             </div>
@@ -1617,7 +1617,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                       soundSynth.playStreakMilestoneChime();
                       haptic.vibrateSprintCelebration();
                       setInAppTasbihCount(inAppTasbihTarget);
-                      onRewardToast?.(`✨ أتممت ورد ${inAppTasbihPhrase} بنجاح! تقبل الله منك.`);
+                      onRewardToast?.(`أتممت ورد ${inAppTasbihPhrase} بنجاح! تقبل الله منك.`);
                     } else {
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();

@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame,
   Clock,
-  Sparkles,
-  Bot,
+  Timer,
+  Compass,
   Zap,
   Trophy,
   X,
@@ -133,31 +133,31 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
               </span>
 
               {/* Current Station Tag */}
-              <span className="text-[11px] font-bold text-emerald-400 truncate max-w-[70px] sm:max-w-[90px]">
+              <span className="text-[11px] font-bold text-emerald-400 truncate max-w-[120px] sm:max-w-[160px]">
                 {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
               </span>
 
-              <span className="text-white/20 text-xs">|</span>
+              <span className="text-white/40 text-xs">|</span>
 
               {/* Next Prayer Countdown with urgent highlight if <= 15m */}
               <div className="flex items-center gap-1 text-[11px] font-medium shrink-0">
                 <span className="text-slate-300">{nextP.arabicName}</span>
                 <span className={`font-bold font-mono ${nextP.minutesRemaining <= 15 ? 'text-rose-400 animate-pulse' : 'text-amber-400'}`}>
-                  {nextP.minutesRemaining}د
+                  <bdi dir="ltr">{nextP.minutesRemaining}د</bdi>
                 </span>
               </div>
 
               {/* Streak flame */}
               <div className="hidden xs:flex items-center gap-1 text-[11px] font-mono text-amber-400 font-bold shrink-0">
-                <span className="text-white/20 text-xs me-0.5">|</span>
+                <span className="text-white/40 text-xs me-0.5">|</span>
                 <Flame className="w-3 h-3 fill-amber-400 text-amber-400" />
-                <span>{userState?.streakDays || 0}</span>
+                <span><bdi dir="ltr">{userState?.streakDays || 0}</bdi></span>
               </div>
 
               {/* Friday Salawat Season Blossom Chip */}
               {fridayStatus.isWindow && (
                 <>
-                  <span className="text-white/20 text-xs">|</span>
+                  <span className="text-white/40 text-xs">|</span>
                   <span className="text-xs" title={isAr ? 'موسم الصلاة الإبراهيمية ليلة ويوم الجمعة' : 'Friday Salawat Window'}>
                     🌸
                   </span>
@@ -221,10 +221,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 <button
                   type="button"
                   onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
                     handleToggle();
                     onOpenSmartTasbih('salawat_ibrahimiyyah');
                   }}
-                  className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/25 via-emerald-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-300 text-xs font-bold border border-amber-500/40 transition-all cursor-pointer active:scale-98 shadow-sm"
+                  className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/25 via-emerald-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-300 text-xs font-bold border border-amber-500/40 transition-all cursor-pointer active:scale-98 shadow-sm"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-sm">🌸</span>
@@ -239,6 +241,8 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 <button
                   type="button"
                   onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
                     handleToggle();
                     onOpenSmartTasbih('tahlil_100');
                   }}
@@ -248,12 +252,14 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     <span className="text-sm">📿</span>
                     <span>{isAr ? 'المسبحة اللمسية الذكية' : 'Smart Haptic Tasbih'}</span>
                   </div>
-                  <span className="text-[10px] opacity-70">✨</span>
+                  <span className="text-[10px] font-mono text-teal-400 font-bold">100x</span>
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
                   handleToggle();
                   onSelectStation('WORK_MICRO_SPRINT');
                 }}
@@ -263,37 +269,41 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <Zap className="w-4 h-4 text-sky-400" />
                   <span>{isAr ? 'بدء جلسة عمل وتركيز 20 دقيقة' : 'Start 20m Focus Session'}</span>
                 </div>
-                <span className="text-[10px] opacity-70">⚡</span>
+                <span className="text-[10px] font-mono text-sky-400 font-bold">20m</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
                   handleToggle();
                   onOpenTwoMinuteRule?.();
                 }}
                 className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/30 transition-all cursor-pointer active:scale-98"
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <Timer className="w-4 h-4 text-amber-400" />
                   <span>{isAr ? 'كسر التسويف: قاعدة الدقيقتين' : '2-Minute Anti-Friction'}</span>
                 </div>
-                <span className="text-[10px] opacity-70">+5 XP</span>
+                <span className="text-[10px] font-mono text-amber-400 font-bold">120s</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
                   handleToggle();
                   onOpenAiCoach?.();
                 }}
                 className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 text-xs font-bold border border-indigo-500/30 transition-all cursor-pointer active:scale-98"
               >
                 <div className="flex items-center gap-2">
-                  <Bot className="w-4 h-4 text-indigo-400" />
-                  <span>{isAr ? 'استشارة المرشد السلوكي (مِضمار AI)' : 'AI Behavioral Coach'}</span>
+                  <Compass className="w-4 h-4 text-indigo-400" />
+                  <span>{isAr ? 'استشارة المرشد السلوكي الذكي' : 'Behavioral Mindset Guide'}</span>
                 </div>
-                <span className="text-[10px] opacity-70">🪄</span>
+                <span className="text-[10px] font-mono text-indigo-400 font-bold">Coach</span>
               </button>
 
               <div className="grid grid-cols-2 gap-1.5 pt-1">
@@ -301,10 +311,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <button
                     type="button"
                     onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
                       handleToggle();
                       onOpenWirdModal();
                     }}
-                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/30 cursor-pointer"
+                    className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/30 cursor-pointer active:scale-95"
                   >
                     <span>📖</span>
                     <span>{isAr ? 'الورد القرآني' : 'Quran Wird'}</span>
@@ -313,10 +325,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <button
                     type="button"
                     onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
                       handleToggle();
                       onOpenEvaluation?.();
                     }}
-                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 text-xs font-bold border border-white/10 cursor-pointer"
+                    className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 text-xs font-bold border border-white/10 cursor-pointer active:scale-95"
                   >
                     <Trophy className="w-3.5 h-3.5 text-amber-400" />
                     <span>{isAr ? 'التقييم الدوري' : 'Scorecard'}</span>
@@ -327,10 +341,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <button
                     type="button"
                     onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
                       handleToggle();
                       onOpenLifestyleModal();
                     }}
-                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-bold border border-sky-500/30 cursor-pointer"
+                    className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-bold border border-sky-500/30 cursor-pointer active:scale-95"
                   >
                     <span>🧭</span>
                     <span>{isAr ? 'نمط الحياة' : 'Lifestyle'}</span>
@@ -339,10 +355,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <button
                     type="button"
                     onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
                       handleToggle();
                       onOpenSleepRest?.();
                     }}
-                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 text-xs font-bold border border-white/10 cursor-pointer"
+                    className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 text-xs font-bold border border-white/10 cursor-pointer active:scale-95"
                   >
                     <Clock className="w-3.5 h-3.5 text-indigo-400" />
                     <span>{isAr ? 'النوم والاستشفاء' : 'Sleep Rest'}</span>

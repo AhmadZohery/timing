@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
-  Bot,
+  Compass,
+  Settings,
   Send,
   Sparkles,
   Split,
@@ -345,19 +346,19 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
         <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-900/60">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/20">
-              <Bot className="w-5 h-5" />
+              <Compass className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
-                  {isAr ? 'المرشد السلوكي الذكي (مِضمار AI)' : 'AI Behavioral Coach (Midmar AI)'}
+                  {isAr ? 'المرشد السلوكي والاستراتيجي' : 'Behavioral Mindset Guide'}
                 </h3>
                 <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
                   hasApiKey
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/50'
                     : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/50'
                 }`}>
-                  {hasApiKey ? (isAr ? 'Gemini 2.0 متصل ⚡' : 'Gemini Connected ⚡') : (isAr ? 'ذكاء محلي مدمج 🧠' : 'Offline Heuristics 🧠')}
+                  {hasApiKey ? (isAr ? 'Gemini 2.0 متصل ⚡' : 'Gemini Connected ⚡') : (isAr ? 'تحليل محلي مدمج 🧠' : 'Offline Heuristics 🧠')}
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
@@ -372,7 +373,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
               className={`p-2 rounded-xl transition-colors cursor-pointer ${
                 hasApiKey
                   ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
-                  : 'text-amber-600 bg-amber-500/10 hover:bg-amber-500/20 animate-pulse'
+                  : 'text-amber-600 bg-amber-500/10 hover:bg-amber-500/20'
               }`}
               title={isAr ? 'ربط مفتاح الذكاء الاصطناعي السريع' : 'Quick AI API Setup'}
             >
@@ -385,7 +386,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                 className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                 title={isAr ? 'إعدادات مفتاح الـ API' : 'AI API Settings'}
               >
-                <Bot className="w-4 h-4" />
+                <Settings className="w-4 h-4" />
               </button>
             )}
 
@@ -454,7 +455,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                 : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
             }`}
           >
-            <Bot className="w-3.5 h-3.5" />
+            <Compass className="w-3.5 h-3.5" />
             <span>{isAr ? 'محادثة المرشد' : 'Coach Chat'}</span>
           </button>
 
@@ -469,8 +470,8 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                 : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>{isAr ? 'الخيارات المنطقية المناسبة ✨' : 'Adaptive Decisions ✨'}</span>
+            <Zap className="w-3.5 h-3.5 text-amber-500" />
+            <span>{isAr ? 'الخيارات المنطقية الذكية' : 'Adaptive Decisions'}</span>
           </button>
 
           <button

@@ -3,6 +3,7 @@ import {
   Mic,
   MicOff,
   Lightbulb,
+  Star,
   CheckCircle,
   Save,
   ArrowLeft,
@@ -297,17 +298,18 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                     key={star}
                     onClick={() => {
                       soundSynth.playTactileClick();
+                      haptic.vibrateLight();
                       localStorage.setItem('midmar_day_rating', String(star));
                       setIsSaved(true);
                       setTimeout(() => setIsSaved(false), 1500);
                     }}
-                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                    className={`tap-spring p-1.5 rounded-lg transition-transform active:scale-90 cursor-pointer ${
                       star <= currentRating
                         ? 'text-amber-500 bg-amber-50 dark:bg-amber-500/10'
                         : 'text-slate-300 dark:text-zinc-700'
                     }`}
                   >
-                    <Lightbulb className="w-4 h-4 fill-current" />
+                    <Star className="w-4 h-4 fill-current" />
                   </button>
                 );
               })}
@@ -320,7 +322,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
       <div className="p-4 rounded-xl bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 flex items-center justify-between gap-3 shadow-xs">
         <button
           onClick={handleSave}
-          className="py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-medium text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+          className="tap-spring py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-medium text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
         >
           <Save className="w-4 h-4" />
           <span>{isSaved ? 'تم الحفظ ✔' : t('save_draft')}</span>
@@ -335,7 +337,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                 haptic.vibrateLight();
                 onOpenEvaluation();
               }}
-              className="py-2.5 px-3.5 rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+              className="tap-spring py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
               title={language === 'ar' ? 'عرض تقرير وتقييم اليوم والأسبوع' : 'View Evaluation Report'}
             >
               <Trophy className="w-4 h-4 text-amber-600" />
@@ -346,15 +348,19 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
           {!isCompleted ? (
             <button
               onClick={handleComplete}
-              className="py-2.5 px-5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-teal-500/20 active:scale-95 cursor-pointer"
+              className="tap-spring py-2.5 px-5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-teal-500/20 active:scale-95 cursor-pointer"
             >
               <CheckCircle className="w-4 h-4" />
               <span>{t('finish_day_reward')} (+10)</span>
             </button>
           ) : (
             <button
-              onClick={onNextStation}
-              className="py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-100 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onNextStation();
+              }}
+              className="tap-spring py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-100 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
             >
               <span>{t('station_6_title')}</span>
               <ArrowIcon className="w-4 h-4" />

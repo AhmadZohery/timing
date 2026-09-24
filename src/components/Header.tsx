@@ -19,7 +19,7 @@ import {
   Columns,
   Calendar,
   Users,
-  Bot,
+  Lightbulb,
   Trophy,
   PlusCircle,
   MapPin,
@@ -142,40 +142,40 @@ export const Header: React.FC<HeaderProps> = ({
   const streakTier = React.useMemo(() => {
     if (streakDays >= 30) {
       return {
-        title: language === 'ar' ? 'تاج الإتقان الأسطوري 👑 (30+ يوم متواصل)' : 'Crown of Mastery 👑 (30+ Days)',
-        badgeClass: 'bg-gradient-to-r from-amber-500/20 via-yellow-400/25 to-emerald-500/20 border-yellow-400 dark:border-yellow-400/60 text-amber-900 dark:text-yellow-200 ring-1 ring-yellow-400/50 shadow-[0_0_12px_rgba(234,179,8,0.25)]',
-        flameClass: 'fill-amber-400 text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.8)] animate-pulse',
-        iconEmoji: '👑',
+        title: language === 'ar' ? 'وسام الالتزام الأسمى (30+ يوماً متواصلاً)' : 'Mastery Horizon (30+ Days)',
+        badgeClass: 'bg-amber-500/10 dark:bg-amber-400/10 border-amber-500/40 text-amber-900 dark:text-amber-200 ring-1 ring-amber-400/30 shadow-xs',
+        flameClass: 'fill-amber-500 text-amber-600 dark:text-amber-400',
+        iconEmoji: '◆',
       };
     }
     if (streakDays >= 15) {
       return {
-        title: language === 'ar' ? 'سوبرنوفا التركيز ✨ (15-29 يوماً)' : 'Celestial Supernova ✨ (15-29 Days)',
-        badgeClass: 'bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 border-cyan-400 dark:border-indigo-400/60 text-indigo-900 dark:text-cyan-200 ring-1 ring-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.25)]',
-        flameClass: 'fill-cyan-400 text-indigo-500 drop-shadow-[0_0_6px_rgba(6,182,212,0.7)] animate-pulse',
-        iconEmoji: '⚡',
+        title: language === 'ar' ? 'إيقاع التميّز المستدام (15-29 يوماً)' : 'Sustained Momentum (15-29 Days)',
+        badgeClass: 'bg-cyan-500/10 dark:bg-cyan-400/10 border-cyan-500/30 text-cyan-900 dark:text-cyan-200 ring-1 ring-cyan-400/20 shadow-xs',
+        flameClass: 'fill-cyan-500 text-cyan-600 dark:text-cyan-400',
+        iconEmoji: '◇',
       };
     }
     if (streakDays >= 8) {
       return {
-        title: language === 'ar' ? 'بلازما الإنجاز المتوهجة 🔥 (8-14 يوماً)' : 'Electric Plasma 🔥 (8-14 Days)',
-        badgeClass: 'bg-gradient-to-r from-purple-500/20 to-rose-500/20 border-rose-300 dark:border-rose-400/60 text-rose-900 dark:text-rose-200 ring-1 ring-rose-400/30',
-        flameClass: 'fill-rose-500 text-purple-500 drop-shadow-[0_0_6px_rgba(244,63,94,0.6)] animate-pulse',
+        title: language === 'ar' ? 'زخم متصاعد ومستقر (8-14 يوماً)' : 'Steady Cadence (8-14 Days)',
+        badgeClass: 'bg-indigo-500/10 dark:bg-indigo-400/10 border-indigo-500/30 text-indigo-900 dark:text-indigo-200 shadow-xs',
+        flameClass: 'fill-indigo-500 text-indigo-600 dark:text-indigo-400',
         iconEmoji: null,
       };
     }
     if (streakDays >= 4) {
       return {
-        title: language === 'ar' ? 'لهيب الزخم المشتعل 🚀 (4-7 أيام)' : 'Vibrant Blaze 🚀 (4-7 Days)',
-        badgeClass: 'bg-gradient-to-r from-orange-500/15 to-amber-500/15 border-orange-300 dark:border-orange-500/50 text-orange-900 dark:text-orange-300',
-        flameClass: 'fill-orange-500 text-amber-500 animate-pulse',
+        title: language === 'ar' ? 'ثبات المسار اليومي (4-7 أيام)' : 'Consistent Rhythm (4-7 Days)',
+        badgeClass: 'bg-orange-500/10 dark:bg-orange-400/10 border-orange-400/30 text-orange-900 dark:text-orange-300 shadow-xs',
+        flameClass: 'fill-orange-500 text-orange-600 dark:text-orange-400',
         iconEmoji: null,
       };
     }
     return {
-      title: language === 'ar' ? 'جمرة البداية الواعدة 🌱 (1-3 أيام)' : 'Warm Ember 🌱 (1-3 Days)',
-      badgeClass: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400',
-      flameClass: 'fill-emerald-500 dark:fill-emerald-400 text-emerald-600 dark:text-emerald-400 animate-pulse',
+      title: language === 'ar' ? 'انطلاقة المسار الإيجابي (1-3 أيام)' : 'Initial Focus (1-3 Days)',
+      badgeClass: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300/60 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 shadow-xs',
+      flameClass: 'fill-emerald-500 dark:fill-emerald-400 text-emerald-600 dark:text-emerald-400',
       iconEmoji: null,
     };
   }, [streakDays, language]);
@@ -287,7 +287,7 @@ export const Header: React.FC<HeaderProps> = ({
             title={t('total_points')}
             className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 font-mono text-xs shadow-xs"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+            <Trophy className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>{userState?.totalPoints ?? 0}</span>
           </div>
 
@@ -669,7 +669,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-indigo-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
                         >
-                          <Bot className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                          <Lightbulb className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{t('ai_coach_title')}</span>
                         </button>
                       )}
@@ -697,7 +697,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-amber-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تخصيص مجالك' : 'Domain'}</span>
                         </button>
                       )}
@@ -804,7 +804,7 @@ export const Header: React.FC<HeaderProps> = ({
                           className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50 col-span-2"
                         >
                           <span className="text-sm shrink-0">🎨</span>
-                          <span className="truncate">{language === 'ar' ? 'طراز التصميم والباليت الفنية (De-AI Luxe)' : 'Boutique Theme Palette'}</span>
+                          <span className="truncate">{language === 'ar' ? 'تخصيص المظهر والطراز اللوني' : 'Atelier Color Palette'}</span>
                         </button>
                       )}
 
@@ -920,7 +920,7 @@ export const Header: React.FC<HeaderProps> = ({
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-start cursor-pointer"
                   >
-                    <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <Lightbulb className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                     <span>{t('ai_coach_title')}</span>
                   </button>
                 )}

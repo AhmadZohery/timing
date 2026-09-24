@@ -8,7 +8,7 @@ import {
   ArrowRight,
   Bookmark,
   Grid,
-  Sparkles,
+  Heart,
 } from 'lucide-react';
 import type { QuranProgress, BookProgress, EnergyLevel, UserState } from '../../types';
 import type { TasbihPresetId } from '../../utils/tasbihEngine';
@@ -180,14 +180,18 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
               <div>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100">{activeWirdTitle}</h3>
                 <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-                  {wirdPreset?.badge || '✨ ورد اليوم'}
+                  {wirdPreset?.badge || (isAr ? 'ورد اليوم المبارك' : 'Daily Wird')}
                 </span>
               </div>
             </div>
 
             <button
-              onClick={() => setShowGridModal(true)}
-              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1 cursor-pointer transition-colors"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setShowGridModal(true);
+              }}
+              className="tap-spring px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
             >
               <Grid className="w-3 h-3" />
               <span>{isAr ? `خريطة الصفحات (${totalWirdPages} ص)` : `${totalWirdPages}-Page Grid`}</span>
@@ -195,7 +199,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
-            <span>{currentWirdPages} / {totalWirdPages} {t('quran_progress')}</span>
+            <span><bdi dir="ltr">{currentWirdPages} / {totalWirdPages}</bdi> {t('quran_progress')}</span>
             <span className="font-bold text-emerald-700 dark:text-emerald-400">{quranPercent}%</span>
           </div>
 
@@ -217,7 +221,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           {/* Quick Increment Button */}
           <button
             onClick={handleIncrementQuranPage}
-            className="w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer shadow-2xs"
+            className="tap-spring w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
             <Plus className="w-4 h-4" />
             <span>{isAr ? `+1 صفحة من ${activeWirdTitle}` : `+1 Page from ${activeWirdTitle}`}</span>
@@ -251,8 +255,8 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
-            <span>{bookProgress?.currentPage ?? 0} / {bookProgress?.totalPages ?? 280}</span>
-            <span>{t('book_remaining')} {(bookProgress?.totalPages ?? 280) - (bookProgress?.currentPage ?? 0)}</span>
+            <span><bdi dir="ltr">{bookProgress?.currentPage ?? 0} / {bookProgress?.totalPages ?? 280}</bdi></span>
+            <span>{t('book_remaining')} <bdi dir="ltr">{(bookProgress?.totalPages ?? 280) - (bookProgress?.currentPage ?? 0)}</bdi></span>
           </div>
 
           {/* Progress bar */}
@@ -266,7 +270,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           {/* Quick Increment Button */}
           <button
             onClick={handleIncrementBookPage}
-            className="w-full py-2.5 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 border border-sky-200 dark:border-cyan-500/40 text-sky-800 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer shadow-2xs"
+            className="tap-spring w-full py-2.5 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 border border-sky-200 dark:border-cyan-500/40 text-sky-800 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
             <Plus className="w-4 h-4" />
             <span>{t('book_increment')}</span>
@@ -297,7 +301,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
               haptic.vibrateLight();
               alert(t('quote_saved'));
             }}
-            className="py-2 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs cursor-pointer shadow-xs transition-colors shrink-0"
+            className="tap-spring py-2 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs cursor-pointer shadow-xs transition-colors shrink-0 active:scale-95"
           >
             {t('save_template')}
           </button>
@@ -307,6 +311,8 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
         <ZeroTypingChips
           chips={ZERO_TYPING_PRESETS.goldenNuggets}
           onSelect={(chip) => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
             localStorage.setItem('midmar_today_quote', chip);
             const el = document.getElementById('morning-quote-input') as HTMLInputElement;
             if (el) el.value = chip;
@@ -321,7 +327,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900/95 border border-slate-200/90 dark:border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-xs">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40 shrink-0 mt-0.5">
-                <Sparkles className="w-4 h-4" />
+                <Heart className="w-4 h-4 fill-emerald-500/20" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -341,8 +347,12 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             {onOpenTadabburModal && (
               <button
                 type="button"
-                onClick={() => onOpenTadabburModal(todayTadabbur, 'quran')}
-                className="py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors shadow-2xs cursor-pointer self-end sm:self-auto"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  onOpenTadabburModal(todayTadabbur, 'quran');
+                }}
+                className="tap-spring py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors shadow-2xs cursor-pointer self-end sm:self-auto active:scale-95"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>{isAr ? 'تفسير ابن كثير وأسباب النزول' : 'Tafsir & Context'}</span>

@@ -404,7 +404,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                 className="py-1.5 px-3 rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
               >
                 <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span>{t('defer_to_buffer')} ({t('buffer_remaining_count')} {bufferAvailableCount}/2)</span>
+                <span>{t('defer_to_buffer')} ({t('buffer_remaining_count')} <bdi dir="ltr">{bufferAvailableCount}/2</bdi>)</span>
               </button>
             </div>
           </div>
@@ -434,16 +434,20 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                 {language === 'ar' ? '3 خطوات مرحلية لإنجاز الجلسة:' : '3 Micro-checkpoints for this session:'}
               </span>
               {checkpoints.map((cp, idx) => (
-                <div key={cp.id} className="flex items-center gap-2">
+                <div key={cp.id} className="flex items-center gap-2.5">
                   <button
-                    onClick={() => handleToggleCheckpoint(cp.id)}
-                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors cursor-pointer ${
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      handleToggleCheckpoint(cp.id);
+                    }}
+                    className={`tap-spring w-7 h-7 sm:w-8 sm:h-8 rounded-xl border-2 flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-90 ${
                       cp.done
-                        ? 'bg-sky-600 border-sky-600 text-white'
-                        : 'border-slate-300 dark:border-zinc-700 hover:border-sky-500'
+                        ? 'bg-sky-600 border-sky-600 text-white shadow-xs'
+                        : 'border-slate-300 dark:border-zinc-700 hover:border-sky-500 bg-white dark:bg-zinc-900'
                     }`}
                   >
-                    {cp.done && <CheckCircle className="w-3.5 h-3.5" />}
+                    {cp.done && <CheckCircle className="w-4 h-4" />}
                   </button>
                   <input
                     type="text"

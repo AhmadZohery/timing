@@ -442,7 +442,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           </div>
           <div className="min-w-0">
             <span className="text-[10px] font-mono text-orange-700 dark:text-orange-400 font-bold uppercase tracking-wider block">
-              {persona.badge} • {stationMeta.shortTime}
+              {persona.badge} • <bdi dir="ltr">{stationMeta.shortTime}</bdi>
             </span>
             <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 truncate">
               {isAr ? stationMeta.titleAr : stationMeta.titleEn}
@@ -458,7 +458,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
       </div>
 
       {/* 7 Movement Categories Segmented Tab Strip */}
-      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none p-1.5 rounded-2xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none p-1.5 rounded-2xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
         <button
           type="button"
           onClick={() => handleSelectMovementCat('gym')}

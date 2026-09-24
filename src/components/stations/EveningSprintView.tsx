@@ -331,15 +331,16 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
         </div>
 
         {/* Ambient Sounds & Ultra Dim OLED Switch */}
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar py-1 shrink-0 max-w-full">
           {/* Ultra Dim OLED Toggle */}
           <button
             onClick={() => {
               soundSynth.playTactileClick();
+              haptic.vibrateLight();
               setIsUltraDim(!isUltraDim);
             }}
             title="حماية شاشات OLED ووضع فائق الخفوت"
-            className={`px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs ${
+            className={`tap-spring shrink-0 px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs active:scale-95 ${
               isUltraDim
                 ? 'bg-emerald-950 border-emerald-500 text-emerald-300'
                 : 'bg-slate-100 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
@@ -353,18 +354,23 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
           <button
             onClick={() => {
               soundSynth.playTactileClick();
+              haptic.vibrateLight();
               setIsZenFullscreen(true);
             }}
             title={language === 'ar' ? 'ساعة مكتبية بملء الشاشة الكاملة (Zen Desk HUD)' : 'Zen Fullscreen Desk HUD'}
-            className="px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs bg-slate-100 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400"
+            className="tap-spring shrink-0 px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-2xs bg-slate-100 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95"
           >
             <Maximize2 className="w-3 h-3" />
             <span>{language === 'ar' ? 'ملء الشاشة ⛶' : 'Zen HUD ⛶'}</span>
           </button>
 
           <button
-            onClick={() => handleToggleAmbient('brown')}
-            className={`px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs ${
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              handleToggleAmbient('brown');
+            }}
+            className={`tap-spring shrink-0 px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95 ${
               ambientType === 'brown'
                 ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300'
                 : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400'
@@ -374,8 +380,12 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
             <span>{t('ambient_brown')}</span>
           </button>
           <button
-            onClick={() => handleToggleAmbient('rain')}
-            className={`px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs ${
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              handleToggleAmbient('rain');
+            }}
+            className={`tap-spring shrink-0 px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95 ${
               ambientType === 'rain'
                 ? 'bg-sky-100 dark:bg-cyan-500/20 border-sky-300 dark:border-cyan-500/40 text-sky-800 dark:text-cyan-300'
                 : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400'
@@ -385,8 +395,12 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
             <span>{t('ambient_rain')}</span>
           </button>
           <button
-            onClick={() => handleToggleAmbient('alpha')}
-            className={`px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs ${
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              handleToggleAmbient('alpha');
+            }}
+            className={`tap-spring shrink-0 px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95 ${
               ambientType === 'alpha'
                 ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-300 dark:border-purple-500/40 text-purple-800 dark:text-purple-300'
                 : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400'
@@ -396,8 +410,12 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
             <span>Alpha 10Hz</span>
           </button>
           <button
-            onClick={() => handleToggleAmbient('theta')}
-            className={`px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs ${
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              handleToggleAmbient('theta');
+            }}
+            className={`tap-spring shrink-0 px-2.5 py-1 rounded-md border text-xs flex items-center gap-1 cursor-pointer shadow-2xs active:scale-95 ${
               ambientType === 'theta'
                 ? 'bg-emerald-100 dark:bg-emerald-500/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300'
                 : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400'
@@ -407,8 +425,12 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
             <span>Theta 6Hz</span>
           </button>
           <button
-            onClick={() => handleToggleAmbient('none')}
-            className={`p-1.5 rounded-md border cursor-pointer shadow-2xs ${
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              handleToggleAmbient('none');
+            }}
+            className={`tap-spring shrink-0 p-1.5 rounded-md border cursor-pointer shadow-2xs active:scale-95 ${
               ambientType === 'none'
                 ? 'bg-rose-100 dark:bg-rose-500/20 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-300'
                 : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400'
