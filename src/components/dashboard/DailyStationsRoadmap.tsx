@@ -301,7 +301,7 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
 
       {/* 3. Interactive Spotlight Action Capsule (Height ~56px) */}
       <div
-        className={`relative z-10 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r ${currentTheme.gradient} dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.08] flex items-center justify-between gap-3 shadow-2xs transition-all duration-300`}
+        className={`relative z-10 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r ${currentTheme.gradient} dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.08] flex items-center justify-between gap-3 shadow-xs shadow-slate-900/5 dark:shadow-none transition-all duration-300`}
       >
         <div className="flex items-center gap-3 min-w-0">
           <div

@@ -323,8 +323,15 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
       <div className="flex items-center justify-between gap-3 relative z-10">
         {/* Right (RTL Start): Artwork + Titles */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-amber-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 border border-emerald-500/20 shadow-2xs ${audioState.isPlaying ? 'ring-2 ring-emerald-500/40 animate-pulse' : ''}`}>
+          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-amber-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 border border-emerald-500/20 shadow-2xs relative overflow-hidden ${audioState.isPlaying ? 'ring-2 ring-emerald-500/40' : ''}`}>
             {audioState.mode === 'series' ? '🎙️' : currentChannel.icon || '🎙️'}
+            {audioState.isPlaying && (
+              <div className="absolute inset-x-0 bottom-1 flex items-end justify-center gap-0.5 h-3 px-1 pointer-events-none">
+                <span className="w-0.5 bg-emerald-600 dark:bg-emerald-400 rounded-full animate-bounce h-2" />
+                <span className="w-0.5 bg-emerald-600 dark:bg-emerald-400 rounded-full animate-pulse h-3" />
+                <span className="w-0.5 bg-emerald-600 dark:bg-emerald-400 rounded-full animate-bounce h-1.5" />
+              </div>
+            )}
           </div>
 
           <div className="min-w-0 space-y-0.5">
@@ -391,7 +398,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
             onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
             className="w-full accent-emerald-600 dark:accent-emerald-500 h-1.5 bg-slate-100 dark:bg-zinc-800 rounded-full cursor-pointer transition-all"
           />
-          <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 dark:text-zinc-500 px-0.5">
+          <div className="flex items-center justify-between text-[10px] font-mono text-slate-600 dark:text-zinc-300 font-bold px-0.5">
             <span>{formatSeconds(audioState.currentTime)}</span>
             {audioState.resumePoint && !audioState.isPlaying && (
               <span className="text-amber-600 dark:text-amber-400 font-sans font-bold text-[10px] xs:hidden">
@@ -505,7 +512,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
         </button>
       </div>
 
-      {/* 4. Subtle Series Drawer Toggle */}
+      {/* 4. Series Drawer Toggle with Comfortable Touch Target */}
       <div className="relative z-10 flex items-center justify-center pt-0.5">
         <button
           type="button"
@@ -513,7 +520,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
             soundSynth.playTactileClick();
             setIsSeriesListOpen(!isSeriesListOpen);
           }}
-          className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 transition-colors py-0.5 cursor-pointer"
+          className="text-[11px] font-bold text-slate-600 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1.5 transition-colors py-1.5 px-3 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800/60 cursor-pointer min-h-[36px]"
         >
           <span>{isAr ? (isSeriesListOpen ? 'طي قائمة السلاسل' : 'تصفح قائمة السلاسل هنا') : (isSeriesListOpen ? 'Hide series' : 'Browse series here')}</span>
           {isSeriesListOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
