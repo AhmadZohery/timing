@@ -8,6 +8,7 @@ import {
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { awardSpiritualHabitPoints, upsertDailyLog, getBiologicalDate } from '../../utils/gamification';
+import { getHijriDateDetails } from '../../utils/prayerCalculator';
 
 export interface FastingReminderModalProps {
   isOpen: boolean;
@@ -25,13 +26,17 @@ export const FastingReminderModal: React.FC<FastingReminderModalProps> = ({
   const [fastingLogged, setFastingLogged] = useState(isFastingToday);
   const [intentionForTomorrow, setIntentionForTomorrow] = useState(false);
 
-  // Day detection
+  // Day & Hijri detection
   const now = new Date();
   const dayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
   const isTodayMon = dayOfWeek === 1;
   const isTodayThu = dayOfWeek === 4;
   const isTomorrowMon = dayOfWeek === 0;
   const isTomorrowThu = dayOfWeek === 3;
+
+  const hijri = getHijriDateDetails(now);
+  const isWhiteDayToday = hijri.isWhiteDay;
+  const isWhiteDayTomorrow = hijri.isTomorrowWhiteDay;
 
   // Calculate next Monday and Thursday
   const getNextDayOfWeek = (targetDay: number) => {
@@ -53,13 +58,26 @@ export const FastingReminderModal: React.FC<FastingReminderModalProps> = ({
     setFastingLogged(true);
     const todayStr = getBiologicalDate(true);
 
-    const fastingType = isTodayMon ? 'monday' : isTodayThu ? 'thursday' : 'voluntary';
+    const fastingType = isTodayMon
+      ? 'monday'
+      : isTodayThu
+      ? 'thursday'
+      : isWhiteDayToday
+      ? 'white_days'
+      : 'voluntary';
     await upsertDailyLog(todayStr, {
       fastingDone: true,
       fastingType,
     });
 
-    const res = await awardSpiritualHabitPoints('fasting' as any, 'صيام التطوع المبارك');
+    const title = isWhiteDayToday
+      ? `صيام الأيام البيض (${hijri.day} ${hijri.monthNameAr})`
+      : isTodayMon
+      ? 'صيام يوم الإثنين'
+      : isTodayThu
+      ? 'صيام يوم الخميس'
+      : 'صيام التطوع المبارك';
+    const res = await awardSpiritualHabitPoints('fasting' as any, title);
     if (onRewardToast && res.message) {
       onRewardToast(res.message);
     } else if (onRewardToast) {
@@ -124,15 +142,19 @@ export const FastingReminderModal: React.FC<FastingReminderModalProps> = ({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-emerald-300 block">
-                  {isTodayMon
-                    ? 'اليوم الإثنين • يوم عرض الأعمال على الله'
+                  {isWhiteDayToday
+                    ? `اليوم ${hijri.formattedAr} • من الأيام البيض المباركة (صيام الدهر كله) 🌟`
+                    : isTodayMon
+                    ? `اليوم الإثنين (${hijri.formattedAr}) • يوم عرض الأعمال على الله`
                     : isTodayThu
-                    ? 'اليوم الخميس • يوم عرض الأعمال وتجديد العهد'
+                    ? `اليوم الخميس (${hijri.formattedAr}) • يوم عرض الأعمال وتجديد العهد`
+                    : isWhiteDayTomorrow
+                    ? `غداً تبدأ الأيام البيض (${hijri.day + 1} ${hijri.monthNameAr}) • صيام الدهر 🌟`
                     : isTomorrowMon
                     ? 'غداً الإثنين • فرصة الصيام وعرض الأعمال'
                     : isTomorrowThu
                     ? 'غداً الخميس • فرصة الصيام والأجر المضاعف'
-                    : 'صيام التطوع المستحب'}
+                    : `اليوم ${hijri.formattedAr} • صيام التطوع المستحب`}
                 </span>
                 <span className="text-sm font-black text-white block">
                   {fastingLogged
@@ -160,7 +182,7 @@ export const FastingReminderModal: React.FC<FastingReminderModalProps> = ({
                 <span>{fastingLogged ? 'تم تسجيل الصيام بنجاح ✔' : 'أنا صائم اليوم 🤍 (+25 نقطة)'}</span>
               </button>
 
-              {(isTomorrowMon || isTomorrowThu) && (
+              {(isTomorrowMon || isTomorrowThu || isWhiteDayTomorrow) && (
                 <button
                   type="button"
                   onClick={handleIntention}
@@ -170,7 +192,13 @@ export const FastingReminderModal: React.FC<FastingReminderModalProps> = ({
                       : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
                   }`}
                 >
-                  <span>{intentionForTomorrow ? 'عُقدت النية 🌙' : 'عقد نية صيام الغد 🌙'}</span>
+                  <span>
+                    {intentionForTomorrow
+                      ? 'عُقدت النية 🌙'
+                      : isWhiteDayTomorrow
+                      ? 'عقد نية الأيام البيض غداً 🌙'
+                      : 'عقد نية صيام الغد 🌙'}
+                  </span>
                 </button>
               )}
             </div>

@@ -22,6 +22,7 @@ interface DailyCircadianTimelineProps {
   userState?: UserState;
   onSelectStation: (station: StationId) => void;
   onOpenSleepRest: () => void;
+  onOpenNawafilModal?: () => void;
   className?: string;
 }
 
@@ -43,6 +44,7 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
   userState,
   onSelectStation,
   onOpenSleepRest,
+  onOpenNawafilModal,
   className = '',
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -176,18 +178,64 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       accentColor: 'text-indigo-400 bg-indigo-950/40 border-indigo-800/40',
       isSleepAction: true,
     },
+    {
+      id: 'qiyam_last_third',
+      title: 'محراب السَّحَر وقيام الليل',
+      subtitle: 'الثلث الأخير من الليل، وقت النزول الإلهي، التهجد ومراتب الآيات (10، 100، 1000 آية)',
+      timeRange: '01:30 - 05:00',
+      startHour: 1.5,
+      endHour: 5.0,
+      icon: Sparkles,
+      accentColor: 'text-amber-400 bg-amber-950/40 border-amber-500/40',
+      isSleepAction: false,
+    },
   ];
 
-  // Current active phase
+  // Current active phase (handles overnight wrapping)
   const activePhase =
-    phases.find((p) => currentTimeDec >= p.startHour && currentTimeDec < p.endHour) ||
-    phases[phases.length - 1];
+    currentTimeDec >= 1.5 && currentTimeDec < 5.0
+      ? phases.find((p) => p.id === 'qiyam_last_third')!
+      : (currentTimeDec >= 0 && currentTimeDec < 1.5) || currentTimeDec >= 20.5
+      ? phases.find((p) => p.id === 'isha_winddown')!
+      : phases.find((p) => currentTimeDec >= p.startHour && currentTimeDec < p.endHour) ||
+        phases[phases.length - 1];
 
   // Smart recommended next best action
   const getNextRecommendedAction = () => {
     const dayOfWeek = now.getDay();
 
-    if (currentTimeDec >= 21 || currentTimeDec < 4) {
+    // 1. Qiyam & Sahar Window (01:30 - 05:00)
+    if (currentTimeDec >= 1.5 && currentTimeDec < 5.0) {
+      if (!todayLog?.qiyamNightDone) {
+        return {
+          title: 'التهجد في جوف الليل والثلث الأخير (مراتب الآيات)',
+          detail: '«من قام بعشر آيات لم يُكتب من الغافلين، ومن قام بمائة آية كُتب من القانتين» (+30 نقطة)',
+          cta: 'محراب قيام الليل والدعاء المستجاب 🌌',
+          action: () => {
+            if (onOpenNawafilModal) {
+              onOpenNawafilModal();
+            } else {
+              onOpenSleepRest();
+            }
+          },
+        };
+      }
+      return {
+        title: 'الاستغفار بالأسحار ودعاء الفجر القريب',
+        detail: '«وَبِالأَسْحَارِ هُمْ يَسْتَغْفِرُونَ».. دقائق معدودة تفصلنا عن أذان الفجر وبركته',
+        cta: 'تسجيل الاستغفار والسكينة 🤲',
+        action: () => {
+          if (onOpenNawafilModal) {
+            onOpenNawafilModal();
+          } else {
+            onOpenSleepRest();
+          }
+        },
+      };
+    }
+
+    // 2. Night Wind-down & Mulk (20:30 - 01:30)
+    if (currentTimeDec >= 20.5 || currentTimeDec < 1.5) {
       if (!todayLog?.surahMulkDone) {
         return {
           title: 'قراءة سورة الملك (المنجية) وتسبيح فاطمة 33/33/34',

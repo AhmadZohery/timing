@@ -21,6 +21,7 @@ import {
   Activity,
   ShieldCheck,
   Feather,
+  Calendar,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, UserProfile } from '../../types';
 import { TARGET_LANGUAGES } from '../../data/languages/vocabularyDatabase';
@@ -47,6 +48,8 @@ import { ErrorBoundary } from '../common/ErrorBoundary';
 import { MorningEveningAdhkarModal } from '../spiritual/MorningEveningAdhkarModal';
 import { SurahMulkModal } from '../spiritual/SurahMulkModal';
 import { FastingReminderModal } from '../spiritual/FastingReminderModal';
+import { NawafilGuideModal, type NafilaTab } from '../spiritual/NawafilGuideModal';
+import { getHijriDateDetails } from '../../utils/prayerCalculator';
 import { awardSpiritualHabitPoints } from '../../utils/gamification';
 
 interface HomeDashboardViewProps {
@@ -140,16 +143,19 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
   const resumePoint = faithAudioState.resumePoint || gymFaithAudio.getSavedResumePoint();
 
-  // Spiritual Modals & Smart Time-Based Nudges (Adhkar, Mulk, Fasting)
+  // Spiritual Modals & Smart Time-Based Nudges (Adhkar, Mulk, Fasting, Nawafil)
   const [isAdhkarModalOpen, setIsAdhkarModalOpen] = useState(false);
   const [adhkarMode, setAdhkarMode] = useState<'morning' | 'evening'>('morning');
   const [isHomeSurahMulkOpen, setIsHomeSurahMulkOpen] = useState(false);
   const [isFastingModalOpen, setIsFastingModalOpen] = useState(false);
+  const [isNawafilModalOpen, setIsNawafilModalOpen] = useState(false);
+  const [nawafilModalTab, setNawafilModalTab] = useState<NafilaTab>('qiyam');
 
   const currentDayOfWeek = now.getDay();
   const isMorningTime = currentHour >= 3 && currentHour < 15;
   const isTomorrowMonOrThu = currentDayOfWeek === 0 || currentDayOfWeek === 3;
   const isTodayMonOrThu = currentDayOfWeek === 1 || currentDayOfWeek === 4;
+  const hijriInfo = useMemo(() => getHijriDateDetails(now), [now.getDate()]);
 
   // Habit Learning & Sports Flexibility Engine
   const [learnedPattern, setLearnedPattern] = useState<LearnedSportPattern | null>(null);
@@ -826,7 +832,231 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       />
 
       {/* ============================================================ */}
+      {/* 3.3. SPIRITUAL DEVOTIONS & SUNNAH BENTO                      */}
+      {/* روضة الأذكار اليومية وسورة الملك وسنن الصيام وموسوعة النوافل */}
+      {/* ============================================================ */}
+      <div className="rounded-3xl bg-gradient-to-br from-emerald-950/20 via-slate-900/[0.03] to-indigo-950/20 dark:from-emerald-950/40 dark:via-zinc-900/70 dark:to-indigo-950/30 border border-emerald-500/20 dark:border-emerald-500/30 p-4 sm:p-5 shadow-xs space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg shadow-inner shrink-0">
+              🕊️
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 font-serif">
+                  {isAr ? 'روضة الأذكار والسنن النبوية' : 'Spiritual Devotions & Sunnah Sanctuary'}
+                </h3>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-mono">
+                  {hijriInfo.formattedAr}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                {isAr
+                  ? 'أذكار الصباح والمساء، سورة الملك المنجية، صيام التطوع، ومحراب قيام الليل'
+                  : 'Daily Adhkar, Surah Mulk, Sunnah Fasting, and Night Tahajjud'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/20">
+              {isAr ? '✨ بركة يومك' : '✨ Daily Blessings'}
+            </span>
+          </div>
+        </div>
+
+        {/* 4 Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Card 1: Adhkar (Morning / Evening) */}
+          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-amber-400/60 dark:hover:border-amber-500/40 transition-all">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                  {isMorningTime ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </div>
+                <span
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                    (isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
+                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
+                      : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                  }`}
+                >
+                  {(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
+                    ? (isAr ? 'مكتملة ✓' : 'Completed ✓')
+                    : isMorningTime
+                    ? (isAr ? 'الصباح ☀️' : 'Morning')
+                    : (isAr ? 'المساء 🌙' : 'Evening')}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  {isMorningTime
+                    ? (isAr ? 'أذكار الصباح وحصن المسلم' : 'Morning Adhkar')
+                    : (isAr ? 'أذكار المساء وحصن المسلم' : 'Evening Adhkar')}
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                  {isMorningTime
+                    ? (isAr ? 'آية الكرسي، المعوذات، سيد الاستغفار وبك أصبحنا' : 'Ayat al-Kursi, Muawwidhat, Sayyid al-Istighfar')
+                    : (isAr ? 'أمسينا وأمسى الملك لله، والتعوذ بكلمات الله التامات' : 'Evening fortress & prophetic supplications')}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setAdhkarMode(isMorningTime ? 'morning' : 'evening');
+                setIsAdhkarModalOpen(true);
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <span>{(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone) ? (isAr ? 'مراجعة الأذكار 📿' : 'Review') : (isAr ? 'قراءة الأذكار والتحصين ☀️' : 'Read Adhkar')}</span>
+            </button>
+          </div>
+
+          {/* Card 2: Surah Al-Mulk */}
+          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-indigo-400/60 dark:hover:border-indigo-500/40 transition-all">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <span
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                    todayLog?.surahMulkDone
+                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
+                      : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                  }`}
+                >
+                  {todayLog?.surahMulkDone ? (isAr ? 'تمت التلاوة ✓' : 'Recited ✓') : (isAr ? '30 آية 🌙' : '30 Verses')}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  {isAr ? 'سورة الملك (المنجية)' : 'Surah Al-Mulk'}
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                  {isAr
+                    ? '«سورة تبارك هي المانعة من عذاب القبر» تشفع لصاحبها كل ليلة'
+                    : 'Protector from the torment of the grave. Recited before sleep.'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsHomeSurahMulkOpen(true);
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-800 dark:text-indigo-300 font-bold text-xs border border-indigo-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <span>{todayLog?.surahMulkDone ? (isAr ? 'إعادة التلاوة 📖' : 'Re-read') : (isAr ? 'تلاوة سورة الملك 🌙' : 'Recite Mulk')}</span>
+            </button>
+          </div>
+
+          {/* Card 3: Sunnah Fasting & White Days */}
+          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-emerald-400/60 dark:hover:border-emerald-500/40 transition-all">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <span
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                    todayLog?.fastingDone
+                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
+                      : hijriInfo.isWhiteDay
+                      ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300 font-bold animate-pulse'
+                      : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                  }`}
+                >
+                  {todayLog?.fastingDone
+                    ? (isAr ? 'صائم اليوم 🤍' : 'Fasting Today 🤍')
+                    : hijriInfo.isWhiteDay
+                    ? (isAr ? 'أيام بيض 🌟' : 'White Days')
+                    : isTodayMonOrThu
+                    ? (isAr ? 'عرض الأعمال' : 'Mon/Thu')
+                    : (isAr ? 'باب الريان' : 'Sunnah')}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  {isAr ? 'سُنن الصيام والتطوع' : 'Sunnah Fasting'}
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                  {hijriInfo.isWhiteDay
+                    ? (isAr ? `اليوم ${hijriInfo.day} ${hijriInfo.monthNameAr} (صيام الدهر كله)` : 'Today is one of the White Days')
+                    : isTodayMonOrThu
+                    ? (isAr ? 'اليوم يوم عرض الأعمال على الله' : 'Deeds are presented on Mon & Thu')
+                    : hijriInfo.isTomorrowWhiteDay
+                    ? (isAr ? 'غداً تبدأ الأيام البيض المستحبة' : 'White Days start tomorrow')
+                    : (isAr ? 'صيام الإثنين والخميس والأيام البيض' : 'Mondays, Thursdays & White Days')}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsFastingModalOpen(true);
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 font-bold text-xs border border-emerald-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <span>{todayLog?.fastingDone ? (isAr ? 'مسجّل صائم ✔' : 'Logged ✔') : (isAr ? 'تسجيل الصيام أو النية 🤍' : 'Log Fasting / Intention')}</span>
+            </button>
+          </div>
+
+          {/* Card 4: Qiyam al-Layl & Tahajjud */}
+          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-purple-400/60 dark:hover:border-purple-500/40 transition-all">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <span
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                    todayLog?.qiyamNightDone
+                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
+                      : 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                  }`}
+                >
+                  {todayLog?.qiyamNightDone ? (isAr ? 'سُجِّل القيام 🌟' : 'Logged 🌟') : (isAr ? 'مراتب الآيات 🌌' : 'Night Prayer')}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                  {isAr ? 'قيام الليل والنوافل' : 'Qiyam & Tahajjud Ranks'}
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                  {isAr
+                    ? '10 آيات (الغافلين)، 100 آية (القانتين)، 1000 آية (المقنطرين)'
+                    : '10 verses (heedless), 100 (obedient), 1000 (abundant reward)'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setNawafilModalTab('qiyam');
+                setIsNawafilModalOpen(true);
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-800 dark:text-purple-300 font-bold text-xs border border-purple-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <span>{todayLog?.qiyamNightDone ? (isAr ? 'عرض مراتب القيام 🌌' : 'View Ranks') : (isAr ? 'دليل القيام والسنن 🌌' : 'Open Qiyam Guide')}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
       {/* 4. ROODAT AL-TADABBUR & HADITH ENGINE                        */}
+      {/* ============================================================ */}
       {/* ============================================================ */}
       <DailyTadabburCard
         onOpenModal={(item, tab) => onOpenTadabburModal?.(item, tab)}
@@ -1187,6 +1417,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             userState={userState}
             onSelectStation={onSelectStation}
             onOpenSleepRest={onOpenSleepRest}
+            onOpenNawafilModal={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setNawafilModalTab('qiyam');
+              setIsNawafilModalOpen(true);
+            }}
           />
 
           <SmartAmbientNudgeCard
@@ -1366,6 +1602,15 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         isOpen={isFastingModalOpen}
         onClose={() => setIsFastingModalOpen(false)}
         isFastingToday={todayLog?.fastingDone}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Nawafil Guide Full Modal Gateway */}
+      <NawafilGuideModal
+        isOpen={isNawafilModalOpen}
+        onClose={() => setIsNawafilModalOpen(false)}
+        initialTab={nawafilModalTab}
+        todayLog={todayLog}
         onRewardToast={onRewardToast}
       />
     </div>

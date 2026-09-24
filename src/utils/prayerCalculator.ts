@@ -500,3 +500,102 @@ export const MUADHIN_OPTIONS: MuadhinOption[] = [
   },
 ];
 
+export interface HijriDateInfo {
+  day: number;
+  month: number;
+  year: number;
+  monthNameAr: string;
+  monthNameEn: string;
+  formattedAr: string;
+  isWhiteDay: boolean; // 13, 14, or 15
+  isTomorrowWhiteDay: boolean;
+}
+
+export function getHijriDateDetails(date: Date = new Date()): HijriDateInfo {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+    });
+    const parts = formatter.formatToParts(date);
+    let day = 1;
+    let month = 1;
+    let year = 1448;
+
+    for (const part of parts) {
+      if (part.type === 'day') day = parseInt(part.value, 10) || 1;
+      if (part.type === 'month') month = parseInt(part.value, 10) || 1;
+      if (part.type === 'year') year = parseInt(part.value, 10) || 1448;
+    }
+
+    const HIJRI_MONTHS_AR = [
+      'محرّم',
+      'صفر',
+      'ربيع الأول',
+      'ربيع الآخر',
+      'جمادى الأولى',
+      'جمادى الآخرة',
+      'رجب',
+      'شعبان',
+      'رمضان',
+      'شوّال',
+      'ذو القعدة',
+      'ذو الحجة',
+    ];
+
+    const HIJRI_MONTHS_EN = [
+      'Muharram',
+      'Safar',
+      'Rabi al-Awwal',
+      'Rabi al-Thani',
+      'Jumada al-Awwal',
+      'Jumada al-Thani',
+      'Rajab',
+      'Shaban',
+      'Ramadan',
+      'Shawwal',
+      'Dhu al-Qadah',
+      'Dhu al-Hijjah',
+    ];
+
+    const monthNameAr = HIJRI_MONTHS_AR[month - 1] || 'شهر هجري';
+    const monthNameEn = HIJRI_MONTHS_EN[month - 1] || 'Hijri Month';
+
+    // Tomorrow Hijri day
+    const tomorrow = new Date(date);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowParts = formatter.formatToParts(tomorrow);
+    let tomorrowDay = day + 1;
+    for (const part of tomorrowParts) {
+      if (part.type === 'day') tomorrowDay = parseInt(part.value, 10) || day + 1;
+    }
+
+    const isWhiteDay = day === 13 || day === 14 || day === 15;
+    const isTomorrowWhiteDay = tomorrowDay === 13;
+
+    return {
+      day,
+      month,
+      year,
+      monthNameAr,
+      monthNameEn,
+      formattedAr: `${day} ${monthNameAr} ${year} هـ`,
+      isWhiteDay,
+      isTomorrowWhiteDay,
+    };
+  } catch {
+    return {
+      day: 13,
+      month: 4,
+      year: 1448,
+      monthNameAr: 'ربيع الآخر',
+      monthNameEn: 'Rabi al-Thani',
+      formattedAr: '13 ربيع الآخر 1448 هـ',
+      isWhiteDay: true,
+      isTomorrowWhiteDay: false,
+    };
+  }
+}
+
+
