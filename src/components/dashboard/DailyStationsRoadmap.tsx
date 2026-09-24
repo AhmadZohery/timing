@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
+  Pause,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 import type { StationId, LifestylePersonaId, StationCustomOverride } from '../../types';
 import { resolveStationMetadata, type LifestylePersonaConfig } from '../../utils/lifestyleEngine';
@@ -157,6 +160,50 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
   const isSelectedSuggested = currentSuggestedStation?.id === activeStationId;
 
   const currentTheme = MILESTONE_THEMES[activeStationId] || MILESTONE_THEMES.COMMUTE_MORNING;
+
+  // Quick Gym Rest Timer State for Athletic Anchors
+  const [restSeconds, setRestSeconds] = useState<number>(0);
+  const [isRestRunning, setIsRestRunning] = useState<boolean>(false);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    if (isRestRunning && restSeconds > 0) {
+      interval = setInterval(() => {
+        setRestSeconds((prev) => {
+          if (prev <= 1) {
+            setIsRestRunning(false);
+            soundSynth.playStreakMilestoneChime();
+            haptic.vibrateSprintCelebration();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRestRunning, restSeconds]);
+
+  const handleStartRestTimer = (seconds: number) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setRestSeconds(seconds);
+    setIsRestRunning(true);
+  };
+
+  const handleToggleRestRunning = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsRestRunning(!isRestRunning);
+  };
+
+  const handleResetRestTimer = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setRestSeconds(0);
+    setIsRestRunning(false);
+  };
 
   const handleSelectNode = (stId: StationId) => {
     soundSynth.playTactileClick();
@@ -370,6 +417,73 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
           </span>
           {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
         </button>
+      </div>
+
+      {/* 3.1 Dedicated Gym Rest Timer between sets */}
+      {activeStationId === 'GYM_ANCHOR' && (
+        <div className="relative z-10 p-2.5 rounded-2xl bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/30 flex items-center justify-between gap-2 flex-wrap text-xs animate-fade-in shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="text-base">⏱️</span>
+            <div>
+              <span className="font-bold text-rose-950 dark:text-rose-200 block text-[11px]">
+                {isAr ? 'مؤقت الراحة بين الجولات:' : 'Rest Between Sets:'}
+              </span>
+              {restSeconds > 0 ? (
+                <span className="font-mono font-black text-rose-700 dark:text-rose-300 text-xs">
+                  {Math.floor(restSeconds / 60)}:{(restSeconds % 60).toString().padStart(2, '0')} {isRestRunning ? '⏳' : '⏸️'}
+                </span>
+              ) : (
+                <span className="text-[10px] text-slate-500 dark:text-zinc-400">
+                  {isAr ? 'اختر مدة الراحة للبدء' : 'Select interval'}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            {[60, 90, 120].map((sec) => (
+              <button
+                key={sec}
+                type="button"
+                onClick={() => handleStartRestTimer(sec)}
+                className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-black cursor-pointer transition-colors ${
+                  restSeconds === sec && isRestRunning
+                    ? 'bg-rose-600 text-white shadow-xs ring-2 ring-rose-400/40'
+                    : 'bg-white dark:bg-zinc-800 text-rose-800 dark:text-rose-300 border border-rose-300/40 dark:border-rose-700/40 hover:bg-rose-100 dark:hover:bg-rose-900/40'
+                }`}
+              >
+                {sec}s
+              </button>
+            ))}
+
+            {restSeconds > 0 && (
+              <div className="flex items-center gap-1 ms-1">
+                <button
+                  type="button"
+                  onClick={handleToggleRestRunning}
+                  className="p-1 rounded-lg bg-rose-200/70 dark:bg-zinc-800 text-rose-900 dark:text-rose-200 hover:bg-rose-300 cursor-pointer"
+                  title={isRestRunning ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'استئناف' : 'Resume')}
+                >
+                  {isRestRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetRestTimer}
+                  className="p-1 rounded-lg bg-rose-200/70 dark:bg-zinc-800 text-rose-900 dark:text-rose-200 hover:bg-rose-300 cursor-pointer"
+                  title={isAr ? 'إلغاء' : 'Reset'}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 4. Non-Punitive Compassionate Banner (Dr. Zakaria Bassou CBT Principle) */}
+      <div className="relative z-10 flex items-center justify-between text-[10px] text-slate-400 dark:text-zinc-500 pt-1 px-1 border-t border-slate-100 dark:border-white/[0.04]">
+        <span>✨ {isAr ? '«سددوا وقاربوا وأبشروا»' : 'Steady, moderate, and joyful steps'}</span>
+        <span>{isAr ? 'ما لا يُدرك كُلّه لا يُترك جُلّه' : 'Every sincere moment counts'}</span>
       </div>
     </div>
   );

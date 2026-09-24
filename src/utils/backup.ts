@@ -153,3 +153,91 @@ export async function migrateLocalStorageToDexie(): Promise<void> {
     console.warn('Migration of localStorage to Dexie skipped:', e);
   }
 }
+
+export interface EncryptedBackupContainer {
+  encrypted: true;
+  version: number;
+  salt: number[];
+  iv: number[];
+  cipher: number[];
+}
+
+/**
+ * Military-grade AES-GCM-256 encryption with PBKDF2 (100k iterations)
+ * 100% Client-side sovereign privacy
+ */
+export async function encryptBackupPayload(plainText: string, pass: string): Promise<string> {
+  const enc = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(pass),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  );
+  const key = await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt']
+  );
+  const cipherBuffer = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    enc.encode(plainText)
+  );
+  const container: EncryptedBackupContainer = {
+    encrypted: true,
+    version: 1,
+    salt: Array.from(salt),
+    iv: Array.from(iv),
+    cipher: Array.from(new Uint8Array(cipherBuffer)),
+  };
+  return JSON.stringify(container, null, 2);
+}
+
+/**
+ * Decrypts an AES-GCM-256 container using user passphrase
+ */
+export async function decryptBackupPayload(payloadJson: string, pass: string): Promise<string> {
+  const data = JSON.parse(payloadJson);
+  if (!data.encrypted) return payloadJson;
+  const dec = new TextDecoder();
+  const enc = new TextEncoder();
+  const salt = new Uint8Array(data.salt);
+  const iv = new Uint8Array(data.iv);
+  const cipher = new Uint8Array(data.cipher);
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(pass),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  );
+  const key = await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['decrypt']
+  );
+  const plainBuffer = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    cipher
+  );
+  return dec.decode(plainBuffer);
+}

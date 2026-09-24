@@ -24,7 +24,13 @@ import {
 import QRCode from 'qrcode';
 import type { UserState, AppSettings, WeekendPreset, DayWorkRhythm } from '../../types';
 import { db } from '../../db/db';
-import { exportDatabaseToJson, downloadBackupFile, importDatabaseFromJson } from '../../utils/backup';
+import {
+  exportDatabaseToJson,
+  downloadBackupFile,
+  importDatabaseFromJson,
+  encryptBackupPayload,
+  decryptBackupPayload,
+} from '../../utils/backup';
 import { authService } from '../../services/authService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
@@ -66,6 +72,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   const [newPin, setNewPin] = useState('');
   const [autoLockMin, setAutoLockMin] = useState<number>(() => authService.getAutoLockMinutes());
   const [securityStatus, setSecurityStatus] = useState<string | null>(null);
+  const [backupPassword, setBackupPassword] = useState('');
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,7 +215,14 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   const handleExportBackup = async () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
-    const jsonStr = await exportDatabaseToJson();
+    let jsonStr = await exportDatabaseToJson();
+    if (backupPassword.trim()) {
+      try {
+        jsonStr = await encryptBackupPayload(jsonStr, backupPassword.trim());
+      } catch (err) {
+        console.error('Failed to encrypt backup:', err);
+      }
+    }
     downloadBackupFile(jsonStr);
   };
 
@@ -264,7 +278,31 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
     if (!file) return;
 
     try {
-      const text = await file.text();
+      let text = await file.text();
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.encrypted) {
+          if (!backupPassword.trim()) {
+            setImportStatus(
+              language === 'ar'
+                ? '⚠️ هذا الملف مشفر بكلمة مرور! اكتب كلمة المرور في خانة التشفير أولاً ثم اختر الملف مجدداً.'
+                : '⚠️ File is encrypted! Enter password in the encryption field first.'
+            );
+            return;
+          }
+          text = await decryptBackupPayload(text, backupPassword.trim());
+        }
+      } catch (err: any) {
+        if (err?.name === 'OperationError') {
+          setImportStatus(
+            language === 'ar'
+              ? '❌ كلمة المرور غير صحيحة لفك تشفير هذا الملف.'
+              : '❌ Incorrect decryption password.'
+          );
+          return;
+        }
+      }
+
       const success = await importDatabaseFromJson(text);
       if (success) {
         soundSynth.playCompletionChime();
@@ -275,7 +313,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
         setImportStatus(language === 'ar' ? 'فشل في قراءة ملف النسخ الاحتياطي.' : 'Failed to read backup file.');
       }
     } catch (_err) {
-      setImportStatus(language === 'ar' ? 'حدث خطأ أثناء تحميل الملف.' : 'Error loading backup file.');
+      setImportStatus(language === 'ar' ? 'حدث خطأ أثناء تحميل الملف أو كلمة المرور غير مطابقة.' : 'Error loading backup file or wrong password.');
     }
   };
 
@@ -980,8 +1018,30 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
             className="hidden"
           />
 
+          {/* Optional Military-Grade AES-GCM-256 Encryption */}
+          <div className="pt-2 border-t border-slate-200/80 dark:border-zinc-800 space-y-1.5">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-amber-500" />
+                <span>{language === 'ar' ? 'تشفير اختياري بكلمة مرور (AES-256):' : 'Optional Password Encryption (AES-256):'}</span>
+              </span>
+            </div>
+            <input
+              type="password"
+              value={backupPassword}
+              onChange={(e) => setBackupPassword(e.target.value)}
+              placeholder={language === 'ar' ? 'اتركه فارغاً للتصدير العادي، أو اكتب كلمة مرور للتشفير...' : 'Leave blank for plain JSON, or type password to encrypt...'}
+              className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-[11px] text-slate-900 dark:text-white"
+            />
+            {backupPassword && (
+              <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold animate-fade-in">
+                🔒 {language === 'ar' ? 'سيتم تشفير النسخة محلياً بخوارزمية AES-GCM-256 قبل التحميل.' : 'Backup will be encrypted with AES-GCM-256 locally.'}
+              </p>
+            )}
+          </div>
+
           {importStatus && (
-            <p className="text-xs text-amber-700 dark:text-amber-300 text-center font-medium">{importStatus}</p>
+            <p className="text-xs text-amber-700 dark:text-amber-300 text-center font-medium animate-fade-in">{importStatus}</p>
           )}
         </div>
 

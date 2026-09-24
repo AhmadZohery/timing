@@ -247,6 +247,25 @@ class GymFaithAudioService {
       navigator.mediaSession.setActionHandler('seekforward', (details) => {
         this.seekBy(details.seekOffset || 15);
       });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        if (this.hasNextEpisode()) {
+          this.playNextEpisode();
+        } else {
+          this.seekBy(15);
+        }
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        if (this.hasPrevEpisode()) {
+          this.playPrevEpisode();
+        } else {
+          this.seekBy(-15);
+        }
+      });
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.seekTime !== undefined) {
+          this.seekTo(details.seekTime);
+        }
+      });
     } catch (_) {}
   }
 

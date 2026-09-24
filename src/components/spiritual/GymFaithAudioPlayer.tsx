@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Play,
   Pause,
@@ -22,6 +22,7 @@ import {
   SkipForward,
   Download,
   Smartphone,
+  WifiOff,
 } from 'lucide-react';
 import { offlineAudioService } from '../../services/offlineAudioService';
 import {
@@ -187,7 +188,14 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
     return list;
   }, [selectedCategory, searchQuery, favorites]);
 
+  const isTogglingRef = useRef(false);
   const handleTogglePlay = (targetChannelId?: string) => {
+    if (isTogglingRef.current) return;
+    isTogglingRef.current = true;
+    setTimeout(() => {
+      isTogglingRef.current = false;
+    }, 250);
+
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     gymFaithAudio.togglePlay(targetChannelId);
@@ -321,9 +329,19 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
 
       {/* 1. Track Identity & Library CTA */}
       <div className="flex items-center justify-between gap-3 relative z-10">
-        {/* Right (RTL Start): Artwork + Titles */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-amber-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 border border-emerald-500/20 shadow-2xs relative overflow-hidden ${audioState.isPlaying ? 'ring-2 ring-emerald-500/40' : ''}`}>
+        {/* Right (RTL Start): Artwork + Titles with Thumb-Friendly Click Area */}
+        <div
+          onClick={() => {
+            if (onOpenFullModal) {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenFullModal();
+            }
+          }}
+          className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group select-none"
+          title={isAr ? 'انقر لفتح المحراب الصوتي الشامل (40+ درساً)' : 'Click to open Sanctuary (40+ lessons)'}
+        >
+          <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-amber-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 border border-emerald-500/20 shadow-2xs relative overflow-hidden group-hover:scale-105 transition-transform ${audioState.isPlaying ? 'ring-2 ring-emerald-500/40' : ''}`}>
             {audioState.mode === 'series' ? '🎙️' : currentChannel.icon || '🎙️'}
             {audioState.isPlaying && (
               <div className="absolute inset-x-0 bottom-1 flex items-end justify-center gap-0.5 h-3 px-1 pointer-events-none">
@@ -350,7 +368,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
                 </span>
               )}
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
               {audioState.currentTitleAr}
             </h3>
           </div>
@@ -452,25 +470,29 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
             <RotateCcw className="w-4 h-4" />
           </button>
 
-          {/* Master Play/Pause: Perfectly round 48px button */}
-          <button
-            type="button"
-            onClick={() => handleTogglePlay()}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition-all cursor-pointer ${
-              audioState.isPlaying
-                ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30'
-                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
-            }`}
-            title={audioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
-          >
-            {audioState.isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : audioState.isPlaying ? (
-              <Pause className="w-5 h-5 fill-white" />
-            ) : (
-              <Play className="w-5 h-5 fill-white ps-0.5" />
-            )}
-          </button>
+          {/* Master Play/Pause: Perfectly round 48px button with safe margin */}
+          <div className="mx-1 sm:mx-1.5">
+            <button
+              type="button"
+              onClick={() => handleTogglePlay()}
+              className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition-all cursor-pointer ${
+                audioState.isLoading
+                  ? 'bg-slate-500 hover:bg-slate-600 shadow-slate-500/20'
+                  : audioState.isPlaying
+                  ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30'
+                  : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
+              }`}
+              title={audioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
+            >
+              {audioState.isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : audioState.isPlaying ? (
+                <Pause className="w-5 h-5 fill-white" />
+              ) : (
+                <Play className="w-5 h-5 fill-white ps-0.5" />
+              )}
+            </button>
+          </div>
 
           {/* Forward 15s */}
           <button
@@ -579,16 +601,27 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
         </div>
       )}
 
+      {/* Network Offline / Weak Signal Alert */}
+      {audioState.isLoading && typeof navigator !== 'undefined' && !navigator.onLine && (
+        <div className="p-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 text-[11px] text-amber-800 dark:text-amber-200 font-medium flex items-center gap-2 relative z-10 animate-fade-in">
+          <WifiOff className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>{isAr ? '⚠️ ضعف أو انقطاع في الشبكة.. محاولة استئناف البث تلقائياً' : 'Weak/Offline network.. Reconnecting'}</span>
+        </div>
+      )}
+
       {/* Error Notification */}
       {audioState.hasError && (
-        <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-[11px] text-rose-700 dark:text-rose-300 font-medium flex items-center justify-between relative z-10">
-          <span>⚠️ {audioState.errorMessage}</span>
+        <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-[11px] text-rose-700 dark:text-rose-300 font-medium flex items-center justify-between gap-2 relative z-10 animate-fade-in">
+          <div className="flex items-center gap-2 min-w-0">
+            <span>⚠️</span>
+            <span className="truncate">{audioState.errorMessage}</span>
+          </div>
           <button
             type="button"
             onClick={() => handleTogglePlay()}
-            className="underline font-bold cursor-pointer"
+            className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] shrink-0 transition-colors cursor-pointer"
           >
-            {isAr ? 'إعادة المحاولة' : 'Retry'}
+            {isAr ? 'إعادة المحاولة ↻' : 'Retry ↻'}
           </button>
         </div>
       )}

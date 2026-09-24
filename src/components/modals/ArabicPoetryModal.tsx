@@ -244,10 +244,14 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                   </div>
 
                   {/* Poetic Verse with Tashkeel & Dignified Typography */}
-                  <div className="text-center py-4 px-3 bg-gradient-to-b from-amber-50/40 to-transparent dark:from-white/[0.02] rounded-2xl border border-amber-100/60 dark:border-white/[0.04] mb-3">
-                    <p className="text-base sm:text-xl font-bold font-serif text-slate-900 dark:text-amber-100 poetic-calligraphy whitespace-pre-line select-text">
-                      {item.verse}
-                    </p>
+                  <div className="text-center py-4 px-3 bg-gradient-to-b from-amber-50/40 to-transparent dark:from-white/[0.02] rounded-2xl border border-amber-100/60 dark:border-white/[0.04] mb-3 overflow-hidden">
+                    <div className="text-sm xs:text-base sm:text-xl font-bold font-serif text-slate-900 dark:text-amber-100 poetic-calligraphy select-text leading-loose space-y-1">
+                      {item.verse.split('\n').map((line, lIdx) => (
+                        <p key={lIdx} className="whitespace-nowrap overflow-x-auto scrollbar-none px-1 tracking-wide">
+                          {line}
+                        </p>
+                      ))}
+                    </div>
                     {item.meterMnemonic && (
                       <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[11px] font-mono font-bold text-amber-800 dark:text-amber-300">
                         <span className="opacity-75">{isAr ? 'عروض البحر:' : 'Meter Rhythm:'}</span>
