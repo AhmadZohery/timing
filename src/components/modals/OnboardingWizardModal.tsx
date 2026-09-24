@@ -87,6 +87,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
     'fajr_and_sunan' | 'quran_wird' | 'qiyam_and_witr' | 'all_around'
   >('fajr_and_sunan');
   const [focusPreference, setFocusPreference] = useState<'short_bursts' | 'deep_flow'>('short_bursts');
+  const [freeTextBio, setFreeTextBio] = useState('');
 
   // Step 3: AI Personalization & API Key
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -176,6 +177,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         primaryStruggle,
         spiritualPriority,
         focusPreference,
+        freeTextBio: freeTextBio.trim() || undefined,
       };
 
       const bp = await aiCoach.generateOnboardingBlueprint(answers);
@@ -612,6 +614,28 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                     <option value="deep_flow">جلسات عمل عميق متصلة (٣٠ - ٤٥ دقيقة)</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Free-form Bio / Behavioral Reflection for AI Analysis */}
+              <div className="space-y-1.5 pt-2.5 border-t border-slate-200/60 dark:border-slate-800/60">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <span>٥. صف روتينك أو التحدي الأكبر لديك بحرية (اختياري للذكاء الاصطناعي):</span>
+                  </label>
+                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800/40">
+                    تحليل إدراكي عميق
+                  </span>
+                </div>
+                <textarea
+                  value={freeTextBio}
+                  onChange={(e) => setFreeTextBio(e.target.value)}
+                  rows={2}
+                  placeholder="مثال: أنا مهندس برمجيات أعمل عن بُعد، أسهر كثيراً بعد منتصف الليل وأجد صعوبة في الاستيقاظ لصلاة الفجر، وأسوّف المهام التقنية المعقدة حتى يتراكم الضغط..."
+                  className="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition-all leading-relaxed"
+                />
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  سيستخدم الذكاء الاصطناعي هذا الوصف لكشف الأسباب النفسية للتسويف وبناء جدول مواقيت وتركيز مخصص تماماً لواقعك.
+                </p>
               </div>
             </div>
           )}

@@ -30,6 +30,7 @@ import { haptic } from '../../services/vibrationService';
 import { PrayerTimesBar } from '../spiritual/PrayerTimesBar';
 import { DailyCircadianTimeline } from '../spiritual/DailyCircadianTimeline';
 import { SmartAmbientNudgeCard } from './SmartAmbientNudgeCard';
+import { AiBehavioralCopilotCard } from './AiBehavioralCopilotCard';
 import { DailyTadabburCard } from '../spiritual/DailyTadabburCard';
 import { resolveStationMetadata, LIFESTYLE_PERSONAS } from '../../utils/lifestyleEngine';
 import type { DailyTadabburItem } from '../../data/dailyTadabburData';
@@ -811,6 +812,20 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       />
 
       {/* ============================================================ */}
+      {/* 3.2. AI COGNITIVE COPILOT & BEHAVIORAL INTELLIGENCE CARD     */}
+      {/* ============================================================ */}
+      <AiBehavioralCopilotCard
+        todayLog={todayLog}
+        userState={userState}
+        allDailyLogs={allDailyLogs}
+        activeProfile={activeProfile}
+        onRewardToast={onRewardToast}
+        onStartSuggestedSprint={(_dur: number) => {
+          onSelectStation('WORK_MICRO_SPRINT');
+        }}
+      />
+
+      {/* ============================================================ */}
       {/* 4. ROODAT AL-TADABBUR & HADITH ENGINE                        */}
       {/* ============================================================ */}
       <DailyTadabburCard
@@ -1180,7 +1195,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             dailyLogs={allDailyLogs}
             onSelectStation={onSelectStation}
             onOpenSleepRest={onOpenSleepRest}
-            onStartSuggestedSprint={(_dur) => {
+            onStartSuggestedSprint={(_dur: number) => {
               onSelectStation('WORK_MICRO_SPRINT');
             }}
             onRewardToast={onRewardToast}

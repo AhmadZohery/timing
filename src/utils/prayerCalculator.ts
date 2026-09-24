@@ -399,3 +399,104 @@ export function calculateQiblaDirection(latitude: number, longitude: number): nu
   }
   return Number(qiblaDeg.toFixed(2));
 }
+
+export interface NightIntervals {
+  midnight: Date;
+  lastThirdStart: Date;
+  isCurrentlyLastThird: boolean;
+  isCurrentlyNight: boolean;
+  formattedLastThird: string;
+  formattedMidnight: string;
+  minutesToLastThird: number;
+  minutesToFajr: number;
+}
+
+/**
+ * Calculates authentic astronomical night intervals (Islamic midnight and the Last Third of the Night)
+ * based on Maghrib and Fajr timings.
+ */
+export function calculateNightIntervals(
+  maghribDate: Date,
+  fajrDate: Date,
+  currentTime: Date = new Date(),
+  isAr: boolean = true
+): NightIntervals {
+  const now = currentTime.getTime();
+  let maghribTime = maghribDate.getTime();
+  let fajrTime = fajrDate.getTime();
+
+  // If fajr was earlier today than maghrib, the night spans to tomorrow's fajr
+  if (fajrTime <= maghribTime) {
+    fajrTime += 24 * 60 * 60 * 1000;
+  }
+
+  // Adjust interval anchor depending on whether we are currently between maghrib and fajr
+  if (now > fajrTime) {
+    maghribTime += 24 * 60 * 60 * 1000;
+    fajrTime += 24 * 60 * 60 * 1000;
+  }
+
+  const nightDurationMs = fajrTime - maghribTime;
+  const midnightMs = maghribTime + nightDurationMs / 2.0;
+  const lastThirdStartMs = fajrTime - nightDurationMs / 3.0;
+
+  const midnightDate = new Date(midnightMs);
+  const lastThirdStartDate = new Date(lastThirdStartMs);
+
+  const isCurrentlyNight = now >= maghribTime && now < fajrTime;
+  const isCurrentlyLastThird = now >= lastThirdStartMs && now < fajrTime;
+  const minutesToLastThird = Math.max(0, Math.round((lastThirdStartMs - now) / 60000));
+  const minutesToFajr = Math.max(0, Math.round((fajrTime - now) / 60000));
+
+  return {
+    midnight: midnightDate,
+    lastThirdStart: lastThirdStartDate,
+    isCurrentlyLastThird,
+    isCurrentlyNight,
+    formattedLastThird: formatPrayerTime(lastThirdStartDate, isAr),
+    formattedMidnight: formatPrayerTime(midnightDate, isAr),
+    minutesToLastThird,
+    minutesToFajr,
+  };
+}
+
+export interface MuadhinOption {
+  id: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary';
+  nameAr: string;
+  audioUrl: string;
+  icon: string;
+}
+
+export const MUADHIN_OPTIONS: MuadhinOption[] = [
+  {
+    id: 'makkah',
+    nameAr: 'أذان الحرم المكي الشريف (الشيخ علي ملا)',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/ali_ibn_ahmed_malla.mp3',
+    icon: '🕋',
+  },
+  {
+    id: 'madinah',
+    nameAr: 'أذان المسجد النبوي الشريف (الشيخ عصام بخاري)',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/essam_boukhari.mp3',
+    icon: '🕌',
+  },
+  {
+    id: 'aqsa',
+    nameAr: 'أذان المسجد الأقصى المبارك',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/al-aqsa.mp3',
+    icon: '✨',
+  },
+  {
+    id: 'abdulbasit',
+    nameAr: 'أذان الشيخ عبد الباسط عبد الصمد (مصر)',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/abdelbasset_abdessamad.mp3',
+    icon: '🎙️',
+  },
+  {
+    id: 'mishary',
+    nameAr: 'أذان الشيخ مشاري بن راشد العفاسي',
+    audioUrl: 'https://media.sd.ma/assabile/adhan/mishary_rashid_alafasy.mp3',
+    icon: '🌟',
+  },
+];
+

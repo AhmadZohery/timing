@@ -427,6 +427,7 @@ export interface UserOnboardingAnswers {
   primaryStruggle: 'fajr_prayer' | 'procrastination' | 'distraction' | 'afternoon_crash' | 'consistency';
   spiritualPriority: 'fajr_and_sunan' | 'quran_wird' | 'qiyam_and_witr' | 'all_around';
   focusPreference: 'short_bursts' | 'deep_flow';
+  freeTextBio?: string;
 }
 
 export interface AiOnboardingBlueprint {
@@ -567,6 +568,7 @@ export interface AppSettings {
   stationCustomOverrides?: Partial<Record<StationId, StationCustomOverride>>;
   themePalette?: ThemePaletteId;
   dailyRoutineAnswers?: DailyRoutineAnswers;
+  sprintDurationMinutes?: number;
 }
 
 export interface UserBehavioralDNA {

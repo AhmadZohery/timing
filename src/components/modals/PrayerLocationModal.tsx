@@ -21,49 +21,19 @@ import {
   detectDefaultCityFromTimezone,
   calculateQiblaDirection,
   type PresetCity,
+  MUADHIN_OPTIONS,
 } from '../../utils/prayerCalculator';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 
-interface PrayerLocationModalProps {
+export { MUADHIN_OPTIONS };
+
+export interface PrayerLocationModalProps {
   isOpen: boolean;
   onClose: () => void;
   userState?: UserState;
   onLocationUpdated?: (cityTitle: string) => void;
 }
-
-export const MUADHIN_OPTIONS = [
-  {
-    id: 'makkah' as const,
-    nameAr: 'أذان الحرم المكي الشريف (الشيخ علي ملا)',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/ali_ibn_ahmed_malla.mp3',
-    icon: '🕋',
-  },
-  {
-    id: 'madinah' as const,
-    nameAr: 'أذان المسجد النبوي الشريف (الشيخ عصام بخاري)',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/essam_boukhari.mp3',
-    icon: '🕌',
-  },
-  {
-    id: 'aqsa' as const,
-    nameAr: 'أذان المسجد الأقصى المبارك',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/al-aqsa.mp3',
-    icon: '✨',
-  },
-  {
-    id: 'abdulbasit' as const,
-    nameAr: 'أذان الشيخ عبد الباسط عبد الصمد (مصر)',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/abdelbasset_abdessamad.mp3',
-    icon: '🎙️',
-  },
-  {
-    id: 'mishary' as const,
-    nameAr: 'أذان الشيخ مشاري بن راشد العفاسي',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/mishary_rashid_alafasy.mp3',
-    icon: '🌟',
-  },
-];
 
 export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
   isOpen,
