@@ -1,10 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CheckCircle2,
   ArrowLeft,
   ArrowRight,
-  Clock,
-  Zap,
 } from 'lucide-react';
 import type { StationId, LifestylePersonaId, StationCustomOverride } from '../../types';
 import { resolveStationMetadata, type LifestylePersonaConfig } from '../../utils/lifestyleEngine';
@@ -32,98 +30,98 @@ interface DailyStationsRoadmapProps {
   className?: string;
 }
 
-// Thematic color tokens for each milestone
-const STATION_THEMES: Record<
+// Compact themes for the 6 daily milestones
+const MILESTONE_THEMES: Record<
   StationId,
   {
     gradient: string;
-    borderActive: string;
+    activeBorder: string;
+    activeRing: string;
+    activeBadge: string;
     textAccent: string;
-    bgAccent: string;
-    glowColor: string;
-    numberBg: string;
+    dotColor: string;
     emoji: string;
   }
 > = {
   COMMUTE_MORNING: {
-    gradient: 'from-amber-500/15 via-orange-500/10 to-amber-500/5',
-    borderActive: 'border-amber-400 dark:border-amber-500 ring-2 ring-amber-400/30',
+    gradient: 'from-amber-500/20 via-orange-500/10 to-transparent',
+    activeBorder: 'border-amber-400 dark:border-amber-500',
+    activeRing: 'ring-amber-400/30',
+    activeBadge: 'bg-amber-500 text-slate-950 font-black',
     textAccent: 'text-amber-700 dark:text-amber-300',
-    bgAccent: 'bg-amber-500/20 text-amber-700 dark:text-amber-300',
-    glowColor: 'shadow-[0_0_20px_rgba(245,158,11,0.25)]',
-    numberBg: 'bg-amber-500 text-slate-950 font-black',
+    dotColor: 'bg-amber-500',
     emoji: '🌅',
   },
   WORK_MICRO_SPRINT: {
-    gradient: 'from-indigo-500/15 via-sky-500/10 to-indigo-500/5',
-    borderActive: 'border-indigo-400 dark:border-indigo-500 ring-2 ring-indigo-400/30',
+    gradient: 'from-indigo-500/20 via-sky-500/10 to-transparent',
+    activeBorder: 'border-indigo-400 dark:border-indigo-500',
+    activeRing: 'ring-indigo-400/30',
+    activeBadge: 'bg-indigo-600 text-white font-black',
     textAccent: 'text-indigo-700 dark:text-indigo-300',
-    bgAccent: 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-300',
-    glowColor: 'shadow-[0_0_20px_rgba(99,102,241,0.25)]',
-    numberBg: 'bg-indigo-600 text-white font-black',
+    dotColor: 'bg-indigo-500',
     emoji: '⚡',
   },
   GYM_ANCHOR: {
-    gradient: 'from-rose-500/15 via-purple-500/10 to-rose-500/5',
-    borderActive: 'border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/30',
+    gradient: 'from-rose-500/20 via-purple-500/10 to-transparent',
+    activeBorder: 'border-rose-400 dark:border-rose-500',
+    activeRing: 'ring-rose-400/30',
+    activeBadge: 'bg-rose-600 text-white font-black',
     textAccent: 'text-rose-700 dark:text-rose-300',
-    bgAccent: 'bg-rose-500/20 text-rose-700 dark:text-rose-300',
-    glowColor: 'shadow-[0_0_20px_rgba(244,63,94,0.25)]',
-    numberBg: 'bg-rose-600 text-white font-black',
+    dotColor: 'bg-rose-500',
     emoji: '🏋️',
   },
   EVENING_SPRINT: {
-    gradient: 'from-violet-500/15 via-fuchsia-500/10 to-violet-500/5',
-    borderActive: 'border-violet-400 dark:border-violet-500 ring-2 ring-violet-400/30',
+    gradient: 'from-violet-500/20 via-fuchsia-500/10 to-transparent',
+    activeBorder: 'border-violet-400 dark:border-violet-500',
+    activeRing: 'ring-violet-400/30',
+    activeBadge: 'bg-violet-600 text-white font-black',
     textAccent: 'text-violet-700 dark:text-violet-300',
-    bgAccent: 'bg-violet-500/20 text-violet-700 dark:text-violet-300',
-    glowColor: 'shadow-[0_0_20px_rgba(139,92,246,0.25)]',
-    numberBg: 'bg-violet-600 text-white font-black',
-    emoji: '🚀',
+    dotColor: 'bg-violet-500',
+    emoji: '💻',
   },
   RETROSPECTIVE_CHECKIN: {
-    gradient: 'from-teal-500/15 via-emerald-500/10 to-teal-500/5',
-    borderActive: 'border-teal-400 dark:border-teal-500 ring-2 ring-teal-400/30',
+    gradient: 'from-teal-500/20 via-emerald-500/10 to-transparent',
+    activeBorder: 'border-teal-400 dark:border-teal-500',
+    activeRing: 'ring-teal-400/30',
+    activeBadge: 'bg-teal-600 text-white font-black',
     textAccent: 'text-teal-700 dark:text-teal-300',
-    bgAccent: 'bg-teal-500/20 text-teal-700 dark:text-teal-300',
-    glowColor: 'shadow-[0_0_20px_rgba(20,184,166,0.25)]',
-    numberBg: 'bg-teal-600 text-white font-black',
+    dotColor: 'bg-teal-500',
     emoji: '📊',
   },
   GRAND_REWARD_STATE: {
-    gradient: 'from-slate-700/15 via-zinc-800/10 to-slate-900/5',
-    borderActive: 'border-emerald-400 dark:border-emerald-500 ring-2 ring-emerald-400/30',
+    gradient: 'from-emerald-500/20 via-teal-500/10 to-transparent',
+    activeBorder: 'border-emerald-400 dark:border-emerald-500',
+    activeRing: 'ring-emerald-400/30',
+    activeBadge: 'bg-emerald-600 text-white font-black',
     textAccent: 'text-emerald-700 dark:text-emerald-300',
-    bgAccent: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300',
-    glowColor: 'shadow-[0_0_20px_rgba(16,185,129,0.25)]',
-    numberBg: 'bg-emerald-600 text-white font-black',
+    dotColor: 'bg-emerald-500',
     emoji: '🏆',
   },
   ONE_SEC_FRICTION: {
-    gradient: 'from-amber-600/15 via-yellow-500/10 to-amber-600/5',
-    borderActive: 'border-amber-500 dark:border-amber-400 ring-2 ring-amber-500/30',
-    textAccent: 'text-amber-700 dark:text-amber-300',
-    bgAccent: 'bg-amber-500/20 text-amber-700 dark:text-amber-300',
-    glowColor: 'shadow-[0_0_20px_rgba(217,119,6,0.25)]',
-    numberBg: 'bg-amber-600 text-white font-black',
+    gradient: 'from-yellow-500/20 to-transparent',
+    activeBorder: 'border-yellow-400',
+    activeRing: 'ring-yellow-400/30',
+    activeBadge: 'bg-yellow-600 text-white font-black',
+    textAccent: 'text-yellow-700',
+    dotColor: 'bg-yellow-500',
     emoji: '⏱️',
   },
   SOCIAL_MEDIA_BREAK: {
-    gradient: 'from-purple-500/15 via-pink-500/10 to-purple-500/5',
-    borderActive: 'border-purple-400 dark:border-purple-500 ring-2 ring-purple-400/30',
-    textAccent: 'text-purple-700 dark:text-purple-300',
-    bgAccent: 'bg-purple-500/20 text-purple-700 dark:text-purple-300',
-    glowColor: 'shadow-[0_0_20px_rgba(168,85,247,0.25)]',
-    numberBg: 'bg-purple-600 text-white font-black',
+    gradient: 'from-purple-500/20 to-transparent',
+    activeBorder: 'border-purple-400',
+    activeRing: 'ring-purple-400/30',
+    activeBadge: 'bg-purple-600 text-white font-black',
+    textAccent: 'text-purple-700',
+    dotColor: 'bg-purple-500',
     emoji: '🛡️',
   },
   HOME: {
-    gradient: 'from-slate-500/10 to-slate-500/5',
-    borderActive: 'border-slate-400',
+    gradient: 'from-slate-500/15 to-transparent',
+    activeBorder: 'border-slate-400',
+    activeRing: 'ring-slate-400/30',
+    activeBadge: 'bg-slate-700 text-white',
     textAccent: 'text-slate-700',
-    bgAccent: 'bg-slate-500/20',
-    glowColor: '',
-    numberBg: 'bg-slate-700 text-white',
+    dotColor: 'bg-slate-500',
     emoji: '🏠',
   },
 };
@@ -140,11 +138,33 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
   onOpenLifestyleModal,
   className = '',
 }) => {
+  // Currently selected station for interactive spotlighting (defaults to suggested station)
+  const [selectedStationId, setSelectedStationId] = useState<StationId>(() => {
+    return currentSuggestedStation?.id || allStationIds[0] || 'COMMUTE_MORNING';
+  });
+
   const completedCount = completedStations.length;
   const totalCount = allStationIds.length;
   const progressPct = Math.round((completedCount / totalCount) * 100);
 
-  const handleCardClick = (stId: StationId) => {
+  const selectedIndex = allStationIds.indexOf(selectedStationId);
+  const activeIndex = selectedIndex !== -1 ? selectedIndex : 0;
+  const activeStationId = allStationIds[activeIndex] || 'COMMUTE_MORNING';
+
+  const selectedMeta = resolveStationMetadata(activeStationId, personaId, overrides, isAr);
+  const SelectedIcon = selectedMeta.icon;
+  const isSelectedCompleted = completedStations.includes(activeStationId);
+  const isSelectedSuggested = currentSuggestedStation?.id === activeStationId;
+
+  const currentTheme = MILESTONE_THEMES[activeStationId] || MILESTONE_THEMES.COMMUTE_MORNING;
+
+  const handleSelectNode = (stId: StationId) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setSelectedStationId(stId);
+  };
+
+  const handleLaunchStation = (stId: StationId) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     onSelectStation(stId);
@@ -152,205 +172,204 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
 
   return (
     <div
-      className={`rounded-3xl bg-gradient-to-b from-white via-slate-50/50 to-white dark:from-[#11131c] dark:via-[#0e1017] dark:to-[#11131c] border border-slate-200/90 dark:border-white/[0.08] p-5 sm:p-7 shadow-sm space-y-6 relative overflow-hidden ${className}`}
+      className={`rounded-3xl bg-white dark:bg-[#11131a] border border-slate-200/90 dark:border-white/[0.08] p-3.5 sm:p-5 shadow-sm space-y-3.5 relative overflow-hidden transition-all ${className}`}
     >
-      {/* Background Decorative Ambient Lighting */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mt-32" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mb-32" />
+      {/* Subtle Ambient Decorative Light */}
+      <div className="absolute top-0 right-1/3 w-72 h-72 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mt-24" />
 
-      {/* Top Header: Title, Persona Pill, and Progress Metrics */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/70 dark:border-white/[0.06] pb-5">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md shadow-emerald-600/20 shrink-0">
+      {/* 1. Header Bar: Title, Persona Badge, and Velocity Progress */}
+      <div className="flex items-center justify-between gap-2 flex-wrap relative z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center text-sm shadow-xs font-bold shrink-0">
             🧭
           </div>
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100 font-serif">
-                {isAr ? 'خريطة محطات اليوم المبارك' : 'Daily Stations Roadmap'}
-              </h3>
-              <span className="text-[11px] font-bold px-3 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 flex items-center gap-1.5 shadow-2xs">
-                <span>{personaConfig.avatarEmoji}</span>
-                <span>{isAr ? personaConfig.titleAr : personaConfig.titleEn}</span>
-                {onOpenLifestyleModal && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      soundSynth.playTactileClick();
-                      onOpenLifestyleModal();
-                    }}
-                    className="ms-1 text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer font-black"
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-zinc-100">
+              {isAr ? 'خريطة مسار اليوم' : 'Daily Stations Roadmap'}
+            </h3>
+
+            {/* Persona Badge */}
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.06] text-slate-600 dark:text-zinc-300 border border-slate-200/80 dark:border-white/[0.08] inline-flex items-center gap-1">
+              <span>{personaConfig.avatarEmoji}</span>
+              <span>{isAr ? personaConfig.titleAr : personaConfig.titleEn}</span>
+              {onOpenLifestyleModal && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    soundSynth.playTactileClick();
+                    onOpenLifestyleModal();
+                  }}
+                  className="ms-1 text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer font-black"
+                >
+                  {isAr ? 'تعديل' : 'Edit'}
+                </button>
+              )}
+            </span>
+          </div>
+        </div>
+
+        {/* Compact Progress Gauge */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="w-16 sm:w-24 h-1.5 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden relative shadow-inner">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-amber-500 via-teal-500 to-emerald-500 transition-all duration-500 ease-out"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <span className="text-[11px] font-mono font-black text-emerald-700 dark:text-emerald-400">
+            {completedCount}/{totalCount} {isAr ? 'مكتمل' : 'Done'}
+          </span>
+        </div>
+      </div>
+
+      {/* 2. Horizontal Connected Milestones Track (All 6 on 1 row) */}
+      <div className="relative pt-1 pb-1 z-10">
+        {/* Background Connecting Metro Guideline */}
+        <div className="absolute top-[20px] sm:top-[22px] left-5 right-5 h-[2px] bg-slate-200 dark:bg-white/[0.08] z-0 rounded-full">
+          <div
+            className="h-full bg-gradient-to-r from-amber-500 via-teal-500 to-emerald-500 transition-all duration-500 rounded-full"
+            style={{
+              width: `${totalCount > 1 ? (Math.max(0, completedCount - 0.5) / (totalCount - 1)) * 100 : 0}%`,
+            }}
+          />
+        </div>
+
+        {/* 6 Interactive Milestone Beads */}
+        <div className="flex items-center justify-between gap-1 relative z-10 select-none">
+          {allStationIds.map((stId) => {
+            const meta = resolveStationMetadata(stId, personaId, overrides, isAr);
+            const Icon = meta.icon;
+            const isCompleted = completedStations.includes(stId);
+            const isSuggestedNow = currentSuggestedStation?.id === stId;
+            const isSelected = activeStationId === stId;
+
+            return (
+              <button
+                key={stId}
+                type="button"
+                onClick={() => handleSelectNode(stId)}
+                className="flex flex-col items-center gap-1 group cursor-pointer tap-spring focus:outline-hidden flex-1 max-w-[56px] sm:max-w-[72px]"
+                title={`${isAr ? meta.titleAr : meta.titleEn} (${meta.shortTime})`}
+              >
+                {/* Milestone Node Circle */}
+                <div
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center transition-all duration-200 relative ${
+                    isCompleted
+                      ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-500/30'
+                      : isSelected
+                      ? 'bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/30 ring-4 ring-sky-400/40 scale-105'
+                      : isSuggestedNow
+                      ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border-2 border-sky-400 animate-pulse'
+                      : 'bg-slate-100 hover:bg-slate-200/80 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] text-slate-600 dark:text-zinc-400 border border-slate-200/80 dark:border-white/[0.08]'
+                  }`}
+                >
+                  {isCompleted ? (
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  ) : (
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  )}
+
+                  {/* Pulsing beacon if active right now and not completed */}
+                  {isSuggestedNow && !isCompleted && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-sky-500 ring-2 ring-white dark:ring-zinc-950 animate-ping" />
+                  )}
+                </div>
+
+                {/* Milestone Label */}
+                <div className="text-center w-full min-w-0">
+                  <span
+                    className={`block text-[10px] sm:text-[11px] font-bold truncate leading-tight transition-colors ${
+                      isSelected
+                        ? 'text-sky-600 dark:text-sky-400 font-black'
+                        : isCompleted
+                        ? 'text-emerald-700 dark:text-emerald-400'
+                        : 'text-slate-500 dark:text-zinc-400 group-hover:text-slate-900 dark:group-hover:text-zinc-200'
+                    }`}
                   >
-                    {isAr ? 'تغيير' : 'Change'}
-                  </button>
-                )}
+                    {isAr ? meta.shortLabelAr : meta.shortLabelEn}
+                  </span>
+                  <span className="hidden sm:block text-[9px] font-mono text-slate-400 dark:text-zinc-500 truncate mt-0.5">
+                    {meta.shortTime}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Interactive Spotlight Action Capsule (Height ~56px) */}
+      <div
+        className={`relative z-10 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r ${currentTheme.gradient} dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.08] flex items-center justify-between gap-3 shadow-2xs transition-all duration-300`}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white shrink-0 shadow-xs ${
+              isSelectedCompleted
+                ? 'bg-emerald-600'
+                : isSelectedSuggested
+                ? 'bg-sky-600'
+                : 'bg-slate-700 dark:bg-zinc-800'
+            }`}
+          >
+            {isSelectedCompleted ? (
+              <CheckCircle2 className="w-5 h-5" />
+            ) : (
+              <SelectedIcon className="w-5 h-5" />
+            )}
+          </div>
+
+          <div className="min-w-0 space-y-0.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono font-bold text-slate-400 dark:text-zinc-500">
+                #{activeIndex + 1}
               </span>
+              <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
+                {isAr ? selectedMeta.titleAr : selectedMeta.titleEn}
+              </h4>
+              <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-400 hidden xs:inline">
+                • {selectedMeta.shortTime}
+              </span>
+              {isSelectedCompleted ? (
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
+                  {isAr ? 'مكتملة ✔' : 'Done ✔'}
+                </span>
+              ) : isSelectedSuggested ? (
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                  <span>{isAr ? 'جارية الآن' : 'Active'}</span>
+                </span>
+              ) : null}
             </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-              {isAr
-                ? 'رحلتك الحيوية المتدرجة من بركة الصباح حتى إغلاق اليوم وسكينة النوم'
-                : 'Your daily chronological flow from morning barakah to night wind-down.'}
+
+            <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate max-w-md">
+              {isAr ? selectedMeta.descriptionAr : selectedMeta.descriptionEn}
             </p>
           </div>
         </div>
 
-        {/* Journey Progress Gauge */}
-        <div className="flex items-center gap-3 bg-slate-100/80 dark:bg-zinc-900/80 p-2.5 sm:px-4 sm:py-2.5 rounded-2xl border border-slate-200/80 dark:border-zinc-800 self-start md:self-auto shrink-0 shadow-xs">
-          <div className="space-y-1 text-end">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-600 dark:text-zinc-400">
-                {isAr ? 'معدل إنجاز المحطات:' : 'Journey Velocity:'}
-              </span>
-              <span className="text-sm font-black font-mono text-emerald-600 dark:text-emerald-400">
-                {completedCount}/{totalCount}
-              </span>
-            </div>
-            {/* Visual Progress Bar */}
-            <div className="w-36 sm:w-44 h-2.5 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden relative shadow-inner">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-amber-500 via-teal-500 to-emerald-500 transition-all duration-500 ease-out shadow-xs"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-mono font-black text-xs">
-            {progressPct}%
-          </div>
-        </div>
-      </div>
-
-      {/* Hero Spotlight: Current Active / Suggested Station */}
-      {currentSuggestedStation && (
-        <div className="relative z-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-transparent dark:from-sky-950/30 dark:via-indigo-950/20 dark:to-transparent border-2 border-sky-400/50 dark:border-sky-500/30 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-sky-500 text-white flex items-center justify-center text-xl shadow-md shadow-sky-500/20 shrink-0 animate-pulse">
-              <Zap className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-500 text-white shadow-2xs">
-                  {isAr ? '📍 المحطة المقترحة الآن' : '📍 Current Station'}
-                </span>
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  {currentSuggestedStation.badge}
-                </span>
-              </div>
-              <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-1">
-                {currentSuggestedStation.title}
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-                {currentSuggestedStation.description}
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => handleCardClick(currentSuggestedStation.id)}
-            className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-black shadow-md shadow-sky-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
-          >
-            <span>{currentSuggestedStation.cta}</span>
-            {isAr ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-          </button>
-        </div>
-      )}
-
-      {/* The Connecting Milestones Journey Rail */}
-      <div className="relative z-10">
-        {/* Visual Connecting Luminous Guideline (Desktop) */}
-        <div className="hidden lg:block absolute top-[52px] left-8 right-8 h-1 bg-gradient-to-r from-slate-200 via-emerald-200 to-slate-200 dark:from-zinc-800 dark:via-emerald-900/60 dark:to-zinc-800 -z-0 rounded-full" />
-
-        {/* Station Cards Grid / Carousel Rail */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 sm:gap-4 relative z-10">
-          {allStationIds.map((stId, idx) => {
-            const meta = resolveStationMetadata(stId, personaId, overrides, isAr);
-            const Icon = meta.icon;
-            const isCompleted = completedStations.includes(stId);
-            const isCurrentSuggested = currentSuggestedStation.id === stId;
-            const theme = STATION_THEMES[stId] || STATION_THEMES.COMMUTE_MORNING;
-
-            return (
-              <div
-                key={stId}
-                onClick={() => handleCardClick(stId)}
-                className={`group rounded-2xl border p-4 sm:p-4 text-start flex flex-col justify-between transition-all duration-200 cursor-pointer select-none active:scale-[0.98] relative overflow-hidden ${
-                  isCompleted
-                    ? 'bg-gradient-to-b from-emerald-500/10 via-emerald-500/5 to-white dark:from-emerald-950/30 dark:via-zinc-900 dark:to-zinc-900 border-emerald-400/80 dark:border-emerald-700/60 shadow-sm'
-                    : isCurrentSuggested
-                    ? `bg-gradient-to-b ${theme.gradient} dark:from-sky-950/40 dark:via-zinc-900 dark:to-zinc-900 ${theme.borderActive} ${theme.glowColor}`
-                    : 'bg-white/90 dark:bg-zinc-900/70 border-slate-200/80 dark:border-zinc-800/80 hover:border-slate-300 dark:hover:border-zinc-700 hover:shadow-md hover:-translate-y-1'
-                }`}
-              >
-                {/* Milestone Card Top Row */}
-                <div className="flex items-center justify-between mb-3">
-                  {/* Step Number Glyph */}
-                  <span
-                    className={`w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-mono font-black ${
-                      isCompleted
-                        ? 'bg-emerald-600 text-white'
-                        : isCurrentSuggested
-                        ? theme.numberBg
-                        : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400'
-                    }`}
-                  >
-                    #{idx + 1}
-                  </span>
-
-                  {/* Icon Glyphs */}
-                  <div
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition-transform group-hover:scale-110 ${
-                      isCompleted
-                        ? 'bg-emerald-600 text-white shadow-xs'
-                        : isCurrentSuggested
-                        ? 'bg-sky-600 text-white shadow-xs'
-                        : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300'
-                    }`}
-                  >
-                    {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                  </div>
-                </div>
-
-                {/* Title & Short Details */}
-                <div className="space-y-1 my-1">
-                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-snug">
-                    {isAr ? meta.titleAr : meta.titleEn}
-                  </h4>
-                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-500 dark:text-zinc-400">
-                    <Clock className="w-3 h-3 text-slate-400" />
-                    <span>{meta.shortTime}</span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 leading-relaxed pt-0.5">
-                    {isAr ? meta.descriptionAr : meta.descriptionEn}
-                  </p>
-                </div>
-
-                {/* Status Indicator Bar */}
-                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between text-xs">
-                  {isCompleted ? (
-                    <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                      <span>✓</span>
-                      <span>{isAr ? 'مكتملة' : 'Completed'}</span>
-                    </span>
-                  ) : isCurrentSuggested ? (
-                    <span className="text-[11px] font-black text-sky-600 dark:text-sky-400 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
-                      <span>{isAr ? 'جارية الآن' : 'Active'}</span>
-                    </span>
-                  ) : (
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 group-hover:text-emerald-600 transition-colors flex items-center gap-1">
-                      <span>{isAr ? 'دخول' : 'Open'}</span>
-                      <span>{isAr ? '←' : '→'}</span>
-                    </span>
-                  )}
-
-                  <span className="text-[11px] opacity-75">{theme.emoji}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {/* 1-Tap Entry Launch Button */}
+        <button
+          type="button"
+          onClick={() => handleLaunchStation(activeStationId)}
+          className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 tap-spring shadow-xs ${
+            isSelectedCompleted
+              ? 'bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-700/60'
+              : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-600/20'
+          }`}
+        >
+          <span>
+            {isSelectedCompleted
+              ? isAr
+                ? 'فتح المحطة'
+                : 'Open'
+              : isAr
+              ? 'انطلق الآن'
+              : 'Enter'}
+          </span>
+          {isAr ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+        </button>
       </div>
     </div>
   );

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Sparkles,
-  ArrowLeft,
-  ArrowRight,
   Flame,
   Shield,
   BookOpen,
@@ -90,9 +88,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   onOpenArabicPoetry,
   onOpenLifeWisdom,
 }) => {
-  const { language, isRTL } = useTranslation();
+  const { language } = useTranslation();
   const isAr = language === 'ar';
-  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   const now = new Date();
   const currentHour = now.getHours();
@@ -403,64 +400,24 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             </p>
           </div>
 
-          {/* Integrated Active Suggested Station CTA (Bento Box) */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/90 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
-            <div className="flex items-start sm:items-center gap-3.5 min-w-0">
-              <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
-                <currentSuggestedStation.icon className="w-5 h-5" />
-              </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50">
-                    {currentSuggestedStation.badge}
-                  </span>
-                </div>
-                <h2 className="text-sm sm:text-base font-black text-slate-950 dark:text-white truncate">
-                  {currentSuggestedStation.title}
-                </h2>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium line-clamp-1">
-                  {currentSuggestedStation.description}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  soundSynth.playCompletionChime();
-                  soundSynth.startAmbient('rain_light', 0.5);
-                  haptic.vibrateLight();
-                  onSelectStation('WORK_MICRO_SPRINT');
-                  onRewardToast(
-                    isAr
-                      ? '⚡ بدأ شوط التركيز العميق (25د) تلقائياً مع رذاذ المطر الهادئ!'
-                      : 'Deep Work Sprint (25m) started with calming light rain!'
-                  );
-                }}
-                className="px-4 py-3 rounded-2xl bg-sky-50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-300/80 dark:border-sky-700/60 font-black text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer"
-                title={isAr ? 'شوط تركيز فوري مدمج مع صوت رذاذ المطر الهادئ' : '1-Tap Deep Work Sprint with light rain'}
-              >
-                <span>⚡</span>
-                <span>{isAr ? 'تركيز فوري (25د + رذاذ المطر)' : '1-Tap Sprint (25m + Rain)'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  soundSynth.playCompletionChime();
-                  haptic.vibrateLight();
-                  onSelectStation(currentSuggestedStation.id);
-                }}
-                className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
-              >
-                <span>{currentSuggestedStation.cta}</span>
-                <ArrowIcon className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* ============================================================ */}
+      {/* 2. DAILY STATIONS ROADMAP: خريطة مسار اليوم التفاعلية           */}
+      {/* Ultra-compact 1-row milestone metro line & dynamic launcher   */}
+      {/* ============================================================ */}
+      <DailyStationsRoadmap
+        allStationIds={allStationIds}
+        completedStations={completedStations}
+        currentSuggestedStation={currentSuggestedStation}
+        personaId={personaId}
+        personaConfig={personaConfig}
+        overrides={overrides}
+        isAr={isAr}
+        onSelectStation={onSelectStation}
+        onOpenLifestyleModal={onOpenLifestyleModal}
+      />
 
       {/* ============================================================ */}
       {/* 1.5. FAITH AUDIO QUICK-RESUME CONTROLLER                     */}
@@ -694,21 +651,6 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
       </div>
 
-      {/* ============================================================ */}
-      {/* 2. DAILY STATIONS ROADMAP: خريطة محطات اليوم المبارك           */}
-      {/* Deluxe 6-station milestone journey with glowing progress track */}
-      {/* ============================================================ */}
-      <DailyStationsRoadmap
-        allStationIds={allStationIds}
-        completedStations={completedStations}
-        currentSuggestedStation={currentSuggestedStation}
-        personaId={personaId}
-        personaConfig={personaConfig}
-        overrides={overrides}
-        isAr={isAr}
-        onSelectStation={onSelectStation}
-        onOpenLifestyleModal={onOpenLifestyleModal}
-      />
 
       {/* ============================================================ */}
       {/* 3. OFFICIAL REAL-TIME PRAYER TIMES BAR                       */}
