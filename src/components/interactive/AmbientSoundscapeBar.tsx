@@ -80,8 +80,8 @@ export const AmbientSoundscapeBar: React.FC = () => {
 
   // Shift upwards if Faith Audio capsule is active
   const positionClass = isFaithCapsuleActive
-    ? 'bottom-[148px] lg:bottom-24 start-4 z-40'
-    : 'bottom-20 start-4 z-30';
+    ? 'bottom-[154px] sm:bottom-[160px] lg:bottom-24 start-4 z-40'
+    : 'bottom-[98px] sm:bottom-[104px] lg:bottom-6 start-4 z-30';
 
   return (
     <div className={`fixed transition-all duration-300 pointer-events-auto ${positionClass}`}>

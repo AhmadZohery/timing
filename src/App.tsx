@@ -601,7 +601,7 @@ export function App() {
       )}
 
       {/* Main Content Area: Full-Width Responsive Workspace */}
-      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} pb-36 lg:pb-12 transition-all duration-300 space-y-4`}>
+      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} pb-44 lg:pb-12 transition-all duration-300 space-y-4`}>
         {activeStation === 'HOME' ? (
           <>
             {/* Interactive User-Gesture Notification Permission Banner (Home Dashboard Only) */}

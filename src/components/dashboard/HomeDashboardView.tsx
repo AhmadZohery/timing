@@ -600,23 +600,23 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* 3.3. SPIRITUAL DEVOTIONS & SUNNAH BENTO                      */}
       {/* روضة الأذكار اليومية وسورة الملك وسنن الصيام وموسوعة النوافل */}
       {/* ============================================================ */}
-      <div className="rounded-3xl bg-gradient-to-br from-emerald-950/20 via-slate-900/[0.03] to-indigo-950/20 dark:from-emerald-950/40 dark:via-zinc-900/70 dark:to-indigo-950/30 border border-emerald-500/20 dark:border-emerald-500/30 p-4 sm:p-5 shadow-xs space-y-4">
+      <div className="rounded-3xl bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/40 dark:from-[#0d1519] dark:via-[#0c0d16] dark:to-[#111927] border border-emerald-500/25 dark:border-emerald-500/20 p-4 sm:p-6 shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg shadow-inner shrink-0">
+        <div className="flex items-center justify-between flex-wrap gap-2.5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-lg shadow-inner shrink-0 border border-emerald-500/20">
               🕊️
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 font-serif">
                   {isAr ? 'روضة الأذكار والسنن النبوية' : 'Spiritual Devotions & Sunnah Sanctuary'}
                 </h3>
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-mono">
+                <span className="shrink-0 whitespace-nowrap inline-flex items-center text-[10.5px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700/60 shadow-xs">
                   {hijriInfo.formattedAr}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+              <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-medium mt-0.5">
                 {isAr
                   ? 'أذكار الصباح والمساء، سورة الملك المنجية، صيام التطوع، ومحراب قيام الليل'
                   : 'Daily Adhkar, Surah Mulk, Sunnah Fasting, and Night Tahajjud'}
@@ -624,8 +624,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/20">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/25 shadow-xs">
               {isAr ? '✨ بركة يومك' : '✨ Daily Blessings'}
             </span>
           </div>
@@ -634,17 +634,17 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         {/* 4 Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Card 1: Adhkar (Morning / Evening) */}
-          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-amber-400/60 dark:hover:border-amber-500/40 transition-all">
-            <div className="space-y-1.5">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#121422] border border-slate-200/90 dark:border-white/[0.08] shadow-xs flex flex-col justify-between space-y-3.5 hover:border-amber-400/80 dark:hover:border-amber-500/60 transition-all">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
-                  {isMorningTime ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <div className="w-8.5 h-8.5 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold border border-amber-500/20">
+                  {isMorningTime ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
                 </div>
                 <span
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                  className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     (isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
-                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
-                      : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                      ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-black'
+                      : 'bg-amber-500/15 border-amber-500/30 text-amber-800 dark:text-amber-300'
                   }`}
                 >
                   {(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
@@ -660,7 +660,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     ? (isAr ? 'أذكار الصباح وحصن المسلم' : 'Morning Adhkar')
                     : (isAr ? 'أذكار المساء وحصن المسلم' : 'Evening Adhkar')}
                 </h4>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-medium line-clamp-2 mt-1">
                   {isMorningTime
                     ? (isAr ? 'آية الكرسي، المعوذات، سيد الاستغفار وبك أصبحنا' : 'Ayat al-Kursi, Muawwidhat, Sayyid al-Istighfar')
                     : (isAr ? 'أمسينا وأمسى الملك لله، والتعوذ بكلمات الله التامات' : 'Evening fortress & prophetic supplications')}
@@ -675,24 +675,24 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 setAdhkarMode(isMorningTime ? 'morning' : 'evening');
                 setIsAdhkarModalOpen(true);
               }}
-              className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 font-bold text-xs border border-amber-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 dark:text-amber-200 font-bold text-xs border border-amber-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <span>{(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone) ? (isAr ? 'مراجعة الأذكار 📿' : 'Review') : (isAr ? 'قراءة الأذكار والتحصين ☀️' : 'Read Adhkar')}</span>
             </button>
           </div>
 
           {/* Card 2: Surah Al-Mulk */}
-          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-indigo-400/60 dark:hover:border-indigo-500/40 transition-all">
-            <div className="space-y-1.5">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#121422] border border-slate-200/90 dark:border-white/[0.08] shadow-xs flex flex-col justify-between space-y-3.5 hover:border-indigo-400/80 dark:hover:border-indigo-500/60 transition-all">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
-                  <BookOpen className="w-4 h-4" />
+                <div className="w-8.5 h-8.5 rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold border border-indigo-500/20">
+                  <BookOpen className="w-4.5 h-4.5" />
                 </div>
                 <span
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                  className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     todayLog?.surahMulkDone
-                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
-                      : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                      ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-black'
+                      : 'bg-indigo-500/15 border-indigo-500/30 text-indigo-800 dark:text-indigo-300'
                   }`}
                 >
                   {todayLog?.surahMulkDone ? (isAr ? 'تمت التلاوة ✓' : 'Recited ✓') : (isAr ? '30 آية 🌙' : '30 Verses')}
@@ -702,7 +702,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <h4 className="text-xs font-black text-slate-900 dark:text-white">
                   {isAr ? 'سورة الملك (المنجية)' : 'Surah Al-Mulk'}
                 </h4>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-medium line-clamp-2 mt-1">
                   {isAr
                     ? '«سورة تبارك هي المانعة من عذاب القبر» تشفع لصاحبها كل ليلة'
                     : 'Protector from the torment of the grave. Recited before sleep.'}
@@ -716,26 +716,26 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 haptic.vibrateLight();
                 setIsHomeSurahMulkOpen(true);
               }}
-              className="w-full py-2 px-3 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-800 dark:text-indigo-300 font-bold text-xs border border-indigo-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="w-full py-2 px-3 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-900 dark:text-indigo-200 font-bold text-xs border border-indigo-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <span>{todayLog?.surahMulkDone ? (isAr ? 'إعادة التلاوة 📖' : 'Re-read') : (isAr ? 'تلاوة سورة الملك 🌙' : 'Recite Mulk')}</span>
             </button>
           </div>
 
           {/* Card 3: Sunnah Fasting & White Days */}
-          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-emerald-400/60 dark:hover:border-emerald-500/40 transition-all">
-            <div className="space-y-1.5">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#121422] border border-slate-200/90 dark:border-white/[0.08] shadow-xs flex flex-col justify-between space-y-3.5 hover:border-emerald-400/80 dark:hover:border-emerald-500/60 transition-all">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                  <Calendar className="w-4 h-4" />
+                <div className="w-8.5 h-8.5 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold border border-emerald-500/20">
+                  <Calendar className="w-4.5 h-4.5" />
                 </div>
                 <span
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                  className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     todayLog?.fastingDone
-                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
+                      ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-black'
                       : hijriInfo.isWhiteDay
-                      ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300 font-bold animate-pulse'
-                      : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                      ? 'bg-purple-500/15 border-purple-500/30 text-purple-800 dark:text-purple-300 font-bold animate-pulse'
+                      : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
                   }`}
                 >
                   {todayLog?.fastingDone
@@ -751,7 +751,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <h4 className="text-xs font-black text-slate-900 dark:text-white">
                   {isAr ? 'سُنن الصيام والتطوع' : 'Sunnah Fasting'}
                 </h4>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-medium line-clamp-2 mt-1">
                   {hijriInfo.isWhiteDay
                     ? (isAr ? `اليوم ${hijriInfo.day} ${hijriInfo.monthNameAr} (صيام الدهر كله)` : 'Today is one of the White Days')
                     : isTodayMonOrThu
@@ -769,24 +769,24 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 haptic.vibrateLight();
                 setIsFastingModalOpen(true);
               }}
-              className="w-full py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 font-bold text-xs border border-emerald-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="w-full py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-900 dark:text-emerald-200 font-bold text-xs border border-emerald-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <span>{todayLog?.fastingDone ? (isAr ? 'مسجّل صائم ✔' : 'Logged ✔') : (isAr ? 'تسجيل الصيام أو النية 🤍' : 'Log Fasting / Intention')}</span>
             </button>
           </div>
 
           {/* Card 4: Qiyam al-Layl & Tahajjud */}
-          <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-3 hover:border-purple-400/60 dark:hover:border-purple-500/40 transition-all">
-            <div className="space-y-1.5">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#121422] border border-slate-200/90 dark:border-white/[0.08] shadow-xs flex flex-col justify-between space-y-3.5 hover:border-purple-400/80 dark:hover:border-purple-500/60 transition-all">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
-                  <Sparkles className="w-4 h-4" />
+                <div className="w-8.5 h-8.5 rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-400 flex items-center justify-center font-bold border border-purple-500/20">
+                  <Moon className="w-4.5 h-4.5" />
                 </div>
                 <span
-                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${
+                  className={`text-[9.5px] font-bold px-2 py-0.5 rounded-md border ${
                     todayLog?.qiyamNightDone
-                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-black'
-                      : 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                      ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-black'
+                      : 'bg-purple-500/15 border-purple-500/30 text-purple-800 dark:text-purple-300'
                   }`}
                 >
                   {todayLog?.qiyamNightDone ? (isAr ? 'سُجِّل القيام 🌟' : 'Logged 🌟') : (isAr ? 'مراتب الآيات 🌌' : 'Night Prayer')}
@@ -796,7 +796,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <h4 className="text-xs font-black text-slate-900 dark:text-white">
                   {isAr ? 'قيام الليل والنوافل' : 'Qiyam & Tahajjud Ranks'}
                 </h4>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2 mt-0.5">
+                <p className="text-[11px] text-slate-600 dark:text-zinc-300 font-medium line-clamp-2 mt-1">
                   {isAr
                     ? '10 آيات (الغافلين)، 100 آية (القانتين)، 1000 آية (المقنطرين)'
                     : '10 verses (heedless), 100 (obedient), 1000 (abundant reward)'}
@@ -811,7 +811,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 setNawafilModalTab('qiyam');
                 setIsNawafilModalOpen(true);
               }}
-              className="w-full py-2 px-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-800 dark:text-purple-300 font-bold text-xs border border-purple-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              className="w-full py-2 px-3 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-900 dark:text-purple-200 font-bold text-xs border border-purple-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
               <span>{todayLog?.qiyamNightDone ? (isAr ? 'عرض مراتب القيام 🌌' : 'View Ranks') : (isAr ? 'دليل القيام والسنن 🌌' : 'Open Qiyam Guide')}</span>
             </button>
@@ -843,31 +843,33 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ============================================================ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Arabic Classical Poetry Card */}
-        <div className="rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-zinc-900 dark:to-transparent border border-amber-300/40 dark:border-amber-500/20 p-5 shadow-xs flex flex-col justify-between space-y-4">
-          <div className="space-y-2">
+        <div className="rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 dark:from-[#17130b] dark:via-[#11131c] dark:to-[#1a1208] border border-amber-400/35 dark:border-amber-500/25 p-5 sm:p-6 shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-800 dark:text-amber-400 flex items-center justify-center font-bold border border-amber-500/25">
                   <Feather className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 font-serif">
                     {isAr ? 'ديوان الحكمة والشعر العربي' : 'Classical Arabic Poetry Diwan'}
                   </h3>
-                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                  <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
                     {isAr ? 'عيون الشعر التليد وتفكيك المفردات' : 'Odes, Vocabulary & Life Wisdom'}
                   </span>
                 </div>
               </div>
 
-              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-bold">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-200 font-bold border border-amber-500/25">
                 📜 {isAr ? 'أصالة وبيان' : 'Classics'}
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-serif">
-              «عَلى قَدْرِ أَهْلِ العَزْمِ تَأْتِي العَزائِمُ ... وَتَأْتِي عَلَى قَدْرِ الكِرامِ المَكارِمُ»
-            </p>
+            <div className="p-3 rounded-2xl bg-amber-500/8 dark:bg-white/[0.03] border border-amber-400/25">
+              <p className="text-xs sm:text-sm text-slate-800 dark:text-zinc-200 leading-relaxed font-serif">
+                «عَلى قَدْرِ أَهْلِ العَزْمِ تَأْتِي العَزائِمُ ... وَتَأْتِي عَلَى قَدْرِ الكِرامِ المَكارِمُ»
+              </p>
+            </div>
           </div>
 
           <button
@@ -877,7 +879,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               haptic.vibrateLight();
               onOpenArabicPoetry?.();
             }}
-            className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95 cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-95 cursor-pointer"
           >
             <span>📜</span>
             <span>{isAr ? 'تصفح ديوان الشعر والشرح اللغوي' : 'Open Poetry Diwan'}</span>
@@ -886,11 +888,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
 
         {/* Dynamic Daily Wisdom & Mental Models Card */}
-        <div className="rounded-3xl bg-gradient-to-br from-cyan-500/10 via-cyan-500/5 to-transparent dark:from-cyan-950/20 dark:via-zinc-900 dark:to-transparent border border-cyan-300/40 dark:border-cyan-500/20 p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-3.5">
-          <div className="space-y-2.5">
+        <div className="rounded-3xl bg-gradient-to-br from-cyan-50/80 via-white to-sky-50/50 dark:from-[#0b161e] dark:via-[#0c0e18] dark:to-[#0f1724] border border-cyan-400/35 dark:border-cyan-500/25 p-5 sm:p-6 shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 flex items-center justify-center font-bold text-base shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 text-cyan-800 dark:text-cyan-400 flex items-center justify-center font-bold text-base shrink-0 border border-cyan-500/25">
                   <span>{dailyWisdom.icon}</span>
                 </div>
                 <div>
@@ -898,17 +900,17 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
                       {isAr ? 'حكمة ونموذج اليوم' : 'Daily Mental Model'}
                     </h3>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950/60 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/40">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-950/70 text-cyan-900 dark:text-cyan-200 border border-cyan-300 dark:border-cyan-700/60">
                       {dailyWisdom.categoryLabelAr}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-cyan-700 dark:text-cyan-400">
+                  <span className="text-[11px] font-bold text-cyan-800 dark:text-cyan-300">
                     {dailyWisdom.titleAr} ({dailyWisdom.titleEn})
                   </span>
                 </div>
               </div>
 
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-600/15 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-500/30">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-cyan-600/15 text-cyan-800 dark:text-cyan-300 font-bold border border-cyan-500/30">
                 💡 {isAr ? 'متجدد يومياً' : 'Daily Fresh'}
               </span>
             </div>

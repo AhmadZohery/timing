@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
   Compass,
-  Sparkles,
   CheckCircle2,
   X,
   ChevronRight,
@@ -158,7 +157,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
             </span>
           </button>
 
-          {/* TAB 3 (CENTER HERO): 📿 النواة التفاعلية المركزية المرتفعة (The Magnetic Elevated Core - المحراب) */}
+          {/* TAB 3 (CENTER HERO): 🏛️ محراب النواة التفاعلية المرتفعة (The Bespoke Sacred Mihrab Core) */}
           <div className="relative -mt-6 sm:-mt-7 shrink-0 px-1">
             <button
               type="button"
@@ -171,13 +170,28 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               title={isAr ? 'محراب السكينة والقرآن والأذكار' : 'Spiritual Sanctuary'}
             >
               {/* Dynamic Aura / Breathing Shine */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-white/20 pointer-events-none" />
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400/30 rounded-full blur-xs pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-white/25 pointer-events-none" />
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400/35 rounded-full blur-xs pointer-events-none" />
 
-              <span className="text-xl sm:text-2xl filter drop-shadow-xs group-hover:scale-110 transition-transform">
-                📿
-              </span>
-              <span className="text-[8px] font-black tracking-tighter uppercase opacity-90 mt-0.2">
+              {/* Handcrafted Architectural Mihrab Arch SVG */}
+              <svg
+                viewBox="0 0 24 24"
+                className="w-6 h-6 sm:w-6.5 sm:h-6.5 text-white filter drop-shadow-xs group-hover:scale-110 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.85"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Outer Architectural Horseshoe Arch */}
+                <path d="M4 21V10C4 6 7.5 3 12 3C16.5 3 20 6 20 10V21" />
+                {/* Inner Sacred Niche */}
+                <path d="M7 21V11.5C7 9 9.2 7 12 7C14.8 7 17 9 17 11.5V21" />
+                {/* Radiant Core Lamp */}
+                <circle cx="12" cy="11.5" r="1.5" fill="currentColor" />
+                <path d="M12 7V10" />
+              </svg>
+              <span className="text-[8.5px] font-black tracking-tight text-white mt-0.5">
                 {isAr ? 'المحراب' : 'Core'}
               </span>
 
@@ -220,7 +234,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
             </span>
           </button>
 
-          {/* TAB 5: ⚡ المساعد والأدوات (Companion & AI Coach) */}
+          {/* TAB 5: 🧭 الرفيق والمسار اليومي (Executive Focus Companion & Navigator) */}
           <button
             type="button"
             onClick={() => {
@@ -228,16 +242,35 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               haptic.vibrateLight();
               onOpenCompanionHub?.();
             }}
-            className="relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-90 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
+            className="group relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-90 text-slate-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400"
           >
             <div className="relative">
-              <Sparkles className="w-5 h-5 stroke-[1.8] text-indigo-500 dark:text-indigo-400 transition-transform group-hover:scale-110" />
-              <span className="absolute -top-1 -end-1.5 px-1 py-0.2 rounded-full bg-indigo-600 text-[8px] font-black text-white leading-none">
-                AI
-              </span>
+              {/* Bespoke Handcrafted Astrolabe & Celestial Compass SVG (Zero Generic AI Vibes) */}
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 stroke-[1.8] group-hover:scale-110 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* Outer Celestial Ring */}
+                <circle cx="12" cy="12" r="9" />
+                {/* Inner Orbit */}
+                <circle cx="12" cy="12" r="4.5" strokeDasharray="2 2" />
+                {/* Precision Directional Pointer */}
+                <polygon
+                  points="12,5.5 13.8,10.2 18.5,12 13.8,13.8 12,18.5 10.2,13.8 5.5,12 10.2,10.2"
+                  fill="currentColor"
+                  fillOpacity="0.18"
+                />
+                {/* Center Core Jewel */}
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+              </svg>
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight relative z-10">
-              {isAr ? 'المساعد' : 'Tools'}
+            <span className="text-[10px] mt-0.5 tracking-tight relative z-10 font-bold">
+              {isAr ? 'الرفيق' : 'Companion'}
             </span>
           </button>
         </div>
