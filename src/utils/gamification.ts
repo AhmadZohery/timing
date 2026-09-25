@@ -155,7 +155,7 @@ export interface PrayerSunnahDetails {
 // Dedicated High-Weight Prayer Points Award Function
 export async function awardPrayerPoints(
   prayer: PrayerName,
-  status: 'on_time' | 'in_group' | 'late',
+  status: 'on_time' | 'in_group' | 'late' | 'excused',
   isFriday = false,
   sunnahDetails?: PrayerSunnahDetails
 ): Promise<RewardResult> {
@@ -164,6 +164,45 @@ export async function awardPrayerPoints(
 
   let basePoints = 20;
   let prayerTitle = '';
+
+  if (status === 'excused') {
+    prayerTitle = 'رخصة صلاة / عذر';
+    const reward: RewardResult = {
+      basePoints: 20,
+      bonusPoints: 0,
+      wonShield: false,
+      message: '🕊️ رخصة شرعية مقبولة وحماية للشعلة دون أي لوم أو حرج (+20 نقطة) 🛡️',
+    };
+    const graceActive = user.settings?.fajrGracePeriodActive ?? true;
+    const bioDate = getBiologicalDate(graceActive);
+    const todayLog = await db.daily_logs.get(bioDate);
+
+    soundSynth.playCompletionChime();
+    haptic.vibrateLight();
+
+    const updatedUserState: UserState = {
+      ...user,
+      totalPoints: user.totalPoints + 20,
+    };
+    await db.user_state.put(updatedUserState);
+
+    const currentPrayers = todayLog?.prayers || {};
+    const updatedPrayers = {
+      ...currentPrayers,
+      [prayer]: {
+        status: 'excused' as const,
+        completedAt: new Date().toISOString(),
+        pointsAwarded: 20,
+      },
+    };
+
+    await upsertDailyLog(bioDate, {
+      prayers: updatedPrayers,
+      pointsEarned: (todayLog?.pointsEarned || 0) + 20,
+    });
+
+    return reward;
+  }
 
   if (prayer === 'fajr') {
     prayerTitle = 'صلاة الفجر';

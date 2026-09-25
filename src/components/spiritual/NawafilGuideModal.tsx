@@ -18,6 +18,7 @@ import {
   Heart,
   Flame,
 } from 'lucide-react';
+import { useTranslation } from '../../i18n/LanguageContext';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { awardSpiritualHabitPoints, upsertDailyLog, getBiologicalDate } from '../../utils/gamification';
@@ -53,6 +54,9 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
   todayLog,
   onRewardToast,
 }) => {
+  const { language } = useTranslation();
+  const isAr = language === 'ar';
+
   const [activeTab, setActiveTab] = useState<NafilaTab>(initialTab);
   const [activeCategory, setActiveCategory] = useState<NawafilCategory>('daily');
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -106,28 +110,36 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
 
     const res = await awardSpiritualHabitPoints(type as any, title);
     if (onRewardToast) {
-      onRewardToast(res.message || `تقبّل الله طاعتك! تم تسجيل ${title} بنجاح (+${pts} نقطة) ✨`);
+      onRewardToast(res.message || (isAr ? `تقبّل الله طاعتك! تم تسجيل ${title} بنجاح (+${pts} نقطة) ✨` : `May Allah accept! ${title} logged (+${pts} pts) ✨`));
     }
   };
 
-  const tabs: Array<{ id: NafilaTab; label: string; icon: any; badge: string; category: NawafilCategory }> = [
+  const tabs: Array<{
+    id: NafilaTab;
+    labelAr: string;
+    labelEn: string;
+    icon: any;
+    badgeAr: string;
+    badgeEn: string;
+    category: NawafilCategory;
+  }> = [
     // Daily Core
-    { id: 'qiyam', label: 'قيام الليل (مراتب الآيات)', icon: Moon, badge: 'شرف المؤمن 🌌', category: 'daily' },
-    { id: 'dhuha', label: 'الضحى والإشراق', icon: Sun, badge: 'الأوّابين ☀️', category: 'daily' },
-    { id: 'witr', label: 'الشفع والوتر', icon: Sparkles, badge: 'القنوت 🌙', category: 'daily' },
-    { id: 'rawatib', label: 'السنن الرواتب (١٢ ركعة)', icon: Building, badge: 'بيت في الجنة 🕌', category: 'daily' },
+    { id: 'qiyam', labelAr: 'قيام الليل (مراتب الآيات)', labelEn: 'Qiyam (Night Vigil)', icon: Moon, badgeAr: 'شرف المؤمن 🌌', badgeEn: 'Believer’s Honor 🌌', category: 'daily' },
+    { id: 'dhuha', labelAr: 'الضحى والإشراق', labelEn: 'Dhuha & Ishraq', icon: Sun, badgeAr: 'الأوّابين ☀️', badgeEn: 'The Penitent ☀️', category: 'daily' },
+    { id: 'witr', labelAr: 'الشفع والوتر', labelEn: 'Shaf & Witr', icon: Sparkles, badgeAr: 'القنوت 🌙', badgeEn: 'Qunoot 🌙', category: 'daily' },
+    { id: 'rawatib', labelAr: 'السنن الرواتب (١٢ ركعة)', labelEn: 'Rawatib (12 Raka’ah)', icon: Building, badgeAr: 'بيت في الجنة 🕌', badgeEn: 'House in Jannah 🕌', category: 'daily' },
 
     // Occasions & Needs
-    { id: 'istikhara', label: 'صلاة الاستخارة', icon: Compass, badge: 'طلب الخيرة 🧭', category: 'occasions' },
-    { id: 'hajah', label: 'صلاة الحاجة', icon: HeartHandshake, badge: 'كشف الكرب 🤲', category: 'occasions' },
-    { id: 'tawbah', label: 'صلاة التوبة', icon: RotateCcw, badge: 'محو الذنوب 🌿', category: 'occasions' },
-    { id: 'wudu', label: 'سُنّة الوضوء', icon: Droplets, badge: 'درجة بلال 💧', category: 'occasions' },
+    { id: 'istikhara', labelAr: 'صلاة الاستخارة', labelEn: 'Salat al-Istikhara', icon: Compass, badgeAr: 'طلب الخيرة 🧭', badgeEn: 'Seeking Guidance 🧭', category: 'occasions' },
+    { id: 'hajah', labelAr: 'صلاة الحاجة', labelEn: 'Salat al-Hajah', icon: HeartHandshake, badgeAr: 'كشف الكرب 🤲', badgeEn: 'Relief of Need 🤲', category: 'occasions' },
+    { id: 'tawbah', labelAr: 'صلاة التوبة', labelEn: 'Salat al-Tawbah', icon: RotateCcw, badgeAr: 'محو الذنوب 🌿', badgeEn: 'Repentance 🌿', category: 'occasions' },
+    { id: 'wudu', labelAr: 'سُنّة الوضوء', labelEn: 'Sunnah of Wudu', icon: Droplets, badgeAr: 'درجة بلال 💧', badgeEn: 'Bilal’s Rank 💧', category: 'occasions' },
 
     // Special & Sunan
-    { id: 'tahiyyah', label: 'تحية المسجد', icon: Building, badge: 'إكرام بيت الله 🏛️', category: 'special' },
-    { id: 'safar', label: 'سُنّة القدوم من السفر', icon: Plane, badge: 'هدي نبوي 🧳', category: 'special' },
-    { id: 'sujud', label: 'سجدة الشكر والتلاوة', icon: Heart, badge: 'خضوع وفرح 💎', category: 'special' },
-    { id: 'tasabih', label: 'صلاة التسابيح', icon: Flame, badge: '٣٠٠ تسبيحة 📿', category: 'special' },
+    { id: 'tahiyyah', labelAr: 'تحية المسجد', labelEn: 'Tahiyyat al-Masjid', icon: Building, badgeAr: 'إكرام بيت الله 🏛️', badgeEn: 'Mosque Greeting 🏛️', category: 'special' },
+    { id: 'safar', labelAr: 'سُنّة القدوم من السفر', labelEn: 'Travel Return Sunnah', icon: Plane, badgeAr: 'هدي نبوي 🧳', badgeEn: 'Prophetic Sunnah 🧳', category: 'special' },
+    { id: 'sujud', labelAr: 'سجدة الشكر والتلاوة', labelEn: 'Sujud Shukr & Tilawah', icon: Heart, badgeAr: 'خضوع وفرح 💎', badgeEn: 'Humility & Joy 💎', category: 'special' },
+    { id: 'tasabih', labelAr: 'صلاة التسابيح', labelEn: 'Salat al-Tasabih', icon: Flame, badgeAr: '٣٠٠ تسبيحة 📿', badgeEn: '300 Tasbih 📿', category: 'special' },
   ];
 
   const visibleTabs = tabs.filter((t) => t.category === activeCategory);
@@ -138,9 +150,9 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl max-h-[94vh] rounded-3xl bg-white dark:bg-[#151722] border border-slate-200 dark:border-white/[0.12] shadow-2xl flex flex-col overflow-hidden text-right cursor-default animate-scale-in"
+        className="w-full max-w-3xl max-h-[94vh] rounded-3xl bg-white dark:bg-[#151722] border border-slate-200 dark:border-white/[0.12] shadow-2xl flex flex-col overflow-hidden cursor-default animate-scale-in"
         onClick={(e) => e.stopPropagation()}
-        dir="rtl"
+        dir={isAr ? 'rtl' : 'ltr'}
       >
         {/* Header */}
         <div className="p-3.5 sm:p-5 border-b border-slate-100 dark:border-white/[0.08] bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-indigo-500/10 flex items-center justify-between gap-3 shrink-0">
@@ -151,14 +163,16 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-sm sm:text-base md:text-lg font-black text-slate-900 dark:text-white">
-                  مَوْسُوعَةُ السُّنَنِ وَالنَّوَافِلِ النَّبَوِيَّةِ
+                  {isAr ? 'مَوْسُوعَةُ السُّنَنِ وَالنَّوَافِلِ النَّبَوِيَّةِ' : 'Prophetic Sunan & Nawafil Encyclopedia'}
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300">
-                  صحيح الأحاديث
+                  {isAr ? 'صحيح الأحاديث' : 'Authentic Sunnah'}
                 </span>
               </div>
               <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
-                «مَا يَزَالُ عَبْدِي يَتَقَرَّبُ إِلَيَّ بِالنَّوَافِلِ حَتَّى أُحِبَّهُ» (صحيح البخاري: 6502)
+                {isAr
+                  ? '«مَا يَزَالُ عَبْدِي يَتَقَرَّبُ إِلَيَّ بِالنَّوَافِلِ حَتَّى أُحِبَّهُ» (صحيح البخاري: 6502)'
+                  : '«My servant continues to draw near to Me with nawafil until I love him» (Sahih al-Bukhari: 6502)'}
               </p>
             </div>
           </div>
@@ -188,7 +202,7 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
             }`}
           >
             <span>🌌</span>
-            <span>السنن اليومية والرواتب</span>
+            <span>{isAr ? 'السنن اليومية والرواتب' : 'Daily Core & Rawatib'}</span>
           </button>
 
           <button
@@ -205,7 +219,7 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
             }`}
           >
             <span>🧭</span>
-            <span>صلوات الأسباب والحاجة</span>
+            <span>{isAr ? 'صلوات الأسباب والحاجة' : 'Occasions & Needs'}</span>
           </button>
 
           <button
@@ -222,7 +236,7 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
             }`}
           >
             <span>💎</span>
-            <span>المأثورات والسجدات الخاصة</span>
+            <span>{isAr ? 'المأثورات والسجدات الخاصة' : 'Special Prophetic Sunan'}</span>
           </button>
         </div>
 
@@ -247,9 +261,9 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                <span>{t.label}</span>
+                <span>{isAr ? t.labelAr : t.labelEn}</span>
                 <span className={`text-[9px] px-1.5 py-0.2 rounded-md ${isActive ? 'bg-amber-400 text-slate-950 font-black' : 'opacity-70'}`}>
-                  {t.badge}
+                  {isAr ? t.badgeAr : t.badgeEn}
                 </span>
               </button>
             );

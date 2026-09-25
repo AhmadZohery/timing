@@ -219,6 +219,24 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             </div>
           )}
 
+          {/* Quranly-Inspired Authentic Hasanat Calculator (+10 Hasanat / Letter, ~5,500/Page) */}
+          <div className="p-2.5 rounded-xl bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-teal-500/10 border border-emerald-500/20 flex items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🪙</span>
+              <div>
+                <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium">
+                  {isAr ? 'الحسنات المقدرة لورد اليوم (10 حسنات لكل حرف):' : 'Estimated Hasanat (10 Hasanat / Letter):'}
+                </span>
+                <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 font-mono">
+                  +{(currentWirdPages * 5500).toLocaleString()} {isAr ? 'حسنة مضاعفة 🤍' : 'Hasanat 🤍'}
+                </span>
+              </div>
+            </div>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/40 shrink-0">
+              {isAr ? '«بِكُلِّ حَرْفٍ حَسَنَةٌ»' : 'Hadith Based'}
+            </span>
+          </div>
+
           {/* Quick Increment Button */}
           <button
             onClick={handleIncrementQuranPage}

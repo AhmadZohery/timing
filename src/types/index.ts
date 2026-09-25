@@ -216,7 +216,7 @@ export interface DailyLog {
 }
 
 export type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha' | 'qiyam';
-export type PrayerStatus = 'pending' | 'on_time' | 'in_group' | 'late' | 'missed';
+export type PrayerStatus = 'pending' | 'on_time' | 'in_group' | 'late' | 'missed' | 'excused';
 
 export interface PrayerRecord {
   status: PrayerStatus;

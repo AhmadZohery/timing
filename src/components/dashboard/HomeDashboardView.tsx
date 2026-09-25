@@ -181,36 +181,64 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const isMaghrib = currentHour >= 18 && currentHour < 20;
   const isNight = currentHour >= 20 || currentHour < 4;
 
-  // Dignified Arabic greetings
+  // Dignified bilingual greetings
   const greeting = useMemo(() => {
-    const nameSuffix = activeProfile?.name ? ` يا ${activeProfile.name}` : '';
-    if (isFajrMorning) return `صباح النور والبركة${nameSuffix}`;
-    if (isForenoon) return `طاب يومك وبورك مسعاك${nameSuffix}`;
-    if (isNoon) return `ظهيرة موفقة ومفعمة بالإنجاز${nameSuffix}`;
-    if (isAsr) return `مساء الهمة والنشاط${nameSuffix}`;
-    if (isMaghrib) return `مساء الطمأنينة وحصاد الإنجاز${nameSuffix}`;
-    return `ليلة هادئة ومباركة${nameSuffix}`;
-  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, activeProfile?.name]);
+    if (isAr) {
+      const nameSuffix = activeProfile?.name ? ` يا ${activeProfile.name}` : '';
+      if (isFajrMorning) return `صباح النور والبركة${nameSuffix}`;
+      if (isForenoon) return `طاب يومك وبورك مسعاك${nameSuffix}`;
+      if (isNoon) return `ظهيرة موفقة ومفعمة بالإنجاز${nameSuffix}`;
+      if (isAsr) return `مساء الهمة والنشاط${nameSuffix}`;
+      if (isMaghrib) return `مساء الطمأنينة وحصاد الإنجاز${nameSuffix}`;
+      return `ليلة هادئة ومباركة${nameSuffix}`;
+    }
+    const nameSuffix = activeProfile?.name ? `, ${activeProfile.name}` : '';
+    if (isFajrMorning) return `Good morning & barakah${nameSuffix}`;
+    if (isForenoon) return `High momentum & focus${nameSuffix}`;
+    if (isNoon) return `Productive afternoon & steady flow${nameSuffix}`;
+    if (isAsr) return `Vibrant evening & energy${nameSuffix}`;
+    if (isMaghrib) return `Peaceful dusk & reflection${nameSuffix}`;
+    return `Serene & restful night${nameSuffix}`;
+  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, activeProfile?.name, isAr]);
 
   // Eloquent motivational message
   const motivationalMessage = useMemo(() => {
+    if (isAr) {
+      if (isFajrMorning) {
+        return 'أقبل عليك يومٌ جديد كصفحة بيضاء ناصعة لم يُكتب فيها إلا توكلك على الله. ابدأ بورد القرآن العظيم وأذكار الصباح، فمن بدأ يومه بالله كفاه الله سائر أمره.';
+      }
+      if (isForenoon) {
+        return 'أنت الآن في ذروة النشاط الذهني؛ ركّز في أهدافك الكبرى، وادخل شوط التركيز الأول دون مشتتات. ساعةٌ من التركيز التام تسبق يوماً من التردد.';
+      }
+      if (isNoon) {
+        return 'تفيأ ظلال صلاة الظهر وسِنة القيلولة النبوية (20 دقيقة)؛ فإنها تفرغ الإجهاد الإدراكي وتجدد صفاء الذهن لمواصلة السعي بهمة عالية.';
+      }
+      if (isAsr) {
+        return 'حافظ على صلاة العصر فإنها الصلاة الوسطى، ثم اشحن همتك في الجيم مستمعاً لأثير السيرة النبوية وبطولات الصحابة؛ فالمؤمن القوي أحب إلى الله.';
+      }
+      if (isMaghrib) {
+        return 'اقترب اليوم من ختامه؛ دوّن فكرتك الذهبية وإنجازاتك، واحمد الله على التوفيق والسداد، واستعد لمراجعة اليوم.';
+      }
+      return 'ضع أعباء النهار جانباً؛ اقرأ سورة الملك المانعة من عذاب القبر، وسبّح ربك قبل نومك، وتوجه إلى فراشك بقلب سليم راجياً بركة الغد.';
+    }
+
     if (isFajrMorning) {
-      return 'أقبل عليك يومٌ جديد كصفحة بيضاء ناصعة لم يُكتب فيها إلا توكلك على الله. ابدأ بورد القرآن العظيم وأذكار الصباح، فمن بدأ يومه بالله كفاه الله سائر أمره.';
+      return 'A pristine new day unfolds. Anchor your morning in the Quran and daily remembrance; whoever begins their day with Allah finds all their affairs guided and sustained.';
     }
     if (isForenoon) {
-      return 'أنت الآن في ذروة النشاط الذهني؛ ركّز في أهدافك الكبرى، وادخل شوط التركيز الأول دون مشتتات. ساعةٌ من التركيز التام تسبق يوماً من التردد.';
+      return 'You are in your prime cognitive window. Zero in on your highest-leverage goal and enter your first deep work sprint without distraction. One hour of pure focus outweighs a full day of hesitation.';
     }
     if (isNoon) {
-      return 'تفيأ ظلال صلاة الظهر وسِنة القيلولة النبوية (20 دقيقة)؛ فإنها تفرغ الإجهاد الإدراكي وتجدد صفاء الذهن لمواصلة السعي بهمة عالية.';
+      return 'Pause under the shade of Dhuhr prayer and a restorative 20-minute sunnah power nap. It resets cognitive bandwidth for relentless afternoon execution.';
     }
     if (isAsr) {
-      return 'حافظ على صلاة العصر فإنها الصلاة الوسطى، ثم اشحن همتك في الجيم مستمعاً لأثير السيرة النبوية وبطولات الصحابة؛ فالمؤمن القوي أحب إلى الله.';
+      return 'Preserve Asr, the middle prayer, then charge your vitality in training while tuning into inspiring prophetic history. A strong believer is beloved to Allah.';
     }
     if (isMaghrib) {
-      return 'اقترب اليوم من ختامه؛ دوّن فكرتك الذهبية وإنجازاتك، واحمد الله على التوفيق والسداد، واستعد لمراجعة اليوم.';
+      return 'The day winds down into harvest. Capture your golden insights, express gratitude for breakthroughs granted, and prepare for a mindful evening sprint.';
     }
-    return 'ضع أعباء النهار جانباً؛ اقرأ سورة الملك المانعة من عذاب القبر، وسبّح ربك قبل نومك، وتوجه إلى فراشك بقلب سليم راجياً بركة الغد.';
-  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib]);
+    return 'Release the weights of the day. Recite Surah Al-Mulk to protect and illuminate the night, glorify your Lord, and step into restorative sleep with a peaceful heart.';
+  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, isAr]);
 
   // Current suggested Station based on real hour
   const currentSuggestedStation = useMemo((): {
@@ -225,22 +253,26 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     if (isFajrMorning) {
       return {
         id: 'COMMUTE_MORNING',
-        title: 'ورد الصباح وتلاوة القرآن الكريم',
-        description: 'قراءة وِرد اليوم من سورة البقرة، أذكار الصباح، وحرز التوحيد (100 مرة).',
-        cta: 'انطلق إلى محطة القرآن الكريم 📖',
+        title: isAr ? 'ورد الصباح وتلاوة القرآن الكريم' : 'Morning Quran & Sunnah Wird',
+        description: isAr
+          ? 'قراءة وِرد اليوم من سورة البقرة، أذكار الصباح، وحرز التوحيد (100 مرة).'
+          : 'Read daily Quran portion, morning fortress adhkar, and 100x tawheed protection shield.',
+        cta: isAr ? 'انطلق إلى محطة القرآن الكريم 📖' : 'Enter Quran Station 📖',
         icon: BookOpen,
-        badge: 'المحطة 1 • نافذة الصباح الباكر',
+        badge: isAr ? 'المحطة 1 • نافذة الصباح الباكر' : 'Station 1 • Early Morning Window',
         badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
       };
     }
     if (isForenoon || isNoon) {
       return {
         id: 'WORK_MICRO_SPRINT',
-        title: 'شوط التركيز والعمل العميق',
-        description: 'إنجاز المهام ذات الأولوية القصوى، وتفعيل مؤقت التركيز (20 دقيقة) بلا مقاطعة.',
-        cta: 'انطلق إلى شوط التركيز ⚡',
+        title: isAr ? 'شوط التركيز والعمل العميق' : 'Deep Work & Focus Sprint',
+        description: isAr
+          ? 'إنجاز المهام ذات الأولوية القصوى، وتفعيل مؤقت التركيز (20 دقيقة) بلا مقاطعة.'
+          : 'Crush high-priority tasks and activate the 20-minute zero-interruption focus sprint.',
+        cta: isAr ? 'انطلق إلى شوط التركيز ⚡' : 'Start Focus Sprint ⚡',
         icon: Briefcase,
-        badge: 'المحطة 2 • ذروة الإنتاجية والإتقان',
+        badge: isAr ? 'المحطة 2 • ذروة الإنتاجية والإتقان' : 'Station 2 • Peak Productivity Window',
         badgeColor: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
       };
     }
@@ -313,24 +345,28 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     if (isMaghrib) {
       return {
         id: 'EVENING_SPRINT',
-        title: 'شوط المساء والتعلم الذاتي',
-        description: 'صلاة المغرب، مشاريعك وتطلعاتك الشخصية، والقراءة والمطالعة النافعة.',
-        cta: 'انطلق إلى شوط المساء 💻',
+        title: isAr ? 'شوط المساء والتعلم الذاتي' : 'Evening Sprint & Lifelong Learning',
+        description: isAr
+          ? 'صلاة المغرب، مشاريعك وتطلعاتك الشخصية، والقراءة والمطالعة النافعة.'
+          : 'Maghrib prayer, personal high-leverage projects, and reflective reading.',
+        cta: isAr ? 'انطلق إلى شوط المساء 💻' : 'Launch Evening Sprint 💻',
         icon: Laptop,
-        badge: 'المحطة 4 • جلسة البناء والتعلم',
+        badge: isAr ? 'المحطة 4 • جلسة البناء والتعلم' : 'Station 4 • Creative Build Session',
         badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
       };
     }
     return {
       id: 'RETROSPECTIVE_CHECKIN',
-      title: 'مراجعة اليوم وسكينة الليل',
-      description: 'تدوين الفكرة الذهبية، تقييم الإنجاز، سورة الملك، وأذكار النوم والاستشفاء.',
-      cta: 'انطلق إلى مراجعة اليوم 📊',
+      title: isAr ? 'مراجعة اليوم وسكينة الليل' : 'Daily Retrospective & Night Serenity',
+      description: isAr
+        ? 'تدوين الفكرة الذهبية، تقييم الإنجاز، سورة الملك، وأذكار النوم والاستشفاء.'
+        : 'Capture the golden nugget, evaluate progress, recite Surah Mulk, and sleep adhkar.',
+      cta: isAr ? 'انطلق إلى مراجعة اليوم 📊' : 'Start Retrospective 📊',
       icon: CheckCircle2,
-      badge: 'المحطة 5 • تفريغ الذهن والاستشفاء',
+      badge: isAr ? 'المحطة 5 • تفريغ الذهن والاستشفاء' : 'Station 5 • Cognitive Download & Recovery',
       badgeColor: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
     };
-  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib]);
+  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, isAr]);
 
   const streakDays = userState?.streakDays || 0;
   const totalPoints = userState?.totalPoints || 0;
@@ -427,18 +463,24 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900 dark:text-white">
-                    {isMorningTime ? 'أذكار الصباح المباركة ☀️' : 'أذكار المساء وحصن المسلم 🌙'}
+                    {isMorningTime
+                      ? (isAr ? 'أذكار الصباح المباركة ☀️' : 'Blessed Morning Adhkar ☀️')
+                      : (isAr ? 'أذكار المساء وحصن المسلم 🌙' : 'Evening Adhkar Fortress 🌙')}
                   </span>
                   {(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone) && (
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                      مكتملة ✔
+                      {isAr ? 'مكتملة ✔' : 'Done ✔'}
                     </span>
                   )}
                 </div>
                 <p className="text-[11px] text-amber-900/80 dark:text-zinc-300 line-clamp-1 leading-relaxed">
                   {isMorningTime
-                    ? (todayLog?.adhkarMorningDone ? 'تقبل الله منك! كُتبت في صحيفة حسناتك اليوم' : '«مَنْ قَالَهَا حِينَ يُصْبِحُ أُجِيرَ مِنَ الْجِنِّ حَتَّى يُمْسِيَ»')
-                    : (todayLog?.adhkarEveningDone ? 'حرسك الله! كُتبت لك الحماية من كل سوء' : '«مَنْ قَالَهَا حِينَ يُمْسِي كَانَ فِي حِفْظِ اللَّهِ حَتَّى يُصْبِحَ»')}
+                    ? (todayLog?.adhkarMorningDone
+                        ? (isAr ? 'تقبل الله منك! كُتبت في صحيفة حسناتك اليوم' : 'Completed! Recorded in your book of deeds')
+                        : (isAr ? '«مَنْ قَالَهَا حِينَ يُصْبِحُ أُجِيرَ مِنَ الْجِنِّ حَتَّى يُمْسِيَ»' : 'Prophetic protection from all harm until evening'))
+                    : (todayLog?.adhkarEveningDone
+                        ? (isAr ? 'حرسك الله! كُتبت لك الحماية من كل سوء' : 'Fortified! Allah’s divine protection granted')
+                        : (isAr ? '«مَنْ قَالَهَا حِينَ يُمْسِي كَانَ فِي حِفْظِ اللَّهِ حَتَّى يُصْبِحَ»' : 'Prophetic protection until morning dawn'))}
                 </p>
               </div>
             </div>
@@ -465,7 +507,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 const habitKey = isMorningTime ? 'adhkar_morning' : 'adhkar_evening';
                 const habitLabel = isMorningTime ? 'أذكار الصباح المباركة' : 'أذكار المساء وحصن المسلم';
                 const res = await awardSpiritualHabitPoints(habitKey, habitLabel);
-                onRewardToast(res.message || 'تم تسجيل الأذكار بنجاح (+20 نقطة)');
+                onRewardToast(res.message || (isAr ? 'تم تسجيل الأذكار بنجاح (+20 نقطة)' : 'Adhkar recorded successfully (+20 pts)'));
               }}
               className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 (isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
@@ -476,8 +518,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>
                 {(isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
-                  ? 'تمت القراءة بنجاح اليوم ✔'
-                  : 'أتممت القراءة 🤍 (+20 XP)'}
+                  ? (isAr ? 'تمت القراءة بنجاح اليوم ✔' : 'Adhkar Completed Today ✔')
+                  : (isAr ? 'أتممت القراءة 🤍 (+20 XP)' : 'Mark Done 🤍 (+20 XP)')}
               </span>
             </button>
 
@@ -490,7 +532,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               }}
               className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer shrink-0"
             >
-              <span>وضع الحافظ ⚡</span>
+              <span>{isAr ? 'وضع الحافظ ⚡' : 'Hafidh Mode ⚡'}</span>
             </button>
           </div>
         </div>
@@ -506,19 +548,21 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-black text-slate-900 dark:text-white">
                     {isTodayMonOrThu
-                      ? 'صيام التطوع اليوم (الإثنين / الخميس) 🤍'
+                      ? (isAr ? 'صيام التطوع اليوم (الإثنين / الخميس) 🤍' : 'Voluntary Fasting Today (Mon / Thu) 🤍')
                       : isTomorrowMonOrThu
-                      ? 'تذكير: غداً صيام مستحب (الإثنين / الخميس) 🌙'
-                      : 'سُنن الصيام ومواعيد الأيام البيض 🌙'}
+                      ? (isAr ? 'تذكير: غداً صيام مستحب (الإثنين / الخميس) 🌙' : 'Reminder: Tomorrow Sunnah Fasting (Mon / Thu) 🌙')
+                      : (isAr ? 'سُنن الصيام ومواعيد الأيام البيض 🌙' : 'Sunnah Fasting & White Days 🌙')}
                   </span>
                   {todayLog?.fastingDone && (
                     <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                      صائم ✔
+                      {isAr ? 'صائم ✔' : 'Fasting ✔'}
                     </span>
                   )}
                 </div>
                 <p className="text-[11px] text-emerald-900/80 dark:text-zinc-300 line-clamp-1 leading-relaxed">
-                  «تُعْرَضُ الأَعْمَالُ يَوْمَ الاِثْنَيْنِ وَالْخَمِيسِ فَأُحِبُّ أَنْ يُعْرَضَ عَمَلِي وَأَنَا صَائِمٌ»
+                  {isAr
+                    ? '«تُعْرَضُ الأَعْمَالُ يَوْمَ الاِثْنَيْنِ وَالْخَمِيسِ فَأُحِبُّ أَنْ يُعْرَضَ عَمَلِي وَأَنَا صَائِمٌ»'
+                    : '«Deeds are presented on Mon & Thu, and I love for my deeds to be presented while fasting»'}
                 </p>
               </div>
             </div>
@@ -542,7 +586,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 soundSynth.playStreakMilestoneChime();
                 haptic.vibrateSprintCelebration();
                 const res = await awardSpiritualHabitPoints('fasting' as any, 'صيام التطوع المبارك');
-                onRewardToast(res.message || '🤍 تقبل الله طاعتك! تم تسجيل صيام اليوم بنجاح (+25 نقطة)');
+                onRewardToast(res.message || (isAr ? '🤍 تقبل الله طاعتك! تم تسجيل صيام اليوم بنجاح (+25 نقطة)' : '🤍 May Allah accept! Fasting recorded (+25 pts)'));
               }}
               className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 todayLog?.fastingDone
@@ -552,7 +596,9 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>
-                {todayLog?.fastingDone ? 'تم تسجيل الصيام بنجاح اليوم ✔' : 'أنا صائم اليوم 🤍 (+25 XP)'}
+                {todayLog?.fastingDone
+                  ? (isAr ? 'تم تسجيل الصيام بنجاح اليوم ✔' : 'Fasting Logged Today ✔')
+                  : (isAr ? 'أنا صائم اليوم 🤍 (+25 XP)' : 'I am Fasting Today 🤍 (+25 XP)')}
               </span>
             </button>
 
@@ -564,7 +610,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               }}
               className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer shrink-0"
             >
-              <span>جدول الصيام 📅</span>
+              <span>{isAr ? 'جدول الصيام 📅' : 'Calendar 📅'}</span>
             </button>
           </div>
         </div>

@@ -177,7 +177,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   });
   const [isCityPickerOpen, setIsCityPickerOpen] = useState(false);
   const [selectedPrayerAction, setSelectedPrayerAction] = useState<PrayerName | null>(null);
-  const [modalStatus, setModalStatus] = useState<'in_group' | 'on_time' | 'late'>('in_group');
+  const [modalStatus, setModalStatus] = useState<'in_group' | 'on_time' | 'late' | 'excused'>('in_group');
   const [sunnahQabliyah, setSunnahQabliyah] = useState<number>(0);
   const [sunnahBadiyah, setSunnahBadiyah] = useState<number>(0);
   const [witrDone, setWitrDone] = useState<boolean>(false);
@@ -375,7 +375,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
   const handleMarkPrayer = async (
     prayer: PrayerName,
-    status: 'on_time' | 'in_group' | 'late',
+    status: 'on_time' | 'in_group' | 'late' | 'excused',
     sunnahDetails?: PrayerSunnahDetails
   ) => {
     const res = await awardPrayerPoints(prayer, status, prayerTimes.isFriday, sunnahDetails);
@@ -460,7 +460,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
   const completedPrayersCount = (['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as PrayerName[]).filter((pn) => {
     const rec = prayers[pn];
-    return rec && (rec.status === 'on_time' || rec.status === 'in_group' || rec.status === 'late');
+    return rec && (rec.status === 'on_time' || rec.status === 'in_group' || rec.status === 'late' || rec.status === 'excused');
   }).length;
 
   // Calculate confirmed 12 Sunnah Rawatib Rak'ahs completed today
@@ -988,7 +988,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           <div className="flex sm:grid sm:grid-cols-5 gap-3 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 scrollbar-none snap-x snap-mandatory pt-1 px-0.5">
             {prayerCards.map((p) => {
               const record = prayers[p.name];
-              const isDone = record && (record.status === 'on_time' || record.status === 'in_group' || record.status === 'late');
+              const isDone = record && (record.status === 'on_time' || record.status === 'in_group' || record.status === 'late' || record.status === 'excused');
               const isFajr = p.isFajr;
               const isJumuah = p.isJumuah;
               const isNext = nextPrayer.arabicName === p.title || (isJumuah && nextPrayer.arabicName.includes('الجمعة'));
@@ -1101,6 +1101,11 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                           <div className="w-full py-1.5 px-1 rounded-xl bg-slate-200/80 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold flex items-center justify-center gap-1">
                             <span>⏳</span>
                             <span className="truncate">{isAr ? 'قضاءً' : 'Late'}</span>
+                          </div>
+                        ) : record.status === 'excused' ? (
+                          <div className="w-full py-1.5 px-1 rounded-xl bg-purple-500/15 dark:bg-purple-500/25 border border-purple-500/30 text-purple-900 dark:text-purple-200 text-xs font-black flex items-center justify-center gap-1 shadow-2xs">
+                            <span>🕊️</span>
+                            <span className="truncate">{isAr ? 'رخصة / عذر' : 'Excused'}</span>
                           </div>
                         ) : (
                           <div className="w-full py-1.5 px-1 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 text-xs font-black flex items-center justify-center gap-1 shadow-2xs">
@@ -1725,7 +1730,9 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
         const isJumuah = p.isJumuah;
 
         // Calculate total expected reward
-        const basePts = isFajr
+        const basePts = modalStatus === 'excused'
+          ? 20
+          : isFajr
           ? (modalStatus === 'in_group' ? 45 : modalStatus === 'on_time' ? 35 : 10)
           : (modalStatus === 'in_group' ? 30 : modalStatus === 'on_time' ? 20 : 10);
         const totalSunnahRakats = sunnahQabliyah + sunnahBadiyah + (witrDone ? 3 : 0);
@@ -1788,7 +1795,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                 <label className="text-[11px] font-black text-slate-700 dark:text-zinc-300 block">
                   {isAr ? '1. حالة أداء الفريضة:' : '1. Prayer Status:'}
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {/* Mosque / Group */}
                   <button
                     type="button"
@@ -1837,6 +1844,23 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                     <span className="text-xs leading-tight">{isAr ? 'قضاءً بعد الوقت' : 'Late / Qada'}</span>
                     <span className="font-mono text-[10px] font-bold text-slate-500">
                       +10ن
+                    </span>
+                  </button>
+
+                  {/* Pillars-Inspired: Excused / Travel (Zero Guilt) */}
+                  <button
+                    type="button"
+                    onClick={() => setModalStatus('excused')}
+                    className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
+                      modalStatus === 'excused'
+                        ? 'bg-purple-500/15 border-purple-500 text-purple-950 dark:text-purple-200 ring-2 ring-purple-500/30 font-black shadow-xs'
+                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] text-slate-700 dark:text-zinc-300 font-bold'
+                    }`}
+                  >
+                    <span className="text-xl">🕊️</span>
+                    <span className="text-xs leading-tight">{isAr ? 'رخصة / عذر شرعي' : 'Excused / Travel'}</span>
+                    <span className="font-mono text-[10px] font-bold text-purple-600 dark:text-purple-400">
+                      +20ن 🛡️
                     </span>
                   </button>
                 </div>
