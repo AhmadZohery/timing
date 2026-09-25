@@ -184,6 +184,8 @@ export interface DailyLog {
   customWirdProgress?: Record<string, DailyWirdProgressItem>;
   surahYasinDone?: boolean;
   surahMulkDone?: boolean;
+  surahKahfDone?: boolean;
+  fridaySalawatCount?: number;
   qiyamNightDone?: boolean;
   qiyamRakats?: number;
   dhuhaDone?: boolean;

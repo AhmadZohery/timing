@@ -278,9 +278,9 @@ export async function awardPrayerPoints(
   return reward;
 }
 
-// Award points for specific spiritual daily habits (Baqarah, Yasin, Mulk, Qiyam, Adhkar)
+// Award points for specific spiritual daily habits (Baqarah, Yasin, Mulk, Kahf, Qiyam, Adhkar)
 export async function awardSpiritualHabitPoints(
-  habitKey: 'baqarah' | 'yasin' | 'mulk' | 'qiyam' | 'adhkar_morning' | 'adhkar_evening' | 'adhkar_sleep',
+  habitKey: 'baqarah' | 'yasin' | 'mulk' | 'kahf' | 'qiyam' | 'adhkar_morning' | 'adhkar_evening' | 'adhkar_sleep',
   title: string
 ): Promise<RewardResult> {
   const user = await db.user_state.get('current_user');
@@ -288,7 +288,7 @@ export async function awardSpiritualHabitPoints(
 
   let basePoints = 15;
   if (habitKey === 'baqarah') basePoints = 35;
-  else if (habitKey === 'qiyam') basePoints = 30;
+  else if (habitKey === 'qiyam' || habitKey === 'kahf') basePoints = 30;
   else if (habitKey === 'yasin' || habitKey === 'mulk') basePoints = 15;
   else if (habitKey.startsWith('adhkar')) basePoints = 15;
 
@@ -320,6 +320,8 @@ export async function awardSpiritualHabitPoints(
     updates.surahYasinDone = true;
   } else if (habitKey === 'mulk') {
     updates.surahMulkDone = true;
+  } else if (habitKey === 'kahf') {
+    updates.surahKahfDone = true;
   } else if (habitKey === 'qiyam') {
     updates.qiyamNightDone = true;
   } else if (habitKey === 'adhkar_morning') {

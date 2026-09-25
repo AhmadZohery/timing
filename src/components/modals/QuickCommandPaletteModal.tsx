@@ -328,6 +328,20 @@ const QuickCommandPaletteModalContent: React.FC<QuickCommandPaletteModalProps> =
         },
       },
       {
+        id: 'spiritual_surah_kahf',
+        title: isAr ? 'سورة الكهف والصلاة على النبي ﷺ (بركة الجمعة) 🕌' : 'Surah Al-Kahf & Friday Salawat 🕌',
+        subtitle: isAr ? 'المصحف الشريف كاملًا، تدبر القصص الأربع، وعداد الصلوات (+30 XP)' : 'Complete Surah Al-Kahf, 4 Life Lessons & Salawat counter',
+        category: 'spiritual',
+        icon: BookOpen,
+        iconColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
+        badge: '🕌 الجمعة',
+        keywords: ['كهف', 'جمعة', 'صلاة', 'نبي', 'kahf', 'friday', 'salawat', 'surah', 'قرآن'],
+        action: () => {
+          onSelectStation('HOME');
+          onClose();
+        },
+      },
+      {
         id: 'faith_audio_hub',
         title: isAr ? 'أثير الوعي والدروس الإيمانية والفكرية 🎙️' : 'Faith & Intellectual Audio Sanctuary 🎙️',
         subtitle: isAr ? 'د. أحمد عبد المنعم، م. أيمن عبد الرحيم، الشيخ أمجد سمير، تضمين ساوند كلاود' : 'Scholars, intellectual series, and SoundCloud player',
@@ -400,6 +414,34 @@ const QuickCommandPaletteModalContent: React.FC<QuickCommandPaletteModalProps> =
         keywords: ['أرشيف', 'تاريخ', 'تقويم', 'سجل', 'archive', 'calendar', 'history'],
         action: () => {
           onOpenArchive?.();
+          onClose();
+        },
+      },
+      {
+        id: 'tool_pm_standup',
+        title: isAr ? 'الوقفة اليومية وتكتيكات إدارة المشاريع (Daily PM Standup) 🎙️' : 'Daily Standup & Executive PM Phrases 🎙️',
+        subtitle: isAr ? 'شحن تقرير الستاند اب لـ Slack/Teams ومراجعة تكتيك إداري ناطق' : 'Prepare and export standup report for Slack/Teams with audio phrase',
+        category: 'tools',
+        icon: Briefcase,
+        iconColor: 'text-sky-500 bg-sky-500/10 border-sky-500/30',
+        badge: '🎙️ Standup',
+        keywords: ['standup', 'agile', 'scrum', 'pm', 'slack', 'teams', 'وقفة', 'تقرير', 'إدارة', 'مشاريع'],
+        action: () => {
+          onSelectStation('WORK_MICRO_SPRINT');
+          onClose();
+        },
+      },
+      {
+        id: 'tool_weekly_harvest',
+        title: isAr ? 'تقرير حصاد البركة الأسبوعي وسرعة الإنجاز 📊' : 'Weekly Barakah Velocity & Harvest Report 📊',
+        subtitle: isAr ? 'تحليل شامل للأركان الأربعة، بطاقة التزكية، وساعات العمل العميق' : '7-day analytics across 4 life pillars with Tazkiyah shield',
+        category: 'tools',
+        icon: Sparkles,
+        iconColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
+        badge: 'حصاد',
+        keywords: ['حصاد', 'بركة', 'أسبوعي', 'تقرير', 'weekly', 'harvest', 'barakah', 'velocity'],
+        action: () => {
+          onOpenEvaluation?.();
           onClose();
         },
       },

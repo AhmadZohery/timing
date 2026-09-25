@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Feather,
   Calendar,
+  Sparkles,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, UserProfile } from '../../types';
 import { TARGET_LANGUAGES } from '../../data/languages/vocabularyDatabase';
@@ -50,6 +51,8 @@ import { getHijriDateDetails } from '../../utils/prayerCalculator';
 import { awardSpiritualHabitPoints } from '../../utils/gamification';
 import { QuickActionDock } from './QuickActionDock';
 import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
+import { FridayKahfModal } from '../spiritual/FridayKahfModal';
+import { checkIsFridaySalawatWindow } from '../../utils/tasbihEngine';
 
 interface HomeDashboardViewProps {
   userState?: UserState;
@@ -145,6 +148,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const [isNawafilModalOpen, setIsNawafilModalOpen] = useState(false);
   const [nawafilModalTab, setNawafilModalTab] = useState<NafilaTab>('qiyam');
   const [isWeeklyReportOpen, setIsWeeklyReportOpen] = useState(false);
+  const [isFridayModalOpen, setIsFridayModalOpen] = useState(false);
+
+  const fridayWindow = useMemo(() => {
+    return checkIsFridaySalawatWindow(now, userState?.settings?.prayerLocation);
+  }, [currentHour, userState?.settings?.prayerLocation]);
 
   // Live Quran Progress Query & Quick Increment Handler
   const quranList = useLiveQuery(() => db.quran_progress.toArray(), []);
@@ -506,6 +514,52 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       />
 
 
+
+      {/* ============================================================ */}
+      {/* 1.55. FRIDAY BARAKAH SANCTUARY: سورة الكهف والصلاة على النبي    */}
+      {/* ============================================================ */}
+      {fridayWindow.isWindow && (
+        <div
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setIsFridayModalOpen(true);
+          }}
+          className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-amber-500/15 border border-amber-500/30 shadow-xs flex items-center justify-between gap-4 cursor-pointer hover:border-amber-500/50 transition-all active:scale-[0.99] group select-none"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                  {fridayWindow.badgeAr}
+                </span>
+                {todayLog?.surahKahfDone && (
+                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>{isAr ? 'أُتمت الكهف ✓' : 'Kahf Read ✓'}</span>
+                  </span>
+                )}
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight mt-0.5 truncate">
+                {fridayWindow.titleAr}
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-1 mt-0.5 font-sans">
+                {fridayWindow.descriptionAr}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-xs shrink-0 transition-transform group-hover:scale-105 cursor-pointer"
+          >
+            {isAr ? 'فتح الكهف والصلوات ✨' : 'Open Kahf & Salawat ✨'}
+          </button>
+        </div>
+      )}
 
       {/* ============================================================ */}
       {/* 1.6. SMART TIME-BASED ADHKAR & SUNNAH FASTING SUITE          */}
@@ -1495,6 +1549,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         userState={userState}
         dailyLogs={allDailyLogs || []}
         todayLog={todayLog}
+      />
+
+      {/* Friday Barakah & Surah Al-Kahf Sanctuary Modal */}
+      <FridayKahfModal
+        isOpen={isFridayModalOpen}
+        onClose={() => setIsFridayModalOpen(false)}
+        isCompleted={todayLog?.surahKahfDone}
+        onRewardToast={onRewardToast}
       />
     </div>
   );
