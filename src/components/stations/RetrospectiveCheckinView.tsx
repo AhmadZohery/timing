@@ -9,12 +9,14 @@ import {
   ArrowLeft,
   ArrowRight,
   Trophy,
+  Anchor,
 } from 'lucide-react';
 import { speechService } from '../../services/speechService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { ZeroTypingChips, ZERO_TYPING_PRESETS } from '../common/ZeroTypingChips';
+import { MizanMuhasabahCard } from '../spiritual/MizanMuhasabahCard';
 
 interface RetrospectiveCheckinViewProps {
   isCompleted: boolean;
@@ -24,6 +26,7 @@ interface RetrospectiveCheckinViewProps {
   goldenNugget: string;
   onSaveRetrospective: (voiceNotes: string, goldenNugget: string) => void;
   onOpenEvaluation?: () => void;
+  onRewardToast?: (msg: string) => void;
 }
 
 export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> = ({
@@ -34,6 +37,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
   goldenNugget: initialGoldenNugget,
   onSaveRetrospective,
   onOpenEvaluation,
+  onRewardToast,
 }) => {
   const { t, language } = useTranslation();
 
@@ -117,6 +121,9 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
           </span>
         </div>
       </div>
+
+      {/* Mizan Al-Muhasabah: Classical Islamic Daily Audit & Purity Index */}
+      <MizanMuhasabahCard onRewardToast={onRewardToast} />
 
       {/* Responsive 2-Column Grid for Retrospective Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
@@ -259,7 +266,8 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
           <div className="p-5 rounded-2xl bg-gradient-to-r from-teal-50/80 to-emerald-50/70 dark:from-teal-950/20 dark:to-emerald-950/20 border border-teal-200 dark:border-teal-800/40 space-y-2.5 shadow-xs">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-teal-900 dark:text-teal-300 flex items-center gap-1.5">
-                <span>⚓ {t('tomorrow_anchor_title')}</span>
+                <Anchor className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                <span>{t('tomorrow_anchor_title')}</span>
               </h3>
               <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-relaxed">
                 {t('tomorrow_anchor_desc')}
@@ -341,7 +349,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               title={language === 'ar' ? 'عرض تقرير وتقييم اليوم والأسبوع' : 'View Evaluation Report'}
             >
               <Trophy className="w-4 h-4 text-amber-600" />
-              <span className="hidden sm:inline">{language === 'ar' ? 'تقرير وتقييم اليوم 📊' : 'Evaluation Report 📊'}</span>
+              <span className="hidden sm:inline">{language === 'ar' ? 'تقرير وتقييم اليوم' : 'Evaluation Report'}</span>
             </button>
           )}
 

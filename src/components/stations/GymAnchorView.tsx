@@ -16,6 +16,7 @@ import {
   Calculator,
   Copy,
   ShieldAlert,
+  Compass,
 } from 'lucide-react';
 import type { WorkoutExercise, WorkoutSet, UserState } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -26,6 +27,7 @@ import { CombatSportsModule } from './CombatSportsModule';
 import { TeamSportsModule } from './TeamSportsModule';
 import { FitnessIntervalEngine } from './FitnessIntervalEngine';
 import { WarmupPyramidModal } from './WarmupPyramidModal';
+import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import { db } from '../../db/db';
 import { gymFaithAudio } from '../../services/gymFaithAudioService';
 
@@ -45,6 +47,7 @@ interface GymAnchorViewProps {
   onNextStation: () => void;
   userState?: UserState;
   onRewardToast?: (msg: string) => void;
+  onOpenNiyyahModal?: (pillar?: NiyyahPillar) => void;
 }
 
 type RoutineType = 'push' | 'pull' | 'legs' | 'cardio' | 'survival';
@@ -56,6 +59,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
   onNextStation,
   userState,
   onRewardToast,
+  onOpenNiyyahModal,
 }) => {
   const { t, language } = useTranslation();
   const isAr = language === 'ar';
@@ -162,6 +166,11 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
   const [isWarmupModalOpen, setIsWarmupModalOpen] = useState(false);
   const [warmupTargetExercise, setWarmupTargetExercise] = useState('Bench Press');
   const [warmupTargetExerciseId, setWarmupTargetExerciseId] = useState<string | null>(null);
+
+  // Niyyah (Intention) Consecration Engine
+  const [activeBodyNiyyah, setActiveBodyNiyyah] = useState<string>(() => {
+    return localStorage.getItem('midmar_body_niyyah') || 'strong_believer';
+  });
 
   // Save exercises to local storage
   const saveExercises = (updated: WorkoutExercise[]) => {
@@ -549,6 +558,73 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           <span>🧘</span>
           <span>{isAr ? 'إطالات واستشفاء' : 'Mobility'}</span>
         </button>
+      </div>
+
+      {/* Physical Niyyah Consecration Bar */}
+      <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-emerald-500/10 border border-orange-500/25 flex flex-wrap items-center justify-between gap-2.5 shadow-2xs">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-xl bg-orange-500/20 text-orange-700 dark:text-orange-400 shrink-0">
+            <Compass className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-[10px] font-mono font-bold uppercase text-orange-700 dark:text-orange-400 block leading-tight">
+              {isAr ? 'استحضار نية البدن والرياضة' : 'Body & Vitality Intention'}
+            </span>
+            <span className="text-xs font-black text-slate-800 dark:text-zinc-200 leading-tight">
+              {isAr ? '«الْمُؤْمِنُ الْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللَّهِ»' : '"The strong believer is beloved to Allah"'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {[
+            { id: 'strong_believer', labelAr: 'المؤمن القوي أحب إلى الله', labelEn: 'Strong Believer' },
+            { id: 'body_trust', labelAr: 'صيانة أمانة الجسد والصحة', labelEn: 'Body Safeguarding' },
+            { id: 'worship_vitality', labelAr: 'التقوي على طاعة الله ومكابدة الحياة', labelEn: 'Strength for Worship' },
+            { id: 'refresh_stamina', labelAr: 'ترويح مباح وشحذ العزيمة', labelEn: 'Permissible Stamina' },
+          ].map((chip) => {
+            const isSelected = activeBodyNiyyah === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setActiveBodyNiyyah(chip.id);
+                  localStorage.setItem('midmar_body_niyyah', chip.id);
+                  if (onRewardToast) {
+                    onRewardToast(
+                      isAr
+                        ? `عُقدت نية البدن: ${chip.labelAr} 🌿`
+                        : `Physical intention set: ${chip.labelEn}`
+                    );
+                  }
+                }}
+                className={`py-1 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-orange-500 text-white shadow-xs ring-1 ring-orange-600 font-black'
+                    : 'bg-white/80 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-orange-500/20 hover:border-orange-500/40'
+                }`}
+              >
+                {isSelected && '✓ '}
+                {isAr ? chip.labelAr : chip.labelEn}
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              if (onOpenNiyyahModal) onOpenNiyyahModal('body');
+            }}
+            className="p-1 px-2.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-800 dark:text-orange-300 text-[10px] font-bold cursor-pointer transition-colors"
+            title={isAr ? 'فتح محراب النوايا الأربع الكامل' : 'Open Full Niyyah Sanctuary'}
+          >
+            {isAr ? 'المحراب الكامل ←' : 'Full Sanctuary ←'}
+          </button>
+        </div>
       </div>
 
       {/* Movement View: Combat Sports (Boxing, Muay Thai, BJJ) */}

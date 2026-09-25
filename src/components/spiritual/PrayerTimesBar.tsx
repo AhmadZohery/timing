@@ -37,6 +37,7 @@ import { checkIsFridaySalawatWindow, type TasbihPresetId } from '../../utils/tas
 import { autoDetectAndSyncPrayerLocation, fetchAladhanPrayerTimings } from '../../services/onlinePrayerService';
 import { MUADHIN_OPTIONS } from '../../utils/prayerCalculator';
 import { NawafilGuideModal, type NafilaTab } from './NawafilGuideModal';
+import { QadaaPrayerTracker } from './QadaaPrayerTracker';
 
 interface CelestialTheme {
   celestialIcon: string;
@@ -142,7 +143,7 @@ const CELESTIAL_THEMES: Record<PrayerName, CelestialTheme> = {
   },
 };
 
-type SanctuaryTab = 'meeqat' | 'qiyam' | 'sunan' | 'tasbih';
+type SanctuaryTab = 'meeqat' | 'qiyam' | 'sunan' | 'qadaa' | 'tasbih';
 
 export interface PrayerTimesBarProps {
   todayLog?: DailyLog | null;
@@ -626,9 +627,9 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 2. SANCTUARY 4-PILLAR REFINED SEGMENTED TABS                 */}
+      {/* 2. SANCTUARY 5-PILLAR REFINED SEGMENTED TABS                 */}
       {/* ============================================================ */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/[0.06]">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 p-1 rounded-2xl bg-slate-100/90 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/[0.06]">
         {/* Tab 1: Meeqat & 5 Prayers */}
         <button
           type="button"
@@ -637,14 +638,14 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             haptic.vibrateLight();
             setSanctuaryTab('meeqat');
           }}
-          className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+          className={`py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             sanctuaryTab === 'meeqat'
               ? 'bg-white dark:bg-zinc-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-white/10'
               : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
           <span>🕌</span>
-          <span>{isAr ? 'الصلوات والميقات' : 'Daily Prayers'}</span>
+          <span className="truncate">{isAr ? 'الصلوات والميقات' : 'Daily Prayers'}</span>
         </button>
 
         {/* Tab 2: Qiyam Al-Layl & Night Vigil */}
@@ -655,15 +656,15 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             haptic.vibrateLight();
             setSanctuaryTab('qiyam');
           }}
-          className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+          className={`py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             sanctuaryTab === 'qiyam'
               ? 'bg-white dark:bg-zinc-800 text-indigo-700 dark:text-indigo-300 shadow-sm ring-1 ring-indigo-300 dark:ring-indigo-700/50'
               : 'text-slate-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-300'
           }`}
         >
           <span>🌌</span>
-          <span>{isAr ? 'محراب قيام الليل' : 'Night Vigil'}</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+          <span className="truncate">{isAr ? 'قيام الليل' : 'Night Vigil'}</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
         </button>
 
         {/* Tab 3: 12 Sunan Rawatib & Nawafil */}
@@ -674,17 +675,35 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             haptic.vibrateLight();
             setSanctuaryTab('sunan');
           }}
-          className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+          className={`py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             sanctuaryTab === 'sunan'
               ? 'bg-white dark:bg-zinc-800 text-amber-700 dark:text-amber-300 shadow-sm ring-1 ring-amber-300 dark:ring-amber-700/50'
               : 'text-slate-600 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-300'
           }`}
         >
           <span>🕊️</span>
-          <span>{isAr ? 'السنن الرواتب (١٢)' : 'Sunan Rawatib'}</span>
+          <span className="truncate">{isAr ? 'السنن الرواتب (١٢)' : 'Sunan Rawatib'}</span>
         </button>
 
-        {/* Tab 4: Post-Prayer Dhikr & Tasbih */}
+        {/* Tab 4: Qadaa Al-Fawait Debt Repayment */}
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setSanctuaryTab('qadaa');
+          }}
+          className={`py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            sanctuaryTab === 'qadaa'
+              ? 'bg-white dark:bg-zinc-800 text-teal-700 dark:text-teal-300 shadow-sm ring-1 ring-teal-300 dark:ring-teal-700/50'
+              : 'text-slate-600 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-300'
+          }`}
+        >
+          <span>⚖️</span>
+          <span className="truncate">{isAr ? 'قضاء الفوائت' : 'Qadaa Debt'}</span>
+        </button>
+
+        {/* Tab 5: Post-Prayer Dhikr & Tasbih */}
         <button
           type="button"
           onClick={() => {
@@ -692,14 +711,14 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             haptic.vibrateLight();
             setSanctuaryTab('tasbih');
           }}
-          className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+          className={`col-span-2 sm:col-span-1 py-2 px-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             sanctuaryTab === 'tasbih'
               ? 'bg-white dark:bg-zinc-800 text-emerald-700 dark:text-emerald-300 shadow-sm ring-1 ring-emerald-300 dark:ring-emerald-700/50'
               : 'text-slate-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-300'
           }`}
         >
           <span>📿</span>
-          <span>{isAr ? 'ختام الصلاة والمسبحة' : 'Tasbih & Dhikr'}</span>
+          <span className="truncate">{isAr ? 'المسبحة والأذكار' : 'Tasbih & Dhikr'}</span>
         </button>
       </div>
 
@@ -1540,7 +1559,14 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       )}
 
       {/* ============================================================ */}
-      {/* TAB 4: 📿 POST-PRAYER DHIKR & INTERACTIVE HAPTIC TASBIH       */}
+      {/* TAB 4: ⚖️ QADAA AL-FAWAIT DEBT CLEARANCE TRACKER              */}
+      {/* ============================================================ */}
+      {sanctuaryTab === 'qadaa' && (
+        <QadaaPrayerTracker onRewardToast={onRewardToast} />
+      )}
+
+      {/* ============================================================ */}
+      {/* TAB 5: 📿 POST-PRAYER DHIKR & INTERACTIVE HAPTIC TASBIH       */}
       {/* ============================================================ */}
       {sanctuaryTab === 'tasbih' && (
         <div className="space-y-5 animate-fade-in">

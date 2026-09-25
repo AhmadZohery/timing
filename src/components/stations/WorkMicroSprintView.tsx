@@ -16,6 +16,7 @@ import {
   FileCheck,
   Zap,
   GraduationCap,
+  Compass,
 } from 'lucide-react';
 import { useWorkerTimer } from '../../hooks/useWorkerTimer';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -23,6 +24,7 @@ import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { WorkdayPlanner } from '../work/WorkdayPlanner';
 import { SelfLearningTracker } from '../learning/SelfLearningTracker';
+import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import { db } from '../../db/db';
 
 interface WorkMicroSprintViewProps {
@@ -34,6 +36,7 @@ interface WorkMicroSprintViewProps {
   todayDate?: string;
   onOpenTwoMinuteRule?: (taskTitle?: string) => void;
   onRewardToast?: (msg: string) => void;
+  onOpenNiyyahModal?: (pillar?: NiyyahPillar) => void;
 }
 
 type SprintPhase = 'LEARNING_SPRINT' | 'ONE_SEC_FRICTION' | 'SOCIAL_BREAK' | 'DONE';
@@ -47,6 +50,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   todayDate,
   onOpenTwoMinuteRule,
   onRewardToast,
+  onOpenNiyyahModal,
 }) => {
   const { t, language } = useTranslation();
   const effectiveToday = todayDate || new Date().toISOString().split('T')[0];
@@ -86,6 +90,11 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   const [urgeSeconds, setUrgeSeconds] = useState(60);
   const [surfedCount, setSurfedCount] = useState(() => {
     return Number(localStorage.getItem('midmar_urge_count') || '0');
+  });
+
+  // Niyyah (Intention) Consecration Engine
+  const [activeNiyyah, setActiveNiyyah] = useState<string>(() => {
+    return localStorage.getItem('midmar_work_niyyah') || 'livelihood_halal';
   });
 
   // 20-minute learning timer (1200 sec)
@@ -292,7 +301,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           }`}
         >
           <GraduationCap className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
-          <span className="truncate">{language === 'ar' ? 'مسار وسجل التعلم 📖' : 'Learning Tracker'}</span>
+          <span className="truncate">{language === 'ar' ? 'مسار وسجل التعلم' : 'Learning Tracker'}</span>
         </button>
 
         <button
@@ -309,6 +318,73 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           <Zap className="w-3.5 h-3.5 shrink-0 text-amber-500" />
           <span className="truncate">{language === 'ar' ? 'شوط 20 دقيقة' : 'Quick Sprint'}</span>
         </button>
+      </div>
+
+      {/* Niyyah (Intention) Consecration Bar */}
+      <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-emerald-500/10 border border-amber-500/25 flex flex-wrap items-center justify-between gap-2.5 shadow-2xs">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 shrink-0">
+            <Compass className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-[10px] font-mono font-bold uppercase text-amber-700 dark:text-amber-400 block leading-tight">
+              {language === 'ar' ? 'استحضار النية وتجديد الاحتساب' : 'Intention Consecration'}
+            </span>
+            <span className="text-xs font-black text-slate-800 dark:text-zinc-200 leading-tight">
+              {language === 'ar' ? '«إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ»' : '"Actions are by intentions"'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {[
+            { id: 'livelihood_halal', labelAr: 'كفاية الأهل والرزق الحلال', labelEn: 'Halal Sustenance' },
+            { id: 'knowledge_mastery', labelAr: 'طلب العلم وإتقان الصنعة', labelEn: 'Knowledge & Mastery' },
+            { id: 'ummah_growth', labelAr: 'عمارة الأرض ونفع الأمة', labelEn: 'Building Ummah' },
+            { id: 'self_chastity', labelAr: 'الاستغناء بالحلال عن الحرام', labelEn: 'Self-Sufficiency' },
+          ].map((chip) => {
+            const isSelected = activeNiyyah === chip.id;
+            return (
+              <button
+                key={chip.id}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setActiveNiyyah(chip.id);
+                  localStorage.setItem('midmar_work_niyyah', chip.id);
+                  if (onRewardToast) {
+                    onRewardToast(
+                      language === 'ar'
+                        ? `عُقدت النية: ${chip.labelAr} ✨`
+                        : `Intention set: ${chip.labelEn}`
+                    );
+                  }
+                }}
+                className={`py-1 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-600 font-black'
+                    : 'bg-white/80 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-amber-500/20 hover:border-amber-500/40'
+                }`}
+              >
+                {isSelected && '✓ '}
+                {language === 'ar' ? chip.labelAr : chip.labelEn}
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              if (onOpenNiyyahModal) onOpenNiyyahModal('livelihood');
+            }}
+            className="p-1 px-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-800 dark:text-amber-300 text-[10px] font-bold cursor-pointer transition-colors"
+            title={language === 'ar' ? 'فتح محراب النوايا الأربع الكامل' : 'Open Full Niyyah Sanctuary'}
+          >
+            {language === 'ar' ? 'المحراب الكامل ←' : 'Full Sanctuary ←'}
+          </button>
+        </div>
       </div>
 
       {workViewMode === 'planner' ? (
@@ -678,7 +754,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                   onClick={handleCloseUrgeSurfing}
                   className="py-2.5 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition-all shadow-md active:scale-95 cursor-pointer"
                 >
-                  {language === 'ar' ? 'العودة إلى العمل الآن 🚀' : 'Back to work now 🚀'}
+                  {language === 'ar' ? 'العودة إلى العمل الآن' : 'Back to work now'}
                 </button>
               </div>
             )}

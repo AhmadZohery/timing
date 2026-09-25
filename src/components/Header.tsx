@@ -78,6 +78,7 @@ interface HeaderProps {
   onLogout?: () => void;
   onOpenArabicPoetry?: () => void;
   onOpenLifeWisdom?: () => void;
+  onOpenNiyyahModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -109,6 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPrideTicket,
   onOpenArabicPoetry,
   onOpenLifeWisdom,
+  onOpenNiyyahModal,
   isPwaStandalone,
   activeProfileName,
   activeProfileEmoji,
@@ -418,6 +420,22 @@ export const Header: React.FC<HeaderProps> = ({
               className="hidden sm:flex p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 cursor-pointer shadow-xs transition-colors"
             >
               <Moon className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Niyyah (Intention) Consecration Quick Trigger */}
+          {onOpenNiyyahModal && (
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenNiyyahModal();
+              }}
+              title={language === 'ar' ? 'محراب استحضار وتجديد النوايا الأربع' : 'Niyyah & Intention Sanctuary'}
+              className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 cursor-pointer shadow-xs transition-colors"
+            >
+              <Compass className="w-4 h-4" />
             </button>
           )}
 

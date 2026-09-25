@@ -38,6 +38,7 @@ import { HomeDashboardView } from './components/dashboard/HomeDashboardView';
 import { GlobalAudioCapsule } from './components/spiritual/GlobalAudioCapsule';
 import type { DailyTadabburItem } from './data/dailyTadabburData';
 import type { TasbihPresetId } from './utils/tasbihEngine';
+import type { NiyyahPillar } from './components/spiritual/NiyyahSanctuaryModal';
 import { AuthGateView } from './components/auth/AuthGateView';
 import { authService } from './services/authService';
 
@@ -69,6 +70,7 @@ const SmartTasbihModal = lazy(() => import('./components/modals/SmartTasbihModal
 const DailyPrideTicketModal = lazy(() => import('./components/modals/DailyPrideTicketModal').then((m) => ({ default: m.DailyPrideTicketModal })));
 const DailyTadabburModal = lazy(() => import('./components/modals/DailyTadabburModal').then((m) => ({ default: m.DailyTadabburModal })));
 const FaithAudioSanctuaryModal = lazy(() => import('./components/spiritual/FaithAudioSanctuaryModal').then((m) => ({ default: m.FaithAudioSanctuaryModal })));
+const NiyyahSanctuaryModal = lazy(() => import('./components/spiritual/NiyyahSanctuaryModal').then((m) => ({ default: m.NiyyahSanctuaryModal })));
 
 // Active Station Persistence across page refreshes
 const ALL_STATIONS: StationId[] = [
@@ -204,6 +206,13 @@ export function App() {
   const [isFaithAudioModalOpen, setIsFaithAudioModalOpen] = useState(false);
   const [isArabicPoetryOpen, setIsArabicPoetryOpen] = useState(false);
   const [isLifeWisdomOpen, setIsLifeWisdomOpen] = useState(false);
+  const [isNiyyahModalOpen, setIsNiyyahModalOpen] = useState(false);
+  const [niyyahInitialPillar, setNiyyahInitialPillar] = useState<NiyyahPillar>('livelihood');
+
+  const handleOpenNiyyah = (pillar: NiyyahPillar = 'livelihood') => {
+    setNiyyahInitialPillar(pillar);
+    setIsNiyyahModalOpen(true);
+  };
 
   const handleOpenTadabburModal = (item?: DailyTadabburItem, tab: 'quran' | 'hadith' = 'quran') => {
     setTadabburInitialItem(item);
@@ -547,6 +556,7 @@ export function App() {
         onOpenPrideTicket={() => setIsDailyPrideTicketOpen(true)}
         onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
         onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
+        onOpenNiyyahModal={() => handleOpenNiyyah('livelihood')}
         isPwaStandalone={pwaState.isStandalone}
         activeProfileName={activeProfile?.name}
         activeProfileEmoji={activeProfile?.avatarEmoji}
@@ -695,6 +705,7 @@ export function App() {
                     setRewardToast(msg);
                     setTimeout(() => setRewardToast(null), 3500);
                   }}
+                  onOpenNiyyahModal={handleOpenNiyyah}
                 />
               )}
 
@@ -709,6 +720,7 @@ export function App() {
                     setRewardToast(msg);
                     setTimeout(() => setRewardToast(null), 3500);
                   }}
+                  onOpenNiyyahModal={handleOpenNiyyah}
                 />
               )}
 
@@ -737,6 +749,10 @@ export function App() {
                   goldenNugget={todayLog?.goldenNugget || ''}
                   onSaveRetrospective={handleSaveRetrospective}
                   onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
+                  onRewardToast={(msg) => {
+                    setRewardToast(msg);
+                    setTimeout(() => setRewardToast(null), 3500);
+                  }}
                 />
               )}
 
@@ -1125,6 +1141,17 @@ export function App() {
       <LifeWisdomModal
         isOpen={isLifeWisdomOpen}
         onClose={() => setIsLifeWisdomOpen(false)}
+        onRewardToast={(msg) => {
+          setRewardToast(msg);
+          setTimeout(() => setRewardToast(null), 3500);
+        }}
+      />
+
+      {/* Flagship Niyyah Consecration Sanctuary Modal (4 Pillars) */}
+      <NiyyahSanctuaryModal
+        isOpen={isNiyyahModalOpen}
+        onClose={() => setIsNiyyahModalOpen(false)}
+        initialPillar={niyyahInitialPillar}
         onRewardToast={(msg) => {
           setRewardToast(msg);
           setTimeout(() => setRewardToast(null), 3500);
