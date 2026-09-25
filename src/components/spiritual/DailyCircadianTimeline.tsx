@@ -6,10 +6,11 @@ import {
   Clock,
   Coffee,
   Briefcase,
-  Sparkles,
+  ArrowUpRight,
   ChevronDown,
   ChevronUp,
   Zap,
+  Star,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId } from '../../types';
 import { calculatePrayerTimes, getNextPrayer } from '../../utils/prayerCalculator';
@@ -185,7 +186,7 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       timeRange: '01:30 - 05:00',
       startHour: 1.5,
       endHour: 5.0,
-      icon: Sparkles,
+      icon: Star,
       accentColor: 'text-amber-400 bg-amber-950/40 border-amber-500/40',
       isSleepAction: false,
     },
@@ -348,7 +349,7 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
             onClick={handleActionClick}
             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-sm shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-white/90 shrink-0" />
             <span>{nextAction.cta}</span>
           </button>
 

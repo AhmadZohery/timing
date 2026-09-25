@@ -1095,9 +1095,9 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                       onChange={(e) =>
                         handleUpdateSet(ex.id, idx, 'weight', Number(e.target.value))
                       }
-                      className="w-full py-1 px-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-slate-900 dark:text-zinc-100"
+                      className="w-full py-1 px-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-slate-900 dark:text-zinc-100 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none tabular-nums"
                     />
-                    <div className="flex flex-col gap-0.5 shrink-0">
+                    <div className="hidden xs:flex flex-col gap-0.5 shrink-0">
                       <button
                         type="button"
                         onClick={() =>
@@ -1128,7 +1128,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                       onChange={(e) =>
                         handleUpdateSet(ex.id, idx, 'reps', Number(e.target.value))
                       }
-                      className="w-full py-1 px-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-slate-900 dark:text-zinc-100"
+                      className="w-full py-1 px-1.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-slate-900 dark:text-zinc-100 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none tabular-nums"
                     />
                   </div>
                   {/* RPE Column */}

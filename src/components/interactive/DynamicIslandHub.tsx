@@ -9,6 +9,9 @@ import {
   Trophy,
   X,
   ChevronDown,
+  BookOpen,
+  Disc,
+  Sparkles,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -158,8 +161,8 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
               {fridayStatus.isWindow && (
                 <>
                   <span className="text-white/40 text-xs">|</span>
-                  <span className="text-xs" title={isAr ? 'موسم الصلاة الإبراهيمية ليلة ويوم الجمعة' : 'Friday Salawat Window'}>
-                    🌸
+                  <span className="text-xs text-amber-300" title={isAr ? 'موسم الصلاة الإبراهيمية ليلة ويوم الجمعة' : 'Friday Salawat Window'}>
+                    <Sparkles className="w-3 h-3 text-amber-400 inline" />
                   </span>
                 </>
               )}
@@ -229,7 +232,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/25 via-emerald-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-300 text-xs font-bold border border-amber-500/40 transition-all cursor-pointer active:scale-98 shadow-sm"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">🌸</span>
+                    <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
                     <span>{isAr ? 'موسم الصلاة الإبراهيمية المباركة' : 'Friday Salawat Ibrahimiyyah'}</span>
                   </div>
                   <span className="text-[10px] font-mono text-emerald-400 font-black">+25 XP</span>
@@ -249,7 +252,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/30 transition-all cursor-pointer active:scale-98"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">📿</span>
+                    <Disc className="w-4 h-4 text-teal-400 shrink-0" />
                     <span>{isAr ? 'المسبحة اللمسية الذكية' : 'Smart Haptic Tasbih'}</span>
                   </div>
                   <span className="text-[10px] font-mono text-teal-400 font-bold">100x</span>
@@ -318,7 +321,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     }}
                     className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/30 cursor-pointer active:scale-95"
                   >
-                    <span>📖</span>
+                    <BookOpen className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span>{isAr ? 'الورد القرآني' : 'Quran Wird'}</span>
                   </button>
                 ) : (
@@ -348,7 +351,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     }}
                     className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-xs font-bold border border-sky-500/30 cursor-pointer active:scale-95"
                   >
-                    <span>🧭</span>
+                    <Compass className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                     <span>{isAr ? 'نمط الحياة' : 'Lifestyle'}</span>
                   </button>
                 ) : (

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Trophy,
   Award,
@@ -8,7 +8,9 @@ import {
   ShoppingBag,
   Heart,
   PartyPopper,
-  ShieldCheck,
+  Ticket,
+  Gift,
+  Check,
 } from 'lucide-react';
 import { triggerCelebrationConfetti } from '../../utils/gamification';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -37,6 +39,47 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
   const { t, language } = useTranslation();
   const isAr = language === 'ar';
   const spendablePoints = Math.max(0, totalPoints - (spentPoints || 0));
+
+  // Persistent Sleep Hygiene Checklist state
+  const [sleepChecks, setSleepChecks] = useState<boolean[]>(() => {
+    try {
+      const saved = localStorage.getItem('midmar_sleep_hygiene_checks');
+      if (saved) return JSON.parse(saved);
+    } catch (_) {}
+    return [true, true, true];
+  });
+
+  const toggleSleepCheck = (index: number) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setSleepChecks((prev) => {
+      const updated = [...prev];
+      updated[index] = !updated[index];
+      try {
+        localStorage.setItem('midmar_sleep_hygiene_checks', JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+  };
+
+  // Persistent Gratitude Note state
+  const [gratitudeNote, setGratitudeNote] = useState(() => {
+    try {
+      return localStorage.getItem('midmar_gratitude_note') || '';
+    } catch (_) {
+      return '';
+    }
+  });
+  const [isGratitudeSaved, setIsGratitudeSaved] = useState(false);
+
+  const handleGratitudeChange = (val: string) => {
+    setGratitudeNote(val);
+    try {
+      localStorage.setItem('midmar_gratitude_note', val);
+      setIsGratitudeSaved(true);
+      setTimeout(() => setIsGratitudeSaved(false), 2000);
+    } catch (_) {}
+  };
 
   useEffect(() => {
     triggerCelebrationConfetti();
@@ -95,8 +138,8 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
       {/* Daily Pride Ticket Spotlight Card */}
       <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-purple-500/10 border-2 border-amber-500/30 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 max-w-3xl mx-auto">
         <div className="flex items-center gap-3.5 text-start">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-zinc-950 flex items-center justify-center text-2xl shadow-md shrink-0">
-            🎫
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-zinc-950 flex items-center justify-center shadow-md shrink-0">
+            <Ticket className="w-6 h-6 text-zinc-950" />
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
@@ -118,7 +161,8 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
           }}
           className="tap-spring w-full sm:w-auto py-2.5 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-zinc-950 font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all active:scale-95 whitespace-nowrap"
         >
-          <span>{isAr ? 'عرض تذكرة الفخر 🎫' : 'View Pride Ticket 🎫'}</span>
+          <Ticket className="w-4 h-4" />
+          <span>{isAr ? 'عرض تذكرة الفخر' : 'View Pride Ticket'}</span>
         </button>
       </div>
 
@@ -126,13 +170,13 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
       <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-50/80 via-emerald-50/70 to-teal-50/80 dark:from-amber-950/20 dark:via-emerald-950/20 dark:to-teal-950/10 border-2 border-emerald-300 dark:border-emerald-700/60 shadow-md text-start space-y-4 max-w-3xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-emerald-500 text-white flex items-center justify-center text-3xl shadow-md shrink-0 transition-transform duration-200 hover:rotate-6">
-              🎁
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-emerald-500 text-white flex items-center justify-center shadow-md shrink-0 transition-transform duration-200 hover:rotate-6">
+              <Gift className="w-7 h-7 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
-                  {isAr ? 'متجر المكافآت الواقعية: اشتري لنفسك كذا 🎁' : 'Real-Life Reward Store: Treat Yourself 🎁'}
+                  {isAr ? 'متجر المكافآت الواقعية: استبدل نقاطك' : 'Real-Life Reward Store'}
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-2xs">
                   {isAr ? 'بلا تأنيب ضمير' : 'Guilt-Free'}
@@ -140,8 +184,8 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
               </div>
               <p className="text-xs text-slate-600 dark:text-zinc-300 mt-0.5 leading-relaxed">
                 {isAr
-                  ? 'حوّل نقاط إنجازك اليومية إلى وجبة لذيذة 🍔، ملابس جديدة 👕، قهوة فاخرة ☕، كتاب 📚، أو ملحق تقني 🎮!'
-                  : 'Redeem your hard-earned points for cheat meals 🍔, new clothes 👕, specialty coffee ☕, or gadgets 🎮!'}
+                  ? 'حوّل نقاط إنجازك اليومية إلى وجبة لذيذة، ملابس جديدة، قهوة فاخرة، كتاب، أو ملحق تقني!'
+                  : 'Redeem your hard-earned points for cheat meals, new clothes, specialty coffee, or gadgets!'}
               </p>
             </div>
           </div>
@@ -151,14 +195,14 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
               {isAr ? 'الرصيد المتاح للصرف:' : 'Spendable Balance:'}
             </span>
             <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">
-              <bdi dir="ltr">{spendablePoints}</bdi> {isAr ? 'نقطة 💎' : 'pts'}
+              <bdi dir="ltr">{spendablePoints}</bdi> {isAr ? 'نقطة' : 'pts'}
             </span>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-emerald-200/70 dark:border-emerald-800/40">
           <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-zinc-300">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span className="font-medium">
               {isAr
                 ? 'أنت تعبت وأنجزت اليوم، واستبدال مكافأتك حق لك دون أي تأثير على سلسلة أيامك.'
@@ -176,7 +220,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
               className="tap-spring w-full sm:w-auto py-2.5 px-5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-emerald-600/30 transition-transform active:scale-95"
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>{isAr ? 'افتح متجر المكافآت واستبدل الآن 🎁' : 'Open Rewards Store 🎁'}</span>
+              <span>{isAr ? 'افتح متجر المكافآت واستبدل الآن' : 'Open Rewards Store'}</span>
             </button>
           )}
         </div>
@@ -184,31 +228,61 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
 
       {/* Responsive Grid for Sleep Hygiene & Gratitude */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto items-stretch">
-        {/* Sleep Hygiene Protocol Card */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-start space-y-3 shadow-xs flex flex-col justify-between">
+        {/* Sleep Hygiene Protocol Card with Interactive Persistence */}
+        <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-start space-y-3 shadow-xs flex flex-col justify-between">
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-2">
               <Moon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span>{t('sleep_hygiene_title')}</span>
             </h4>
             <div className="space-y-2">
-              {[t('sleep_item_1'), t('sleep_item_2'), t('sleep_item_3')].map((item, idx) => (
-                <label key={idx} className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-zinc-300 cursor-pointer p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200/80 dark:border-zinc-800/80">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 text-emerald-600 rounded-sm focus:ring-0" />
-                  <span>{item}</span>
-                </label>
-              ))}
+              {[t('sleep_item_1'), t('sleep_item_2'), t('sleep_item_3')].map((item, idx) => {
+                const isChecked = sleepChecks[idx] ?? true;
+                return (
+                  <label
+                    key={idx}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleSleepCheck(idx);
+                    }}
+                    className={`flex items-center gap-2.5 text-xs cursor-pointer p-2.5 rounded-2xl border transition-all tap-spring active:scale-98 ${
+                      isChecked
+                        ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/60 text-slate-800 dark:text-zinc-200'
+                        : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400'
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
+                        isChecked
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
+                          : 'border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900'
+                      }`}
+                    >
+                      {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                    <span className="leading-snug">{item}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Evening Gratitude Entry */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-start space-y-3 shadow-xs flex flex-col justify-between">
+        {/* Evening Gratitude Entry with Real-Time Feedback */}
+        <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-start space-y-3 shadow-xs flex flex-col justify-between">
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-2">
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500/20" />
-              <span>{t('gratitude_title')}</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-2">
+                <Heart className="w-4 h-4 text-rose-500 fill-rose-500/20" />
+                <span>{t('gratitude_title')}</span>
+              </h4>
+              {isGratitudeSaved && (
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 animate-fade-in">
+                  <Check className="w-3 h-3" />
+                  <span>{isAr ? 'تم الحفظ' : 'Saved'}</span>
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
               {t('gratitude_desc')}
             </p>
@@ -216,9 +290,9 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
           <input
             type="text"
             placeholder={t('gratitude_placeholder')}
-            defaultValue={localStorage.getItem('midmar_gratitude_note') || ''}
-            onChange={(e) => localStorage.setItem('midmar_gratitude_note', e.target.value)}
-            className="w-full py-2.5 px-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:border-amber-500"
+            value={gratitudeNote}
+            onChange={(e) => handleGratitudeChange(e.target.value)}
+            className="w-full py-2.5 px-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:border-amber-500 shadow-2xs transition-colors"
           />
         </div>
       </div>
@@ -235,7 +309,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
             className="tap-spring py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md shadow-amber-500/20"
           >
             <Trophy className="w-3.5 h-3.5" />
-            <span>{isAr ? 'عرض تقرير وتقييم اليوم 📊' : 'View Daily Evaluation 📊'}</span>
+            <span>{isAr ? 'عرض تقرير وتقييم اليوم' : 'View Daily Evaluation'}</span>
           </button>
         )}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BatteryCharging, BatteryMedium, BatteryWarning, Zap } from 'lucide-react';
+import { BatteryCharging, BatteryMedium, BatteryWarning, Zap, Lightbulb, ShieldAlert } from 'lucide-react';
 import type { EnergyLevel } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
 import { haptic } from '../services/vibrationService';
@@ -89,8 +89,8 @@ export const CognitiveEnergyBarometer: React.FC<CognitiveEnergyBarometerProps> =
 
         {/* Dynamic Multi-Cell Gauge */}
         <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10">
-          <span className={`w-3.5 h-2 rounded-xs transition-colors ${currentLevel === 'high' || currentLevel === 'medium' || currentLevel === 'low' ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-zinc-700'}`} />
-          <span className={`w-3.5 h-2 rounded-xs transition-colors ${currentLevel === 'high' || currentLevel === 'medium' ? 'bg-amber-500' : 'bg-slate-300 dark:bg-zinc-700'}`} />
+          <span className={`w-3.5 h-2 rounded-xs transition-colors ${currentLevel === 'low' ? 'bg-rose-500' : currentLevel === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+          <span className={`w-3.5 h-2 rounded-xs transition-colors ${currentLevel === 'medium' ? 'bg-amber-500' : currentLevel === 'high' ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-zinc-700'}`} />
           <span className={`w-3.5 h-2 rounded-xs transition-colors ${currentLevel === 'high' ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-zinc-700'}`} />
         </div>
       </div>
@@ -131,15 +131,15 @@ export const CognitiveEnergyBarometer: React.FC<CognitiveEnergyBarometerProps> =
 
       {/* Dynamic Recommendation Card with Smooth Rounded-2xl Styling */}
       {currentLevel === 'medium' && (
-        <div className="p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 text-amber-950 dark:text-amber-200 text-xs font-medium leading-relaxed animate-fade-in flex items-center gap-2">
-          <span className="text-sm">💡</span>
+        <div className="p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 text-amber-950 dark:text-amber-200 text-xs font-medium leading-relaxed animate-fade-in flex items-center gap-2.5">
+          <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span>{t('energy_medium_note')}</span>
         </div>
       )}
 
       {currentLevel === 'low' && (
-        <div className="p-3 rounded-2xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 text-rose-950 dark:text-rose-200 text-xs font-medium leading-relaxed animate-fade-in flex items-center gap-2">
-          <span className="text-sm">🛡️</span>
+        <div className="p-3 rounded-2xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/30 text-rose-950 dark:text-rose-200 text-xs font-medium leading-relaxed animate-fade-in flex items-center gap-2.5">
+          <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>{t('energy_low_note')}</span>
         </div>
       )}

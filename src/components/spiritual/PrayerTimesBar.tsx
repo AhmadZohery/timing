@@ -1055,7 +1055,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                   <div className="relative z-10 my-1.5 sm:my-2 text-center">
                     <div className="flex items-baseline justify-center gap-1 font-mono">
                       <span className="text-base sm:text-lg md:text-xl font-black text-slate-950 dark:text-white tracking-tight leading-none">
-                        {timeDigits}
+                        <bdi dir="ltr">{timeDigits}</bdi>
                       </span>
                       <span className="text-xs font-bold text-slate-500 dark:text-zinc-400 leading-none">
                         {timeAmPm}
@@ -1063,7 +1063,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                     </div>
                     {isNext && nextPrayer.minutesRemaining > 0 && (
                       <div className="text-[10px] font-mono text-amber-700 dark:text-amber-400 font-black mt-1 whitespace-nowrap leading-tight">
-                        {isAr ? `${nextPrayer.minutesRemaining}د ⏳` : `${nextPrayer.minutesRemaining}m ⏳`}
+                        <bdi dir="ltr">{nextPrayer.minutesRemaining}</bdi>{isAr ? 'د ⏳' : 'm ⏳'}
                       </div>
                     )}
                   </div>

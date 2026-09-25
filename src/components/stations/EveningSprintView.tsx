@@ -17,6 +17,12 @@ import {
   Shield,
   Maximize2,
   Minimize2,
+  Palette,
+  GraduationCap,
+  Scroll,
+  PenTool,
+  Globe,
+  AlertTriangle,
 } from 'lucide-react';
 import type { EnergyLevel, AmbientSoundType, UserState } from '../../types';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -170,21 +176,22 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
     sprintTimer.resumeTimer();
   };
 
+  // In-app non-blocking confirmation dialog for focus penalty
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
   const handleCancelWithPenalty = () => {
     if (!sprintTimer.isRunning && sprintTimer.remainingSec === 0) return;
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setShowCancelModal(true);
+  };
 
-    const confirmMsg = language === 'ar'
-      ? '⚠️ تحذير ميكانيكية فقدان التركيز (Focus Core Loss): إلغاء الجلسة قبل اكتمال وقت التركيز سيؤدي لذبول النواة وخسارة 50% من نقاط الجلسة (-10 نقاط). هل أنت متأكد؟'
-      : '⚠️ Focus Core Penalty: Canceling the focus session early will wither your core and deduct 50% of the points (-10 pts). Are you sure?';
-
-    const confirmCancel = window.confirm(confirmMsg);
-
-    if (confirmCancel) {
-      soundSynth.playWarningSound();
-      haptic.vibrateWarning();
-      sprintTimer.stopTimer();
-      onApplyPenalty(10);
-    }
+  const handleConfirmCancelPenalty = () => {
+    soundSynth.playWarningSound();
+    haptic.vibrateWarning();
+    sprintTimer.stopTimer();
+    onApplyPenalty(10);
+    setShowCancelModal(false);
   };
 
   const handleToggleAmbient = (type: AmbientSoundType) => {
@@ -251,7 +258,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <span>🌐</span>
+              <Globe className="w-3.5 h-3.5" />
               <span>{isAr ? 'تعلّم اللغات والحصيلة اليومية' : 'Language Mastery'}</span>
             </button>
 
@@ -264,7 +271,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <span>🎨</span>
+              <Palette className="w-3.5 h-3.5" />
               <span>{isAr ? 'مشروع شخصي وقراءة' : 'Passion Project'}</span>
             </button>
 
@@ -276,7 +283,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <span>🎓</span>
+              <GraduationCap className="w-3.5 h-3.5" />
               <span>{isAr ? 'معمل الأبحاث والدراسة' : 'Academic Study'}</span>
             </button>
 
@@ -288,7 +295,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <span>📜</span>
+              <Scroll className="w-3.5 h-3.5" />
               <span>{isAr ? 'علم شرعي وحفظ متون' : 'Sacred Knowledge'}</span>
             </button>
 
@@ -300,7 +307,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <span>✍️</span>
+              <PenTool className="w-3.5 h-3.5" />
               <span>{isAr ? 'صناعة محتوى وكتابة' : 'Content & Writing'}</span>
             </button>
 
@@ -474,7 +481,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
           className="my-6 transition-transform duration-1000 ease-out"
           style={{ transform: `translate(${pixelShift[0]}px, ${pixelShift[1]}px)` }}
         >
-          <span className={`text-6xl sm:text-7xl font-mono font-black tracking-tight drop-shadow-xs ${
+          <span className={`text-6xl sm:text-7xl font-mono font-black tracking-tight drop-shadow-xs tabular-nums ${
             isUltraDim ? 'text-emerald-500/70' : 'text-slate-900 dark:text-zinc-100'
           }`}>
             {sprintTimer.remainingSec > 0
@@ -483,6 +490,12 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
           </span>
           <div className="text-xs text-slate-500 dark:text-zinc-500 font-mono mt-2">
             {t('focus_core_level')} {Math.round(coreProgress * 100)}%
+          </div>
+          <div className="w-48 sm:w-64 mx-auto mt-2 h-2 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden p-0.5 border border-slate-200/60 dark:border-white/[0.06]">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-purple-500 via-sky-500 to-emerald-400 transition-all duration-500 shadow-xs"
+              style={{ width: `${Math.round(coreProgress * 100)}%` }}
+            />
           </div>
         </div>
 
@@ -828,7 +841,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
             className="text-center space-y-4 transition-transform duration-1000 ease-out my-auto"
             style={{ transform: `translate(${pixelShift[0]}px, ${pixelShift[1]}px)` }}
           >
-            <span className="text-8xl sm:text-9xl md:text-[11rem] lg:text-[13rem] font-mono font-black tracking-tight text-emerald-400 drop-shadow-[0_0_60px_rgba(16,185,129,0.3)] block">
+            <span className="text-8xl sm:text-9xl md:text-[11rem] lg:text-[13rem] font-mono font-black tracking-tight text-emerald-400 drop-shadow-[0_0_60px_rgba(16,185,129,0.3)] block tabular-nums">
               {sprintTimer.remainingSec > 0
                 ? formatTime(sprintTimer.remainingSec)
                 : `${sprintDurationMin}:00`}
@@ -857,6 +870,51 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
                 <span>{t('pause_sprint')}</span>
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Non-Blocking Focus Core Penalty Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-[#181a24] border border-rose-300 dark:border-rose-900/60 p-6 space-y-4 shadow-2xl animate-scale-in text-start">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-slate-900 dark:text-zinc-100">
+                  {isAr ? 'تحذير ذبول نواة التركيز' : 'Focus Core Penalty'}
+                </h4>
+                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold">
+                  {isAr ? 'خصم 50% من نقاط الجلسة (-10 نقاط)' : '-10 XP Penalty'}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-medium">
+              {isAr
+                ? 'إلغاء الجلسة مبكراً يقطع حبل التدفق العصبي ويؤدي لذبول النواة وخسارة 10 نقاط من رصيدك. هل ترغب حقاً في الإلغاء؟'
+                : 'Canceling early breaks neuro-flow, withers your focus core, and deducts 10 points. Are you sure?'}
+            </p>
+
+            <div className="flex items-center gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                className="tap-spring flex-1 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-white/[0.08] hover:bg-slate-200 text-slate-700 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-center"
+              >
+                {isAr ? 'العودة للتركيز' : 'Resume Sprint'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmCancelPenalty}
+                className="tap-spring flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shadow-rose-600/20 active:scale-95 cursor-pointer text-center"
+              >
+                {isAr ? 'تأكيد الإلغاء والخصم' : 'Cancel & Deduct'}
+              </button>
+            </div>
           </div>
         </div>
       )}

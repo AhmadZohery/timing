@@ -29,6 +29,8 @@ import {
   Gift,
   Search,
   Lock,
+  Scroll,
+  Palette,
 } from 'lucide-react';
 import type { UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
@@ -766,7 +768,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50"
                         >
-                          <span className="text-sm shrink-0">📜</span>
+                          <Scroll className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'ديوان الشعر العربي' : 'Classical Poetry'}</span>
                         </button>
                       )}
@@ -780,7 +782,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start border border-emerald-200/80 dark:border-emerald-800/50"
                         >
-                          <span className="text-sm shrink-0">💡</span>
+                          <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'منارة الحكمة' : 'Life Wisdom'}</span>
                         </button>
                       )}
@@ -802,7 +804,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50 col-span-2"
                         >
-                          <span className="text-sm shrink-0">🎨</span>
+                          <Palette className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تخصيص المظهر والطراز اللوني' : 'Atelier Color Palette'}</span>
                         </button>
                       )}
@@ -1084,8 +1086,8 @@ export const Header: React.FC<HeaderProps> = ({
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-start cursor-pointer"
                   >
-                    <span>📜</span>
-                    <span>{language === 'ar' ? 'ديوان الشعر العربي الكلاسيكي 📜' : 'Classical Arabic Poetry'}</span>
+                    <Scroll className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <span>{language === 'ar' ? 'ديوان الشعر العربي الكلاسيكي' : 'Classical Arabic Poetry'}</span>
                   </button>
                 )}
 
@@ -1097,8 +1099,8 @@ export const Header: React.FC<HeaderProps> = ({
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-start cursor-pointer"
                   >
-                    <span>💡</span>
-                    <span>{language === 'ar' ? 'منارة الحكمة والنماذج العقلية 💡' : 'Life Wisdom & Models'}</span>
+                    <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>{language === 'ar' ? 'منارة الحكمة والنماذج العقلية' : 'Life Wisdom & Models'}</span>
                   </button>
                 )}
 
