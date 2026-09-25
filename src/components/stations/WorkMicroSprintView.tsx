@@ -33,6 +33,7 @@ interface WorkMicroSprintViewProps {
   bufferAvailableCount: number;
   todayDate?: string;
   onOpenTwoMinuteRule?: (taskTitle?: string) => void;
+  onRewardToast?: (msg: string) => void;
 }
 
 type SprintPhase = 'LEARNING_SPRINT' | 'ONE_SEC_FRICTION' | 'SOCIAL_BREAK' | 'DONE';
@@ -45,6 +46,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   bufferAvailableCount,
   todayDate,
   onOpenTwoMinuteRule,
+  onRewardToast,
 }) => {
   const { t, language } = useTranslation();
   const effectiveToday = todayDate || new Date().toISOString().split('T')[0];
@@ -318,7 +320,13 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
         />
       ) : workViewMode === 'learning_tracker' ? (
         <SelfLearningTracker
-          onRewardToast={(msg) => alert(msg)}
+          onRewardToast={(msg) => {
+            if (onRewardToast) {
+              onRewardToast(msg);
+            } else {
+              soundSynth.playStreakMilestoneChime();
+            }
+          }}
         />
       ) : (
         <>
@@ -337,13 +345,49 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                   </p>
                 </div>
 
-            {/* Clock Display */}
+            {/* Clock Display with Radial SVG Countdown Ring */}
             <div className="relative inline-flex items-center justify-center">
-              <div className="w-48 h-48 rounded-full border-4 border-slate-200 dark:border-zinc-800 flex items-center justify-center bg-slate-50 dark:bg-zinc-950/60 shadow-inner">
-                <span className="text-5xl font-mono font-black text-sky-600 dark:text-cyan-400 tracking-wider">
+              {/* Outer Pulsing Glow when running */}
+              {learningTimer.isRunning && (
+                <div className="absolute inset-0 rounded-full bg-sky-500/15 dark:bg-cyan-500/20 blur-xl animate-pulse pointer-events-none" />
+              )}
+              <svg className="w-52 h-52 -rotate-90 transform" viewBox="0 0 200 200">
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="86"
+                  className="stroke-slate-200 dark:stroke-zinc-800/80"
+                  strokeWidth="8"
+                  fill="transparent"
+                />
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="86"
+                  className="transition-all duration-1000 ease-linear"
+                  stroke="url(#sprintTimerGradient)"
+                  strokeWidth="8"
+                  strokeDasharray={540.35}
+                  strokeDashoffset={540.35 * (1 - ((learningTimer.remainingSec || 1200) / (20 * 60)))}
+                  strokeLinecap="round"
+                  fill="transparent"
+                />
+                <defs>
+                  <linearGradient id="sprintTimerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#0284c7" />
+                    <stop offset="50%" stopColor="#06b6d4" />
+                    <stop offset="100%" stopColor="#10b981" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute flex flex-col items-center justify-center select-none">
+                <span className="text-4xl sm:text-5xl font-mono font-black text-slate-900 dark:text-cyan-300 tracking-wider tabular-nums">
                   {learningTimer.remainingSec > 0
                     ? formatTime(learningTimer.remainingSec)
                     : '20:00'}
+                </span>
+                <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-zinc-400 mt-1 uppercase tracking-widest">
+                  {learningTimer.isRunning ? (language === 'ar' ? 'تركيز عميق ⚡' : 'Deep Focus ⚡') : (language === 'ar' ? 'جاهز للانطلاق' : 'Ready')}
                 </span>
               </div>
             </div>

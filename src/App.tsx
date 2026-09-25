@@ -691,6 +691,10 @@ export function App() {
                   bufferAvailableCount={2 - weeklyBufferCount}
                   todayDate={today}
                   onOpenTwoMinuteRule={() => setIsTwoMinuteModalOpen(true)}
+                  onRewardToast={(msg) => {
+                    setRewardToast(msg);
+                    setTimeout(() => setRewardToast(null), 3500);
+                  }}
                 />
               )}
 
