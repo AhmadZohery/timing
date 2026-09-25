@@ -66,7 +66,7 @@ export const DailyTadabburCard: React.FC<DailyTadabburCardProps> = ({
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     if (onToast) {
-      onToast(isAr ? 'تم نسخ النص القرآني والتفسير بنجاح 📋' : 'Tadabbur copied to clipboard!');
+      onToast(isAr ? 'تم نسخ النص القرآني والتفسير بنجاح ✓' : 'Tadabbur copied to clipboard!');
     }
     setTimeout(() => setCopied(false), 2500);
   };
@@ -77,7 +77,7 @@ export const DailyTadabburCard: React.FC<DailyTadabburCardProps> = ({
     const next = !isBookmarked;
     setIsBookmarked(next);
     if (onToast) {
-      onToast(next ? (isAr ? 'تم الحفظ في مفضلة التدبر ⭐' : 'Saved to favorites') : (isAr ? 'تمت الإزالة من المفضلة' : 'Removed from favorites'));
+      onToast(next ? (isAr ? 'تم الحفظ في مفضلة التدبر' : 'Saved to favorites') : (isAr ? 'تمت الإزالة من المفضلة' : 'Removed from favorites'));
     }
   };
 

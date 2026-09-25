@@ -71,7 +71,7 @@ export const GlobalAudioCapsule: React.FC<GlobalAudioCapsuleProps> = ({ onOpenFa
     <aside
       aria-label={isAr ? 'مشغل الصوت العائم' : 'Floating Audio Capsule'}
       data-no-swipe="true"
-      className="fixed z-35 bottom-[86px] sm:bottom-[94px] lg:bottom-5 inset-x-3 sm:inset-x-auto sm:end-6 max-w-md md:max-w-lg mx-auto transition-all animate-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
+      className="fixed z-35 bottom-[92px] sm:bottom-[98px] lg:bottom-5 inset-x-3 sm:inset-x-auto sm:end-6 max-w-md md:max-w-lg mx-auto transition-all animate-in slide-in-from-bottom-4 duration-300 pointer-events-auto"
     >
       <div className="p-2 sm:p-2.5 rounded-2xl bg-white/95 dark:bg-[#0c0d16]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-white/[0.12] shadow-[0_12px_40px_rgba(0,0,0,0.12)] dark:shadow-[0_16px_45px_rgba(0,0,0,0.7)] space-y-1.5">
         {/* Top Mini Progress Line (for on-demand tracks) */}
@@ -139,7 +139,7 @@ export const GlobalAudioCapsule: React.FC<GlobalAudioCapsuleProps> = ({ onOpenFa
                 </span>
                 {audioState.duration > 0 && (
                   <span className="shrink-0 font-mono text-[9px] text-slate-400 dark:text-zinc-500 hidden xs:inline">
-                    • {formatSeconds(audioState.currentTime)} / {formatSeconds(audioState.duration)}
+                    • <bdi dir="ltr">{formatSeconds(audioState.currentTime)} / {formatSeconds(audioState.duration)}</bdi>
                   </span>
                 )}
               </div>

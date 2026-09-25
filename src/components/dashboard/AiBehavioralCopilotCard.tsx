@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Sparkles,
+  Activity,
   Zap,
   Moon,
   Clock,
@@ -151,8 +151,8 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
       haptic.vibrateSprintCelebration();
       onRewardToast?.(
         isAr
-          ? '✨ تم ربط مفتاح Gemini 2.0 بنجاح! الذكاء الإدراكي يعمل بكامل طاقته.'
-          : '✨ Gemini 2.0 API Key connected successfully!'
+          ? '✔ تم ربط مفتاح Gemini 2.0 بنجاح! الذكاء الإدراكي يعمل بكامل طاقته.'
+          : '✔ Gemini 2.0 API Key connected successfully!'
       );
     } catch (err) {
       console.warn('Failed to save API key', err);
@@ -194,7 +194,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
                     : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30'
                 }`}
               >
-                <span>{hasApiKey ? '✨ Gemini 2.0 Active' : '⚡ Local Physics Engine'}</span>
+                <span>{hasApiKey ? '● Gemini 2.0 Active' : '⚡ Local Physics Engine'}</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
@@ -232,7 +232,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
               </>
             ) : (
               <>
-                <Sparkles className="w-3.5 h-3.5" />
+                <Activity className="w-3.5 h-3.5" />
                 <span>{isAr ? 'تحليل اليوم الإدراكي' : 'Daily Diagnosis'}</span>
               </>
             )}
@@ -268,7 +268,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
                 <span>{isAr ? 'معتمد' : 'Applied'}</span>
               </>
             ) : (
-              <span>{isAr ? 'تطبيق كافتراضي ⚡' : 'Apply Default'}</span>
+              <span>{isAr ? 'تطبيق كافتراضي' : 'Apply Default'}</span>
             )}
           </button>
         </div>
@@ -335,7 +335,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
       {dna.keyInsights && dna.keyInsights.length > 0 && !isExpanded && (
         <div className="relative z-10 p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/40 text-xs text-slate-800 dark:text-indigo-200 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-indigo-500 shrink-0" />
+            <Activity className="w-4 h-4 text-indigo-500 shrink-0" />
             <p className="line-clamp-2 leading-relaxed">
               {dna.keyInsights[0].replace(/\*\*/g, '')}
             </p>
@@ -461,7 +461,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
                 {isSavingKey ? (
                   <span>{isAr ? 'جارِ الحفظ...' : 'Saving...'}</span>
                 ) : (
-                  <span>{isAr ? 'حفظ وتفعيل ✨' : 'Save & Activate ✨'}</span>
+                  <span>{isAr ? 'حفظ وتفعيل' : 'Save & Activate'}</span>
                 )}
               </button>
             </div>

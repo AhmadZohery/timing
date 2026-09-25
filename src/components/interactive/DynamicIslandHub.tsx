@@ -11,7 +11,7 @@ import {
   ChevronDown,
   BookOpen,
   Disc,
-  Sparkles,
+  Star,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -162,7 +162,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 <>
                   <span className="text-white/40 text-xs">|</span>
                   <span className="text-xs text-amber-300" title={isAr ? 'موسم الصلاة الإبراهيمية ليلة ويوم الجمعة' : 'Friday Salawat Window'}>
-                    <Sparkles className="w-3 h-3 text-amber-400 inline" />
+                    <Star className="w-3 h-3 text-amber-400 fill-amber-400/40 inline" />
                   </span>
                 </>
               )}
@@ -232,7 +232,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/25 via-emerald-500/20 to-amber-500/25 hover:from-amber-500/35 hover:to-amber-500/35 text-amber-300 text-xs font-bold border border-amber-500/40 transition-all cursor-pointer active:scale-98 shadow-sm"
                 >
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400/40 shrink-0" />
                     <span>{isAr ? 'موسم الصلاة الإبراهيمية المباركة' : 'Friday Salawat Ibrahimiyyah'}</span>
                   </div>
                   <span className="text-[10px] font-mono text-emerald-400 font-black">+25 XP</span>

@@ -2,11 +2,9 @@ import React, { useState, useMemo } from 'react';
 import {
   X,
   Trophy,
-  Sparkles,
   Flame,
   Star,
   Quote,
-  Bot,
   Brain,
   Moon,
   Activity,
@@ -414,7 +412,7 @@ ${actionText}`;
                 <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 <span>{userState.streakDays || 0} {isAr ? 'أيام تتابع' : 'days'}</span>
                 <span className="text-amber-300 dark:text-amber-700">|</span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500/40" />
                 <span>{userState.totalPoints || 0} {isAr ? 'نقطة' : 'pts'}</span>
               </div>
             )}
@@ -434,7 +432,7 @@ ${actionText}`;
             { id: 'daily' as const, shortLabel: isAr ? 'اليومي' : 'Daily', label: isAr ? 'التقييم اليومي الشامل' : 'Daily Balance' },
             { id: 'weekly' as const, shortLabel: isAr ? 'الأسبوعي' : 'Weekly', label: isAr ? 'التقرير الأسبوعي (7 أيام)' : 'Weekly (7 Days)' },
             { id: 'monthly' as const, shortLabel: isAr ? 'الشهري' : 'Monthly', label: isAr ? 'المسار الشهري (30 يوماً)' : 'Monthly' },
-            { id: 'motivation' as const, shortLabel: isAr ? 'حِكم 🤍' : 'Wisdom 🤍', label: isAr ? 'أنوار نبوية وحِكم 🤍' : 'Wisdom 🤍' },
+            { id: 'motivation' as const, shortLabel: isAr ? 'حِكم' : 'Wisdom', label: isAr ? 'أنوار نبوية وحِكم' : 'Wisdom' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -485,8 +483,8 @@ ${actionText}`;
                   disabled={isGeneratingAi}
                   className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20 active:scale-95 transition-all cursor-pointer shrink-0"
                 >
-                  <Bot className={`w-4 h-4 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-                  <span>{isGeneratingAi ? (isAr ? 'جارِ التحليل...' : 'Analyzing...') : (isAr ? 'تحليل ذكي لليوم 🪄' : 'AI Analysis 🪄')}</span>
+                  <Activity className={`w-4 h-4 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+                  <span>{isGeneratingAi ? (isAr ? 'جارِ التحليل...' : 'Analyzing...') : (isAr ? 'تحليل اليوم الإدراكي' : 'Cognitive Diagnosis')}</span>
                 </button>
               </div>
 
@@ -496,7 +494,7 @@ ${actionText}`;
                   <div className="flex items-center justify-between pb-1 border-b border-indigo-200/60 dark:border-indigo-800/40">
                     <span className="font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
                       <Brain className="w-4 h-4" />
-                      <span>{isAr ? 'التشخيص السلوكي الشخصي من مِضمار AI' : 'Cognitive Behavioral Diagnosis'}</span>
+                      <span>{isAr ? 'التشخيص السلوكي والإدراكي' : 'Cognitive Behavioral Diagnosis'}</span>
                     </span>
                     <button
                       type="button"

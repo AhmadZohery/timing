@@ -4,7 +4,8 @@ import {
   Compass,
   Settings,
   Send,
-  Sparkles,
+  Activity,
+  Brain,
   Split,
   BarChart2,
   CheckCircle2,
@@ -358,7 +359,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/50'
                     : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/50'
                 }`}>
-                  {hasApiKey ? (isAr ? 'Gemini 2.0 متصل ⚡' : 'Gemini Connected ⚡') : (isAr ? 'تحليل محلي مدمج 🧠' : 'Offline Heuristics 🧠')}
+                  {hasApiKey ? (isAr ? '● Gemini 2.0 متصل' : '● Gemini Connected') : (isAr ? 'تحليل محلي مدمج' : 'Offline Heuristics')}
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
@@ -516,7 +517,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
             }`}
           >
             <Dna className="w-3.5 h-3.5 text-purple-500" />
-            <span>{isAr ? 'البصمة السلوكية 🧬' : 'Behavioral DNA'}</span>
+            <span>{isAr ? 'البصمة السلوكية' : 'Behavioral DNA'}</span>
           </button>
         </div>
 
@@ -534,7 +535,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                 >
                   {msg.sender === 'assistant' && (
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center shrink-0 mt-1 shadow-xs">
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <Brain className="w-3.5 h-3.5" />
                     </div>
                   )}
 
@@ -613,13 +614,13 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
             <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/30 space-y-2">
               <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-black text-xs sm:text-sm">
-                <Sparkles className="w-4 h-4 text-amber-500" />
+                <Compass className="w-4 h-4 text-amber-500" />
                 <span>{isAr ? 'الخيارات والقرارات المنطقية المناسبة ليومك' : 'Adaptive Daily Decisions'}</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed font-medium">
                 {isAr
-                  ? 'يقوم الذكاء الاصطناعي بفحص سجلات الأيام الماضية، وساعات نومك، ومعدل إنجاز المهام والصلوات، لاقتراح القرارات الأكثر منطقية وملاءمة لطاقتك اليوم.'
-                  : 'AI analyzes your recent logs, sleep patterns, and completion rates to propose optimal adaptive decisions.'}
+                  ? 'يقوم المحرك بفحص سجلات الأيام الماضية، وساعات نومك، ومعدل إنجاز المهام والصلوات، لاقتراح القرارات الأكثر منطقية وملاءمة لطاقتك اليوم.'
+                  : 'Analyzes your recent logs, sleep patterns, and completion rates to propose optimal adaptive decisions.'}
               </p>
             </div>
 
@@ -633,13 +634,13 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
               >
                 {isAnalyzingDecisions ? (
                   <>
-                    <span className="animate-spin text-base">🪄</span>
+                    <Activity className="w-4 h-4 animate-spin text-white" />
                     <span>{isAr ? 'جاري تحليل سلوكك واستخلاص القرارات المنطقية...' : 'Analyzing behavior...'}</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>{isAr ? 'حلل سلوكي واقترح الخيارات المنطقية لليوم ✨' : 'Analyze My Behavior & Recommend Decisions ✨'}</span>
+                    <Compass className="w-4 h-4 text-amber-300" />
+                    <span>{isAr ? 'حلل سلوكي واقترح الخيارات المنطقية لليوم' : 'Analyze My Behavior & Recommend Decisions'}</span>
                   </>
                 )}
               </button>
@@ -750,8 +751,8 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                   disabled={!taskToDeconstruct.trim() || isDeconstructing}
                   className="py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-indigo-600/20 disabled:opacity-40 cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{isDeconstructing ? (isAr ? 'جاري التفكيك...' : 'Deconstructing...') : (isAr ? 'فكك المهمة 🪄' : 'Deconstruct 🪄')}</span>
+                  <Split className="w-3.5 h-3.5" />
+                  <span>{isDeconstructing ? (isAr ? 'جاري التفكيك...' : 'Deconstructing...') : (isAr ? 'فكك المهمة' : 'Deconstruct')}</span>
                 </button>
               </div>
             </div>
@@ -790,7 +791,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                     className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>{isAr ? 'إضافة الخطوات لجدول مهام اليوم 📥' : 'Add to today tasks 📥'}</span>
+                    <span>{isAr ? 'إضافة الخطوات لجدول مهام اليوم' : 'Add to today tasks'}</span>
                   </button>
 
                   {stepsAddedToast && (
@@ -815,8 +816,8 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
               </div>
               <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
                 {isAr
-                  ? 'يقوم الذكاء الاصطناعي بمراجعة سجلاتك ومحطاتك غير المكتملة في الأيام السابقة ليخبرك بالسبب الواقعي الذي جعل الالتزام صعباً عليك، ويقترح تعديلاً بسيطاً جداً.'
-                  : 'AI scans your recent completion logs to diagnose why friction was high and gives an actionable fix.'}
+                  ? 'يقوم النظام بمراجعة سجلاتك ومحطاتك غير المكتملة في الأيام السابقة ليخبرك بالسبب الواقعي الذي جعل الالتزام صعباً عليك، ويقترح تعديلاً بسيطاً جداً.'
+                  : 'Scans your recent completion logs to diagnose why friction was high and gives an actionable fix.'}
               </p>
             </div>
 
@@ -826,8 +827,8 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                 disabled={isDiagnosing}
                 className="py-3 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 mx-auto shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>{isDiagnosing ? (isAr ? 'جاري قراءة وتحليل السجلات...' : 'Analyzing logs...') : (isAr ? 'تشخيص أسباب صعوبة الالتزام 📈' : 'Diagnose My Patterns 📈')}</span>
+                <Activity className="w-4 h-4 text-slate-950" />
+                <span>{isDiagnosing ? (isAr ? 'جاري قراءة وتحليل السجلات...' : 'Analyzing logs...') : (isAr ? 'تشخيص أسباب صعوبة الالتزام' : 'Diagnose My Patterns')}</span>
               </button>
             </div>
 
@@ -886,7 +887,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
               <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xs space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <Zap className="w-3.5 h-3.5 text-amber-500" />
                     <span>{isAr ? 'الجلسة الذهبية المقترحة' : 'Optimal Sprint'}</span>
                   </span>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40">
@@ -944,7 +945,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
             {userDNA?.keyInsights && userDNA.keyInsights.length > 0 && (
               <div className="space-y-2 pt-1">
                 <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                  <Brain className="w-3.5 h-3.5 text-purple-500" />
                   <span>{isAr ? 'ملاحظات وتوصيات مستخلصة من وتيرتك:' : 'Learned Habits & Insights:'}</span>
                 </h4>
                 <div className="space-y-1.5">
@@ -970,11 +971,11 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
                 disabled={isGeneratingDnaReport}
                 className="py-3 px-6 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-teal-600 hover:from-purple-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 mx-auto shadow-md shadow-purple-600/25 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
               >
-                <Sparkles className="w-4 h-4 text-amber-300" />
+                <Brain className="w-4 h-4 text-amber-300" />
                 <span>
                   {isGeneratingDnaReport
                     ? (isAr ? 'جاري استخراج التقرير بالذكاء الاصطناعي...' : 'Generating AI report...')
-                    : (isAr ? 'تحليل متقدم لبصمتي السلوكية بالذكاء الاصطناعي 🪄' : 'Generate In-Depth AI Persona Report 🪄')}
+                    : (isAr ? 'تحليل متقدم للبصمة السلوكية' : 'Generate Behavioral Persona Report')}
                 </span>
               </button>
             </div>

@@ -163,16 +163,18 @@ export const ZeroInertiaModal: React.FC<ZeroInertiaModalProps> = ({
 
             {/* Timer Active View */}
             {isStarted && (
-              <div className="p-6 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-center space-y-3">
-                <div className="text-xs text-slate-500 dark:text-zinc-400">Task in progress:</div>
+              <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-center space-y-3">
+                <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
+                  {language === 'ar' ? 'المهمة المجهرية الجارية الآن:' : 'Task in progress:'}
+                </div>
                 <div className="text-sm font-bold text-slate-900 dark:text-zinc-100">
                   {microTasks[selectedTaskIndex]}
                 </div>
-                <div className="text-4xl font-mono font-black text-rose-600 dark:text-rose-400">
-                  {formatTime(timer.remainingSec)}
+                <div className="text-4xl font-mono font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                  <bdi dir="ltr">{formatTime(timer.remainingSec)}</bdi>
                 </div>
-                <p className="text-[11px] text-slate-400 dark:text-zinc-500">
-                  Stay with these 3 minutes. Zero external pressure.
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
+                  {language === 'ar' ? 'ابقَ مع هذه الدقائق الـ 3 فقط. ضغط خارجي منعدم تماماً.' : 'Stay with these 3 minutes. Zero external pressure.'}
                 </p>
               </div>
             )}

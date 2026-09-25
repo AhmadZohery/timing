@@ -31,6 +31,10 @@ import {
   Lock,
   Scroll,
   Palette,
+  Ticket,
+  Disc,
+  BookOpen,
+  Compass,
 } from 'lucide-react';
 import type { UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
@@ -574,7 +578,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium border border-slate-200 dark:border-zinc-700 col-span-2 justify-center"
                       >
                         {theme === 'light' ? <Moon className="w-3.5 h-3.5 text-slate-700 shrink-0" /> : <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
-                        <span>{theme === 'light' ? (language === 'ar' ? 'الوضع الليلي 🌙' : 'Dark Mode 🌙') : (language === 'ar' ? 'الوضع النهاري ☀️' : 'Light Mode ☀️')}</span>
+                        <span>{theme === 'light' ? (language === 'ar' ? 'الوضع الليلي' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري' : 'Light Mode')}</span>
                       </button>
                     </div>
                   </div>
@@ -635,7 +639,7 @@ export const Header: React.FC<HeaderProps> = ({
                           className="flex items-center gap-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50"
                         >
                           <Gift className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                          <span className="truncate">{language === 'ar' ? 'متجر المكافآت 🎁' : 'Rewards Store 🎁'}</span>
+                          <span className="truncate">{language === 'ar' ? 'متجر المكافآت' : 'Rewards Store'}</span>
                         </button>
                       )}
 
@@ -648,7 +652,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-800 dark:text-purple-300 text-xs font-bold transition-colors cursor-pointer text-start border border-purple-200/80 dark:border-purple-800/50 col-span-2"
                         >
-                          <span className="text-sm shrink-0">🎫</span>
+                          <Ticket className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تذكرة إنجاز اليوم (Pride Ticket)' : 'Daily Pride Ticket'}</span>
                         </button>
                       )}
@@ -726,7 +730,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-teal-50/70 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 text-teal-800 dark:text-teal-300 text-xs font-bold transition-colors cursor-pointer text-start border border-teal-200/80 dark:border-teal-800/50"
                         >
-                          <span className="text-sm shrink-0">📿</span>
+                          <Disc className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'مسبحة الأذكار الذكية' : 'Digital Tasbih'}</span>
                         </button>
                       )}
@@ -740,7 +744,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start border border-emerald-200/80 dark:border-emerald-800/50"
                         >
-                          <span className="text-sm shrink-0">📖</span>
+                          <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'الورد القرآني' : 'Quran Wird'}</span>
                         </button>
                       )}
@@ -754,7 +758,7 @@ export const Header: React.FC<HeaderProps> = ({
                           }}
                           className="flex items-center gap-2 p-2 rounded-xl bg-sky-50/70 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-800 dark:text-sky-300 text-xs font-bold transition-colors cursor-pointer text-start border border-sky-200/80 dark:border-sky-800/50 col-span-2"
                         >
-                          <span className="text-sm shrink-0">🧭</span>
+                          <Compass className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'نمط الحياة والمحطات' : 'Lifestyle Flow'}</span>
                         </button>
                       )}
