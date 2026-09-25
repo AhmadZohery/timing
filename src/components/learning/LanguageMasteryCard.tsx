@@ -22,6 +22,7 @@ import {
   type VocabularyWord,
   type CefrLevel,
   CEFR_LEVELS_INFO,
+  CATEGORY_INFO,
 } from '../../data/languages/vocabularyDatabase';
 import {
   spacedRepetition,
@@ -791,6 +792,14 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
               <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400 bg-slate-200/70 dark:bg-zinc-800 px-2 py-0.5 rounded">
                 {currentWord.level} • {currentWord.partOfSpeech}
               </span>
+              {currentWord.category && CATEGORY_INFO[currentWord.category] && (
+                <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded flex items-center gap-1 border border-indigo-200/50 dark:border-indigo-800/30">
+                  <span>{CATEGORY_INFO[currentWord.category].icon}</span>
+                  <span className="hidden sm:inline">
+                    {isAr ? CATEGORY_INFO[currentWord.category].nameAr : CATEGORY_INFO[currentWord.category].nameEn}
+                  </span>
+                </span>
+              )}
             </div>
 
             {/* Stepper buttons */}

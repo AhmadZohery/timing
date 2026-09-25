@@ -7,11 +7,58 @@ import { GERMAN_WORDS } from './german';
 export type TargetLanguageCode = 'en' | 'fr' | 'it' | 'es' | 'de';
 
 export type WordCategory =
+  | 'agile_pm_leadership'
   | 'business_tech'
   | 'daily_fluency'
   | 'fitness_sports'
   | 'mindset_focus'
   | 'travel_lifestyle';
+
+export interface CategoryInfo {
+  id: WordCategory;
+  nameAr: string;
+  nameEn: string;
+  icon: string;
+}
+
+export const CATEGORY_INFO: Record<WordCategory, CategoryInfo> = {
+  agile_pm_leadership: {
+    id: 'agile_pm_leadership',
+    nameAr: 'إدارة المشاريع والقيادة التقنية (Agile & PM)',
+    nameEn: 'Agile & PM Leadership',
+    icon: '💼',
+  },
+  business_tech: {
+    id: 'business_tech',
+    nameAr: 'الأعمال والتقنية والمفاوضات',
+    nameEn: 'Business & Tech',
+    icon: '💻',
+  },
+  mindset_focus: {
+    id: 'mindset_focus',
+    nameAr: 'التركيز والإنتاجية الذهنية',
+    nameEn: 'Focus & High Output',
+    icon: '🎯',
+  },
+  daily_fluency: {
+    id: 'daily_fluency',
+    nameAr: 'الطلاقة اليومية والتواصل',
+    nameEn: 'Daily Fluency',
+    icon: '🗣️',
+  },
+  fitness_sports: {
+    id: 'fitness_sports',
+    nameAr: 'الصحة والنشاط البدني',
+    nameEn: 'Health & Movement',
+    icon: '🏋️‍♂️',
+  },
+  travel_lifestyle: {
+    id: 'travel_lifestyle',
+    nameAr: 'السفر ونمط الحياة',
+    nameEn: 'Travel & Lifestyle',
+    icon: '✈️',
+  },
+};
 
 export interface TargetLanguage {
   code: TargetLanguageCode;

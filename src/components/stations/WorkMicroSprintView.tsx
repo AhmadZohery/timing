@@ -26,6 +26,7 @@ import { WorkdayPlanner } from '../work/WorkdayPlanner';
 import { SelfLearningTracker } from '../learning/SelfLearningTracker';
 import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import { db } from '../../db/db';
+import { AgileStandupModal } from '../work/AgileStandupModal';
 
 interface WorkMicroSprintViewProps {
   isCompleted: boolean;
@@ -64,6 +65,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   };
   const [phase, setPhase] = useState<SprintPhase>(isCompleted ? 'DONE' : 'LEARNING_SPRINT');
   const [frictionSeconds, setFrictionSeconds] = useState(3);
+  const [isStandupOpen, setIsStandupOpen] = useState(false);
 
   // Focus Task & Checkpoints
   const [focusTask, setFocusTask] = useState(
@@ -265,7 +267,22 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           </div>
         </div>
 
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsStandupOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-cyan-300 border border-sky-500/30 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+            title={language === 'ar' ? 'الوقفة اليومية والعبارات الإدارية للمشروع' : 'Daily Standup & PM English Phrases'}
+          >
+            <span>🎙️</span>
+            <span className="hidden sm:inline font-sans">
+              {language === 'ar' ? 'الوقفة اليومية (Standup)' : 'Daily Standup'}
+            </span>
+          </button>
           <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 dark:bg-cyan-500/15 text-sky-800 dark:text-cyan-400 font-mono font-bold">
             +15 XP
           </span>
@@ -761,6 +778,13 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Agile Standup & PM English Phrases Modal */}
+      <AgileStandupModal
+        isOpen={isStandupOpen}
+        onClose={() => setIsStandupOpen(false)}
+        onRewardToast={onRewardToast}
+      />
     </div>
   );
 };
