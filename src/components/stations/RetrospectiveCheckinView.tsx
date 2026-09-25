@@ -158,11 +158,24 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               </button>
             </div>
 
-            {/* Status indicator */}
+            {/* Status indicator with animated audio waves */}
             {isRecording && (
-              <div className="flex items-center gap-2 text-xs text-rose-600 dark:text-rose-400 animate-pulse font-semibold">
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
-                <span>{t('voice_listening')}</span>
+              <div className="p-3 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 flex items-center justify-between gap-3 animate-fade-in">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-end gap-1 h-5">
+                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.6s_infinite_100ms] h-3" />
+                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.8s_infinite_200ms] h-5" />
+                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.5s_infinite_300ms] h-4" />
+                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.7s_infinite_150ms] h-2" />
+                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.9s_infinite_250ms] h-5" />
+                  </div>
+                  <span className="text-xs text-rose-700 dark:text-rose-300 font-bold">
+                    {language === 'ar' ? 'جاري الاستماع وتفريغ الصوت فورا...' : 'Listening actively & transcribing...'}
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-rose-600 dark:text-rose-400 font-black">
+                  🎙️ {voiceText.trim() ? voiceText.trim().split(/\s+/).length : 0} {language === 'ar' ? 'كلمة' : 'words'}
+                </span>
               </div>
             )}
 
@@ -181,6 +194,32 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               onChange={(e) => setVoiceText(e.target.value)}
               className="w-full p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-teal-500 leading-relaxed resize-none shadow-2xs"
             />
+
+            {/* Live Words & 1-Tap Extract to Golden Nugget */}
+            {voiceText.trim().length > 0 && (
+              <div className="flex items-center justify-between gap-2 pt-0.5">
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {voiceText.trim().split(/\s+/).length} {language === 'ar' ? 'كلمة مفرغة' : 'words transcribed'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    const sentences = voiceText.split(/[.\n!?،]/).map((s) => s.trim()).filter(Boolean);
+                    const best = sentences[sentences.length - 1] || voiceText;
+                    setGoldenNuggetText(best);
+                    if (onRewardToast) {
+                      onRewardToast(language === 'ar' ? '💡 تم استخراج فكرة اليوم الذهبية من حديثك الصوتي!' : 'Extracted golden nugget from your voice!');
+                    }
+                  }}
+                  className="text-[11px] font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <span>💡</span>
+                  <span>{language === 'ar' ? 'استخراج كفكرة ذهبية لليوم' : 'Extract to Golden Nugget'}</span>
+                </button>
+              </div>
+            )}
 
             {/* Zero-Typing Chips for Reflections */}
             <ZeroTypingChips

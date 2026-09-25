@@ -44,8 +44,12 @@ import { MorningEveningAdhkarModal } from '../spiritual/MorningEveningAdhkarModa
 import { SurahMulkModal } from '../spiritual/SurahMulkModal';
 import { FastingReminderModal } from '../spiritual/FastingReminderModal';
 import { NawafilGuideModal, type NafilaTab } from '../spiritual/NawafilGuideModal';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../../db/db';
 import { getHijriDateDetails } from '../../utils/prayerCalculator';
 import { awardSpiritualHabitPoints } from '../../utils/gamification';
+import { QuickActionDock } from './QuickActionDock';
+import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
 
 interface HomeDashboardViewProps {
   userState?: UserState;
@@ -64,6 +68,7 @@ interface HomeDashboardViewProps {
   onOpenFaithAudio?: () => void;
   onOpenArabicPoetry?: () => void;
   onOpenLifeWisdom?: () => void;
+  onOpenPanic?: () => void;
 }
 
 export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
@@ -83,6 +88,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   onOpenFaithAudio,
   onOpenArabicPoetry,
   onOpenLifeWisdom,
+  onOpenPanic,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
@@ -138,6 +144,45 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const [isFastingModalOpen, setIsFastingModalOpen] = useState(false);
   const [isNawafilModalOpen, setIsNawafilModalOpen] = useState(false);
   const [nawafilModalTab, setNawafilModalTab] = useState<NafilaTab>('qiyam');
+  const [isWeeklyReportOpen, setIsWeeklyReportOpen] = useState(false);
+
+  // Live Quran Progress Query & Quick Increment Handler
+  const quranList = useLiveQuery(() => db.quran_progress.toArray(), []);
+  const quranProgress = quranList?.[0];
+  const currentWirdPages = quranProgress?.currentPage ?? 0;
+  const totalWirdPages = quranProgress?.totalPages ?? 604;
+
+  const handleQuickIncrementQuran = async () => {
+    soundSynth.playCompletionChime();
+    haptic.vibrateLight();
+    if (quranProgress?.id) {
+      const nextPg = Math.min(quranProgress.totalPages, quranProgress.currentPage + 1);
+      await db.quran_progress.update(quranProgress.id, {
+        currentPage: nextPg,
+        lastUpdated: new Date().toISOString().split('T')[0],
+      });
+      const quranGoal = await db.goals.get('goal-quran');
+      if (quranGoal) {
+        await db.goals.update('goal-quran', {
+          currentValue: Math.min(quranGoal.targetValue, nextPg),
+        });
+      }
+    } else {
+      await db.quran_progress.add({
+        surah: 'الفاتحة',
+        totalPages: 604,
+        currentPage: 1,
+        currentAyah: 1,
+        lastUpdated: new Date().toISOString().split('T')[0],
+        history: [{ date: new Date().toISOString().split('T')[0], page: 1, ayah: 1 }],
+      });
+    }
+    onRewardToast(
+      isAr
+        ? '📖 تم تسجيل تلاوة صفحة من القرآن الكريم! (+5,500 حسنة مضاعفة بإذن الله)'
+        : '📖 +1 Quran Page logged! (+5,500 multiplied Hasanat)'
+    );
+  };
 
   const currentDayOfWeek = now.getDay();
   const isMorningTime = currentHour >= 3 && currentHour < 15;
@@ -428,6 +473,21 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
         </div>
       </div>
+
+      {/* ============================================================ */}
+      {/* 1.5 INSTANT 1-TAP ACTION DOCK: رصيف الإجراءات اللحظية الخاطف     */}
+      {/* High-velocity micro-actions for busy executives & creators    */}
+      {/* ============================================================ */}
+      <QuickActionDock
+        onStartSprint={() => onSelectStation('WORK_MICRO_SPRINT')}
+        onIncrementQuran={handleQuickIncrementQuran}
+        onOpenPanic={onOpenPanic ? onOpenPanic : () => {}}
+        onOpenSmartTasbih={() => onOpenSmartTasbih('tasbih')}
+        onOpenWeeklyReport={() => setIsWeeklyReportOpen(true)}
+        currentWirdPages={currentWirdPages}
+        totalWirdPages={totalWirdPages}
+        isAr={isAr}
+      />
 
       {/* ============================================================ */}
       {/* 2. DAILY STATIONS ROADMAP: خريطة مسار اليوم التفاعلية           */}
@@ -1426,6 +1486,15 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         initialTab={nawafilModalTab}
         todayLog={todayLog}
         onRewardToast={onRewardToast}
+      />
+
+      {/* Weekly Barakah Harvest Report Modal */}
+      <WeeklyBarakahReportModal
+        isOpen={isWeeklyReportOpen}
+        onClose={() => setIsWeeklyReportOpen(false)}
+        userState={userState}
+        dailyLogs={allDailyLogs || []}
+        todayLog={todayLog}
       />
     </div>
   );

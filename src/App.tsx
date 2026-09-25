@@ -641,6 +641,7 @@ export function App() {
               onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
               onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
               onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
+              onOpenPanic={() => setIsPanicModalOpen(true)}
             />
         </>
       ) : (
