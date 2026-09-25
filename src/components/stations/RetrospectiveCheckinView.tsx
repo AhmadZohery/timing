@@ -140,10 +140,10 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               {/* Voice Record Button */}
               <button
                 onClick={handleToggleVoice}
-                className={`p-3.5 rounded-full transition-all cursor-pointer shadow-md active:scale-90 ${
+                className={`p-3.5 rounded-2xl transition-all cursor-pointer shadow-md tap-spring active:scale-90 ${
                   isRecording
-                    ? 'bg-rose-500 text-white animate-pulse shadow-rose-500/30'
-                    : 'bg-teal-50 hover:bg-teal-100 dark:bg-teal-500/20 dark:hover:bg-teal-500/30 border border-teal-200 dark:border-teal-500/40 text-teal-700 dark:text-teal-300'
+                    ? 'bg-rose-500 text-white animate-pulse shadow-rose-500/30 ring-4 ring-rose-500/20'
+                    : 'bg-gradient-to-tr from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white shadow-teal-600/25 border border-white/20'
                 }`}
                 title={isRecording ? 'Stop Recording' : 'Start Voice Recording'}
               >
@@ -303,13 +303,13 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                       setIsSaved(true);
                       setTimeout(() => setIsSaved(false), 1500);
                     }}
-                    className={`tap-spring p-1.5 rounded-lg transition-transform active:scale-90 cursor-pointer ${
+                    className={`tap-spring p-2 sm:p-2.5 rounded-xl transition-all active:scale-88 cursor-pointer ${
                       star <= currentRating
-                        ? 'text-amber-500 bg-amber-50 dark:bg-amber-500/10'
-                        : 'text-slate-300 dark:text-zinc-700'
+                        ? 'text-amber-500 bg-amber-500/15 dark:bg-amber-500/20 shadow-xs'
+                        : 'text-slate-300 dark:text-zinc-700 hover:text-amber-400'
                     }`}
                   >
-                    <Star className="w-4 h-4 fill-current" />
+                    <Star className="w-5 h-5 fill-current" />
                   </button>
                 );
               })}

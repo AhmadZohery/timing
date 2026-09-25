@@ -53,6 +53,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
   const { t, language } = useTranslation();
   const isAr = language === 'ar';
   const [showGridModal, setShowGridModal] = useState(false);
+  const [isQuoteSaved, setIsQuoteSaved] = useState(false);
 
   // Dynamic persona & station metadata
   const personaId = userState?.settings?.lifestylePersona || 'builder_exec';
@@ -221,9 +222,9 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           {/* Quick Increment Button */}
           <button
             onClick={handleIncrementQuranPage}
-            className="tap-spring w-full py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/15 dark:hover:bg-emerald-500/25 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="tap-spring w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-md shadow-emerald-600/25 border border-emerald-500/30"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>{isAr ? `+1 صفحة من ${activeWirdTitle}` : `+1 Page from ${activeWirdTitle}`}</span>
           </button>
 
@@ -299,11 +300,16 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             onClick={() => {
               soundSynth.playTactileClick();
               haptic.vibrateLight();
-              alert(t('quote_saved'));
+              setIsQuoteSaved(true);
+              setTimeout(() => setIsQuoteSaved(false), 2200);
             }}
-            className="tap-spring py-2 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs cursor-pointer shadow-xs transition-colors shrink-0 active:scale-95"
+            className={`tap-spring py-2 px-4 rounded-xl font-bold text-xs cursor-pointer shadow-xs transition-all shrink-0 active:scale-95 ${
+              isQuoteSaved
+                ? 'bg-emerald-600 text-white shadow-emerald-500/25 ring-2 ring-emerald-500/30'
+                : 'bg-sky-600 hover:bg-sky-500 text-white'
+            }`}
           >
-            {t('save_template')}
+            {isQuoteSaved ? (isAr ? 'تم الحفظ بنجاح ✔' : 'Saved ✔') : t('save_template')}
           </button>
         </div>
 
@@ -338,7 +344,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
                     {todayTadabbur.quran.surahName} ({todayTadabbur.quran.ayahRange})
                   </span>
                 </div>
-                <p className="text-sm text-slate-900 dark:text-amber-100/90 leading-[2.1] font-quran line-clamp-2">
+                <p className="text-sm text-slate-900 dark:text-amber-100/90 leading-[2.3] tashkeel-text font-quran line-clamp-3">
                   «{todayTadabbur.quran.arabicText}»
                 </p>
               </div>
