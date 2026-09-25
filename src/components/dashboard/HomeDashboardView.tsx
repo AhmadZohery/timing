@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Sparkles,
+  Award,
   Flame,
   Shield,
   BookOpen,
@@ -374,7 +374,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <span>{shields}</span>
               </div>
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/50 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <Award className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>{totalPoints} {isAr ? 'ن' : 'pts'}</span>
               </div>
             </div>
@@ -416,7 +416,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ============================================================ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* A. Smart Morning / Evening Adhkar Card */}
-        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-amber-500/10 via-slate-50 to-amber-500/5 dark:from-amber-950/30 dark:via-[#12131A] dark:to-amber-950/20 border border-amber-500/20 dark:border-amber-500/30 flex flex-col justify-between gap-2.5 shadow-xs">
+        <div className="p-4 sm:p-5 rounded-3xl bg-amber-50/70 dark:bg-[#141622] border border-amber-200/90 dark:border-amber-500/25 flex flex-col justify-between gap-3 shadow-xs transition-colors">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <div className={`w-9 h-9 rounded-2xl flex items-center justify-center text-lg shrink-0 ${
@@ -435,7 +435,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                <p className="text-[11px] text-amber-900/80 dark:text-zinc-300 line-clamp-1 leading-relaxed">
                   {isMorningTime
                     ? (todayLog?.adhkarMorningDone ? 'تقبل الله منك! كُتبت في صحيفة حسناتك اليوم' : '«مَنْ قَالَهَا حِينَ يُصْبِحُ أُجِيرَ مِنَ الْجِنِّ حَتَّى يُمْسِيَ»')
                     : (todayLog?.adhkarEveningDone ? 'حرسك الله! كُتبت لك الحماية من كل سوء' : '«مَنْ قَالَهَا حِينَ يُمْسِي كَانَ فِي حِفْظِ اللَّهِ حَتَّى يُصْبِحَ»')}
@@ -465,7 +465,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 const habitKey = isMorningTime ? 'adhkar_morning' : 'adhkar_evening';
                 const habitLabel = isMorningTime ? 'أذكار الصباح المباركة' : 'أذكار المساء وحصن المسلم';
                 const res = await awardSpiritualHabitPoints(habitKey, habitLabel);
-                onRewardToast(res.message || '✨ تم تسجيل الأذكار بنجاح (+20 نقطة)!');
+                onRewardToast(res.message || 'تم تسجيل الأذكار بنجاح (+20 نقطة)');
               }}
               className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 (isMorningTime ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone)
@@ -496,7 +496,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
 
         {/* B. Smart Fasting Reminder & Schedule Card */}
-        <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-slate-50 to-emerald-500/5 dark:from-emerald-950/30 dark:via-[#12131A] dark:to-emerald-950/20 border border-emerald-500/20 dark:border-emerald-500/30 flex flex-col justify-between gap-2.5 shadow-xs">
+        <div className="p-4 sm:p-5 rounded-3xl bg-emerald-50/70 dark:bg-[#141622] border border-emerald-200/90 dark:border-emerald-500/25 flex flex-col justify-between gap-3 shadow-xs transition-colors">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-emerald-600/20 text-emerald-500 flex items-center justify-center text-lg shrink-0">
@@ -517,7 +517,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                <p className="text-[11px] text-emerald-900/80 dark:text-zinc-300 line-clamp-1 leading-relaxed">
                   «تُعْرَضُ الأَعْمَالُ يَوْمَ الاِثْنَيْنِ وَالْخَمِيسِ فَأُحِبُّ أَنْ يُعْرَضَ عَمَلِي وَأَنَا صَائِمٌ»
                 </p>
               </div>

@@ -780,6 +780,7 @@ export function App() {
           if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         userState={userState}
+        todayLog={todayLog}
         onOpenLifestyleModal={() => setIsLifestyleModalOpen(true)}
         onOpenEvaluationModal={() => setIsEvaluationModalOpen(true)}
         onOpenCompanionHub={() => setIsMobileCompanionOpen(true)}

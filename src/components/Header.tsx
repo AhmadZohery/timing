@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import {
   Flame,
   Shield,
-  Sparkles,
-  LifeBuoy,
+  ShieldAlert,
   Clock,
   Target,
   BatteryCharging,
@@ -372,7 +371,7 @@ export const Header: React.FC<HeaderProps> = ({
                 : 'bg-slate-100 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
             }`}
           >
-            <LifeBuoy className={`w-3.5 h-3.5 ${isSurvival ? 'text-amber-600 dark:text-amber-400' : ''}`} />
+            <ShieldAlert className={`w-3.5 h-3.5 ${isSurvival ? 'text-amber-600 dark:text-amber-400' : ''}`} />
             <span className="hidden sm:inline">MVD</span>
           </button>
 
@@ -532,7 +531,7 @@ export const Header: React.FC<HeaderProps> = ({
                             : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700'
                         }`}
                       >
-                        <LifeBuoy className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <ShieldAlert className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         <span className="truncate">{isSurvival ? 'إلغاء MVD' : 'وضع MVD'}</span>
                       </button>
 
@@ -1046,7 +1045,7 @@ export const Header: React.FC<HeaderProps> = ({
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-start cursor-pointer"
                   >
-                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <SlidersHorizontal className="w-4 h-4 text-amber-500" />
                     <span>{language === 'ar' ? 'تخصيص مجالك وإيقاعك الأسبوعي' : 'Customize Domain & Rhythm'}</span>
                   </button>
                 )}

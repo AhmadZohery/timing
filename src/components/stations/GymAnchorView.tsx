@@ -885,7 +885,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           </div>
 
       {/* Rest Timer Bar & Workout Volume Stats */}
-      <div className="p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+      <div className="p-4 rounded-2xl bg-slate-900 dark:bg-[#12141f] text-white border border-slate-800 dark:border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md transition-colors">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
             <Timer className="w-5 h-5 animate-pulse" />
@@ -1151,8 +1151,12 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                   {/* Done Toggle */}
                   <div className="col-span-2 flex justify-center">
                     <button
-                      onClick={() => handleUpdateSet(ex.id, idx, 'done', !set.done)}
-                      className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        handleUpdateSet(ex.id, idx, 'done', !set.done);
+                      }}
+                      className={`tap-spring w-7 h-7 sm:w-8 sm:h-8 rounded-xl border flex items-center justify-center transition-all cursor-pointer active:scale-90 ${
                         set.done
                           ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
                           : 'border-slate-300 dark:border-zinc-700 hover:border-emerald-500 bg-white dark:bg-zinc-900'
