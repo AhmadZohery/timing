@@ -17,6 +17,7 @@ export interface CoachingContext {
   recentWins?: string[];
   voiceNotes?: string;
   pastWeekConsistencyPct?: number;
+  activeStudyCourses?: Array<{ title: string; progress: string; todayQuota: number; paceStatus: string }>;
 }
 
 export class AiCoachService {
@@ -159,6 +160,7 @@ export class AiCoachService {
 - المحطات المكتملة اليوم: ${context.completedStationsCount || 0} من 6 محطات
 - مهام العمل اليومية: ${context.todayTasks ? context.todayTasks.map((t) => `${t.title} [${t.completed ? 'منجزة ✔' : 'قيد الانتظار'}]`).join('، ') : 'لا توجد مهام'}
 - نسبة الاتساق في الأسبوع الأخير: ${context.pastWeekConsistencyPct ?? 80}%
+${context.activeStudyCourses?.length ? `- خطط المذاكرة والكورسات الجارية: ${context.activeStudyCourses.map((c) => `${c.title} (${c.progress} منجز، المطلوب اليوم: ${c.todayQuota}، الوتيرة: ${c.paceStatus === 'ahead' ? 'متقدم بفائض 🚀' : c.paceStatus === 'behind' ? 'متأخر متراكم ⚠️' : 'على المسار 🎯'})`).join(' | ')}` : ''}
 ${context.recentWins?.length ? `- إنجازات حديثة: ${context.recentWins.join('، ')}` : ''}
 ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNotes}"` : ''}
 

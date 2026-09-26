@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
 import {
   X,
   Compass,
@@ -56,6 +57,17 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
   const isAr = language === 'ar';
 
   const [activeTab, setActiveTab] = useState<TabMode>('chat');
+  const activeStudyCourses = useLiveQuery(
+    async () => {
+      try {
+        return await db.study_courses.filter((c) => c.status === 'active').toArray();
+      } catch {
+        return [];
+      }
+    },
+    [],
+    []
+  );
   const [messages, setMessages] = useState<AiChatMessage[]>(() => {
     const saved = localStorage.getItem('midmar_ai_chat_history');
     if (saved) {
@@ -151,6 +163,12 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
         (dailyLogs.slice(0, 7).reduce((acc, l) => acc + l.completedStations.length, 0) / 42) * 100
       )
     ),
+    activeStudyCourses: activeStudyCourses?.map((c) => ({
+      title: c.title,
+      progress: `${c.completedUnits}/${c.totalUnits} ${c.unitType}`,
+      todayQuota: c.recommendedDailyUnits || c.plannedUnitsPerDay,
+      paceStatus: c.currentPaceStatus,
+    })),
   };
 
   const handleSendMessage = async (textToSend?: string) => {
