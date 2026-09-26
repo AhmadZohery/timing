@@ -586,6 +586,7 @@ export function App() {
           onOpenLifestyleModal={() => setIsLifestyleModalOpen(true)}
           onOpenWirdModal={() => setIsWirdModalOpen(true)}
           onOpenSmartTasbih={handleOpenSmartTasbih}
+          onOpenQuickReminder={() => setIsQuickReminderOpen(true)}
           onRewardToast={(msg) => {
             setRewardToast(msg);
             setTimeout(() => setRewardToast(null), 3500);

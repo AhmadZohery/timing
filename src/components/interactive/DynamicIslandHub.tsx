@@ -12,6 +12,7 @@ import {
   BookOpen,
   Disc,
   Star,
+  Bell,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -35,6 +36,7 @@ interface DynamicIslandHubProps {
   onOpenWirdModal?: () => void;
   onOpenSmartTasbih?: (mode?: TasbihPresetId) => void;
   onOpenTasbihWithPreset?: (preset: TasbihPresetId) => void;
+  onOpenQuickReminder?: () => void;
 }
 
 export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
@@ -51,6 +53,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   onOpenWirdModal,
   onOpenSmartTasbih,
   onOpenTasbihWithPreset: _onOpenTasbihWithPreset,
+  onOpenQuickReminder,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
@@ -308,6 +311,25 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 </div>
                 <span className="text-[10px] font-mono text-indigo-400 font-bold">Coach</span>
               </button>
+
+              {onOpenQuickReminder && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    handleToggle();
+                    onOpenQuickReminder();
+                  }}
+                  className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-violet-500/20 hover:bg-violet-500/30 text-purple-300 text-xs font-bold border border-violet-500/30 transition-all cursor-pointer active:scale-98"
+                >
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-purple-400" />
+                    <span>{isAr ? 'منبه ومفكرة تذكير ذكية سريعة' : 'Quick Reminder & Alarm'}</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-purple-400 font-bold">🔔</span>
+                </button>
+              )}
 
               <div className="grid grid-cols-2 gap-1.5 pt-1">
                 {onOpenWirdModal ? (

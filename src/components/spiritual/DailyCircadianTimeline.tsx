@@ -301,8 +301,12 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
     return {
       title: `الاستعداد لصلاة ${nextP.arabicName}`,
       detail: `متبقي قرابة ${nextP.minutesRemaining} دقيقة على رفع الأذان`,
-      cta: 'تسجيل الصلوات 🕌',
-      action: () => {},
+      cta: 'تسجيل الصلوات والنوافل 🕌',
+      action: () => {
+        if (onOpenNawafilModal) {
+          onOpenNawafilModal();
+        }
+      },
     };
   };
 
