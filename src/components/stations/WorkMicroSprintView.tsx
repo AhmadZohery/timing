@@ -24,6 +24,7 @@ import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { WorkdayPlanner } from '../work/WorkdayPlanner';
 import { SelfLearningTracker } from '../learning/SelfLearningTracker';
+import { CourseStudyHub } from '../learning/CourseStudyHub';
 import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import { db } from '../../db/db';
 import { AgileStandupModal } from '../work/AgileStandupModal';
@@ -65,6 +66,13 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   const setWorkViewMode = (mode: 'planner' | 'sprint' | 'learning_tracker') => {
     setWorkViewModeState(mode);
     localStorage.setItem('midmar_work_view_mode', mode);
+  };
+  const [learningSubTab, setLearningSubTabState] = useState<'courses' | 'sessions'>(() => {
+    return (localStorage.getItem('midmar_learning_subtab') as 'courses' | 'sessions') || 'courses';
+  });
+  const setLearningSubTab = (tab: 'courses' | 'sessions') => {
+    setLearningSubTabState(tab);
+    localStorage.setItem('midmar_learning_subtab', tab);
   };
   const [phase, setPhase] = useState<SprintPhase>(isCompleted ? 'DONE' : 'LEARNING_SPRINT');
   const [frictionSeconds, setFrictionSeconds] = useState(3);
@@ -466,15 +474,66 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           onOpenTwoMinuteRule={onOpenTwoMinuteRule}
         />
       ) : workViewMode === 'learning_tracker' ? (
-        <SelfLearningTracker
-          onRewardToast={(msg) => {
-            if (onRewardToast) {
-              onRewardToast(msg);
-            } else {
-              soundSynth.playStreakMilestoneChime();
-            }
-          }}
-        />
+        <div className="space-y-3">
+          {/* Subtabs for Learning: AI Courses Roadmap vs Focus Timer & Reflection */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 max-w-md">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setLearningSubTab('courses');
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                learningSubTab === 'courses'
+                  ? 'bg-white dark:bg-zinc-800 text-indigo-700 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-indigo-500" />
+              <span>{language === 'ar' ? 'خطة ومسار الكورسات (AI)' : 'AI Course Roadmap'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setLearningSubTab('sessions');
+              }}
+              className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                learningSubTab === 'sessions'
+                  ? 'bg-white dark:bg-zinc-800 text-sky-700 dark:text-cyan-400 shadow-xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5 text-sky-500" />
+              <span>{language === 'ar' ? 'مؤقت وسجل المذاكرة' : 'Focus Sessions'}</span>
+            </button>
+          </div>
+
+          {learningSubTab === 'courses' ? (
+            <CourseStudyHub
+              onRewardToast={(msg) => {
+                if (onRewardToast) {
+                  onRewardToast(msg);
+                } else {
+                  soundSynth.playStreakMilestoneChime();
+                }
+              }}
+            />
+          ) : (
+            <SelfLearningTracker
+              onRewardToast={(msg) => {
+                if (onRewardToast) {
+                  onRewardToast(msg);
+                } else {
+                  soundSynth.playStreakMilestoneChime();
+                }
+              }}
+            />
+          )}
+        </div>
       ) : (
         <>
           {/* Main Container depending on Phase */}

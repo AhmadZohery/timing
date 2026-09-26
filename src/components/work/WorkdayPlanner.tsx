@@ -33,6 +33,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { aiCoach } from '../../services/aiCoachService';
 import { getTodayWorkRhythm, DOMAIN_PRESETS, DEFAULT_WORK_RHYTHM_CONFIG } from '../../utils/workRhythm';
+import { recordDailyCourseProgress } from '../../utils/courseStudyEngine';
 import { calculatePrayerTimes, getNextPrayer } from '../../utils/prayerCalculator';
 import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
 
@@ -471,9 +472,32 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
   const handleToggleTask = async (task: WorkdayTask) => {
     soundSynth.playCompletionChime();
     haptic.vibrateLight();
+    const willBeCompleted = !task.completed;
     await db.workday_tasks.update(task.id, {
-      completed: !task.completed,
+      completed: willBeCompleted,
     });
+
+    // Auto-update course progress in db.study_courses if this is a study course task
+    if (task.id.startsWith('course_task_')) {
+      try {
+        const parts = task.id.split('_'); // 'course', 'task', courseId, date
+        const courseId = parts.slice(2, -1).join('_');
+        if (courseId) {
+          const course = await db.study_courses.get(courseId);
+          if (course) {
+            const count = course.recommendedDailyUnits || 1;
+            const updated = recordDailyCourseProgress(
+              course,
+              willBeCompleted ? count : -count,
+              todayDate
+            );
+            await db.study_courses.put(updated);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to auto-update study course progress from task toggle', err);
+      }
+    }
   };
 
   const handleDeleteTask = async (taskId: string) => {

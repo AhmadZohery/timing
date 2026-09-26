@@ -18,6 +18,7 @@ import type {
   AuthAccount,
   TasbihCounterRecord,
   CustomReminderItem,
+  StudyCourse,
 } from '../types';
 
 export class LifeOSDatabase extends Dexie {
@@ -40,6 +41,7 @@ export class LifeOSDatabase extends Dexie {
   auth_accounts!: Table<AuthAccount, string>;
   tasbih_counters!: Table<TasbihCounterRecord, string>;
   custom_reminders!: Table<CustomReminderItem, string>;
+  study_courses!: Table<StudyCourse, string>;
 
   constructor() {
     super('LifeOS_Database');
@@ -149,6 +151,10 @@ export class LifeOSDatabase extends Dexie {
 
     this.version(10).stores({
       custom_reminders: 'id, date, time, recurrence, enabled, category',
+    });
+
+    this.version(11).stores({
+      study_courses: 'id, title, category, status, startDate, targetEndDate, createdAt',
     });
   }
 }

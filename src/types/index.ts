@@ -538,6 +538,65 @@ export interface LearningSessionLog {
   createdAt: string;
 }
 
+export interface StudyCourseLesson {
+  id: string;
+  lessonNumber: number;
+  title: string;
+  durationMinutes?: number;
+  completed: boolean;
+  completedAt?: string;
+  notes?: string;
+}
+
+export interface StudyDailyProgressLog {
+  date: string; // YYYY-MM-DD
+  targetQuota: number; // e.g. 3
+  completedCount: number; // e.g. 5
+  accumulatedDeficit: number; // backlog units
+  accumulatedSurplus: number; // surplus units
+  notes?: string;
+}
+
+export interface StudyCourse {
+  id: string;
+  title: string;
+  category: 'programming' | 'languages' | 'sharia' | 'business' | 'academic' | 'design' | 'reading' | 'other';
+  unitType: 'lesson' | 'video' | 'chapter' | 'page' | 'hour';
+  totalUnits: number;
+  completedUnits: number;
+
+  // Schedule & Planning
+  startDate: string; // YYYY-MM-DD
+  targetEndDate: string; // YYYY-MM-DD
+  plannedUnitsPerDay: number; // baseline target e.g. 3
+  studyDaysPerWeek: number[]; // 0=Sunday, 1=Monday ... 6=Saturday (e.g. [0,1,2,3,4,6])
+
+  // Dynamic Pace & Recalculation
+  currentPaceStatus: 'ahead' | 'on_track' | 'behind' | 'completed';
+  backlogUnits: number; // how many units behind the expected curve
+  surplusUnits: number; // how many units ahead of the expected curve
+  recommendedDailyUnits: number; // dynamically recalculated daily quota for remaining days
+
+  // AI-generated Roadmap & Milestones
+  aiPrompt?: string; // original natural language text
+  aiRoadmapGenerated?: boolean;
+  lessons: StudyCourseLesson[];
+
+  // Daily History Logs
+  dailyLogs: StudyDailyProgressLog[];
+
+  // Workday Tasks Integration
+  autoSyncToWorkday?: boolean;
+  workdayTaskId?: string;
+  reminderTime?: string; // e.g. "17:00"
+  reminderEnabled?: boolean;
+
+  status: 'active' | 'paused' | 'completed' | 'archived';
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface StationCustomOverride {
   customTitle?: string;
   customShortLabel?: string;

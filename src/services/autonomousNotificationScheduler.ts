@@ -465,6 +465,39 @@ class AutonomousNotificationScheduler {
         console.warn('Could not schedule task reminders:', e);
       }
 
+      // 11. Study Courses Reminders (منبهات خطط المذاكرة والكورسات)
+      try {
+        const activeCourses = await db.study_courses
+          .filter((c) => c.status === 'active' && !!c.reminderEnabled && !!c.reminderTime)
+          .toArray();
+
+        const dayOfWeek = now.getDay();
+        for (const course of activeCourses) {
+          const studyDays = course.studyDaysPerWeek || [0, 1, 2, 3, 4, 6];
+          if (!studyDays.includes(dayOfWeek)) continue; // today is rest day for this course
+
+          if (!course.reminderTime) continue;
+          const [cH, cM] = course.reminderTime.split(':').map(Number);
+          const courseAlarmTime = new Date();
+          courseAlarmTime.setHours(cH || 17, cM || 0, 0, 0);
+
+          if (courseAlarmTime.getTime() > now.getTime()) {
+            alarms.push({
+              id: `course_${course.id}_${todayDateStr}`,
+              title: `📚 موعد حصة المذاكرة: ${course.title}`,
+              body: `المطلوب اليوم: ${course.recommendedDailyUnits || course.plannedUnitsPerDay} من المحتوى.. افتح محراب المذاكرة لحماية مسارك.`,
+              timestampMs: courseAlarmTime.getTime(),
+              tag: `course-${course.id}`,
+              url: '/?station=WORK_MICRO_SPRINT',
+              actions: [{ action: 'start_study', title: 'ابدأ المذاكرة 🎓' }],
+              data: { courseId: course.id },
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Could not schedule course reminders:', e);
+      }
+
       // Filter only valid future alarms
       const futureAlarms = alarms.filter((a) => a.timestampMs > Date.now());
 

@@ -13,6 +13,7 @@ import {
   Disc,
   Star,
   Bell,
+  GraduationCap,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -330,6 +331,25 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <span className="text-[10px] font-mono text-purple-400 font-bold">🔔</span>
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  handleToggle();
+                  localStorage.setItem('midmar_work_view_mode', 'learning_tracker');
+                  localStorage.setItem('midmar_learning_subtab', 'courses');
+                  onSelectStation('WORK_MICRO_SPRINT');
+                }}
+                className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-indigo-500/20 via-sky-500/15 to-indigo-500/20 hover:from-indigo-500/30 hover:to-sky-500/30 text-indigo-300 text-xs font-bold border border-indigo-500/30 transition-all cursor-pointer active:scale-98"
+              >
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-indigo-400" />
+                  <span>{isAr ? 'مخطط ومسار الكورسات الذكي (AI)' : 'AI Course Study Roadmap'}</span>
+                </div>
+                <span className="text-[10px] font-mono text-indigo-400 font-bold">📚</span>
+              </button>
 
               <div className="grid grid-cols-2 gap-1.5 pt-1">
                 {onOpenWirdModal ? (
