@@ -19,8 +19,10 @@ ENV NODE_ENV=production
 ENV PORT=80
 ENV DATA_DIR=/app/data
 
-# Copy built frontend assets and server
+# Copy built frontend assets, production dependencies, and server
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 COPY server ./server
 
 # Persistent storage volume directory for Coolify

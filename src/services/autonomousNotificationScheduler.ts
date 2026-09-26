@@ -2,6 +2,7 @@ import { calculatePrayerTimes, detectDefaultCityFromTimezone, getHijriDateDetail
 import { db } from '../db/db';
 import { getBiologicalDate } from '../utils/gamification';
 import { scheduleService } from './scheduleService';
+import { serverSync } from './serverSyncService';
 import type { PrayerName, CustomReminderItem, WorkdayTask } from '../types';
 
 export interface ScheduledAlarmItem {
@@ -509,6 +510,10 @@ class AutonomousNotificationScheduler {
         });
       }
 
+      // Sync schedule to Cloud Push Dispatcher on Server (wakes phone even when browser is closed!)
+      const profileId = userState?.activeProfileId || 'default';
+      serverSync.syncPushSchedule(futureAlarms, profileId).catch(() => {});
+
       // Register Periodic Background Sync if available in browser
       if ('periodicSync' in reg) {
         try {
@@ -550,7 +555,10 @@ class AutonomousNotificationScheduler {
       const reg = await navigator.serviceWorker.ready;
       const targetTimeMs = Date.now() + delaySeconds * 1000;
 
-      // 1. Try native Notification Triggers API
+      // 1. Also request test push from server for locked screen wakeup
+      serverSync.sendTestLockscreenPush(delaySeconds).catch(() => {});
+
+      // 2. Try native Notification Triggers API
       if ('showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined') {
         try {
           await reg.showNotification('🔔 تجربة تنبيه الشاشة المقفلة (مِضمار)', {
@@ -566,7 +574,7 @@ class AutonomousNotificationScheduler {
         } catch (_) {}
       }
 
-      // 2. Send message to Service Worker for background setTimeout
+      // 3. Send message to Service Worker for background setTimeout
       if (reg.active) {
         reg.active.postMessage({
           type: 'TEST_LOCKSCREEN_ALARM',
@@ -597,6 +605,11 @@ class AutonomousNotificationScheduler {
         reg.active.postMessage({ type: 'CANCEL_ALARM', tag: `follow1-${prayerName}` });
         reg.active.postMessage({ type: 'CANCEL_ALARM', tag: `follow2-${prayerName}` });
       }
+
+      // Also cancel on server push dispatcher
+      serverSync.cancelPushAlarm(`follow1-${prayerName}`);
+      serverSync.cancelPushAlarm(`follow2-${prayerName}`);
+
       // Close any active notification with those tags
       const notifs = await reg.getNotifications();
       notifs.forEach((n) => {

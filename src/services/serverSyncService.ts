@@ -256,6 +256,126 @@ export class ServerSyncService {
 
     return null;
   }
+
+  /**
+   * Helper: convert base64 VAPID key to Uint8Array for browser PushManager
+   */
+  private urlB64ToUint8Array(base64String: string): Uint8Array {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  /**
+   * Ensure browser Service Worker is subscribed to Web Push on the server.
+   */
+  async ensurePushSubscription(profileId: string = 'default'): Promise<boolean> {
+    if (!this.isOnline || typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return false;
+    }
+
+    try {
+      // 1. Get VAPID public key from server
+      const keyRes = await fetch('/api/push/vapid-public-key');
+      if (!keyRes.ok) return false;
+      const keyData = await keyRes.json();
+      if (!keyData.publicKey) return false;
+
+      // 2. Subscribe via PushManager
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: this.urlB64ToUint8Array(keyData.publicKey) as unknown as BufferSource,
+        });
+      }
+
+      if (!sub) return false;
+
+      // 3. Register subscription on server
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId, subscription: sub.toJSON() }),
+      });
+
+      return true;
+    } catch (err) {
+      console.warn('Failed to ensure Web Push subscription:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Sync upcoming alarm schedule to the server's push dispatcher.
+   * Ensures alarms fire on time even if phone screen is locked or app is closed!
+   */
+  async syncPushSchedule(alarms: any[], profileId: string = 'default'): Promise<boolean> {
+    if (!this.isOnline || !alarms || alarms.length === 0) return false;
+
+    try {
+      await this.ensurePushSubscription(profileId);
+
+      const res = await fetch('/api/push/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId, alarms }),
+      });
+
+      return res.ok;
+    } catch (err) {
+      console.warn('Failed to sync push schedule to server:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Cancel an alarm from the server schedule (e.g. when prayer is completed early)
+   */
+  async cancelPushAlarm(tag: string, profileId: string = 'default'): Promise<void> {
+    if (!this.isOnline) return;
+    try {
+      await fetch('/api/push/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tag, profileId }),
+      });
+    } catch (_) {}
+  }
+
+  /**
+   * Trigger an instant test lockscreen push notification via the server
+   */
+  async sendTestLockscreenPush(delaySeconds: number = 5, profileId: string = 'default'): Promise<{ success: boolean; message: string }> {
+    if (!this.isOnline) {
+      return { success: false, message: 'السيرفر غير متصل حالياً' };
+    }
+
+    try {
+      await this.ensurePushSubscription(profileId);
+
+      const res = await fetch('/api/push/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ delaySeconds, profileId }),
+      });
+
+      const data = await res.json();
+      return {
+        success: data.ok,
+        message: data.message || data.error || 'تم إرسال أمر التجربة للسيرفر',
+      };
+    } catch (err: any) {
+      return { success: false, message: `فشل إرسال التنبيه التجريبي: ${err.message}` };
+    }
+  }
 }
 
 export const serverSync = new ServerSyncService();

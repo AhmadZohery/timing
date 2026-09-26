@@ -1,6 +1,7 @@
-import React from 'react';
-import { X, BatteryCharging, ShieldAlert } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, BatteryCharging, ShieldAlert, Bell } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
 
 interface BatteryGuideModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface BatteryGuideModalProps {
 
 export const BatteryGuideModal: React.FC<BatteryGuideModalProps> = ({ isOpen, onClose }) => {
   const { t, isRTL } = useTranslation();
+  const [testMsg, setTestMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -85,6 +87,26 @@ export const BatteryGuideModal: React.FC<BatteryGuideModalProps> = ({ isOpen, on
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 space-y-2">
+          <button
+            type="button"
+            onClick={async () => {
+              setTestMsg(isRTL ? 'جاري إطلاق التنبيه... أقفل شاشة هاتفك الآن!' : 'Triggering alarm... lock your phone now!');
+              const res = await autonomousNotificationScheduler.testLockscreenAlarm(5);
+              setTestMsg(res.message);
+            }}
+            className="w-full py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <Bell className="w-4 h-4 animate-bounce" />
+            <span>{isRTL ? '🔔 تجربة تنبيه قفل الشاشة فوراً (5 ثوان)' : 'Test Lockscreen Alarm (5s)'}</span>
+          </button>
+          {testMsg && (
+            <p className="text-[11px] text-center text-amber-600 dark:text-amber-400 font-bold animate-fade-in">
+              {testMsg}
+            </p>
+          )}
         </div>
 
         <button
