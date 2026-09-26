@@ -15,6 +15,7 @@ import {
   Headphones,
   GraduationCap,
   Trophy,
+  Briefcase,
 } from 'lucide-react';
 import {
   TARGET_LANGUAGES,
@@ -39,6 +40,7 @@ import { RootDeconstructorCard } from './RootDeconstructorCard';
 import { LanguageMovesModal, type MoveType } from './LanguageMovesModal';
 import { HandsFreeImmersionModal } from './HandsFreeImmersionModal';
 import { CefrAdvancementModal } from './CefrAdvancementModal';
+import { ExecutiveEnglishStudioModal } from './ExecutiveEnglishStudioModal';
 
 interface LanguageMasteryCardProps {
   className?: string;
@@ -94,6 +96,9 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
   // CEFR Advancement Exam State
   const [isExamOpen, setIsExamOpen] = useState(false);
   const [examLevel, setExamLevel] = useState<CefrLevel>('A1');
+
+  // Executive English Studio & Meeting Simulator State
+  const [isExecutiveStudioOpen, setIsExecutiveStudioOpen] = useState(false);
 
   // Refresh words when language, quota, or CEFR level changes
   useEffect(() => {
@@ -432,6 +437,23 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
             <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
             <span>{isAr ? 'امتحان الارتقاء 🎓' : 'Level Exam 🎓'}</span>
           </button>
+
+          {/* Executive English PM Studio Button */}
+          {activeLang === 'en' && (
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsExecutiveStudioOpen(true);
+              }}
+              className="flex-1 sm:flex-none py-1.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 hover:from-purple-500 hover:to-sky-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition-transform active:scale-95 cursor-pointer ring-1 ring-purple-400/40"
+              title={isAr ? 'أستوديو القيادة الإنجليزية ومحاكي الاجتماعات التنفيذي' : 'Executive English PM Studio & Meeting Simulator'}
+            >
+              <Briefcase className="w-3.5 h-3.5 text-amber-300" />
+              <span>{isAr ? 'أستوديو القيادة 🎙️' : 'PM Studio 🎙️'}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1272,6 +1294,13 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
             );
           }
         }}
+      />
+
+      {/* Executive English PM Studio & Meeting Simulator Modal */}
+      <ExecutiveEnglishStudioModal
+        isOpen={isExecutiveStudioOpen}
+        onClose={() => setIsExecutiveStudioOpen(false)}
+        onRewardToast={onRewardToast}
       />
     </div>
   );

@@ -29,6 +29,7 @@ import { db } from '../../db/db';
 import { AgileStandupModal } from '../work/AgileStandupModal';
 import { ScopeDecisionMatrixModal } from '../work/ScopeDecisionMatrixModal';
 import { ExecutiveFocusHUD } from '../work/ExecutiveFocusHUD';
+import { ExecutiveEnglishStudioModal } from '../learning/ExecutiveEnglishStudioModal';
 
 interface WorkMicroSprintViewProps {
   isCompleted: boolean;
@@ -70,6 +71,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   const [isStandupOpen, setIsStandupOpen] = useState(false);
   const [isScopeMatrixOpen, setIsScopeMatrixOpen] = useState(false);
   const [isFocusHUDOpen, setIsFocusHUDOpen] = useState(false);
+  const [isExecutiveStudioOpen, setIsExecutiveStudioOpen] = useState(false);
 
   // Focus Task & Checkpoints
   const [focusTask, setFocusTask] = useState(
@@ -317,6 +319,22 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
             <span>🎙️</span>
             <span className="hidden sm:inline font-sans">
               {language === 'ar' ? 'الوقفة اليومية' : 'Standup'}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsExecutiveStudioOpen(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+            title={language === 'ar' ? 'أستوديو القيادة الإنجليزية ومحاكي الاجتماعات (Executive PM Studio)' : 'Executive English PM Studio & Meeting Simulator'}
+          >
+            <span>👔</span>
+            <span className="hidden sm:inline font-sans">
+              {language === 'ar' ? 'إنجليزية القيادة' : 'PM Studio'}
             </span>
           </button>
           <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 dark:bg-cyan-500/15 text-sky-800 dark:text-cyan-400 font-mono font-bold">
@@ -839,6 +857,13 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
         checkpoints={checkpoints}
         onToggleCheckpoint={handleToggleCheckpoint}
         onCompleteSprint={handleLearningComplete}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Executive English PM Studio & Meeting Simulator Modal */}
+      <ExecutiveEnglishStudioModal
+        isOpen={isExecutiveStudioOpen}
+        onClose={() => setIsExecutiveStudioOpen(false)}
         onRewardToast={onRewardToast}
       />
     </div>
