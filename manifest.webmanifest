@@ -17,5 +17,28 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "lifestyle", "utilities"]
+  "categories": ["productivity", "lifestyle", "utilities"],
+  "shortcuts": [
+    {
+      "name": "الصلوات والنوافل",
+      "short_name": "الصلوات",
+      "description": "تسجيل الصلوات والسنن والنوافل اليومية",
+      "url": "/?station=COMMUTE_MORNING",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "محراب المذاكرة والكورسات",
+      "short_name": "المذاكرة",
+      "description": "متابعة خطة الكورسات والتعلم الذاتي بالذكاء الاصطناعي",
+      "url": "/?station=WORK_MICRO_SPRINT",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "تذكير ومنبه سريع",
+      "short_name": "تذكير",
+      "description": "إضافة منبه أو تذكير ذكي سريع",
+      "url": "/?action=quick_reminder",
+      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+    }
+  ]
 }
