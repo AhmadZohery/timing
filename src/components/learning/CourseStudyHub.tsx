@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
   GraduationCap,
@@ -23,6 +23,9 @@ import {
   Copy,
   Flame,
   Headphones,
+  Cloud,
+  Zap,
+  ShieldCheck,
 } from 'lucide-react';
 import type { StudyCourse, StudyCourseLesson, AmbientSoundType } from '../../types';
 import { db } from '../../db/db';
@@ -36,6 +39,8 @@ import {
   getCourseUnitLabel,
 } from '../../utils/courseStudyEngine';
 import { courseAiPlannerService } from '../../services/courseAiPlannerService';
+import { localIntelligence } from '../../services/localIntelligenceEngine';
+import { serverSync, type ServerSyncStatus } from '../../services/serverSyncService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { speechService } from '../../services/speechService';
@@ -82,6 +87,30 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
     return courses.find((c) => c.id === selectedCourseId) || courses[0];
   }, [courses, selectedCourseId]);
 
+  // Live Query Daily Logs for Local Velocity Intelligence
+  const allDailyLogs = useLiveQuery(() => db.daily_logs.toArray(), [], []);
+
+  // Server Sync State & Realtime Subscription
+  const [serverStatus, setServerStatus] = useState<ServerSyncStatus>(() => serverSync.getStatus());
+  const [isSyncingServer, setIsSyncingServer] = useState(false);
+
+  useEffect(() => {
+    return serverSync.subscribe(setServerStatus);
+  }, []);
+
+  const handleManualServerSync = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsSyncingServer(true);
+    const res = await serverSync.pushToServer();
+    setIsSyncingServer(false);
+    if (res.success) {
+      soundSynth.playCompletionChime();
+      haptic.vibrateSprintCelebration();
+    }
+    if (onRewardToast) onRewardToast(res.message);
+  };
+
   // Modal / Drawer States
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
@@ -89,6 +118,12 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isLessonsExpanded, setIsLessonsExpanded] = useState(false);
+
+  // Live Real-Time NLP Preview as user types (0 Tokens / 0ms)
+  const liveLocalPreview = useMemo(() => {
+    if (!aiPromptInput.trim() || aiPromptInput.trim().length < 5) return null;
+    return localIntelligence.parseCourseIntent(aiPromptInput);
+  }, [aiPromptInput]);
 
   // Manual Form States
   const [manualTitle, setManualTitle] = useState('');
@@ -113,6 +148,12 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
     if (!activeCourse) return null;
     return calculateCourseScheduleMetrics(activeCourse, todayStr);
   }, [activeCourse, todayStr]);
+
+  // Local Statistical Velocity & Burnout Forecast (0 Tokens)
+  const velocityForecast = useMemo(() => {
+    if (!activeCourse) return null;
+    return localIntelligence.computeVelocityForecast(activeCourse, allDailyLogs || []);
+  }, [activeCourse, allDailyLogs]);
 
   // 7-Day Consistency Week Track
   const pastWeekDays = useMemo(() => {
@@ -500,6 +541,30 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
+            {/* Server Sync / Cloud Storage Indicator */}
+            {serverStatus.isServerAvailable ? (
+              <button
+                type="button"
+                onClick={handleManualServerSync}
+                disabled={isSyncingServer}
+                className="tap-spring flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all cursor-pointer"
+                title={isAr ? 'مزامنة وحفظ المسارات على السيرفر السحابي (Coolify / Docker)' : 'Sync with cloud server'}
+              >
+                <Cloud className={`w-3.5 h-3.5 ${isSyncingServer ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">
+                  {isSyncingServer ? (isAr ? 'مزامنة...' : 'Syncing...') : (isAr ? 'مزامنة السيرفر ☁️' : 'Server Sync')}
+                </span>
+              </button>
+            ) : (
+              <span
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700 text-[10px] font-bold"
+                title={isAr ? 'يعمل محلياً بأمان وبدون إنترنت' : 'Offline local mode'}
+              >
+                <Zap className="w-3 h-3 text-amber-500" />
+                <span className="hidden sm:inline">{isAr ? 'محلي 100%' : 'Local'}</span>
+              </span>
+            )}
+
             <button
               type="button"
               onClick={() => {
@@ -684,6 +749,42 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
                   <strong className="text-slate-700 dark:text-zinc-300 font-mono">{activeMetrics.studyDaysRemaining} {isAr ? 'يوم' : 'days'}</strong>
                 </span>
               </div>
+
+              {/* Local Velocity Forecast & Burnout Risk Radar (0 Tokens) */}
+              {velocityForecast && (
+                <div className="pt-2 border-t border-slate-100 dark:border-zinc-800/60 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500 dark:text-zinc-400">
+                      {isAr ? 'السرعة الفعلية:' : 'Actual Velocity:'}
+                    </span>
+                    <strong className="text-indigo-600 dark:text-indigo-400 font-mono font-bold">
+                      {velocityForecast.actualRollingVelocity} {isAr ? 'وحدة / يوم' : 'units/day'}
+                    </strong>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500 dark:text-zinc-400">
+                      {isAr ? 'الإنهاء الواقعي:' : 'Realistic Finish:'}
+                    </span>
+                    <strong className="text-slate-700 dark:text-zinc-300 font-mono font-bold">
+                      {velocityForecast.realisticFinishDate}
+                    </strong>
+                  </div>
+
+                  <div className="w-full flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-800/50 p-2 rounded-xl border border-slate-200/50 dark:border-zinc-700/50">
+                    <span
+                      className={`w-2 h-2 rounded-full shrink-0 ${
+                        velocityForecast.burnoutRiskLevel === 'high'
+                          ? 'bg-rose-500 animate-ping'
+                          : velocityForecast.burnoutRiskLevel === 'moderate'
+                          ? 'bg-amber-500'
+                          : 'bg-emerald-500'
+                      }`}
+                    />
+                    <span>{velocityForecast.burnoutAdvice}</span>
+                  </div>
+                </div>
+              )}
 
               {/* 7-Day Consistency Week Track */}
               <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 space-y-1.5">
@@ -1118,6 +1219,19 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
               </button>
             </div>
 
+            {/* Token Saver Tracker Banner */}
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 text-[10px]">
+              <span className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400 font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                <span>{isAr ? 'معالجة محلية ذكية لحماية التوكن' : '0-Token Local Smart Processing'}</span>
+              </span>
+              <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                {isAr
+                  ? `وفّرت: ${localIntelligence.getTokensSaved().toLocaleString()} توكن ⚡`
+                  : `Saved: ${localIntelligence.getTokensSaved().toLocaleString()} tokens ⚡`}
+              </span>
+            </div>
+
             {/* Prompt Textarea */}
             <div className="space-y-1.5">
               <div className="relative">
@@ -1150,6 +1264,27 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
                 <p className="text-[10px] text-rose-500 font-bold animate-pulse">
                   {isAr ? '🎙️ جاري الاستماع وتفريغ صوتك...' : 'Listening actively...'}
                 </p>
+              )}
+
+              {/* Live Deterministic Local NLP Preview (0 Tokens / Instant 0ms) */}
+              {liveLocalPreview && (
+                <div className="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 space-y-1.5 animate-fade-in text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                      <span>{isAr ? 'استنتاج محلي فوري (0 توكن مستهلك) ⚡' : 'Instant local comprehension (0 tokens)'}</span>
+                    </span>
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
+                      {Math.round(liveLocalPreview.confidence * 100)}% {isAr ? 'دقة' : 'match'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-700 dark:text-zinc-300 font-medium">
+                    <strong>{liveLocalPreview.title}</strong> • {liveLocalPreview.totalUnits} {getCourseUnitLabel(liveLocalPreview.unitType, liveLocalPreview.totalUnits, isAr)} • {liveLocalPreview.plannedUnitsPerDay} {isAr ? 'يومياً' : '/day'} • {liveLocalPreview.targetDays} {isAr ? 'يوماً' : 'days'}
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-400">
+                    {liveLocalPreview.reasons.join(' • ')}
+                  </p>
+                </div>
               )}
             </div>
 

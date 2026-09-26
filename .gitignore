@@ -31,3 +31,8 @@ dist-ssr
 *.env
 *.env.local
 new.env
+
+# Local server persistent data
+data/
+server/data/
+

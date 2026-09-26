@@ -11,13 +11,22 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Production Nginx server
-FROM nginx:alpine
+# Production Node.js Server & Static Host (Zero npm dependencies in runtime)
+FROM node:20-alpine
 
-# Copy built assets
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=80
+ENV DATA_DIR=/app/data
+
+# Copy built frontend assets and server
+COPY --from=builder /app/dist ./dist
+COPY server ./server
+
+# Persistent storage volume directory for Coolify
+RUN mkdir -p /app/data && chmod 777 /app/data
+VOLUME ["/app/data"]
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server/index.mjs"]
