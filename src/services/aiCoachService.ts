@@ -41,6 +41,19 @@ export class AiCoachService {
         return null;
       }
     }
+
+    // Auto-fallback: check if VITE_DEEPSEEK_API_KEY is defined in environment
+    const envDeepseekKey = (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
+    if (envDeepseekKey && typeof envDeepseekKey === 'string' && envDeepseekKey.trim()) {
+      return {
+        provider: 'deepseek',
+        apiKey: envDeepseekKey.trim(),
+        model: 'deepseek-chat',
+        enabled: true,
+        customEndpoint: 'https://api.deepseek.com/chat/completions',
+      };
+    }
+
     return null;
   }
 
@@ -93,9 +106,15 @@ export class AiCoachService {
         return { success: true, message: 'تم الاتصال بنجاح بـ Gemini API! المرشد الذكي جاهز لمساعدتك.' };
       }
 
-      // OpenAI or Custom endpoint
-      const endpoint = config.customEndpoint || 'https://api.openai.com/v1/chat/completions';
-      const model = config.model || 'gpt-4o-mini';
+      // DeepSeek or OpenAI or Custom endpoint
+      const isDeepSeek = config.provider === 'deepseek';
+      const endpoint = isDeepSeek
+        ? (config.customEndpoint || 'https://api.deepseek.com/chat/completions')
+        : (config.customEndpoint || 'https://api.openai.com/v1/chat/completions');
+      const model = isDeepSeek
+        ? (config.model || 'deepseek-chat')
+        : (config.model || 'gpt-4o-mini');
+
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -110,9 +129,16 @@ export class AiCoachService {
       });
 
       if (!res.ok) {
-        return { success: false, message: `فشل الاتصال بالـ API: HTTP ${res.status}` };
+        const errData = await res.json().catch(() => ({}));
+        const errMsg = errData.error?.message || `HTTP ${res.status}`;
+        return { success: false, message: `فشل الاتصال بـ ${isDeepSeek ? 'DeepSeek API' : 'الـ API'}: ${errMsg}` };
       }
-      return { success: true, message: 'تم الاتصال بنجاح بالـ API الخارجي!' };
+      return {
+        success: true,
+        message: isDeepSeek
+          ? 'تم الاتصال بنجاح بـ DeepSeek API (V3)! المرشد الذكي فائق الذكاء جاهز لمساعدتك.'
+          : 'تم الاتصال بنجاح بالـ API الخارجي!',
+      };
     } catch (err: any) {
       return { success: false, message: `خطأ في الاتصال بالشبكة: ${err.message || err}` };
     }
@@ -178,9 +204,14 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
             if (text) return text.trim();
           }
         } else {
-          // OpenAI / Custom Endpoint
-          const endpoint = config.customEndpoint || 'https://api.openai.com/v1/chat/completions';
-          const model = config.model || 'gpt-4o-mini';
+          // DeepSeek / OpenAI / Custom Endpoint
+          const isDeepSeek = config.provider === 'deepseek';
+          const endpoint = isDeepSeek
+            ? (config.customEndpoint || 'https://api.deepseek.com/chat/completions')
+            : (config.customEndpoint || 'https://api.openai.com/v1/chat/completions');
+          const model = isDeepSeek
+            ? (config.model || 'deepseek-chat')
+            : (config.model || 'gpt-4o-mini');
           const res = await fetch(endpoint, {
             method: 'POST',
             headers: {
@@ -193,7 +224,7 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userMessage },
               ],
-              max_tokens: 400,
+              max_tokens: 600,
               temperature: 0.7,
             }),
           });
@@ -258,6 +289,44 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
                   completed: false,
                 }));
               }
+            }
+          }
+        } else {
+          // DeepSeek / OpenAI / Custom Endpoint JSON deconstruct
+          const isDeepSeek = config.provider === 'deepseek';
+          const endpoint = isDeepSeek
+            ? (config.customEndpoint || 'https://api.deepseek.com/chat/completions')
+            : (config.customEndpoint || 'https://api.openai.com/v1/chat/completions');
+          const model = isDeepSeek
+            ? (config.model || 'deepseek-chat')
+            : (config.model || 'gpt-4o-mini');
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${config.apiKey.trim()}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [
+                { role: 'system', content: 'You are an agile micro-sprint task planner. Respond with a valid JSON array only.' },
+                { role: 'user', content: prompt }
+              ],
+              temperature: 0.2,
+            }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            let rawText = data.choices?.[0]?.message?.content || '';
+            rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(rawText);
+            if (Array.isArray(parsed) && parsed.length >= 2) {
+              return parsed.map((item: any) => ({
+                title: String(item.title || ''),
+                durationMin: Number(item.durationMin) || 5,
+                completed: false,
+              }));
             }
           }
         }
@@ -326,6 +395,34 @@ ${JSON.stringify(logsSummary)}
           if (res.ok) {
             const data = await res.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) return text.trim();
+          }
+        } else {
+          // DeepSeek / OpenAI / Custom Endpoint
+          const isDeepSeek = config.provider === 'deepseek';
+          const endpoint = isDeepSeek
+            ? (config.customEndpoint || 'https://api.deepseek.com/chat/completions')
+            : (config.customEndpoint || 'https://api.openai.com/v1/chat/completions');
+          const model = isDeepSeek
+            ? (config.model || 'deepseek-chat')
+            : (config.model || 'gpt-4o-mini');
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${config.apiKey.trim()}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: 'user', content: prompt }],
+              temperature: 0.5,
+              max_tokens: 500,
+            }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const text = data.choices?.[0]?.message?.content;
             if (text) return text.trim();
           }
         }
@@ -463,9 +560,14 @@ ${answers.freeTextBio ? `- ما كتبه المستخدم بحرية عن روت
             }
           }
         } else {
-          // OpenAI / Custom Endpoint
-          const endpoint = config.customEndpoint || 'https://api.openai.com/v1/chat/completions';
-          const model = config.model || 'gpt-4o-mini';
+          // DeepSeek / OpenAI / Custom Endpoint
+          const isDeepSeek = config.provider === 'deepseek';
+          const endpoint = isDeepSeek
+            ? (config.customEndpoint || 'https://api.deepseek.com/chat/completions')
+            : (config.customEndpoint || 'https://api.openai.com/v1/chat/completions');
+          const model = isDeepSeek
+            ? (config.model || 'deepseek-chat')
+            : (config.model || 'gpt-4o-mini');
           const res = await fetch(endpoint, {
             method: 'POST',
             headers: {

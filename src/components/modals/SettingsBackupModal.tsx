@@ -120,7 +120,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
 
   // AI Coach API state
   const [aiApiKey, setAiApiKey] = useState('');
-  const [aiProvider, setAiProvider] = useState<'gemini' | 'openai' | 'custom'>('gemini');
+  const [aiProvider, setAiProvider] = useState<'gemini' | 'openai' | 'deepseek' | 'custom'>('gemini');
   const [aiModel, setAiModel] = useState('gemini-2.0-flash');
   const [aiEnabled, setAiEnabled] = useState(true);
   const [isTestingAi, setIsTestingAi] = useState(false);
@@ -132,8 +132,16 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
       if (cfg) {
         setAiApiKey(cfg.apiKey || '');
         setAiProvider(cfg.provider || 'gemini');
-        setAiModel(cfg.model || 'gemini-2.0-flash');
+        setAiModel(cfg.model || (cfg.provider === 'deepseek' ? 'deepseek-chat' : 'gemini-2.0-flash'));
         setAiEnabled(cfg.enabled ?? true);
+      } else {
+        const envKey = (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
+        if (envKey) {
+          setAiProvider('deepseek');
+          setAiApiKey(envKey);
+          setAiModel('deepseek-chat');
+          setAiEnabled(true);
+        }
       }
     });
   }, []);
@@ -815,11 +823,69 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
               : 'Connect free Google Gemini API to empower the coach. Stored 100% locally on your device.'}
           </p>
 
+          {/* Provider Selector: Gemini vs DeepSeek vs OpenAI */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
+            <button
+              type="button"
+              onClick={() => {
+                setAiProvider('gemini');
+                setAiModel('gemini-2.0-flash');
+              }}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                aiProvider === 'gemini'
+                  ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+              }`}
+            >
+              Google Gemini
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAiProvider('deepseek');
+                setAiModel('deepseek-chat');
+                const envKey = (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
+                if (!aiApiKey && envKey) setAiApiKey(envKey);
+              }}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                aiProvider === 'deepseek'
+                  ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+              }`}
+            >
+              🐋 DeepSeek (V3/R1)
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAiProvider('openai');
+                setAiModel('gpt-4o-mini');
+              }}
+              className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                aiProvider === 'openai'
+                  ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900'
+              }`}
+            >
+              OpenAI
+            </button>
+          </div>
+
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <input
                 type="password"
-                placeholder={isRTL ? 'أدخل مفتاح Gemini API هنا (AIzaSy...)' : 'Enter Gemini API key...'}
+                placeholder={
+                  aiProvider === 'deepseek'
+                    ? isRTL
+                      ? 'أدخل مفتاح DeepSeek API هنا (sk-...)'
+                      : 'Enter DeepSeek API key (sk-...)'
+                    : aiProvider === 'openai'
+                    ? 'Enter OpenAI API key (sk-...)'
+                    : isRTL
+                    ? 'أدخل مفتاح Gemini API هنا (AIzaSy...)'
+                    : 'Enter Gemini API key...'
+                }
                 value={aiApiKey}
                 onChange={(e) => setAiApiKey(e.target.value)}
                 className="flex-1 py-2 px-3 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono text-slate-900 dark:text-zinc-100 focus:outline-hidden focus:border-indigo-500"
@@ -838,13 +904,29 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
 
             <div className="flex items-center justify-between text-[11px]">
               <a
-                href="https://aistudio.google.com/app/apikey"
+                href={
+                  aiProvider === 'deepseek'
+                    ? 'https://platform.deepseek.com/api_keys'
+                    : aiProvider === 'openai'
+                    ? 'https://platform.openai.com/api-keys'
+                    : 'https://aistudio.google.com/app/apikey'
+                }
                 target="_blank"
                 rel="noreferrer"
                 className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1"
               >
                 <ExternalLink className="w-3 h-3" />
-                <span>{isRTL ? 'احصل على مفتاح Gemini مجاناً بدون بطاقة بنكية' : 'Get free Gemini API Key (No credit card)'}</span>
+                <span>
+                  {aiProvider === 'deepseek'
+                    ? isRTL
+                      ? 'احصل على مفتاح DeepSeek API من المنصة'
+                      : 'Get DeepSeek API Key'
+                    : aiProvider === 'openai'
+                    ? 'Get OpenAI API Key'
+                    : isRTL
+                    ? 'احصل على مفتاح Gemini مجاناً بدون بطاقة بنكية'
+                    : 'Get free Gemini API Key (No credit card)'}
+                </span>
               </a>
 
               {aiApiKey && (

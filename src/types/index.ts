@@ -400,7 +400,7 @@ export interface OutreachTemplate {
 export type AmbientSoundType = 'none' | 'brown' | 'rain' | 'rain_light' | 'rain_heavy' | 'alpha' | 'theta';
 
 export interface AiProviderConfig {
-  provider: 'gemini' | 'openai' | 'custom';
+  provider: 'gemini' | 'openai' | 'deepseek' | 'custom';
   apiKey: string;
   model: string;
   enabled: boolean;

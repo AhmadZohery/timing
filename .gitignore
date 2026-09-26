@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Environment files & secrets
+.env
+.env.*
+*.env
+*.env.local
+new.env
