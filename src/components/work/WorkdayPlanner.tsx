@@ -22,6 +22,7 @@ import {
   ChevronUp,
   Shield,
   Lock,
+  Bell,
 } from 'lucide-react';
 import type { WorkdayTask, FocusSessionMode, TaskPriority, AmbientSoundType } from '../../types';
 import { useWorkerTimer } from '../../hooks/useWorkerTimer';
@@ -33,6 +34,7 @@ import { useTranslation } from '../../i18n/LanguageContext';
 import { aiCoach } from '../../services/aiCoachService';
 import { getTodayWorkRhythm, DOMAIN_PRESETS, DEFAULT_WORK_RHYTHM_CONFIG } from '../../utils/workRhythm';
 import { calculatePrayerTimes, getNextPrayer } from '../../utils/prayerCalculator';
+import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
 
 interface WorkdayPlannerProps {
   todayDate: string;
@@ -108,6 +110,11 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
   const [newTaskEstimate, setNewTaskEstimate] = useState(25);
   const [newTaskPriority, setNewTaskPriority] = useState<TaskPriority>('medium');
   const [newTaskRole, setNewTaskRole] = useState<'maker' | 'manager'>('maker');
+  const [newTaskReminderEnabled, setNewTaskReminderEnabled] = useState(false);
+  const [newTaskReminderTime, setNewTaskReminderTime] = useState(() => {
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    return `${String(d.getHours()).padStart(2, '0')}:00`;
+  });
   const [showAddTask, setShowAddTask] = useState(false);
 
   // Ivy Lee 6-Task Sequential Lock Mode
@@ -435,10 +442,14 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
       date: todayDate,
       profileId: activeProfile?.id || 'profile_default',
       taskRole: newTaskRole,
+      reminderTime: newTaskReminderEnabled && newTaskReminderTime ? newTaskReminderTime : undefined,
+      reminderEnabled: newTaskReminderEnabled,
     };
 
     await db.workday_tasks.add(newTask);
+    autonomousNotificationScheduler.scheduleAllUpcomingAlarms().catch(() => {});
     setNewTaskTitle('');
+    setNewTaskReminderEnabled(false);
     setShowAddTask(false);
   };
 
@@ -1127,6 +1138,27 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                   </button>
                 </div>
 
+                {/* Optional Task Alarm Reminder */}
+                <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2 py-1 rounded-lg border border-slate-200 dark:border-zinc-800">
+                  <label className="flex items-center gap-1 cursor-pointer text-[11px] font-bold text-slate-600 dark:text-zinc-400">
+                    <input
+                      type="checkbox"
+                      checked={newTaskReminderEnabled}
+                      onChange={(e) => setNewTaskReminderEnabled(e.target.checked)}
+                      className="w-3.5 h-3.5 accent-amber-500 rounded cursor-pointer"
+                    />
+                    <span>⏰ {isAr ? 'تنبيه' : 'Alarm'}</span>
+                  </label>
+                  {newTaskReminderEnabled && (
+                    <input
+                      type="time"
+                      value={newTaskReminderTime}
+                      onChange={(e) => setNewTaskReminderTime(e.target.value)}
+                      className="px-1.5 py-0.5 rounded bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-[11px] font-mono font-bold text-slate-900 dark:text-white"
+                    />
+                  )}
+                </div>
+
                 <button
                   type="submit"
                   className="py-1 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer"
@@ -1277,6 +1309,19 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                         >
                           {isMaker ? (isAr ? '🎨 صانع' : '🎨 Maker') : (isAr ? '📋 مدير' : '📋 Manager')}
                         </button>
+
+                        {/* Reminder Badge */}
+                        {task.reminderTime && (
+                          <span
+                            className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold flex items-center gap-0.5 ${
+                              task.reminderEnabled
+                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                                : 'bg-slate-100 text-slate-400 dark:bg-zinc-800 line-through'
+                            }`}
+                          >
+                            ⏰ {task.reminderTime}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1284,6 +1329,34 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                   <div className="flex items-center gap-1.5 shrink-0">
                     {!task.completed && (
                       <>
+                        {/* Alarm Reminder Toggle */}
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            soundSynth.playTactileClick();
+                            haptic.vibrateLight();
+                            const nextEnabled = !task.reminderEnabled;
+                            const nextTime = task.reminderTime || '12:00';
+                            await db.workday_tasks.update(task.id, {
+                              reminderEnabled: nextEnabled,
+                              reminderTime: nextTime,
+                            });
+                            autonomousNotificationScheduler.scheduleAllUpcomingAlarms().catch(() => {});
+                          }}
+                          title={
+                            task.reminderEnabled
+                              ? (isAr ? `تنبيه نشط في ${task.reminderTime} (انقر لتعطيل المنبه)` : `Alarm active at ${task.reminderTime}`)
+                              : (isAr ? 'ضبط منبه مستقل لهذه المهمة ⏰' : 'Set alarm for this task')
+                          }
+                          className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                            task.reminderEnabled
+                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-2xs'
+                              : 'bg-slate-50 dark:bg-zinc-900 text-slate-400 hover:text-amber-600 border-slate-200 dark:border-zinc-800'
+                          }`}
+                        >
+                          <Bell className="w-3.5 h-3.5" />
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleAiDeconstructTask(task)}

@@ -71,6 +71,7 @@ const DailyPrideTicketModal = lazy(() => import('./components/modals/DailyPrideT
 const DailyTadabburModal = lazy(() => import('./components/modals/DailyTadabburModal').then((m) => ({ default: m.DailyTadabburModal })));
 const FaithAudioSanctuaryModal = lazy(() => import('./components/spiritual/FaithAudioSanctuaryModal').then((m) => ({ default: m.FaithAudioSanctuaryModal })));
 const NiyyahSanctuaryModal = lazy(() => import('./components/spiritual/NiyyahSanctuaryModal').then((m) => ({ default: m.NiyyahSanctuaryModal })));
+const QuickReminderModal = lazy(() => import('./components/modals/QuickReminderModal').then((m) => ({ default: m.QuickReminderModal })));
 
 // Active Station Persistence across page refreshes
 const ALL_STATIONS: StationId[] = [
@@ -208,6 +209,7 @@ export function App() {
   const [isLifeWisdomOpen, setIsLifeWisdomOpen] = useState(false);
   const [isNiyyahModalOpen, setIsNiyyahModalOpen] = useState(false);
   const [niyyahInitialPillar, setNiyyahInitialPillar] = useState<NiyyahPillar>('livelihood');
+  const [isQuickReminderOpen, setIsQuickReminderOpen] = useState(false);
 
   const handleOpenNiyyah = (pillar: NiyyahPillar = 'livelihood') => {
     setNiyyahInitialPillar(pillar);
@@ -557,6 +559,7 @@ export function App() {
         onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
         onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
         onOpenNiyyahModal={() => handleOpenNiyyah('livelihood')}
+        onOpenQuickReminder={() => setIsQuickReminderOpen(true)}
         isPwaStandalone={pwaState.isStandalone}
         activeProfileName={activeProfile?.name}
         activeProfileEmoji={activeProfile?.avatarEmoji}
@@ -912,6 +915,15 @@ export function App() {
         onClose={() => setIsSettingsModalOpen(false)}
         userState={userState}
         onOpenBatteryGuide={() => setIsBatteryGuideOpen(true)}
+      />
+
+      <QuickReminderModal
+        isOpen={isQuickReminderOpen}
+        onClose={() => setIsQuickReminderOpen(false)}
+        onRewardToast={(msg) => {
+          setRewardToast(msg);
+          setTimeout(() => setRewardToast(null), 3500);
+        }}
       />
 
       <KeyboardShortcutsModal

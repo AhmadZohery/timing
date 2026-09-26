@@ -223,6 +223,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
 
     const updatedSettings = { ...userState.settings, ...partial };
     await db.user_state.update(userState.id, { settings: updatedSettings });
+    autonomousNotificationScheduler.scheduleAllUpcomingAlarms().catch(() => {});
   };
 
   const handleExportBackup = async () => {
@@ -723,6 +724,86 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                     handleUpdateSettings({ lateCheckinReminderEnabled: e.target.checked })
                   }
                   className="w-4 h-4 accent-indigo-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Sunnah Fasting Toggle */}
+              <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
+                <span className="flex items-center gap-2">
+                  <Moon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span>
+                    {language === 'ar'
+                      ? 'تنبيهات صيام السنن النبوية (ليلة الاثنين والخميس، والأيام البيض 13 و 14 و 15)'
+                      : 'Remind me before Monday, Thursday & White Days fasting'}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={userState?.settings?.sunnahFastingRemindersEnabled ?? true}
+                  onChange={(e) =>
+                    handleUpdateSettings({ sunnahFastingRemindersEnabled: e.target.checked })
+                  }
+                  className="w-4 h-4 accent-amber-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Morning & Evening Adhkar Toggle */}
+              <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span>
+                    {language === 'ar'
+                      ? 'أذكار الصباح والمساء النبوية (بعد الشروق وبعد العصر)'
+                      : 'Morning & Evening prophetic Adhkar alerts'}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={userState?.settings?.morningEveningAdhkarRemindersEnabled ?? true}
+                  onChange={(e) =>
+                    handleUpdateSettings({ morningEveningAdhkarRemindersEnabled: e.target.checked })
+                  }
+                  className="w-4 h-4 accent-emerald-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Schedule Stations Transition Toggle */}
+              <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                  <span>
+                    {language === 'ar'
+                      ? 'تنبيهات محطات اليوم والجدول (بدء ساعات العمل، تمرين الرياضة، الاستعداد للنوم)'
+                      : 'Station & schedule transitions (Work start, Workout, Bedtime)'}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={userState?.settings?.scheduleStationRemindersEnabled ?? true}
+                  onChange={(e) =>
+                    handleUpdateSettings({ scheduleStationRemindersEnabled: e.target.checked })
+                  }
+                  className="w-4 h-4 accent-sky-600 cursor-pointer"
+                />
+              </div>
+
+              {/* Custom Reminders Engine Toggle */}
+              <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
+                <span className="flex items-center gap-2">
+                  <BellRing className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                  <span>
+                    {language === 'ar'
+                      ? 'تنبيهات المهام والمنبهات المخصصة المسجلة'
+                      : 'Custom task & timed user reminders'}
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={userState?.settings?.customRemindersEnabled ?? true}
+                  onChange={(e) =>
+                    handleUpdateSettings({ customRemindersEnabled: e.target.checked })
+                  }
+                  className="w-4 h-4 accent-purple-600 cursor-pointer"
                 />
               </div>
 

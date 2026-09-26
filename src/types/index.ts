@@ -296,6 +296,24 @@ export interface WorkdayTask {
   profileId?: string;
   notes?: string;
   taskRole?: 'maker' | 'manager';
+  reminderTime?: string; // "HH:mm" e.g. "10:30"
+  reminderEnabled?: boolean;
+}
+
+export type ReminderRecurrence = 'once' | 'daily' | 'weekdays';
+export type ReminderCategory = 'custom' | 'work' | 'health' | 'spiritual' | 'fitness' | 'learning';
+
+export interface CustomReminderItem {
+  id: string;
+  title: string;
+  time: string; // "HH:mm" e.g. "15:30"
+  date?: string; // "YYYY-MM-DD" for 'once' or start date
+  recurrence: ReminderRecurrence;
+  category: ReminderCategory;
+  enabled: boolean;
+  notes?: string;
+  completedDates?: string[];
+  createdAt: number;
 }
 
 export type FocusSessionMode =
@@ -559,6 +577,10 @@ export interface AppSettings {
   latePrayerReminderEnabled?: boolean; // default true (تذكير الصلاة المتأخرة غير المسجلة)
   lateWirdReminderEnabled?: boolean; // default true (تذكير الورد القرآني وسورة البقرة)
   lateCheckinReminderEnabled?: boolean; // default true (تذكير إغلاق اليوم المسائي)
+  sunnahFastingRemindersEnabled?: boolean; // default true (تنبيهات صيام الاثنين والخميس والأيام البيض)
+  morningEveningAdhkarRemindersEnabled?: boolean; // default true (أذكار الصباح وأذكار المساء)
+  scheduleStationRemindersEnabled?: boolean; // default true (تنبيهات محطات اليوم: بدء العمل، التمرين، النوم)
+  customRemindersEnabled?: boolean; // default true (المنبهات والتذكيرات المخصصة)
   workRhythmConfig?: WorkRhythmConfig;
   sleepSchedule?: SleepScheduleConfig;
   smartNudgesEnabled?: boolean; // default true

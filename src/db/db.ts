@@ -17,6 +17,7 @@ import type {
   LanguageProgressRecord,
   AuthAccount,
   TasbihCounterRecord,
+  CustomReminderItem,
 } from '../types';
 
 export class LifeOSDatabase extends Dexie {
@@ -38,6 +39,7 @@ export class LifeOSDatabase extends Dexie {
   language_progress!: Table<LanguageProgressRecord, string>;
   auth_accounts!: Table<AuthAccount, string>;
   tasbih_counters!: Table<TasbihCounterRecord, string>;
+  custom_reminders!: Table<CustomReminderItem, string>;
 
   constructor() {
     super('LifeOS_Database');
@@ -143,6 +145,10 @@ export class LifeOSDatabase extends Dexie {
 
     this.version(9).stores({
       tasbih_counters: 'id, presetId, date, [date+presetId], lastUpdated',
+    });
+
+    this.version(10).stores({
+      custom_reminders: 'id, date, time, recurrence, enabled, category',
     });
   }
 }

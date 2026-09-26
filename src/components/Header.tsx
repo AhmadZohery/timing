@@ -35,6 +35,7 @@ import {
   Disc,
   BookOpen,
   Compass,
+  Bell,
 } from 'lucide-react';
 import type { UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
@@ -79,6 +80,7 @@ interface HeaderProps {
   onOpenArabicPoetry?: () => void;
   onOpenLifeWisdom?: () => void;
   onOpenNiyyahModal?: () => void;
+  onOpenQuickReminder?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -111,6 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenArabicPoetry,
   onOpenLifeWisdom,
   onOpenNiyyahModal,
+  onOpenQuickReminder,
   isPwaStandalone,
   activeProfileName,
   activeProfileEmoji,
@@ -345,6 +348,25 @@ export const Header: React.FC<HeaderProps> = ({
                 <Search className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               </button>
             </>
+          )}
+
+          {/* Quick Reminder Trigger */}
+          {onOpenQuickReminder && (
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenQuickReminder();
+              }}
+              title={language === 'ar' ? 'منبهات وتذكيرات اليوم (خلف الشاشة)' : 'Daily Alarms & Custom Reminders'}
+              className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95"
+            >
+              <Bell className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+              <span className="hidden sm:inline">
+                {language === 'ar' ? 'تذكير 🔔' : 'Reminder'}
+              </span>
+            </button>
           )}
 
           {/* PWA Install Button */}
@@ -584,6 +606,21 @@ export const Header: React.FC<HeaderProps> = ({
                         >
                           <Moon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'بروتوكول النوم' : 'Sleep'}</span>
+                        </button>
+                      )}
+
+                      {/* Quick Reminder */}
+                      {onOpenQuickReminder && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowControlCenter(false);
+                            onOpenQuickReminder();
+                          }}
+                          className="flex items-center gap-1.5 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 text-xs font-medium border border-amber-200 dark:border-amber-800/40"
+                        >
+                          <Bell className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="truncate">{language === 'ar' ? 'منبهات وتذكيرات' : 'Reminders'}</span>
                         </button>
                       )}
 

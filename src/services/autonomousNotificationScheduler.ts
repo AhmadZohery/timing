@@ -1,7 +1,8 @@
-import { calculatePrayerTimes, detectDefaultCityFromTimezone } from '../utils/prayerCalculator';
+import { calculatePrayerTimes, detectDefaultCityFromTimezone, getHijriDateDetails } from '../utils/prayerCalculator';
 import { db } from '../db/db';
 import { getBiologicalDate } from '../utils/gamification';
-import type { PrayerName } from '../types';
+import { scheduleService } from './scheduleService';
+import type { PrayerName, CustomReminderItem, WorkdayTask } from '../types';
 
 export interface ScheduledAlarmItem {
   id: string;
@@ -249,6 +250,219 @@ class AutonomousNotificationScheduler {
             url: '/?station=RETROSPECTIVE_CHECKIN',
           });
         }
+      }
+
+      // 6. Morning & Evening Adhkar Reminders
+      if (settings?.morningEveningAdhkarRemindersEnabled ?? true) {
+        // Morning Adhkar (20m post-sunrise)
+        const morningAdhkarTime = new Date(todayTimes.sunrise.getTime() + 20 * 60 * 1000).getTime();
+        if (morningAdhkarTime > now.getTime()) {
+          alarms.push({
+            id: `adhkar_morning_${todayDateStr}`,
+            title: '🌿 حان وقت أذكار الصباح النبوية',
+            body: '﴿وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ﴾.. أذكار الصباح حِصن يومك وسكينتك وبركة مسعاك.',
+            timestampMs: morningAdhkarTime,
+            tag: 'adhkar-morning',
+            url: '/?station=COMMUTE_MORNING',
+          });
+        }
+
+        // Evening Adhkar (25m post-Asr before sunset)
+        const eveningAdhkarTime = new Date(todayTimes.asr.getTime() + 25 * 60 * 1000).getTime();
+        if (eveningAdhkarTime > now.getTime()) {
+          alarms.push({
+            id: `adhkar_evening_${todayDateStr}`,
+            title: '🌿 حان وقت أذكار المساء النبوية',
+            body: '﴿وَقَبْلَ الْغُرُوبِ﴾.. بادر بأذكار المساء لتكون لك حِصناً وبركة وسكينة قبل حلول الليل.',
+            timestampMs: eveningAdhkarTime,
+            tag: 'adhkar-evening',
+            url: '/?station=EVENING_SPRINT',
+          });
+        }
+      }
+
+      // 7. Sunnah Fasting Reminders (Monday, Thursday, and White Days)
+      if (settings?.sunnahFastingRemindersEnabled ?? true) {
+        const dayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon ...
+        const eveningFastTime = new Date();
+        eveningFastTime.setHours(20, 15, 0, 0); // 8:15 PM
+
+        if (eveningFastTime.getTime() > now.getTime()) {
+          // Sunday evening -> Tomorrow is Monday fasting
+          if (dayOfWeek === 0) {
+            alarms.push({
+              id: `fasting_monday_${todayDateStr}`,
+              title: '🌙 تذكير صيام غداً الإثنين (سنة نبوية)',
+              body: 'غداً تُعرض الأعمال على الله وأحب أن يُعرض عملي وأنا صائم.. تذكر نية الصيام وبركة السحور.',
+              timestampMs: eveningFastTime.getTime(),
+              tag: 'fasting-monday',
+              url: '/?station=HOME',
+            });
+          }
+
+          // Wednesday evening -> Tomorrow is Thursday fasting
+          if (dayOfWeek === 3) {
+            alarms.push({
+              id: `fasting_thursday_${todayDateStr}`,
+              title: '🌙 تذكير صيام غداً الخميس (سنة نبوية)',
+              body: 'غداً يوم مبارك تُعرض فيه الأعمال على الله.. استعد بنية الصيام وبركة السحور.',
+              timestampMs: eveningFastTime.getTime(),
+              tag: 'fasting-thursday',
+              url: '/?station=HOME',
+            });
+          }
+
+          // White Days (13, 14, 15 of Hijri month)
+          const hijri = getHijriDateDetails(now);
+          if (hijri.isTomorrowWhiteDay) {
+            alarms.push({
+              id: `fasting_white_days_${todayDateStr}`,
+              title: '🌕 تذكير صيام الأيام البيض المباركة',
+              body: `غداً تبدأ الأيام البيض (${hijri.day + 1} ${hijri.monthNameAr}).. صيام 3 أيام من كل شهر كصيام الدهر.`,
+              timestampMs: eveningFastTime.getTime(),
+              tag: 'fasting-white-days',
+              url: '/?station=HOME',
+            });
+          }
+        }
+      }
+
+      // 8. User Schedule & Station Transitions (الجدول ومحطات اليوم)
+      if (settings?.scheduleStationRemindersEnabled ?? true) {
+        const schedulePrefs = scheduleService.getPreferences();
+
+        // A) Work Sprint Start
+        if (schedulePrefs.workStartTime) {
+          const [wH, wM] = schedulePrefs.workStartTime.split(':').map(Number);
+          const workStartTime = new Date();
+          workStartTime.setHours(wH || 8, wM || 30, 0, 0);
+          if (workStartTime.getTime() > now.getTime()) {
+            alarms.push({
+              id: `station_work_${todayDateStr}`,
+              title: '🎯 بداية ساعات العمل والتركيز العميق',
+              body: 'حان موعد محطة العمل والإنتاجية.. صفّ ذهنك وحدد مهمة اليوم الرئيسية لتحقيق إنجاز نوعي.',
+              timestampMs: workStartTime.getTime(),
+              tag: 'station-work',
+              url: '/?station=WORK_MICRO_SPRINT',
+            });
+          }
+        }
+
+        // B) Sports / Gym Anchor
+        const sportHour =
+          schedulePrefs.sportsPreferredTime === 'morning'
+            ? 7
+            : schedulePrefs.sportsPreferredTime === 'evening'
+            ? 18
+            : schedulePrefs.sportsPreferredTime === 'night'
+            ? 20
+            : 16;
+        const sportTime = new Date();
+        sportTime.setHours(sportHour, 30, 0, 0);
+        if (sportTime.getTime() > now.getTime()) {
+          const plannedSport = scheduleService.getSportForDay(now);
+          if (plannedSport !== 'rest') {
+            alarms.push({
+              id: `station_gym_${todayDateStr}`,
+              title: `🏋️‍♂️ موعد شحذ الجسد والرياضة (${plannedSport})`,
+              body: 'حان موعد محطة اللياقة وتجديد النشاط.. الرياضة وقود صفائك الذهني ودرع صحتك.',
+              timestampMs: sportTime.getTime(),
+              tag: 'station-gym',
+              url: '/?station=GYM_ANCHOR',
+            });
+          }
+        }
+
+        // C) Bedtime Wind-down Alert (30m before sleepTime)
+        if (schedulePrefs.sleepTime) {
+          const [sH, sM] = schedulePrefs.sleepTime.split(':').map(Number);
+          const windDownTime = new Date();
+          windDownTime.setHours(sH || 23, (sM || 0) - 30, 0, 0);
+          if (windDownTime.getTime() > now.getTime()) {
+            alarms.push({
+              id: `station_sleep_${todayDateStr}`,
+              title: '🌙 وقت التهدئة والاستعداد للنوم العميق',
+              body: 'شارف اليوم على الانتهاء.. أوقف الشاشات الزرقاء واقرأ أذكار النوم لتنعم بنوم هانئ.',
+              timestampMs: windDownTime.getTime(),
+              tag: 'station-sleep',
+              url: '/?station=HOME',
+            });
+          }
+        }
+      }
+
+      // 9. Custom User Reminders (المنبهات والتذكيرات المخصصة)
+      if (settings?.customRemindersEnabled ?? true) {
+        try {
+          const activeCustomReminders: CustomReminderItem[] = await db.custom_reminders
+            .filter((r) => r.enabled)
+            .toArray();
+          const dayOfWeek = now.getDay();
+          const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+
+          for (const rem of activeCustomReminders) {
+            let shouldSchedule = false;
+            if (rem.recurrence === 'daily') {
+              shouldSchedule = true;
+            } else if (rem.recurrence === 'weekdays' && !isWeekend) {
+              shouldSchedule = true;
+            } else if (rem.recurrence === 'once' && (!rem.date || rem.date === todayDateStr)) {
+              shouldSchedule = true;
+            }
+
+            if (shouldSchedule && rem.time) {
+              const [rH, rM] = rem.time.split(':').map(Number);
+              const reminderTime = new Date();
+              reminderTime.setHours(rH || 0, rM || 0, 0, 0);
+
+              if (reminderTime.getTime() > now.getTime()) {
+                alarms.push({
+                  id: `custom_${rem.id}_${todayDateStr}`,
+                  title: `${rem.title} ⏳`,
+                  body: rem.notes || 'تذكير مخصص من جدولك في مِضمار في موعدك المحدد.',
+                  timestampMs: reminderTime.getTime(),
+                  tag: `custom-${rem.id}`,
+                  url: '/?station=HOME',
+                  actions: [{ action: 'mark_done', title: 'تم الإنجاز ✔' }],
+                  data: { reminderId: rem.id },
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Could not schedule custom reminders:', e);
+        }
+      }
+
+      // 10. Workday Tasks with Reminder Time
+      try {
+        const todayTasks: WorkdayTask[] = await db.workday_tasks
+          .where('date')
+          .equals(todayDateStr)
+          .filter((t) => !t.completed && !!t.reminderEnabled && !!t.reminderTime)
+          .toArray();
+
+        for (const task of todayTasks) {
+          if (!task.reminderTime) continue;
+          const [tH, tM] = task.reminderTime.split(':').map(Number);
+          const taskAlarmTime = new Date();
+          taskAlarmTime.setHours(tH || 0, tM || 0, 0, 0);
+
+          if (taskAlarmTime.getTime() > now.getTime()) {
+            alarms.push({
+              id: `task_${task.id}_${todayDateStr}`,
+              title: `تذكير مهمة: ${task.title} 📌`,
+              body: `حان موعد إنجاز هذه المهمة (${task.estimatedMinutes} دقيقة).. افتح محطة العمل لبدء التركيز.`,
+              timestampMs: taskAlarmTime.getTime(),
+              tag: `task-${task.id}`,
+              url: '/?station=WORK_MICRO_SPRINT',
+              actions: [{ action: 'start_task', title: 'ابدأ الآن 🚀' }],
+              data: { taskId: task.id },
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Could not schedule task reminders:', e);
       }
 
       // Filter only valid future alarms
