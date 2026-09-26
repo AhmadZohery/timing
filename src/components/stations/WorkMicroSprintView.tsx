@@ -27,6 +27,8 @@ import { SelfLearningTracker } from '../learning/SelfLearningTracker';
 import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import { db } from '../../db/db';
 import { AgileStandupModal } from '../work/AgileStandupModal';
+import { ScopeDecisionMatrixModal } from '../work/ScopeDecisionMatrixModal';
+import { ExecutiveFocusHUD } from '../work/ExecutiveFocusHUD';
 
 interface WorkMicroSprintViewProps {
   isCompleted: boolean;
@@ -66,6 +68,8 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   const [phase, setPhase] = useState<SprintPhase>(isCompleted ? 'DONE' : 'LEARNING_SPRINT');
   const [frictionSeconds, setFrictionSeconds] = useState(3);
   const [isStandupOpen, setIsStandupOpen] = useState(false);
+  const [isScopeMatrixOpen, setIsScopeMatrixOpen] = useState(false);
+  const [isFocusHUDOpen, setIsFocusHUDOpen] = useState(false);
 
   // Focus Task & Checkpoints
   const [focusTask, setFocusTask] = useState(
@@ -267,7 +271,39 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           </div>
         </div>
 
-        <div className="shrink-0 flex items-center gap-2">
+        <div className="shrink-0 flex items-center gap-1.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsFocusHUDOpen(true);
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+            title={language === 'ar' ? 'كابينة التركيز الذهني والترددات السمعية (Focus HUD)' : 'Executive Focus HUD & Flow Beats'}
+          >
+            <span>⚡</span>
+            <span className="hidden sm:inline font-sans">
+              {language === 'ar' ? 'كابينة التدفق (HUD)' : 'Focus HUD'}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsScopeMatrixOpen(true);
+            }}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+            title={language === 'ar' ? 'مصفوفة حماية النطاق والرفض الدبلوماسي (RICE + Barakah)' : 'Scope Creep Radar & Decision Matrix'}
+          >
+            <span>⚖️</span>
+            <span className="hidden sm:inline font-sans">
+              {language === 'ar' ? 'رادار النطاق' : 'Scope Radar'}
+            </span>
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -280,7 +316,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           >
             <span>🎙️</span>
             <span className="hidden sm:inline font-sans">
-              {language === 'ar' ? 'الوقفة اليومية (Standup)' : 'Daily Standup'}
+              {language === 'ar' ? 'الوقفة اليومية' : 'Standup'}
             </span>
           </button>
           <span className="text-xs px-2.5 py-1 rounded-full bg-sky-100 dark:bg-cyan-500/15 text-sky-800 dark:text-cyan-400 font-mono font-bold">
@@ -783,6 +819,26 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
       <AgileStandupModal
         isOpen={isStandupOpen}
         onClose={() => setIsStandupOpen(false)}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Scope Creep Radar & Decision Matrix Modal */}
+      <ScopeDecisionMatrixModal
+        isOpen={isScopeMatrixOpen}
+        onClose={() => setIsScopeMatrixOpen(false)}
+        onDeferToBuffer={onDeferToBuffer}
+        onRewardToast={onRewardToast}
+        todayDate={effectiveToday}
+      />
+
+      {/* Executive Focus HUD Cockpit Modal */}
+      <ExecutiveFocusHUD
+        isOpen={isFocusHUDOpen}
+        onClose={() => setIsFocusHUDOpen(false)}
+        focusTask={focusTask}
+        checkpoints={checkpoints}
+        onToggleCheckpoint={handleToggleCheckpoint}
+        onCompleteSprint={handleLearningComplete}
         onRewardToast={onRewardToast}
       />
     </div>
