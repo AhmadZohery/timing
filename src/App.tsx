@@ -87,10 +87,18 @@ const ALL_STATIONS: StationId[] = [
 ];
 
 const getSavedStation = (): StationId => {
-  if (typeof window !== 'undefined' && window.location.hash) {
-    const cleanHash = window.location.hash.replace('#', '').toUpperCase();
-    const match = ALL_STATIONS.find((s) => s === cleanHash || s.toLowerCase() === cleanHash.toLowerCase());
-    if (match) return match;
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const stationParam = params.get('station');
+    if (stationParam) {
+      const match = ALL_STATIONS.find((s) => s.toUpperCase() === stationParam.toUpperCase());
+      if (match) return match;
+    }
+    if (window.location.hash) {
+      const cleanHash = window.location.hash.replace('#', '').toUpperCase();
+      const match = ALL_STATIONS.find((s) => s === cleanHash || s.toLowerCase() === cleanHash.toLowerCase());
+      if (match) return match;
+    }
   }
   const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('midmar_active_station') : null;
   if (saved && ALL_STATIONS.includes(saved as StationId)) {
@@ -209,7 +217,13 @@ export function App() {
   const [isLifeWisdomOpen, setIsLifeWisdomOpen] = useState(false);
   const [isNiyyahModalOpen, setIsNiyyahModalOpen] = useState(false);
   const [niyyahInitialPillar, setNiyyahInitialPillar] = useState<NiyyahPillar>('livelihood');
-  const [isQuickReminderOpen, setIsQuickReminderOpen] = useState(false);
+  const [isQuickReminderOpen, setIsQuickReminderOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('action') === 'quick_reminder';
+    }
+    return false;
+  });
 
   const handleOpenNiyyah = (pillar: NiyyahPillar = 'livelihood') => {
     setNiyyahInitialPillar(pillar);

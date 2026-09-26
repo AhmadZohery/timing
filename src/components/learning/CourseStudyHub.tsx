@@ -19,9 +19,14 @@ import {
   X,
   Target,
   TrendingUp,
+  Play,
+  Copy,
+  Flame,
+  Headphones,
 } from 'lucide-react';
-import type { StudyCourse, StudyCourseLesson } from '../../types';
+import type { StudyCourse, StudyCourseLesson, AmbientSoundType } from '../../types';
 import { db } from '../../db/db';
+import { useWorkerTimer } from '../../hooks/useWorkerTimer';
 import {
   calculateCourseScheduleMetrics,
   recordDailyCourseProgress,
@@ -95,11 +100,52 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
   const [manualPlannedDaily, setManualPlannedDaily] = useState(2);
   const [manualReminderTime, setManualReminderTime] = useState('17:00');
 
+  // Focus Session State
+  const focusTimer = useWorkerTimer();
+  const [isFocusSessionActive, setIsFocusSessionActive] = useState(false);
+  const [focusDurationMin, setFocusDurationMin] = useState(25);
+  const [focusAmbient, setFocusAmbient] = useState<AmbientSoundType>('none');
+  const [focusNote, setFocusNote] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
+
   // Compute live metrics for active course
   const activeMetrics = useMemo(() => {
     if (!activeCourse) return null;
     return calculateCourseScheduleMetrics(activeCourse, todayStr);
   }, [activeCourse, todayStr]);
+
+  // 7-Day Consistency Week Track
+  const pastWeekDays = useMemo(() => {
+    const days = [];
+    const today = new Date(todayStr);
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const dStr = d.toISOString().split('T')[0];
+      const log = activeCourse?.dailyLogs?.find((l) => l.date === dStr);
+      const isStudyDay = activeCourse?.studyDaysPerWeek?.includes(d.getDay()) ?? true;
+      const dayNamesAr = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+      const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      days.push({
+        date: dStr,
+        dayName: isAr ? dayNamesAr[d.getDay()] : dayNamesEn[d.getDay()],
+        isToday: dStr === todayStr,
+        isStudyDay,
+        completedCount: log?.completedCount || 0,
+        targetQuota: log?.targetQuota || activeCourse?.plannedUnitsPerDay || 1,
+        status: !isStudyDay
+          ? 'rest'
+          : log && log.completedCount >= log.targetQuota
+          ? 'completed'
+          : log && log.completedCount > 0
+          ? 'partial'
+          : dStr < todayStr
+          ? 'missed'
+          : 'pending',
+      });
+    }
+    return days;
+  }, [activeCourse, todayStr, isAr]);
 
   // Handle Voice Input for AI Prompt
   const handleToggleVoice = () => {
@@ -360,6 +406,75 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
     }
   };
 
+  // Focus Session Controls
+  const handleStartFocusSession = (durationMin: number = 25) => {
+    if (!activeCourse) return;
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setFocusDurationMin(durationMin);
+    setIsFocusSessionActive(true);
+    focusTimer.startTimer(durationMin * 60, handleCompleteFocusSession);
+    if (focusAmbient !== 'none') {
+      soundSynth.startAmbient(focusAmbient, 0.3);
+    }
+  };
+
+  const handleCompleteFocusSession = async () => {
+    if (!activeCourse) return;
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+    focusTimer.stopTimer();
+    soundSynth.stopAmbient();
+    setIsFocusSessionActive(false);
+
+    // Record 1 completed unit with notes
+    const updated = recordDailyCourseProgress(activeCourse, 1, todayStr, focusNote);
+    await db.study_courses.put(updated);
+    setFocusNote('');
+
+    if (onRewardToast) {
+      onRewardToast(
+        isAr
+          ? '🎉 أنجزت جلسة المذاكرة بنجاح (+25 XP)! استمر في حماية مسارك 🚀'
+          : '🎉 Focus session completed (+25 XP)!'
+      );
+    }
+  };
+
+  const handleCancelFocusSession = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    focusTimer.stopTimer();
+    soundSynth.stopAmbient();
+    setIsFocusSessionActive(false);
+  };
+
+  const handleCopyCourseSummary = () => {
+    if (!activeCourse || !activeMetrics) return;
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+
+    const summaryText = `📚 خطة مذاكرة: ${activeCourse.title}
+📊 نسبة الإنجاز: ${activeMetrics.completionPercentage}% (${activeCourse.completedUnits}/${activeCourse.totalUnits} ${getCourseUnitLabel(activeCourse.unitType, activeCourse.totalUnits, isAr)})
+🎯 الحصة اليومية الموصى بها: ${activeMetrics.recommendedDailyUnits}
+⏳ الموعد المستهدف: ${activeCourse.targetEndDate}
+🚀 الوتيرة الحالية: ${activeMetrics.currentPaceStatus === 'ahead' ? `متقدم بفائض (+${activeMetrics.surplusUnits})` : activeMetrics.currentPaceStatus === 'behind' ? `متأخر بمتراكم (-${activeMetrics.backlogUnits})` : 'على المسار بدقة'}
+- تم التخطيط عبر مِضمار (LifeOS)`;
+
+    navigator.clipboard.writeText(summaryText);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2500);
+    if (onRewardToast) {
+      onRewardToast(isAr ? '📋 تم نسخ ملخص الخطة إلى الحافظة بنجاح!' : 'Copied course summary to clipboard!');
+    }
+  };
+
+  const formatTimerDigits = (sec: number) => {
+    const mins = Math.floor(sec / 60);
+    const secs = sec % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className={`space-y-4 ${className}`} dir={isAr ? 'rtl' : 'ltr'}>
       {/* 1. Header & Course Track Selector */}
@@ -516,6 +631,19 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
 
                 <button
                   type="button"
+                  onClick={handleCopyCourseSummary}
+                  className={`tap-spring p-1.5 rounded-xl border transition-all cursor-pointer ${
+                    isCopied
+                      ? 'bg-emerald-500 text-white border-emerald-500'
+                      : 'text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 border-slate-200 dark:border-zinc-700'
+                  }`}
+                  title={isAr ? 'نسخ ملخص الخطة' : 'Copy summary'}
+                >
+                  {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => handleDeleteCourse(activeCourse.id)}
                   className="p-1.5 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                   title={isAr ? 'حذف الكورس' : 'Delete course'}
@@ -555,6 +683,55 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
                   {isAr ? 'أيام المذاكرة المتبقية:' : 'Remaining Study Days:'}{' '}
                   <strong className="text-slate-700 dark:text-zinc-300 font-mono">{activeMetrics.studyDaysRemaining} {isAr ? 'يوم' : 'days'}</strong>
                 </span>
+              </div>
+
+              {/* 7-Day Consistency Week Track */}
+              <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
+                    <span>{isAr ? 'سلسلة الحصص الأسبوعية:' : 'Weekly Study Track:'}</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {isAr ? 'آخر 7 أيام' : 'Last 7 days'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1">
+                  {pastWeekDays.map((d, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-1.5 rounded-xl text-center border transition-all ${
+                        d.isToday ? 'ring-2 ring-indigo-500/50' : ''
+                      } ${
+                        d.status === 'completed'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300'
+                          : d.status === 'partial'
+                          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800/60 text-amber-800 dark:text-amber-300'
+                          : d.status === 'rest'
+                          ? 'bg-slate-50/80 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700/50 text-slate-400 dark:text-zinc-500'
+                          : d.status === 'missed'
+                          ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/40 text-rose-700 dark:text-rose-400'
+                          : 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400'
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold block leading-tight">{d.dayName}</span>
+                      <span className="text-xs font-mono font-black mt-0.5 block leading-tight">
+                        {d.status === 'rest' ? (
+                          '☕'
+                        ) : d.status === 'completed' ? (
+                          '✔'
+                        ) : d.completedCount > 0 ? (
+                          d.completedCount
+                        ) : d.status === 'missed' ? (
+                          '—'
+                        ) : (
+                          '·'
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -627,6 +804,137 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
                 )}
               </div>
             </div>
+
+            {/* Live Study Session (Pomodoro & Focus Beats) */}
+            {!isFocusSessionActive ? (
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-sky-500/10 via-indigo-500/10 to-purple-500/10 border border-indigo-500/20 shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-xs shrink-0">
+                    <Headphones className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-black text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
+                      <span>{isAr ? 'جلسة مذاكرة عميقة بالبومودورو والترددات' : 'Deep Study Session (Pomodoro)'}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold">
+                        25m
+                      </span>
+                    </h5>
+                    <p className="text-[10px] text-slate-500 dark:text-zinc-400">
+                      {isAr ? 'عزل كامل للمشتتات + ترددات تركيز سمعية لحفظ واستيعاب أسرع' : 'Distraction-free focus + binaural audio for deep retention'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleStartFocusSession(15)}
+                    className="tap-spring px-2.5 py-1 rounded-xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 text-xs font-bold hover:border-indigo-500 active:scale-95 cursor-pointer"
+                  >
+                    15m
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleStartFocusSession(25)}
+                    className="tap-spring flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white text-xs font-black shadow-xs active:scale-95 cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>{isAr ? 'ابدأ (25 دقيقة)' : 'Start (25m)'}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-indigo-950/95 dark:bg-black/95 text-white border border-indigo-500/40 shadow-xl space-y-3 animate-fade-in ring-2 ring-indigo-500/20">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-xs font-black text-emerald-400 font-mono">
+                      {isAr ? `جلسة مذاكرة حية (${focusDurationMin} دقيقة)...` : `Active Focus Session (${focusDurationMin}m)...`}
+                    </span>
+                  </div>
+
+                  {/* Ambient sound selector */}
+                  <div className="flex items-center gap-1 text-[10px]">
+                    <span className="text-white/50 text-[10px] hidden sm:inline">{isAr ? 'الترددات:' : 'Audio:'}</span>
+                    {[
+                      { id: 'none', label: isAr ? 'صامت' : 'Quiet' },
+                      { id: 'rain', label: isAr ? 'مطر 🌧️' : 'Rain' },
+                      { id: 'brown', label: isAr ? 'أمواج 🌊' : 'Waves' },
+                      { id: 'alpha', label: isAr ? 'تركيز 🧠' : 'Alpha' },
+                      { id: 'theta', label: isAr ? 'تعلّم 💡' : 'Theta' },
+                    ].map((amb) => (
+                      <button
+                        key={amb.id}
+                        type="button"
+                        onClick={() => {
+                          const soundId = amb.id as AmbientSoundType;
+                          setFocusAmbient(soundId);
+                          if (soundId === 'none') {
+                            soundSynth.stopAmbient();
+                          } else {
+                            soundSynth.startAmbient(soundId, 0.3);
+                          }
+                        }}
+                        className={`px-2 py-0.5 rounded-md font-bold transition-all cursor-pointer ${
+                          focusAmbient === amb.id
+                            ? 'bg-indigo-500 text-white shadow-2xs'
+                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                        }`}
+                      >
+                        {amb.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Big Timer Digits */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] text-white/60 block">
+                      {isAr ? 'الدرس المستهدف في هذه الجلسة:' : 'Current target unit:'}
+                    </span>
+                    <h5 className="text-xs font-bold text-sky-300 truncate max-w-xs">
+                      {activeCourse.lessons?.find((l) => !l.completed)?.title || activeCourse.title}
+                    </h5>
+                  </div>
+
+                  <div className="text-3xl sm:text-4xl font-black font-mono tracking-wider text-emerald-400">
+                    {formatTimerDigits(focusTimer.remainingSec)}
+                  </div>
+                </div>
+
+                {/* Live Takeaway / Notes Input */}
+                <div>
+                  <input
+                    type="text"
+                    value={focusNote}
+                    onChange={(e) => setFocusNote(e.target.value)}
+                    placeholder={isAr ? 'دوّن فكرة أو فائدة رئيسية فهمتها من هذا الدرس...' : 'Key takeaway from this lesson...'}
+                    className="w-full p-2.5 rounded-xl bg-white/10 border border-white/15 text-xs text-white placeholder:text-white/40 focus:outline-hidden focus:border-indigo-400"
+                  />
+                </div>
+
+                {/* Actions Bar */}
+                <div className="flex items-center justify-between pt-1 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCancelFocusSession}
+                    className="tap-spring px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/70 text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    {isAr ? 'إلغاء الجلسة' : 'Cancel'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCompleteFocusSession}
+                    className="tap-spring flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-xs font-black shadow-md shadow-emerald-500/25 active:scale-95 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isAr ? 'إنهاء الحصة واحتساب الدرس (+25 XP) ✔' : 'Finish & Complete Lesson (+25 XP)'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* 4. Interactive Backlog Rebalance Card (If user is behind schedule) */}
             {activeMetrics.currentPaceStatus === 'behind' && (
