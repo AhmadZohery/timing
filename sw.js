@@ -310,3 +310,35 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// Web Push Notifications Handler (Wakes device OS when app is closed / screen locked)
+self.addEventListener('push', (event) => {
+  let data = {
+    title: 'مِضمار - تذكير ذكي 🔔',
+    body: 'حان موعد مهمتك المجدولة في جدولك اليومي.',
+  };
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (_) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: data.icon || '/favicon.svg',
+    badge: '/favicon.svg',
+    tag: data.tag || 'midmar-push-' + Date.now(),
+    renotify: true,
+    requireInteraction: true,
+    vibrate: [500, 200, 500, 200, 500],
+    actions: [
+      { action: 'mark_done', title: 'تم بحمد الله ✔' },
+      { action: 'snooze', title: 'تأجيل 10 دقائق ⏰' },
+    ],
+    data: { url: data.url || '/' },
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
