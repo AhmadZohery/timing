@@ -20,6 +20,8 @@ import {
   AlertCircle,
   Lock,
   KeyRound,
+  Smartphone,
+  BatteryCharging,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import type { UserState, AppSettings, WeekendPreset, DayWorkRhythm } from '../../types';
@@ -36,6 +38,7 @@ import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { notificationService } from '../../services/notificationService';
 import { accountabilityNotificationManager } from '../../services/accountabilityNotificationManager';
+import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { aiCoach } from '../../services/aiCoachService';
 import {
@@ -49,12 +52,14 @@ interface SettingsBackupModalProps {
   isOpen: boolean;
   onClose: () => void;
   userState: UserState | undefined;
+  onOpenBatteryGuide?: () => void;
 }
 
 export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   isOpen,
   onClose,
   userState,
+  onOpenBatteryGuide,
 }) => {
   const { t, isRTL, language } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -377,6 +382,34 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
     }
 
     setTimeout(() => setNotificationMsg(null), 3500);
+  };
+
+  const [isTestingLockscreen, setIsTestingLockscreen] = useState(false);
+
+  const handleTestLockscreenAlarm = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsTestingLockscreen(true);
+    setNotificationMsg(
+      language === 'ar' ? '⏳ جاري ضبط تنبيه الشاشة المقفلة...' : 'Scheduling lockscreen test alarm...'
+    );
+
+    try {
+      const res = await autonomousNotificationScheduler.testLockscreenAlarm(10);
+      setNotificationMsg(res.message);
+      if (res.success) {
+        soundSynth.playCompletionChime();
+        haptic.vibrateSprintCelebration();
+      } else {
+        soundSynth.playWarningSound();
+        haptic.vibrateWarning();
+      }
+    } catch (e: any) {
+      setNotificationMsg(e?.message || 'Error scheduling lockscreen test');
+    } finally {
+      setIsTestingLockscreen(false);
+      setTimeout(() => setNotificationMsg(null), 8000);
+    }
   };
 
   return (
@@ -726,27 +759,69 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
           )}
         </div>
 
-        {/* Actionable Notifications Testing */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2 shadow-2xs">
+        {/* Actionable Notifications & Autonomous Lockscreen Alarms */}
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3.5 shadow-2xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sky-700 dark:text-sky-400 font-bold text-xs">
               <BellRing className="w-4 h-4" />
-              <span>{t('test_notification_btn')}</span>
+              <span>{language === 'ar' ? 'محرك التنبيهات المستقلة خلف الشاشة (Background Alarms)' : 'Autonomous Background Alarms'}</span>
             </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
+              {language === 'ar' ? 'مجدول لـ 48 ساعة' : '48h Pre-scheduled'}
+            </span>
+          </div>
+
+          <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-relaxed">
+            {language === 'ar'
+              ? 'يستخدم مِضمار تقنية جدولة منبهات النظام (Notification Triggers & Service Worker) لجدولة الصلوات مسبقاً، لترن حتى عند إغلاق المتصفح أو قفل الشاشة دون الحاجة لفتح الموقع.'
+              : 'Midmar uses OS AlarmManager (Notification Triggers & SW Queue) to pre-schedule alarms, firing even when screen is locked or browser is closed.'}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
             <button
-              onClick={handleTestActionableNotification}
-              className="px-2.5 py-1 rounded-md bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all cursor-pointer shadow-2xs"
+              type="button"
+              onClick={handleTestLockscreenAlarm}
+              disabled={isTestingLockscreen}
+              className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-amber-600/20 disabled:opacity-50"
             >
-              {language === 'ar' ? 'إرسال إشعار فوري' : 'Send Test Alert'}
+              <Smartphone className="w-4 h-4 shrink-0" />
+              <span>
+                {isTestingLockscreen
+                  ? (language === 'ar' ? 'جاري ضبط المنبه...' : 'Setting alarm...')
+                  : (language === 'ar' ? '📱 تجربة التنبيه والشاشة مقفلة (10 ثوانٍ)' : '📱 Test Lockscreen Alarm (10s)')}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleTestActionableNotification}
+              className="py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-sky-600/20"
+            >
+              <BellRing className="w-4 h-4 shrink-0" />
+              <span>{language === 'ar' ? '🔔 تجربة إشعار فوري' : '🔔 Send Instant Alert'}</span>
             </button>
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
-            {t('test_notification_desc')}
-          </p>
+
+          {onOpenBatteryGuide && (
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenBatteryGuide();
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-slate-200 dark:border-zinc-700"
+            >
+              <BatteryCharging className="w-4 h-4 text-amber-500 shrink-0" />
+              <span>{language === 'ar' ? '🔋 استثناء مِضمار من توفير شحن البطارية (Battery Whitelist)' : '🔋 Battery Optimization Whitelist Guide'}</span>
+            </button>
+          )}
+
           {notificationMsg && (
-            <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold animate-fade-in">
-              {notificationMsg}
-            </p>
+            <div className="p-2.5 rounded-lg text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 font-bold animate-fade-in flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>{notificationMsg}</span>
+            </div>
           )}
         </div>
 

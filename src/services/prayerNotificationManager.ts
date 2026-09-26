@@ -3,6 +3,7 @@ import { db } from '../db/db';
 import { getBiologicalDate } from '../utils/gamification';
 import { soundSynth } from './soundSynthesizer';
 import { haptic } from './vibrationService';
+import { autonomousNotificationScheduler } from './autonomousNotificationScheduler';
 import type { PrayerName } from '../types';
 
 class PrayerNotificationManager {
@@ -154,19 +155,24 @@ class PrayerNotificationManager {
             prayerRecord.status === 'in_group' ||
             prayerRecord.status === 'late');
 
-        // If already completed, do not send follow-up reminder
-        if (isDone) continue;
+        // If already completed, cancel background follow-up alarms and skip
+        if (isDone) {
+          autonomousNotificationScheduler.cancelPrayerAlarms(item.name).catch(() => {});
+          continue;
+        }
 
         const diffMinutes = Math.floor((now.getTime() - item.time.getTime()) / 60000);
 
-        // 0) Exact Adhan Entry Alert (diffMinutes between 0 and 4)
-        if (diffMinutes >= 0 && diffMinutes < 5) {
+        // 0) Adhan Entry Alert (Expanded from 5m to 45m grace window to handle mobile deep-sleep wakeups)
+        if (diffMinutes >= 0 && diffMinutes <= 45) {
           const key = `adhan-${item.name}-${todayDateStr}`;
           if (!this.hasNotified(key)) {
             this.markNotified(key);
             await this.showNotification(
-              `الله أكبر، حان الآن موعد ${item.titleAr} 🕌`,
-              `حيّ على الصلاة، حيّ على الفلاح.. بادر بالاستعداد للصلاة في أول وقتها.`,
+              `الله أكبر، حان موعد ${item.titleAr} 🕌`,
+              diffMinutes > 5
+                ? `مضت ${diffMinutes} دقيقة على دخول وقت ${item.titleAr}.. استدرك صلاتك الآن لتنال أجر الفريضة وبركة وقتها.`
+                : `حيّ على الصلاة، حيّ على الفلاح.. بادر بالاستعداد للصلاة في أول وقتها لتنال أجر الصف الأول.`,
               `prayer-adhan-${item.name}`
             );
           }

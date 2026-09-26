@@ -911,6 +911,7 @@ export function App() {
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
         userState={userState}
+        onOpenBatteryGuide={() => setIsBatteryGuideOpen(true)}
       />
 
       <KeyboardShortcutsModal
