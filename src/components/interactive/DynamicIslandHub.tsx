@@ -13,12 +13,21 @@ import {
   Check,
   ChevronRight,
   Bell,
+  Navigation,
+  Sun,
+  Moon,
+  Sunset,
+  Volume2,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, PrayerName } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
-import { calculatePrayerTimes, getNextPrayer } from '../../utils/prayerCalculator';
+import {
+  calculatePrayerTimes,
+  getNextPrayer,
+  calculateQiblaDirection,
+} from '../../utils/prayerCalculator';
 import { resolveStationMetadata } from '../../utils/lifestyleEngine';
 import { checkIsFridaySalawatWindow, type TasbihPresetId } from '../../utils/tasbihEngine';
 
@@ -41,9 +50,8 @@ interface DynamicIslandHubProps {
 
 /**
  * Bulletproof Chronograph Time Remaining Chip.
- * Uses structured separate spans in an explicit LTR flexbox
- * so digits and unit indicators (6 and س) never get flipped by the
- * browser's Unicode Bidirectional (BiDi) algorithm. Always renders: 6س 20د.
+ * Explicit LTR flexbox isolates the number and unit in separate DOM nodes.
+ * Guarantees visual order: 6س 20د (never inverted to س 6).
  */
 interface TimeRemainingChipProps {
   minutes: number;
@@ -60,7 +68,7 @@ export const TimeRemainingChip: React.FC<TimeRemainingChipProps> = ({
 }) => {
   if (minutes <= 0) {
     return (
-      <span className="font-bold text-emerald-400 text-xs">
+      <span className="font-bold text-emerald-300 text-xs">
         {isAr ? 'حان الآن 🕌' : 'Now 🕌'}
       </span>
     );
@@ -78,16 +86,16 @@ export const TimeRemainingChip: React.FC<TimeRemainingChipProps> = ({
 
   const unitClasses =
     size === 'lg'
-      ? 'text-xs font-semibold opacity-75'
+      ? 'text-xs font-semibold opacity-85'
       : size === 'md'
-      ? 'text-[11px] font-medium opacity-80'
-      : 'text-[10px] font-medium opacity-80';
+      ? 'text-[11px] font-medium opacity-85'
+      : 'text-[10px] font-medium opacity-85';
 
   return (
     <span
       dir="ltr"
       className={`inline-flex items-center gap-1 font-mono select-none ${fontClasses} ${
-        isApproaching ? 'text-amber-300' : 'text-teal-300'
+        isApproaching ? 'text-amber-300' : 'text-emerald-300'
       }`}
     >
       {hours > 0 && (
@@ -141,21 +149,44 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Quick In-Island Mini Tasbih Counter
+  const [islandTasbihCount, setIslandTasbihCount] = useState<number>(() => {
+    try {
+      return Number(localStorage.getItem('midmar_island_quick_tasbih') || 0);
+    } catch {
+      return 0;
+    }
+  });
+
+  const handleIncrementIslandTasbih = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const nextCount = (islandTasbihCount + 1) % 101;
+    setIslandTasbihCount(nextCount);
+    try {
+      localStorage.setItem('midmar_island_quick_tasbih', String(nextCount));
+    } catch (_) {}
+  };
+
   const prayerData = useMemo(() => {
     const now = new Date();
     const pLoc = userState?.settings?.prayerLocation;
+    const lat = pLoc?.latitude ?? 30.0444;
+    const lng = pLoc?.longitude ?? 31.2357;
     const fridayStatus = checkIsFridaySalawatWindow(now, pLoc);
     const pTimes = calculatePrayerTimes(
       now,
-      pLoc?.latitude ?? 30.0444,
-      pLoc?.longitude ?? 31.2357,
+      lat,
+      lng,
       pLoc?.calculationMethod ?? 'egyptian'
     );
     const nextP = getNextPrayer(pTimes);
-    return { fridayStatus, nextP, pTimes };
+    const qiblaAngle = calculateQiblaDirection(lat, lng);
+    return { fridayStatus, nextP, pTimes, qiblaAngle };
   }, [userState?.settings?.prayerLocation]);
 
-  const { fridayStatus, nextP, pTimes } = prayerData;
+  const { fridayStatus, nextP, pTimes, qiblaAngle } = prayerData;
   const isApproaching = nextP.minutesRemaining > 0 && nextP.minutesRemaining <= 15;
 
   const currentMeta = resolveStationMetadata(
@@ -165,7 +196,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     isAr
   );
 
-  // 5 Canonical Prayers for Timeline
+  // 5 Canonical Obligatory Prayers for the Timeline
   const prayersTimeline = useMemo(() => {
     const list: Array<{ key: PrayerName; ar: string; en: string; time: Date }> = [
       { key: 'fajr', ar: 'الفجر', en: 'Fajr', time: pTimes.fajr },
@@ -179,7 +210,6 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
     return list.map((p, idx) => {
       const isTarget = p.key === nextP.name;
-      // If next prayer is found, earlier index means already passed today
       const isPast = nextIndex !== -1 ? idx < nextIndex : false;
       return {
         ...p,
@@ -188,6 +218,105 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
       };
     });
   }, [pTimes, nextP.name]);
+
+  // Logical Calculation: Current Prayer Interval Progress %
+  const prayerWindowProgress = useMemo(() => {
+    const canonical = [
+      { name: 'fajr', time: pTimes.fajr, ar: 'الفجر', en: 'Fajr' },
+      { name: 'dhuhr', time: pTimes.dhuhr, ar: 'الظهر', en: 'Dhuhr' },
+      { name: 'asr', time: pTimes.asr, ar: 'العصر', en: 'Asr' },
+      { name: 'maghrib', time: pTimes.maghrib, ar: 'المغرب', en: 'Maghrib' },
+      { name: 'isha', time: pTimes.isha, ar: 'العشاء', en: 'Isha' },
+    ];
+
+    const nextIdx = canonical.findIndex((p) => p.name === nextP.name);
+    if (nextIdx === -1) {
+      return { percent: 50, prevName: isAr ? 'الوقت الحالي' : 'Current Window' };
+    }
+
+    const prevIdx = (nextIdx - 1 + canonical.length) % canonical.length;
+    const prevPrayer = canonical[prevIdx];
+    const nextPrayer = canonical[nextIdx];
+
+    let prevMs = prevPrayer.time.getTime();
+    let nextMs = nextPrayer.time.getTime();
+    const nowMs = Date.now();
+
+    if (nextMs < prevMs) {
+      nextMs += 24 * 60 * 60 * 1000;
+    }
+    if (nowMs < prevMs && nextIdx === 0) {
+      prevMs -= 24 * 60 * 60 * 1000;
+    }
+
+    const total = Math.max(1, nextMs - prevMs);
+    const elapsed = Math.max(0, Math.min(total, nowMs - prevMs));
+    const percent = Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+
+    return {
+      percent,
+      prevName: isAr ? prevPrayer.ar : prevPrayer.en,
+    };
+  }, [pTimes, nextP.name, isAr]);
+
+  // Poetic & Astronomical Celestial Sky Phase
+  const celestialPhase = useMemo(() => {
+    const now = new Date();
+    if (now < pTimes.fajr) {
+      return {
+        labelAr: 'السَحَر والاستغفار',
+        labelEn: 'Pre-Dawn Stillness',
+        icon: Moon,
+        color: 'text-indigo-300',
+      };
+    }
+    if (now >= pTimes.fajr && now < pTimes.sunrise) {
+      return {
+        labelAr: 'الغداة ونور الفجر',
+        labelEn: 'Dawn Awakening',
+        icon: Sun,
+        color: 'text-teal-300',
+      };
+    }
+    if (now >= pTimes.sunrise && now < pTimes.dhuhr) {
+      return {
+        labelAr: 'ضحوة النهار وبركته',
+        labelEn: 'Morning Radiance',
+        icon: Sun,
+        color: 'text-amber-300',
+      };
+    }
+    if (now >= pTimes.dhuhr && now < pTimes.asr) {
+      return {
+        labelAr: 'الظهيرة وكبد السماء',
+        labelEn: 'Midday Zenith',
+        icon: Sun,
+        color: 'text-emerald-300',
+      };
+    }
+    if (now >= pTimes.asr && now < pTimes.maghrib) {
+      return {
+        labelAr: 'العشي والأصيل المبارك',
+        labelEn: 'Golden Afternoon',
+        icon: Sunset,
+        color: 'text-amber-300',
+      };
+    }
+    if (now >= pTimes.maghrib && now < pTimes.isha) {
+      return {
+        labelAr: 'الشفق وغروب الشمس',
+        labelEn: 'Twilight Glow',
+        icon: Sunset,
+        color: 'text-rose-300',
+      };
+    }
+    return {
+      labelAr: 'هدأة الليل وسكينته',
+      labelEn: 'Night Serenity',
+      icon: Moon,
+      color: 'text-indigo-300',
+    };
+  }, [pTimes]);
 
   const handleOpen = () => {
     soundSynth.playIslandOpenSound();
@@ -236,34 +365,34 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.1 }}
             onClick={handleClose}
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] cursor-pointer"
+            className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[2px] cursor-pointer"
           />
         )}
       </AnimatePresence>
 
       <div className="relative z-50 flex justify-center w-full">
-        {/* Single persistent morphing container with liquid mercury physics */}
+        {/* Persistent Liquid Emerald Capsule with Snappy High-Speed Physics */}
         <motion.div
           ref={containerRef}
           layout
           initial={false}
           animate={{
-            borderRadius: isExpanded ? 28 : 9999,
+            borderRadius: isExpanded ? 26 : 9999,
           }}
           transition={{
             type: 'spring',
-            stiffness: 420,
-            damping: 32,
-            mass: 0.75,
+            stiffness: 620,
+            damping: 35,
+            mass: 0.45,
           }}
-          className={`relative select-none overflow-hidden transition-colors duration-300 ${
+          className={`relative select-none overflow-hidden transition-colors duration-200 ${
             isExpanded
-              ? 'w-[94vw] max-w-md bg-[#070A0E]/98 dark:bg-black/98 text-white border border-white/[0.14] p-4 sm:p-5 shadow-[0_28px_72px_rgba(0,0,0,0.92),inset_0_1px_1.5px_rgba(255,255,255,0.22)] backdrop-blur-3xl'
+              ? 'w-[94vw] max-w-md bg-gradient-to-b from-[#052218]/98 via-[#031811]/98 to-[#020F0B]/98 text-white border border-emerald-500/35 p-4 sm:p-5 shadow-[0_24px_70px_rgba(2,25,16,0.95),inset_0_1px_2px_rgba(110,231,183,0.35)] backdrop-blur-3xl'
               : isApproaching
-              ? 'w-auto max-w-[92vw] bg-[#070A0E]/95 dark:bg-black/95 text-white border border-amber-400/40 ring-1 ring-amber-400/25 px-3.5 py-1.5 shadow-[0_0_24px_rgba(245,158,11,0.22),inset_0_1px_1px_rgba(255,255,255,0.2)] cursor-pointer hover:scale-[1.02] active:scale-[0.97]'
-              : 'w-auto max-w-[92vw] bg-[#070A0E]/95 dark:bg-black/95 text-white border border-white/[0.14] px-3.5 py-1.5 shadow-[0_8px_24px_-4px_rgba(0,0,0,0.65),inset_0_1px_1px_0_rgba(255,255,255,0.18)] cursor-pointer hover:scale-[1.02] active:scale-[0.97]'
+              ? 'w-auto max-w-[92vw] bg-gradient-to-r from-[#1F1703]/95 via-[#2C2004]/95 to-[#1F1703]/95 text-white border border-amber-400/50 ring-1 ring-amber-400/30 px-3.5 py-1.5 shadow-[0_0_24px_rgba(245,158,11,0.28),inset_0_1px_1.5px_rgba(253,224,71,0.3)] cursor-pointer hover:scale-[1.02] active:scale-[0.97]'
+              : 'w-auto max-w-[92vw] bg-gradient-to-r from-[#031B13]/95 via-[#06291E]/95 to-[#031B13]/95 text-white border border-emerald-500/35 ring-1 ring-emerald-400/20 px-3.5 py-1.5 shadow-[0_8px_24px_-4px_rgba(2,30,20,0.7),inset_0_1px_1.5px_0_rgba(110,231,183,0.3)] cursor-pointer hover:scale-[1.02] active:scale-[0.97]'
           }`}
           onClick={!isExpanded ? handleOpen : undefined}
           role={!isExpanded ? 'button' : undefined}
@@ -279,11 +408,11 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
               : undefined
           }
         >
-          {/* Subtle top specular shimmer line */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+          {/* Imperial Emerald Specular Edge Light */}
+          <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent pointer-events-none" />
 
           {/* ================================================================ */}
-          {/* COMPACT PILL STATE                                              */}
+          {/* COMPACT EMERALD CAPSULE                                         */}
           {/* ================================================================ */}
           {!isExpanded && (
             <motion.div
@@ -291,46 +420,46 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
+              transition={{ duration: 0.08 }}
               className="flex items-center gap-2 sm:gap-2.5"
             >
-              {/* Spiritual Beacon Aura */}
+              {/* Luminous Core Beacon */}
               <span className="relative flex h-2 w-2 shrink-0">
                 {isApproaching ? (
                   <>
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-amber-400 to-yellow-300 shadow-[0_0_8px_rgba(245,158,11,0.9)]" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-amber-400 to-yellow-300 shadow-[0_0_8px_rgba(245,158,11,0.95)]" />
                   </>
                 ) : (
                   <>
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-60" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-teal-400 to-emerald-400 shadow-[0_0_6px_rgba(45,212,191,0.8)]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-emerald-400 to-teal-300 shadow-[0_0_8px_rgba(52,211,153,0.9)]" />
                   </>
                 )}
               </span>
 
               {/* Station Tag: ONLY show if outside HOME */}
               {currentStation !== 'HOME' && (
-                <span className="text-[11px] font-bold text-teal-300/90 truncate max-w-[100px] tracking-tight">
+                <span className="text-[11px] font-bold text-emerald-200/95 truncate max-w-[105px] tracking-tight">
                   {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
                 </span>
               )}
 
               {/* Prayer Name */}
               <span
-                className={`text-[11px] font-semibold tracking-tight ${
-                  isApproaching ? 'text-amber-200' : 'text-slate-200'
+                className={`text-[11px] font-bold tracking-tight ${
+                  isApproaching ? 'text-amber-200' : 'text-emerald-50'
                 }`}
               >
                 {nextP.arabicName}
               </span>
 
-              {/* Countdown Chip with Zero BiDi Text Flipping */}
+              {/* Countdown Chip with Fixed LTR BiDi Order */}
               <div
-                className={`flex items-center px-1.5 py-0.5 rounded-full ${
+                className={`flex items-center px-2 py-0.5 rounded-full ${
                   isApproaching
-                    ? 'bg-amber-400/15 border border-amber-400/30'
-                    : 'bg-white/5 border border-white/10'
+                    ? 'bg-amber-400/20 border border-amber-400/35'
+                    : 'bg-emerald-950/40 border border-emerald-400/25 shadow-sm'
                 }`}
               >
                 <TimeRemainingChip
@@ -343,7 +472,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
               {/* Flame Streak Chip */}
               {(userState?.streakDays || 0) > 0 && (
-                <div className="hidden xs:flex items-center gap-0.5 text-[10px] font-mono font-bold text-amber-400/90">
+                <div className="hidden xs:flex items-center gap-0.5 text-[10px] font-mono font-bold text-amber-300">
                   <Flame className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                   <span>{userState?.streakDays}</span>
                 </div>
@@ -357,37 +486,47 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
           )}
 
           {/* ================================================================ */}
-          {/* EXPANDED MASTERPIECE SANCTUARY                                   */}
+          {/* EXPANDED EMERALD MASTERPIECE SANCTUARY                           */}
           {/* ================================================================ */}
           {isExpanded && (
             <motion.div
               key="expanded-content"
-              initial={{ opacity: 0, y: 6 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2, delay: 0.05 }}
-              className="space-y-4"
+              transition={{ duration: 0.12 }}
+              className="space-y-3.5"
             >
-              {/* Header Row */}
-              <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
+              {/* Top Header Bar: Status + Qibla Bearing + Close */}
+              <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
                 <div className="flex items-center gap-2">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-teal-400 to-emerald-400" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-emerald-400 to-teal-300" />
                   </span>
-                  <span className="text-[11px] font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-200 to-amber-200 uppercase tracking-wider font-mono">
-                    {isAr ? 'الجزيرة التفاعلية • مضمار Live' : 'LifeOS Dynamic Sanctuary'}
+                  <span className="text-[11px] font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-amber-200 uppercase tracking-wider font-mono">
+                    {isAr ? 'الجزيرة الزمردية • مضمار Live' : 'LifeOS Emerald Sanctuary'}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <span className="hidden sm:inline-block text-[9px] font-mono text-white/40 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">
-                    ESC
-                  </span>
+                <div className="flex items-center gap-2">
+                  {/* Realtime Geodesic Qibla Direction Chip */}
+                  <div
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[10px] font-mono text-emerald-200"
+                    title={isAr ? `اتجاه القبلة: ${qiblaAngle}° عن الشمال` : `Qibla: ${qiblaAngle}°`}
+                  >
+                    <Navigation
+                      className="w-2.5 h-2.5 text-emerald-300 shrink-0"
+                      style={{ transform: `rotate(${qiblaAngle}deg)` }}
+                    />
+                    <span>{qiblaAngle}°</span>
+                    <span className="text-[9px] opacity-70">{isAr ? 'قبلة' : 'Qibla'}</span>
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="p-1 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                    className="p-1 rounded-full text-emerald-300/70 hover:text-white hover:bg-emerald-500/20 transition-colors cursor-pointer"
                     aria-label={isAr ? 'إغلاق' : 'Close'}
                   >
                     <X className="w-4 h-4" />
@@ -395,12 +534,26 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 </div>
               </div>
 
+              {/* Celestial Astronomical Sky Phase Pill */}
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-xs">
+                <div className="flex items-center gap-2">
+                  <celestialPhase.icon className={`w-3.5 h-3.5 ${celestialPhase.color} shrink-0`} />
+                  <span className="text-[11px] font-medium text-emerald-100">
+                    {isAr ? celestialPhase.labelAr : celestialPhase.labelEn}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300/80">
+                  <Volume2 className="w-3 h-3 text-emerald-400" />
+                  <span>{isAr ? 'تنبيه 10د مفعّل' : '10m Alert Active'}</span>
+                </div>
+              </div>
+
               {/* Hero Live Activity Card: Next Prayer & 5-Prayer Orbital Ribbon */}
               <div
-                className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
+                className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 relative overflow-hidden ${
                   isApproaching
-                    ? 'bg-gradient-to-br from-amber-500/15 via-[#0C0F15] to-amber-950/25 border-amber-400/35 shadow-[0_0_24px_rgba(245,158,11,0.15)]'
-                    : 'bg-white/[0.03] border-white/[0.08]'
+                    ? 'bg-gradient-to-br from-amber-500/20 via-[#1A1807]/90 to-amber-950/30 border-amber-400/40 shadow-[0_0_24px_rgba(245,158,11,0.2)]'
+                    : 'bg-gradient-to-br from-emerald-950/40 via-[#07241A]/70 to-emerald-950/30 border-emerald-500/25 shadow-sm'
                 }`}
               >
                 {/* Upper Hero Row */}
@@ -409,14 +562,14 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     <div
                       className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-lg shadow-sm ${
                         isApproaching
-                          ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
-                          : 'bg-teal-400/15 text-teal-300 border border-teal-400/30'
+                          ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                          : 'bg-emerald-400/15 text-emerald-300 border border-emerald-400/30 shadow-[0_0_10px_rgba(52,211,153,0.2)]'
                       }`}
                     >
                       🕌
                     </div>
                     <div>
-                      <span className="text-[10px] text-white/50 block font-medium">
+                      <span className="text-[10px] text-emerald-300/60 block font-medium">
                         {isAr ? 'الصلاة القادمة' : 'Next Prayer'}
                       </span>
                       <div className="flex items-center gap-2">
@@ -427,7 +580,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                         >
                           {nextP.arabicName}
                         </span>
-                        <span className="text-xs font-mono font-medium text-white/60">
+                        <span className="text-xs font-mono font-medium text-emerald-200/70">
                           {formatClockTime(nextP.time, isAr)}
                         </span>
                       </div>
@@ -436,14 +589,14 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
                   {/* Countdown Badge */}
                   <div className="text-end">
-                    <span className="text-[9px] text-white/40 block font-medium mb-0.5">
-                      {isAr ? 'الوقت المتبقي' : 'Time Remaining'}
+                    <span className="text-[9px] text-emerald-300/60 block font-medium mb-0.5">
+                      {isAr ? 'الوقت المتبقي' : 'Remaining'}
                     </span>
                     <div
                       className={`inline-flex items-center px-2 py-1 rounded-xl border ${
                         isApproaching
-                          ? 'bg-amber-400/15 border-amber-400/35 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-                          : 'bg-teal-500/10 border-teal-400/25'
+                          ? 'bg-amber-400/20 border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+                          : 'bg-emerald-900/40 border-emerald-400/30'
                       }`}
                     >
                       <TimeRemainingChip
@@ -456,11 +609,34 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   </div>
                 </div>
 
+                {/* Dynamic Elapsed Prayer Interval Progress Rail */}
+                <div className="mb-3 space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-emerald-200/70 font-medium">
+                    <span>
+                      {isAr
+                        ? `مضى ${prayerWindowProgress.percent}% من وقت ${prayerWindowProgress.prevName}`
+                        : `${prayerWindowProgress.percent}% of current window elapsed`}
+                    </span>
+                    <span className="font-mono">{100 - prayerWindowProgress.percent}% متبقي</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-emerald-950/60 rounded-full overflow-hidden border border-emerald-500/20">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${prayerWindowProgress.percent}%` }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                      className={`h-full rounded-full ${
+                        isApproaching
+                          ? 'bg-gradient-to-r from-amber-500 to-yellow-300 shadow-[0_0_8px_rgba(245,158,11,0.8)]'
+                          : 'bg-gradient-to-r from-teal-500 to-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]'
+                      }`}
+                    />
+                  </div>
+                </div>
+
                 {/* 5-Prayer Cosmic Timeline Ribbon */}
-                <div className="pt-2 border-t border-white/[0.06]">
+                <div className="pt-2 border-t border-emerald-500/15">
                   <div className="flex items-center justify-between gap-1 relative">
-                    {/* Underlying Track Line */}
-                    <div className="absolute top-3 inset-x-4 h-[2px] bg-white/[0.08] -z-0" />
+                    <div className="absolute top-3 inset-x-4 h-[2px] bg-emerald-950 -z-0" />
 
                     {prayersTimeline.map((prayer) => {
                       return (
@@ -468,16 +644,15 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                           key={prayer.key}
                           className="flex flex-col items-center gap-1 relative z-10 flex-1"
                         >
-                          {/* Node Icon / Indicator */}
                           <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
                               prayer.isTarget
                                 ? isApproaching
-                                  ? 'bg-amber-400 text-black font-black shadow-[0_0_10px_rgba(245,158,11,0.9)] ring-2 ring-amber-300/40'
-                                  : 'bg-teal-400 text-black font-black shadow-[0_0_10px_rgba(45,212,191,0.8)] ring-2 ring-teal-300/40'
+                                  ? 'bg-amber-400 text-black font-black shadow-[0_0_12px_rgba(245,158,11,0.9)] ring-2 ring-amber-300/50'
+                                  : 'bg-emerald-400 text-black font-black shadow-[0_0_12px_rgba(52,211,153,0.9)] ring-2 ring-emerald-300/50'
                                 : prayer.isPast
-                                ? 'bg-teal-500/20 text-teal-300 border border-teal-400/30'
-                                : 'bg-white/5 text-white/30 border border-white/10'
+                                ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400/35'
+                                : 'bg-emerald-950/50 text-white/30 border border-emerald-500/20'
                             }`}
                           >
                             {prayer.isTarget ? (
@@ -485,27 +660,25 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                             ) : prayer.isPast ? (
                               <Check className="w-3 h-3 stroke-[3]" />
                             ) : (
-                              <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/30" />
                             )}
                           </div>
 
-                          {/* Prayer Name */}
                           <span
                             className={`text-[10px] font-bold ${
                               prayer.isTarget
                                 ? isApproaching
                                   ? 'text-amber-300'
-                                  : 'text-teal-300'
+                                  : 'text-emerald-300'
                                 : prayer.isPast
-                                ? 'text-white/60'
-                                : 'text-white/30'
+                                ? 'text-emerald-100/70'
+                                : 'text-emerald-100/30'
                             }`}
                           >
                             {isAr ? prayer.ar : prayer.en}
                           </span>
 
-                          {/* Prayer Time */}
-                          <span className="text-[9px] font-mono text-white/40">
+                          <span className="text-[9px] font-mono text-emerald-200/50">
                             {formatClockTime(prayer.time, isAr)}
                           </span>
                         </div>
@@ -516,75 +689,81 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
                 {/* Serene Encouragement Banner on Approaching */}
                 {isApproaching && (
-                  <div className="mt-3 pt-2 border-t border-amber-400/20 flex items-center gap-2 text-[11px] text-amber-200/95 font-medium">
+                  <div className="mt-3 pt-2 border-t border-amber-400/25 flex items-center gap-2 text-[11px] text-amber-200/95 font-medium">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
                     <span>
                       {isAr
-                        ? 'اقترب موعد الأذان.. تهيأ بالوضوء والسكينة لصلاتك في أول وقتها 🤲'
+                        ? 'اقترب موعد الأذان (خلال 10 دقائق).. تهيأ بالوضوء والسكينة لصلاتك 🤲'
                         : 'Adhan is approaching. Prepare with peace and wudu.'}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* Spatial 4-Tile Luxury Glass Action Deck */}
+              {/* Spatial 4-Tile Luxury Emerald Deck */}
               <div className="grid grid-cols-2 gap-2">
-                {/* Tile 1: Smart Haptic Tasbih */}
-                {onOpenSmartTasbih && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      handleClose();
-                      onOpenSmartTasbih(
-                        fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100'
-                      );
-                    }}
-                    className={`tap-spring p-3 rounded-2xl border text-start transition-all cursor-pointer active:scale-95 group ${
-                      fridayStatus.isWindow
-                        ? 'bg-gradient-to-br from-amber-500/15 to-transparent border-amber-400/30 hover:border-amber-400/50'
-                        : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/[0.08] hover:border-teal-400/30'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div
-                        className={`w-7 h-7 rounded-xl flex items-center justify-center ${
-                          fridayStatus.isWindow
-                            ? 'bg-amber-400/20 text-amber-300'
-                            : 'bg-teal-400/15 text-teal-300'
-                        }`}
-                      >
-                        {fridayStatus.isWindow ? (
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                        ) : (
-                          <Disc className="w-3.5 h-3.5" />
-                        )}
-                      </div>
-                      <span className="text-[10px] font-mono font-bold text-teal-300">
-                        {fridayStatus.isWindow ? '+25 XP' : '100x'}
-                      </span>
+                {/* Tile 1: Interactive Smart Haptic Tasbih with In-Island Bead Tapping */}
+                <div
+                  className={`tap-spring p-3 rounded-2xl border text-start transition-all group ${
+                    fridayStatus.isWindow
+                      ? 'bg-gradient-to-br from-amber-500/15 via-[#18200E]/70 to-emerald-950/30 border-amber-400/35 hover:border-amber-400/55'
+                      : 'bg-emerald-950/30 hover:bg-emerald-950/50 border-emerald-500/20 hover:border-emerald-400/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div
+                      className={`w-7 h-7 rounded-xl flex items-center justify-center ${
+                        fridayStatus.isWindow
+                          ? 'bg-amber-400/20 text-amber-300'
+                          : 'bg-emerald-400/15 text-emerald-300'
+                      }`}
+                    >
+                      {fridayStatus.isWindow ? (
+                        <Star className="w-3.5 h-3.5 fill-current" />
+                      ) : (
+                        <Disc className="w-3.5 h-3.5" />
+                      )}
                     </div>
-                    <span className="text-xs font-bold text-white block group-hover:text-teal-200 transition-colors">
-                      {fridayStatus.isWindow
-                        ? isAr
-                          ? 'الصلاة الإبراهيمية'
-                          : 'Friday Salawat'
-                        : isAr
-                        ? 'المسبحة اللمسية'
-                        : 'Smart Tasbih'}
-                    </span>
-                    <span className="text-[10px] text-white/50 block mt-0.5">
-                      {fridayStatus.isWindow
-                        ? isAr
-                          ? 'موسم يوم الجمعة'
-                          : 'Friday Special'
-                        : isAr
-                        ? 'أذكار وعداد لمسي'
-                        : 'Haptic Remembrance'}
-                    </span>
-                  </button>
-                )}
+
+                    {/* Quick In-Island Tap Bead Counter */}
+                    <button
+                      type="button"
+                      onClick={handleIncrementIslandTasbih}
+                      title={isAr ? 'اضغط للتسبيح المباشر هنا' : 'Quick Tap Tasbih'}
+                      className="px-2 py-0.5 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400/40 text-[10px] font-mono font-bold text-emerald-200 active:scale-90 transition-transform cursor-pointer shadow-sm"
+                    >
+                      +{islandTasbihCount}/100
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        handleClose();
+                        onOpenSmartTasbih?.(
+                          fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100'
+                        );
+                      }}
+                      className="text-start flex-1 cursor-pointer"
+                    >
+                      <span className="text-xs font-bold text-white block group-hover:text-emerald-200 transition-colors">
+                        {fridayStatus.isWindow
+                          ? isAr
+                            ? 'الصلاة الإبراهيمية'
+                            : 'Friday Salawat'
+                          : isAr
+                          ? 'المسبحة الذكية'
+                          : 'Smart Tasbih'}
+                      </span>
+                      <span className="text-[10px] text-emerald-200/60 block mt-0.5">
+                        {isAr ? 'سبحان الله وبحمده' : 'Subhan Allah'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
 
                 {/* Tile 2: Quran Daily Wird */}
                 {onOpenWirdModal && (
@@ -596,20 +775,20 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                       handleClose();
                       onOpenWirdModal();
                     }}
-                    className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-emerald-400/30 text-start transition-all cursor-pointer active:scale-95 group"
+                    className="tap-spring p-3 rounded-2xl bg-emerald-950/30 hover:bg-emerald-950/50 border border-emerald-500/20 hover:border-emerald-400/40 text-start transition-all cursor-pointer active:scale-95 group"
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <div className="w-7 h-7 rounded-xl bg-emerald-400/15 text-emerald-300 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-xl bg-teal-400/15 text-teal-300 flex items-center justify-center">
                         <BookOpen className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-[10px] font-mono font-bold text-emerald-300">
+                      <span className="text-[10px] font-mono font-bold text-teal-300">
                         📖
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-white block group-hover:text-emerald-200 transition-colors">
+                    <span className="text-xs font-bold text-white block group-hover:text-teal-200 transition-colors">
                       {isAr ? 'الورد القرآني' : 'Quran Wird'}
                     </span>
-                    <span className="text-[10px] text-white/50 block mt-0.5">
+                    <span className="text-[10px] text-emerald-200/60 block mt-0.5">
                       {isAr ? 'قراءة وتدبر يومي' : 'Daily Tadabbur'}
                     </span>
                   </button>
@@ -624,18 +803,18 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     handleClose();
                     onSelectStation('WORK_MICRO_SPRINT');
                   }}
-                  className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-sky-400/30 text-start transition-all cursor-pointer active:scale-95 group"
+                  className="tap-spring p-3 rounded-2xl bg-emerald-950/30 hover:bg-emerald-950/50 border border-emerald-500/20 hover:border-teal-400/40 text-start transition-all cursor-pointer active:scale-95 group"
                 >
                   <div className="flex items-center justify-between mb-1.5">
-                    <div className="w-7 h-7 rounded-xl bg-sky-400/15 text-sky-300 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-xl bg-teal-400/15 text-teal-300 flex items-center justify-center">
                       <Zap className="w-3.5 h-3.5" />
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-sky-300">20m</span>
+                    <span className="text-[10px] font-mono font-bold text-teal-300">20m</span>
                   </div>
-                  <span className="text-xs font-bold text-white block group-hover:text-sky-200 transition-colors">
+                  <span className="text-xs font-bold text-white block group-hover:text-teal-200 transition-colors">
                     {isAr ? 'سبرنت تركيز 20د' : '20m Focus Sprint'}
                   </span>
-                  <span className="text-[10px] text-white/50 block mt-0.5">
+                  <span className="text-[10px] text-emerald-200/60 block mt-0.5">
                     {isAr ? 'إنتاجية بدون تشتت' : 'Zero Distraction'}
                   </span>
                 </button>
@@ -650,7 +829,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                       handleClose();
                       onOpenTwoMinuteRule();
                     }}
-                    className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-amber-400/30 text-start transition-all cursor-pointer active:scale-95 group"
+                    className="tap-spring p-3 rounded-2xl bg-emerald-950/30 hover:bg-emerald-950/50 border border-emerald-500/20 hover:border-amber-400/40 text-start transition-all cursor-pointer active:scale-95 group"
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="w-7 h-7 rounded-xl bg-amber-400/15 text-amber-300 flex items-center justify-center">
@@ -663,7 +842,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     <span className="text-xs font-bold text-white block group-hover:text-amber-200 transition-colors">
                       {isAr ? 'قاعدة الدقيقتين' : '2-Min Anti-Friction'}
                     </span>
-                    <span className="text-[10px] text-white/50 block mt-0.5">
+                    <span className="text-[10px] text-emerald-200/60 block mt-0.5">
                       {isAr ? 'كسر حاجز التسويف' : 'Beat Procrastination'}
                     </span>
                   </button>
@@ -676,20 +855,20 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                       handleClose();
                       onOpenQuickReminder?.();
                     }}
-                    className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-purple-400/30 text-start transition-all cursor-pointer active:scale-95 group"
+                    className="tap-spring p-3 rounded-2xl bg-emerald-950/30 hover:bg-emerald-950/50 border border-emerald-500/20 hover:border-emerald-400/40 text-start transition-all cursor-pointer active:scale-95 group"
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <div className="w-7 h-7 rounded-xl bg-purple-400/15 text-purple-300 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-xl bg-emerald-400/15 text-emerald-300 flex items-center justify-center">
                         <Bell className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-[10px] font-mono font-bold text-purple-300">
+                      <span className="text-[10px] font-mono font-bold text-emerald-300">
                         🔔
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-white block group-hover:text-purple-200 transition-colors">
+                    <span className="text-xs font-bold text-white block group-hover:text-emerald-200 transition-colors">
                       {isAr ? 'منبه ذكي سريع' : 'Quick Reminder'}
                     </span>
-                    <span className="text-[10px] text-white/50 block mt-0.5">
+                    <span className="text-[10px] text-emerald-200/60 block mt-0.5">
                       {isAr ? 'تنبيه فوري مخصص' : 'Instant Reminder'}
                     </span>
                   </button>
@@ -697,9 +876,9 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
               </div>
 
               {/* Bottom Subtle Station Context Strip */}
-              <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-white/60">
-                  <Compass className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-emerald-200/70">
+                  <Compass className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                   <span className="text-[11px]">
                     {isAr ? 'المحطة الحالية:' : 'Active Station:'}
                   </span>
@@ -717,7 +896,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                       handleClose();
                       onOpenLifestyleModal();
                     }}
-                    className="text-[10px] font-semibold text-teal-300 hover:text-teal-200 flex items-center gap-1 cursor-pointer"
+                    className="text-[10px] font-semibold text-emerald-300 hover:text-emerald-200 flex items-center gap-1 cursor-pointer"
                   >
                     <span>{isAr ? 'تخصيص النمط' : 'Customize'}</span>
                     <ChevronRight className="w-3 h-3 rtl:rotate-180" />
