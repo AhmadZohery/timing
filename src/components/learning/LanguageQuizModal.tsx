@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Volume2,
@@ -182,7 +183,9 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const progressPercentage = Math.round(((currentIndex + 1) / effectiveWords.length) * 100);
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
       onClick={onClose}
@@ -500,6 +503,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
