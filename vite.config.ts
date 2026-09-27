@@ -1,6 +1,10 @@
+import dns from 'node:dns'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
+
+// Force IPv4 first to eliminate 5-10s Windows IPv6 DNS stall
+dns.setDefaultResultOrder('ipv4first')
 
 function devApiFallbackPlugin() {
   return {
@@ -26,9 +30,23 @@ export default defineConfig({
     tailwindcss(),
     devApiFallbackPlugin(),
   ],
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'framer-motion',
+      'lucide-react',
+      'dexie',
+      'dexie-react-hooks',
+      'canvas-confetti',
+      'clsx',
+      'tailwind-merge',
+    ],
+  },
   server: {
     host: true,
     port: 5173,
+    cors: true,
   },
   build: {
     rollupOptions: {

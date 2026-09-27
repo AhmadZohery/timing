@@ -1,4 +1,20 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
+const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
+
+if (isLocalDev) {
+  self.addEventListener('install', () => self.skipWaiting());
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+        .then(() => self.registration.unregister())
+        .then(() => self.clients.claim())
+    );
+  });
+  self.addEventListener('fetch', () => {
+    return;
+  });
+}
+
 const CACHE_NAME = 'midmar-lifeos-v2';
 const STATIC_ASSETS = [
   '/',
