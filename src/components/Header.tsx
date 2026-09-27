@@ -36,6 +36,7 @@ import {
   BookOpen,
   Compass,
   Bell,
+  GraduationCap,
 } from 'lucide-react';
 import type { UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
@@ -81,6 +82,7 @@ interface HeaderProps {
   onOpenLifeWisdom?: () => void;
   onOpenNiyyahModal?: () => void;
   onOpenQuickReminder?: () => void;
+  onOpenCourses?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -114,6 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLifeWisdom,
   onOpenNiyyahModal,
   onOpenQuickReminder,
+  onOpenCourses,
   isPwaStandalone,
   activeProfileName,
   activeProfileEmoji,
@@ -365,6 +368,25 @@ export const Header: React.FC<HeaderProps> = ({
               <Bell className="w-3.5 h-3.5 shrink-0 text-amber-500" />
               <span className="hidden sm:inline">
                 {language === 'ar' ? 'تذكير 🔔' : 'Reminder'}
+              </span>
+            </button>
+          )}
+
+          {/* Courses & Study Hub Trigger */}
+          {onOpenCourses && (
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenCourses();
+              }}
+              title={language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI)' : 'Smart Course Study Roadmap (AI)'}
+              className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95"
+            >
+              <GraduationCap className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+              <span className="hidden sm:inline">
+                {language === 'ar' ? 'الكورسات 📚' : 'Courses'}
               </span>
             </button>
           )}

@@ -86,6 +86,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   const [isTestingServerPush, setIsTestingServerPush] = useState<boolean>(false);
   const [serverSyncMsg, setServerSyncMsg] = useState<{ text: string; success: boolean } | null>(null);
   const [tokensSaved, setTokensSaved] = useState<number>(() => localIntelligence.getTokensSaved());
+  const [isTestingLockscreen, setIsTestingLockscreen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -516,8 +517,6 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
 
     setTimeout(() => setNotificationMsg(null), 3500);
   };
-
-  const [isTestingLockscreen, setIsTestingLockscreen] = useState(false);
 
   const handleTestLockscreenAlarm = async () => {
     soundSynth.playTactileClick();

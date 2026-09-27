@@ -74,6 +74,23 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
     setLearningSubTabState(tab);
     localStorage.setItem('midmar_learning_subtab', tab);
   };
+
+  useEffect(() => {
+    const handleSwitchMode = (e: Event) => {
+      const customEv = e as CustomEvent<{ mode?: 'planner' | 'sprint' | 'learning_tracker'; subTab?: 'courses' | 'sessions' }>;
+      if (customEv.detail?.mode) {
+        setWorkViewModeState(customEv.detail.mode);
+        localStorage.setItem('midmar_work_view_mode', customEv.detail.mode);
+      }
+      if (customEv.detail?.subTab) {
+        setLearningSubTabState(customEv.detail.subTab);
+        localStorage.setItem('midmar_learning_subtab', customEv.detail.subTab);
+      }
+    };
+    window.addEventListener('midmar_switch_work_mode', handleSwitchMode);
+    return () => window.removeEventListener('midmar_switch_work_mode', handleSwitchMode);
+  }, []);
+
   const [phase, setPhase] = useState<SprintPhase>(isCompleted ? 'DONE' : 'LEARNING_SPRINT');
   const [frictionSeconds, setFrictionSeconds] = useState(3);
   const [isStandupOpen, setIsStandupOpen] = useState(false);

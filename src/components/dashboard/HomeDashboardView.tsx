@@ -45,6 +45,7 @@ import { MorningEveningAdhkarModal } from '../spiritual/MorningEveningAdhkarModa
 import { SurahMulkModal } from '../spiritual/SurahMulkModal';
 import { FastingReminderModal } from '../spiritual/FastingReminderModal';
 import { NawafilGuideModal, type NafilaTab } from '../spiritual/NawafilGuideModal';
+import { ActiveStudyCourseWidget } from './ActiveStudyCourseWidget';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
 import { getHijriDateDetails } from '../../utils/prayerCalculator';
@@ -152,7 +153,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
   const fridayWindow = useMemo(() => {
     return checkIsFridaySalawatWindow(now, userState?.settings?.prayerLocation);
-  }, [currentHour, userState?.settings?.prayerLocation]);
+  }, [now, userState?.settings?.prayerLocation]);
 
   // Live Quran Progress Query & Quick Increment Handler
   const quranList = useLiveQuery(() => db.quran_progress.toArray(), []);
@@ -196,7 +197,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const isMorningTime = currentHour >= 3 && currentHour < 15;
   const isTomorrowMonOrThu = currentDayOfWeek === 0 || currentDayOfWeek === 3;
   const isTodayMonOrThu = currentDayOfWeek === 1 || currentDayOfWeek === 4;
-  const hijriInfo = useMemo(() => getHijriDateDetails(now), [now.getDate()]);
+  const todayDateNum = now.getDate();
+  const hijriInfo = useMemo(() => getHijriDateDetails(now), [todayDateNum, now]);
 
   // Habit Learning & Sports Flexibility Engine
   const [learnedPattern, setLearnedPattern] = useState<LearnedSportPattern | null>(null);
@@ -754,6 +756,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         onStartSuggestedSprint={(_dur: number) => {
           onSelectStation('WORK_MICRO_SPRINT');
         }}
+      />
+
+      {/* ============================================================ */}
+      {/* 3.25. ACTIVE STUDY COURSES & LEARNING TRACK ROADMAP          */}
+      {/* ============================================================ */}
+      <ActiveStudyCourseWidget
+        onSelectStation={onSelectStation}
+        onRewardToast={onRewardToast}
       />
 
       {/* ============================================================ */}

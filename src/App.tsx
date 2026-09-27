@@ -574,6 +574,17 @@ export function App() {
         onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
         onOpenNiyyahModal={() => handleOpenNiyyah('livelihood')}
         onOpenQuickReminder={() => setIsQuickReminderOpen(true)}
+        onOpenCourses={() => {
+          localStorage.setItem('midmar_work_view_mode', 'learning_tracker');
+          localStorage.setItem('midmar_learning_subtab', 'courses');
+          window.dispatchEvent(
+            new CustomEvent('midmar_switch_work_mode', {
+              detail: { mode: 'learning_tracker', subTab: 'courses' },
+            })
+          );
+          setActiveStation('WORK_MICRO_SPRINT');
+          if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
         isPwaStandalone={pwaState.isStandalone}
         activeProfileName={activeProfile?.name}
         activeProfileEmoji={activeProfile?.avatarEmoji}
