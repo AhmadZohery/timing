@@ -28,7 +28,7 @@ export type QuizMode = 'multiple_choice' | 'reverse_recall' | 'cloze_sentence' |
 interface LanguageQuizModalProps {
   isOpen: boolean;
   onClose: () => void;
-  words: VocabularyWord[];
+  words?: VocabularyWord[];
   speechCode: string;
   onCompleted?: (score: number, total: number) => void;
 }
@@ -36,7 +36,7 @@ interface LanguageQuizModalProps {
 export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   isOpen,
   onClose,
-  words,
+  words = [],
   speechCode,
   onCompleted,
 }) => {
@@ -50,6 +50,14 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const [isFinished, setIsFinished] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [activeQuizMode, setActiveQuizMode] = useState<QuizMode>('multiple_choice');
+
+  // Guaranteed words fallback so the modal NEVER blocks or fails
+  const effectiveWords = useMemo(() => {
+    if (words && words.length > 0) return words;
+    const today = spacedRepetition.getTodayWords();
+    if (today && today.length > 0) return today;
+    return spacedRepetition.getAllWordsForLanguage();
+  }, [words]);
 
   // Close on ESC
   useEffect(() => {
@@ -72,19 +80,19 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     }
   }, [isOpen, words]);
 
+  const currentWord = effectiveWords[currentIndex] || effectiveWords[0];
+  const currentWordProgress = currentWord ? spacedRepetition.getWordProgress(currentWord.id) : undefined;
+  const isLeech = currentWord ? spacedRepetition.isLeechWord(currentWord.id) : false;
+
   // Automatically speak word in listening mode
   useEffect(() => {
-    if (isOpen && activeQuizMode === 'listening' && words[currentIndex]) {
+    if (isOpen && activeQuizMode === 'listening' && currentWord) {
       const timer = setTimeout(() => {
-        speechService.speak(words[currentIndex].word, speechCode, 0.9);
+        speechService.speak(currentWord.word, speechCode, 0.9);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, activeQuizMode, currentIndex, speechCode, words]);
-
-  const currentWord = words[currentIndex] || words[0];
-  const currentWordProgress = currentWord ? spacedRepetition.getWordProgress(currentWord.id) : undefined;
-  const isLeech = currentWord ? spacedRepetition.isLeechWord(currentWord.id) : false;
+  }, [isOpen, activeQuizMode, currentIndex, speechCode, currentWord]);
 
   // Dynamic Options Generator based on Quiz Mode
   const { options, correctAnswer } = useMemo(() => {
@@ -124,37 +132,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     }
   }, [currentWord, activeQuizMode]);
 
-  if (!isOpen) return null;
-
-  if (words.length === 0 || !currentWord) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" dir={isAr ? 'rtl' : 'ltr'}>
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer" onClick={onClose} />
-        <div className="relative z-10 bg-white dark:bg-[#14151F] rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-slate-200 dark:border-white/[0.1] shadow-2xl">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl">
-            🎉
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-base font-black text-slate-900 dark:text-white">
-              {isAr ? 'أحسنت! لا توجد كلمات متبقية للاختبار اليوم' : 'All caught up! No words due today'}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-zinc-400">
-              {isAr
-                ? 'لقد راجعت نصاب كلماتك بنجاح، يمكنك التدرب على كلمات إضافية من بنك المفردات في أي وقت!'
-                : "You have completed today's vocabulary quota! Great job!"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs cursor-pointer shadow-md transition-all"
-          >
-            {isAr ? 'حسناً، تم ✔' : 'Done ✔'}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (!isOpen || !currentWord) return null;
 
   const handleSpeakWord = () => {
     soundSynth.playTactileClick();
@@ -191,23 +169,23 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     setIsAnswerSubmitted(false);
     setShowHint(false);
 
-    if (currentIndex + 1 < words.length) {
+    if (currentIndex + 1 < effectiveWords.length) {
       setCurrentIndex((i) => i + 1);
     } else {
       setIsFinished(true);
       if (onCompleted) {
-        onCompleted(score + (selectedOption === correctAnswer ? 1 : 0), words.length);
+        onCompleted(score + (selectedOption === correctAnswer ? 1 : 0), effectiveWords.length);
       }
     }
   };
 
-  const progressPercentage = Math.round(((currentIndex + 1) / words.length) * 100);
+  const progressPercentage = Math.round(((currentIndex + 1) / effectiveWords.length) * 100);
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm cursor-pointer" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer animate-fade-in" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4 animate-scale-up text-slate-900 dark:text-white">
         {/* Top Bar: Mode Switcher & Close */}
         <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
@@ -416,9 +394,14 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                     type="button"
                     disabled={isAnswerSubmitted}
                     onClick={() => handleSelectOption(opt)}
-                    className={`p-3.5 rounded-2xl border text-sm text-start font-medium transition-all flex items-center justify-between gap-2 cursor-pointer ${style}`}
+                    className={`p-3.5 rounded-2xl border text-sm text-start font-medium transition-all flex items-center justify-between gap-3 cursor-pointer ${style}`}
                   >
-                    <span>{opt}</span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-6 h-6 rounded-xl bg-slate-200/70 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <span className="truncate font-sans font-semibold">{opt}</span>
+                    </div>
                     {isAnswerSubmitted && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />}
                     {isAnswerSubmitted && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-rose-600 shrink-0" />}
                   </button>
@@ -447,7 +430,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                   type="button"
                   disabled={!selectedOption}
                   onClick={handleSubmitAnswer}
-                  className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md active:scale-95 transition-all cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md active:scale-95 transition-all cursor-pointer"
                 >
                   {isAr ? 'تأكيد الإجابة' : 'Check Answer'}
                 </button>
@@ -455,7 +438,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                 <button
                   type="button"
                   onClick={handleNextQuestion}
-                  className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
                   <span>{isAr ? 'السؤال التالي' : 'Next Question'}</span>
                   <ArrowIcon className="w-4 h-4" />
@@ -465,27 +448,44 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
           </div>
         ) : (
           /* Finished Screen */
-          <div className="py-6 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
-              <CheckCircle2 className="w-9 h-9" />
+          <div className="py-6 text-center space-y-5">
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs text-3xl">
+              🏆
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <h3 className="text-xl font-black text-slate-900 dark:text-white">
                 {isAr ? 'أحسنت! اكتمل الاختبار اليومي بنجاح' : 'Great Job! Quiz Completed'}
               </h3>
               <p className="text-sm text-slate-500 dark:text-zinc-400">
                 {isAr
-                  ? `أحرزت ${score} من إجمالي ${words.length} كلمات بنجاح (+${score * 3} XP)`
-                  : `You scored ${score} out of ${words.length} words (+${score * 3} XP)`}
+                  ? `أحرزت ${score} من إجمالي ${effectiveWords.length} كلمات بنجاح (+${score * 10} XP)`
+                  : `You scored ${score} out of ${effectiveWords.length} words (+${score * 10} XP)`}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md cursor-pointer"
-            >
-              {isAr ? 'إغلاق ومتابعة اليوم' : 'Close & Continue'}
-            </button>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  setCurrentIndex(0);
+                  setSelectedOption(null);
+                  setIsAnswerSubmitted(false);
+                  setScore(0);
+                  setIsFinished(false);
+                  setShowHint(false);
+                }}
+                className="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs cursor-pointer transition-colors"
+              >
+                {isAr ? 'إعادة الاختبار 🔄' : 'Retake Quiz 🔄'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md cursor-pointer transition-all active:scale-95"
+              >
+                {isAr ? 'تم، متابعة اليوم ✔' : 'Done & Continue ✔'}
+              </button>
+            </div>
           </div>
         )}
       </div>

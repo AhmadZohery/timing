@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   X,
   Volume2,
   Mic,
-  Zap,
   Sparkles,
   CheckCircle2,
   XCircle,
@@ -11,18 +10,23 @@ import {
   Flame,
   Clock,
   Shuffle,
+  RotateCw,
+  ChevronRight,
+  ChevronLeft,
+  Layers,
 } from 'lucide-react';
 import type { VocabularyWord } from '../../data/languages/vocabularyDatabase';
+import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 
-export type MoveType = 'shadowing' | 'syntax_scramble' | 'speed_sprint' | 'cloze_dictation' | 'idiom_pearls';
+export type MoveType = 'flashcards' | 'shadowing' | 'syntax_scramble' | 'speed_sprint' | 'cloze_dictation' | 'idiom_pearls';
 
 interface LanguageMovesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  words: VocabularyWord[];
+  words?: VocabularyWord[];
   speechCode: string;
   isAr: boolean;
   languageName: string;
@@ -32,14 +36,34 @@ interface LanguageMovesModalProps {
 export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
   isOpen,
   onClose,
-  words,
+  words = [],
   speechCode,
   isAr,
   languageName,
-  initialMove = 'shadowing',
+  initialMove = 'flashcards',
 }) => {
   const [activeMove, setActiveMove] = useState<MoveType>(initialMove);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // Guaranteed words fallback so the modal NEVER fails or renders blank
+  const effectiveWords = useMemo(() => {
+    if (words && words.length > 0) return words;
+    const today = spacedRepetition.getTodayWords();
+    if (today && today.length > 0) return today;
+    return spacedRepetition.getAllWordsForLanguage();
+  }, [words]);
+
+  // Sync initialMove when opening
+  useEffect(() => {
+    if (isOpen) {
+      setActiveMove(initialMove);
+      setIsFlipped(false);
+    }
+  }, [isOpen, initialMove]);
+
+  // Current active word
+  const currentWord = effectiveWords[currentIndex] || effectiveWords[0];
 
   // --- Move 1: Shadowing State ---
   const [shadowSpeed, setShadowSpeed] = useState(0.85);
@@ -63,8 +87,50 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
   const [clozeAnswer, setClozeAnswer] = useState<string | null>(null);
   const [clozeSubmitted, setClozeSubmitted] = useState(false);
 
-  // Current active word
-  const currentWord = words[currentIndex] || words[0];
+  // Handle Flashcards Rating & Leitner Progression
+  const handleRateFlashcard = (rating: 'easy' | 'medium' | 'hard') => {
+    if (!currentWord) return;
+    const isCorrect = rating !== 'hard';
+    spacedRepetition.recordResult(currentWord.id, isCorrect, rating);
+
+    if (rating === 'easy') {
+      soundSynth.playCompletionChime();
+      haptic.vibrateLight();
+    } else if (rating === 'medium') {
+      soundSynth.playTactileClick();
+      haptic.vibrateLight();
+    } else {
+      soundSynth.playWarningSound();
+      haptic.vibrateLight();
+    }
+
+    setIsFlipped(false);
+    setTimeout(() => {
+      if (currentIndex + 1 < effectiveWords.length) {
+        setCurrentIndex((i) => i + 1);
+      } else {
+        setCurrentIndex(0);
+      }
+    }, 220);
+  };
+
+  const handleNextWord = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsFlipped(false);
+    if (currentIndex + 1 < effectiveWords.length) {
+      setCurrentIndex((i) => i + 1);
+    }
+  };
+
+  const handlePrevWord = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsFlipped(false);
+    if (currentIndex > 0) {
+      setCurrentIndex((i) => i - 1);
+    }
+  };
 
   // Set up tokens for Sentence Scramble
   useEffect(() => {
@@ -101,12 +167,12 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
 
   // Generate Speed Sprint Card
   const generateSprintCard = () => {
-    if (!words || words.length === 0) return;
-    const target = words[Math.floor(Math.random() * words.length)];
+    if (!effectiveWords || effectiveWords.length === 0) return;
+    const target = effectiveWords[Math.floor(Math.random() * effectiveWords.length)];
     const isMatch = Math.random() > 0.45;
     let proposed = target.translationAr;
     if (!isMatch) {
-      const others = words.filter((w) => w.id !== target.id);
+      const others = effectiveWords.filter((w) => w.id !== target.id);
       if (others.length > 0) {
         proposed = others[Math.floor(Math.random() * others.length)].translationAr;
       }
@@ -129,7 +195,7 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
     return () => clearInterval(interval);
   }, [activeMove, sprintActive, sprintTime]);
 
-  if (!isOpen || words.length === 0) return null;
+  if (!isOpen || !currentWord) return null;
 
   // --- Move 1: Auditory Shadowing Execution ---
   const handleStartShadowLoop = async () => {
@@ -223,30 +289,30 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
   };
 
   // Idioms only deck
-  const idiomsDeck = words.filter((w) => w.isIdiom || w.partOfSpeech === 'idiom');
+  const idiomsDeck = effectiveWords.filter((w) => w.isIdiom || w.partOfSpeech === 'idiom');
   const activeIdiom = idiomsDeck[currentIndex % (idiomsDeck.length || 1)] || currentWord;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-white/[0.08] p-6 sm:p-8 shadow-2xl space-y-5 animate-scale-up text-slate-900 dark:text-white max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer animate-fade-in" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-white/[0.08] p-5 sm:p-7 shadow-2xl space-y-4 animate-scale-up text-slate-900 dark:text-white max-h-[92vh] overflow-y-auto">
         {/* Top Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 text-white flex items-center justify-center shadow-md">
-              <Zap className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-amber-500 text-white flex items-center justify-center shadow-md">
+              <Layers className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base sm:text-lg font-black text-slate-950 dark:text-white">
-                  {isAr ? 'مختبر الحركات اللغوية والتمارين الذكية' : 'Elite Language Moves Lab'}
+                  {isAr ? 'مختبر البطاقات والتدريب اللغوي' : 'Language Deck & Moves Lab'}
                 </h3>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-800">
                   {languageName}
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                {isAr ? '5 حركات حركية وعصبية متقدمة لترسيخ النطق وتركيب الجمل والسرعة' : '5 cognitive drills to master native phonetics, syntax & speed'}
+                {isAr ? 'بطاقات فلاش 3D، ترديد صوتي، تركيب جمل، وتكرار متباعد ذكي' : '3D flashcards, shadowing, syntax rebuilder & speed sprint'}
               </p>
             </div>
           </div>
@@ -261,13 +327,14 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
         </div>
 
         {/* Move Selector Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 p-1 bg-slate-100 dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-zinc-800">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-1.5 p-1 bg-slate-100 dark:bg-zinc-900/80 rounded-2xl border border-slate-200 dark:border-zinc-800">
           {[
+            { id: 'flashcards', label: isAr ? '🎴 بطاقات 3D' : '🎴 3D Cards' },
             { id: 'shadowing', label: isAr ? '🎙️ الترديد الظلي' : '🎙️ Shadowing' },
             { id: 'syntax_scramble', label: isAr ? '🧩 باني الجمل' : '🧩 Scramble' },
             { id: 'speed_sprint', label: isAr ? '⚡ سبرنت 60ث' : '⚡ Speed 60s' },
             { id: 'cloze_dictation', label: isAr ? '🎧 فجوات الاستماع' : '🎧 Dictation' },
-            { id: 'idiom_pearls', label: isAr ? '🎭 الأمثال الشعبية' : '🎭 Idioms' },
+            { id: 'idiom_pearls', label: isAr ? '🎭 الأمثال' : '🎭 Idioms' },
           ].map((m) => (
             <button
               key={m.id}
@@ -276,7 +343,7 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                 soundSynth.playTactileClick();
                 setActiveMove(m.id as MoveType);
               }}
-              className={`py-2 px-2 rounded-xl text-[11px] font-bold text-center transition-all cursor-pointer truncate ${
+              className={`py-2 px-1.5 rounded-xl text-[11px] font-bold text-center transition-all cursor-pointer truncate ${
                 activeMove === m.id
                   ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-xs'
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
@@ -286,6 +353,206 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
             </button>
           ))}
         </div>
+
+        {/* ================= MOVE 0: 3D FLIP FLASHCARD DECK ================= */}
+        {activeMove === 'flashcards' && (
+          <div className="space-y-3">
+            {/* Card Navigation & Counter */}
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-black text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800/40">
+                  {currentIndex + 1} / {effectiveWords.length}
+                </span>
+                <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400 bg-slate-200/70 dark:bg-zinc-800 px-2 py-0.5 rounded">
+                  {currentWord.level} • {currentWord.partOfSpeech}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={currentIndex === 0}
+                  onClick={handlePrevWord}
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 disabled:opacity-30 cursor-pointer transition-colors"
+                  title={isAr ? 'السابق' : 'Previous'}
+                >
+                  {isAr ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                </button>
+                <button
+                  type="button"
+                  disabled={currentIndex + 1 >= effectiveWords.length}
+                  onClick={handleNextWord}
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-slate-200 dark:border-zinc-700 disabled:opacity-30 cursor-pointer transition-colors"
+                  title={isAr ? 'التالي' : 'Next'}
+                >
+                  {isAr ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* 3D Perspective Container */}
+            <div style={{ perspective: '1200px' }} className="w-full">
+              <div
+                style={{
+                  transformStyle: 'preserve-3d',
+                  WebkitTransformStyle: 'preserve-3d',
+                  willChange: 'transform',
+                  transition: 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                }}
+                className="relative min-h-[300px] w-full rounded-2xl"
+              >
+                {/* FRONT FACE OF FLASHCARD */}
+                <div
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                  }}
+                  className="absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-br from-indigo-500/[0.05] via-white dark:via-zinc-900 to-indigo-500/[0.02] dark:to-zinc-950 border-2 border-indigo-200/80 dark:border-indigo-900/40 p-6 flex flex-col justify-between shadow-sm cursor-pointer select-none"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setIsFlipped(true);
+                  }}
+                >
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    <span className="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                      {languageName}
+                    </span>
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                      <RotateCw className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'انقر للقلب والكشف' : 'Tap to Flip'}</span>
+                    </span>
+                  </div>
+
+                  {/* Big Center Word */}
+                  <div className="space-y-2 text-center py-4">
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white font-serif tracking-tight">
+                      {currentWord.word}
+                    </h2>
+                    <p className="font-mono text-sm text-slate-500 dark:text-zinc-400">
+                      {currentWord.phonetic}
+                    </p>
+
+                    <div className="pt-3 flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          speechService.speak(currentWord.word, speechCode, 1.0);
+                        }}
+                        className="px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                        <span>{isAr ? 'نطق أصلي' : 'Native Audio'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          speechService.speak(currentWord.word, speechCode, 0.75);
+                        }}
+                        className="px-3 py-2 rounded-2xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-indigo-700 dark:text-indigo-300 font-mono text-xs font-bold border border-slate-200 dark:border-zinc-700 cursor-pointer active:scale-95"
+                      >
+                        0.75x
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-center pt-2 border-t border-slate-100 dark:border-white/[0.06]">
+                    <span className="text-xs text-slate-400 font-medium">
+                      {isAr ? '💡 حاول تذكر المعنى العربي ثم اقلب البطاقة للتحقق والتقييم' : '💡 Recall the meaning, then flip to check & rate'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* BACK FACE OF FLASHCARD */}
+                <div
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)',
+                  }}
+                  className="absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-white dark:via-zinc-900 to-emerald-500/[0.02] dark:to-zinc-950 border-2 border-emerald-300/80 dark:border-emerald-800/60 p-5 sm:p-6 flex flex-col justify-between shadow-sm select-none"
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{isAr ? 'المعنى والسياق العملي' : 'Meaning & Context'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setIsFlipped(false);
+                      }}
+                      className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 cursor-pointer"
+                    >
+                      <RotateCw className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'العودة للوجه' : 'Back to Front'}</span>
+                    </button>
+                  </div>
+
+                  {/* Meaning & Context */}
+                  <div className="space-y-2 py-2">
+                    <div className="text-center">
+                      <h3 className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400 font-sans">
+                        {currentWord.translationAr}
+                      </h3>
+                    </div>
+
+                    {/* Context sentence */}
+                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950/80 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
+                      <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed">
+                        “{currentWord.contextSentence}”
+                      </p>
+                      <p className="text-emerald-700 dark:text-emerald-400 font-sans text-start leading-relaxed font-medium">
+                        «{currentWord.contextSentenceAr}»
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* SRS Leitner 3-Level Quick Rating Buttons */}
+                  <div className="space-y-1.5 pt-1">
+                    <p className="text-[11px] text-center font-bold text-slate-500 dark:text-zinc-400">
+                      {isAr ? 'قيّم قوة حفظك لنظام التكرار المتباعد (Leitner SRS):' : 'Rate retention for Leitner SRS:'}
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleRateFlashcard('hard')}
+                        className="py-2.5 px-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-900/60 transition-transform active:scale-95 cursor-pointer text-center"
+                      >
+                        <div className="text-sm">🔴</div>
+                        <div>{isAr ? 'صعب (إعادة)' : 'Hard'}</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRateFlashcard('medium')}
+                        className="py-2.5 px-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-700 dark:text-amber-300 font-bold text-xs border border-amber-200 dark:border-amber-900/60 transition-transform active:scale-95 cursor-pointer text-center"
+                      >
+                        <div className="text-sm">🟡</div>
+                        <div>{isAr ? 'متوسط (جيد)' : 'Good'}</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRateFlashcard('easy')}
+                        className="py-2.5 px-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-900/60 transition-transform active:scale-95 cursor-pointer text-center"
+                      >
+                        <div className="text-sm">🟢</div>
+                        <div>{isAr ? 'سهل (أتقنتها)' : 'Easy'}</div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ================= MOVE 1: AUDITORY SHADOWING LAB ================= */}
         {activeMove === 'shadowing' && (
