@@ -96,6 +96,20 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isExpanded]);
 
+  const islandContainerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    const handleOutsideClick = (e: Event) => {
+      const target = e.target as Node;
+      if (islandContainerRef.current && !islandContainerRef.current.contains(target)) {
+        setIsExpanded(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleOutsideClick, true);
+    return () => document.removeEventListener('pointerdown', handleOutsideClick, true);
+  }, [isExpanded]);
+
   const handleToggle = () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
@@ -119,7 +133,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
         )}
       </AnimatePresence>
 
-      <div className="relative z-30 max-w-md w-auto flex justify-center">
+      <div ref={islandContainerRef} className="relative z-30 max-w-md w-auto flex justify-center">
         <AnimatePresence>
           {!isExpanded ? (
             // Compact Idle Pill (Dynamic Island in Header Center)

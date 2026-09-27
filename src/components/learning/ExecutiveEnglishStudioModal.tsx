@@ -737,9 +737,18 @@ export const ExecutiveEnglishStudioModal: React.FC<ExecutiveEnglishStudioModalPr
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 animate-fade-in">
+      {/* Backdrop - Click outside to close */}
       <div
-        className="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden"
+        className="fixed inset-0 bg-slate-950/85 backdrop-blur-md cursor-pointer"
+        onClick={() => {
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          onClose();
+        }}
+      />
+      <div
+        className="relative z-10 w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden"
         dir={isAr ? 'rtl' : 'ltr'}
       >
         {/* Header Bar */}

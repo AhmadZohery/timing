@@ -102,8 +102,17 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-md animate-fade-in">
-      <div className="bg-white dark:bg-[#12131A] border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 animate-fade-in">
+      {/* Backdrop - Click outside to close */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-md cursor-pointer"
+        onClick={() => {
+          soundSynth.playTactileClick();
+          speechService.stop();
+          onClose();
+        }}
+      />
+      <div className="relative z-10 bg-white dark:bg-[#12131A] border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-amber-200/50 dark:border-white/[0.08] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between">
           <div className="flex items-center gap-3">

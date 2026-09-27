@@ -1191,9 +1191,14 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
 
       {/* 3. AI Smart Plan Generator Modal */}
       {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+          {/* Backdrop - Click outside to close */}
           <div
-            className="w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
+            onClick={() => setIsAiModalOpen(false)}
+          />
+          <div
+            className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
             dir={isAr ? 'rtl' : 'ltr'}
           >
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
@@ -1335,9 +1340,14 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
 
       {/* 4. Manual Plan Creation Modal */}
       {isManualModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+          {/* Backdrop - Click outside to close */}
           <div
-            className="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
+            onClick={() => setIsManualModalOpen(false)}
+          />
+          <div
+            className="relative z-10 w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
             dir={isAr ? 'rtl' : 'ltr'}
           >
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">

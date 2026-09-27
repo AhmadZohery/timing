@@ -13,7 +13,6 @@ import {
   Globe,
   Command,
   Download,
-  MoreVertical,
   Maximize2,
   Columns,
   Calendar,
@@ -37,12 +36,212 @@ import {
   Compass,
   Bell,
   GraduationCap,
+  Pin,
+  Check,
+  X,
+  RotateCcw,
 } from 'lucide-react';
 import type { UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
 import { haptic } from '../services/vibrationService';
 import { useTranslation } from '../i18n/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+
+export type HeaderPinActionId =
+  | 'courses'
+  | 'reminders'
+  | 'search'
+  | 'niyyah'
+  | 'buffer'
+  | 'panic'
+  | 'survival'
+  | 'sleep'
+  | 'wird'
+  | 'tasbih'
+  | 'poetry'
+  | 'wisdom'
+  | 'goals'
+  | 'coach'
+  | 'palette'
+  | 'archive'
+  | 'mute'
+  | 'theme';
+
+const PINNABLE_OPTIONS: Array<{
+  id: HeaderPinActionId;
+  labelAr: string;
+  labelEn: string;
+  descAr: string;
+  descEn: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badgeClass: string;
+}> = [
+  {
+    id: 'courses',
+    labelAr: 'المذاكرة والكورسات',
+    labelEn: 'Study Hub',
+    descAr: 'محراب المذاكرة ومسار التعلم الذكي بالذكاء الاصطناعي',
+    descEn: 'AI learning roadmap and study sessions',
+    icon: GraduationCap,
+    badgeClass: 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300',
+  },
+  {
+    id: 'reminders',
+    labelAr: 'التذكيرات والمنبهات',
+    labelEn: 'Reminders',
+    descAr: 'منبهات وتذكيرات اليوم الفورية',
+    descEn: 'Daily alarms and custom reminder prompts',
+    icon: Bell,
+    badgeClass: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300',
+  },
+  {
+    id: 'search',
+    labelAr: 'البحث والأوامر (⌘K)',
+    labelEn: 'Omnisearch (⌘K)',
+    descAr: 'لوحة الأوامر الفورية والبحث السريع',
+    descEn: 'Command palette and quick search',
+    icon: Search,
+    badgeClass: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300',
+  },
+  {
+    id: 'niyyah',
+    labelAr: 'تجديد النوايا',
+    labelEn: 'Niyyah Sanctuary',
+    descAr: 'محراب استحضار وتجديد النوايا الصادقة',
+    descEn: 'Pure intentions sanctuary and alignment',
+    icon: Compass,
+    badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
+  },
+  {
+    id: 'buffer',
+    labelAr: 'صندوق التأجيل',
+    labelEn: 'Buffer Queue',
+    descAr: 'تفريغ المهام الطارئة لعدم التشتت والارتباك',
+    descEn: 'Buffer inbox for unexpected interruptions',
+    icon: Clock,
+    badgeClass: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300',
+  },
+  {
+    id: 'panic',
+    labelAr: 'زر الطوارئ (Panic)',
+    labelEn: 'Panic Protocol',
+    descAr: 'بروتوكول كسر الجمود واستعادة التركيز',
+    descEn: 'Break overwhelm and regain instant calm',
+    icon: AlertTriangle,
+    badgeClass: 'bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300',
+  },
+  {
+    id: 'survival',
+    labelAr: 'وضع MVD (الحد الأدنى)',
+    labelEn: 'MVD Mode',
+    descAr: 'بروتوكول اليوم الأدنى الفعّال لطاقة منخفضة',
+    descEn: 'Minimum viable day mode for low energy',
+    icon: ShieldAlert,
+    badgeClass: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300',
+  },
+  {
+    id: 'sleep',
+    labelAr: 'بروتوكول النوم',
+    labelEn: 'Sleep Rest',
+    descAr: 'تهيئة النوم والتهدئة المسائية العميقة',
+    descEn: 'Evening wind-down and sleep prep',
+    icon: Moon,
+    badgeClass: 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300',
+  },
+  {
+    id: 'wird',
+    labelAr: 'الورد القرآني',
+    labelEn: 'Quran Wird',
+    descAr: 'القراءة والتدبر اليومي للقرآن',
+    descEn: 'Daily Quran reading and reflection',
+    icon: BookOpen,
+    badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
+  },
+  {
+    id: 'tasbih',
+    labelAr: 'السبحة الذكية',
+    labelEn: 'Smart Tasbih',
+    descAr: 'عداد الأذكار اليومية التفاعلي',
+    descEn: 'Interactive counter for daily remembrance',
+    icon: Disc,
+    badgeClass: 'bg-teal-50 dark:bg-teal-950/50 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300',
+  },
+  {
+    id: 'poetry',
+    labelAr: 'ديوان الشعر العربي',
+    labelEn: 'Classical Poetry',
+    descAr: 'مقتطفات وحكم الأدب والشعر الفصيح',
+    descEn: 'Classical Arabic poetic gems and eloquence',
+    icon: Scroll,
+    badgeClass: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300',
+  },
+  {
+    id: 'wisdom',
+    labelAr: 'منارة الحكمة',
+    labelEn: 'Life Wisdom',
+    descAr: 'حكم واقتباسات تعزيز الوعي والهدوء',
+    descEn: 'Wisdom drops to reset mindset and focus',
+    icon: Lightbulb,
+    badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
+  },
+  {
+    id: 'goals',
+    labelAr: 'الأهداف والسرعة',
+    labelEn: 'Goals Velocity',
+    descAr: 'تتبع تقدم الأهداف الكبرى ومعدل السرعة',
+    descEn: 'Track macro milestones and velocity',
+    icon: Target,
+    badgeClass: 'bg-sky-50 dark:bg-sky-950/50 border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300',
+  },
+  {
+    id: 'coach',
+    labelAr: 'الموجه الذكي AI',
+    labelEn: 'AI Coach',
+    descAr: 'استشارات وتوجيهات الإنتاجية والتخطيط',
+    descEn: 'AI conversational guidance for daily mastery',
+    icon: Lightbulb,
+    badgeClass: 'bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300',
+  },
+  {
+    id: 'palette',
+    labelAr: 'ألوان المظهر (Palette)',
+    labelEn: 'Color Palette',
+    descAr: 'تخصيص الهوية والسمة اللونية',
+    descEn: 'Customize UI palette and aesthetic theme',
+    icon: Palette,
+    badgeClass: 'bg-fuchsia-50 dark:bg-fuchsia-950/50 border-fuchsia-200 dark:border-fuchsia-800 text-fuchsia-700 dark:text-fuchsia-300',
+  },
+  {
+    id: 'archive',
+    labelAr: 'سجل وتاريخ الإنجاز',
+    labelEn: 'History Archive',
+    descAr: 'أرشيف الأيام السابقة ومراجعة التاريخ',
+    descEn: 'Historical archive and previous logs',
+    icon: Calendar,
+    badgeClass: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300',
+  },
+  {
+    id: 'mute',
+    labelAr: 'مؤثرات الصوت',
+    labelEn: 'Audio Feedback',
+    descAr: 'كتم أو تشغيل المؤثرات الصوتية التفاعلية',
+    descEn: 'Toggle sound effects and tactile audio',
+    icon: Volume2,
+    badgeClass: 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300',
+  },
+  {
+    id: 'theme',
+    labelAr: 'المظهر (ليلي / نهاري)',
+    labelEn: 'Theme (Dark/Light)',
+    descAr: 'التبديل الفوري بين الوضع الليلي والنهاري',
+    descEn: 'Toggle between dark and light themes',
+    icon: Sun,
+    badgeClass: 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300',
+  },
+];
+
+const DEFAULT_PINNED_ACTIONS: HeaderPinActionId[] = ['courses', 'reminders', 'search'];
+const MAX_PINNED_ACTIONS = 4;
 import { usePwaInstall, useOnlineStatus } from '../hooks/usePwaInstall';
 
 interface HeaderProps {
@@ -124,32 +323,82 @@ export const Header: React.FC<HeaderProps> = ({
   isFullWidth,
   onToggleFullWidth,
 }) => {
-  const { t, language, toggleLanguage, isRTL } = useTranslation();
+  const { t, language, toggleLanguage } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const { isInstallable, promptInstall } = usePwaInstall();
   const isOnline = useOnlineStatus();
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showControlCenter, setShowControlCenter] = useState(false);
   const [isMuted, setIsMuted] = useState(() => soundSynth.isAudioMuted());
   const [streakToast, setStreakToast] = useState<string | null>(null);
 
-  const mobileMenuRef = React.useRef<HTMLDivElement>(null);
+  const [pinnedActions, setPinnedActions] = useState<HeaderPinActionId[]>(() => {
+    try {
+      const saved = localStorage.getItem('midmar_header_pins');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const valid = parsed.filter((id) => PINNABLE_OPTIONS.some((o) => o.id === id)).slice(0, MAX_PINNED_ACTIONS);
+          if (valid.length > 0) return valid as HeaderPinActionId[];
+        }
+      }
+    } catch (_) {}
+    return DEFAULT_PINNED_ACTIONS;
+  });
+
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+
+  const handleTogglePin = (id: HeaderPinActionId) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setPinnedActions((prev) => {
+      let next: HeaderPinActionId[];
+      if (prev.includes(id)) {
+        next = prev.filter((p) => p !== id);
+      } else {
+        if (prev.length >= MAX_PINNED_ACTIONS) {
+          soundSynth.playWarningSound();
+          return prev;
+        }
+        next = [...prev, id];
+      }
+      try {
+        localStorage.setItem('midmar_header_pins', JSON.stringify(next));
+      } catch (_) {}
+      return next;
+    });
+  };
+
+  const handleResetPins = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setPinnedActions(DEFAULT_PINNED_ACTIONS);
+    try {
+      localStorage.setItem('midmar_header_pins', JSON.stringify(DEFAULT_PINNED_ACTIONS));
+    } catch (_) {}
+  };
+
   const controlCenterRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (!showMobileMenu && !showControlCenter) return;
-    const handleOutsidePointer = (e: PointerEvent) => {
+    if (!showControlCenter) return;
+    const handleOutsidePointer = (e: Event) => {
       const target = e.target as Node;
-      if (showMobileMenu && mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
-        setShowMobileMenu(false);
-      }
-      if (showControlCenter && controlCenterRef.current && !controlCenterRef.current.contains(target)) {
+      if (controlCenterRef.current && !controlCenterRef.current.contains(target)) {
         setShowControlCenter(false);
       }
     };
-    document.addEventListener('pointerdown', handleOutsidePointer);
-    return () => document.removeEventListener('pointerdown', handleOutsidePointer);
-  }, [showMobileMenu, showControlCenter]);
+    document.addEventListener('pointerdown', handleOutsidePointer, true);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointer, true);
+  }, [showControlCenter]);
+
+  React.useEffect(() => {
+    if (!isPinModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsPinModalOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPinModalOpen]);
 
   const streakDays = userState?.streakDays ?? 0;
   const streakTier = React.useMemo(() => {
@@ -234,6 +483,338 @@ export const Header: React.FC<HeaderProps> = ({
     toggleTheme();
   };
 
+  const renderPinnedAction = (id: HeaderPinActionId) => {
+    switch (id) {
+      case 'courses':
+        if (!onOpenCourses) return null;
+        return (
+          <button
+            key="courses"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenCourses();
+            }}
+            title={language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI)' : 'AI Course Study Roadmap'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <GraduationCap className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'المذاكرة 📚' : 'Courses'}</span>
+          </button>
+        );
+
+      case 'reminders':
+        if (!onOpenQuickReminder) return null;
+        return (
+          <button
+            key="reminders"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenQuickReminder();
+            }}
+            title={language === 'ar' ? 'منبهات وتذكيرات اليوم (خلف الشاشة)' : 'Daily Alarms & Custom Reminders'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Bell className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'تذكير 🔔' : 'Reminder'}</span>
+          </button>
+        );
+
+      case 'search':
+        if (!onOpenCommandPalette) return null;
+        return (
+          <button
+            key="search"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenCommandPalette();
+            }}
+            title={language === 'ar' ? 'البحث السريع والأوامر الفورية (⌘K)' : 'Command Palette (⌘K)'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shadow-2xs font-medium text-xs active:scale-95 shrink-0"
+          >
+            <Search className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+            <span className="hidden md:inline">{language === 'ar' ? 'بحث ⌘K' : 'Search'}</span>
+          </button>
+        );
+
+      case 'niyyah':
+        if (!onOpenNiyyahModal) return null;
+        return (
+          <button
+            key="niyyah"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenNiyyahModal();
+            }}
+            title={language === 'ar' ? 'محراب استحضار وتجديد النوايا' : 'Niyyah Sanctuary'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Compass className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'النية ✨' : 'Niyyah'}</span>
+          </button>
+        );
+
+      case 'buffer':
+        if (!onOpenBufferModal) return null;
+        return (
+          <button
+            key="buffer"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenBufferModal();
+            }}
+            title={language === 'ar' ? 'صندوق التأجيل ومفرغة المهام' : 'Buffer Queue'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Clock className="w-3.5 h-3.5 shrink-0 text-sky-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'التأجيل' : 'Buffer'} {pendingBufferCount > 0 && `(${pendingBufferCount})`}</span>
+          </button>
+        );
+
+      case 'panic':
+        return (
+          <button
+            key="panic"
+            type="button"
+            onClick={handlePanicClick}
+            title={t('panic_button')}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'طوارئ 🚨' : 'Panic'}</span>
+          </button>
+        );
+
+      case 'survival':
+        return (
+          <button
+            key="survival"
+            type="button"
+            onClick={handleSurvivalToggle}
+            title={isSurvival ? (language === 'ar' ? 'إلغاء وضع الحد الأدنى MVD' : 'Disable MVD') : (language === 'ar' ? 'تفعيل وضع الحد الأدنى MVD' : 'Enable MVD')}
+            className={`flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0 ${
+              isSurvival
+                ? 'bg-amber-500/20 border-amber-500 text-amber-800 dark:text-amber-200'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <span className="hidden md:inline">{isSurvival ? 'MVD نشط' : 'MVD'}</span>
+          </button>
+        );
+
+      case 'sleep':
+        if (!onOpenSleepRest) return null;
+        return (
+          <button
+            key="sleep"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenSleepRest();
+            }}
+            title={language === 'ar' ? 'بروتوكول النوم والاسترخاء' : 'Sleep Rest'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Moon className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'نوم 🌙' : 'Sleep'}</span>
+          </button>
+        );
+
+      case 'wird':
+        if (!onOpenWirdModal) return null;
+        return (
+          <button
+            key="wird"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenWirdModal();
+            }}
+            title={language === 'ar' ? 'الورد القرآني' : 'Quran Wird'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <BookOpen className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'الورد 📖' : 'Wird'}</span>
+          </button>
+        );
+
+      case 'tasbih':
+        if (!onOpenSmartTasbih) return null;
+        return (
+          <button
+            key="tasbih"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenSmartTasbih();
+            }}
+            title={language === 'ar' ? 'السبحة الذكية' : 'Smart Tasbih'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-400 border border-teal-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Disc className="w-3.5 h-3.5 shrink-0 text-teal-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'سبحة 📿' : 'Tasbih'}</span>
+          </button>
+        );
+
+      case 'poetry':
+        if (!onOpenArabicPoetry) return null;
+        return (
+          <button
+            key="poetry"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenArabicPoetry();
+            }}
+            title={language === 'ar' ? 'ديوان الشعر العربي' : 'Classical Poetry'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Scroll className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'شعر 📜' : 'Poetry'}</span>
+          </button>
+        );
+
+      case 'wisdom':
+        if (!onOpenLifeWisdom) return null;
+        return (
+          <button
+            key="wisdom"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenLifeWisdom();
+            }}
+            title={language === 'ar' ? 'منارة الحكمة' : 'Life Wisdom'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Lightbulb className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'حكمة 💡' : 'Wisdom'}</span>
+          </button>
+        );
+
+      case 'goals':
+        return (
+          <button
+            key="goals"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenGoalsModal();
+            }}
+            title={t('goals_velocity')}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Target className="w-3.5 h-3.5 shrink-0 text-sky-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'الأهداف 🎯' : 'Goals'}</span>
+          </button>
+        );
+
+      case 'coach':
+        if (!onOpenAiCoach) return null;
+        return (
+          <button
+            key="coach"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenAiCoach();
+            }}
+            title={t('ai_coach_title')}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Lightbulb className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'الموجه AI' : 'Coach'}</span>
+          </button>
+        );
+
+      case 'palette':
+        if (!onOpenPaletteModal) return null;
+        return (
+          <button
+            key="palette"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenPaletteModal();
+            }}
+            title={language === 'ar' ? 'طراز وألوان الشاشة' : 'Color Palette'}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Palette className="w-3.5 h-3.5 shrink-0 text-fuchsia-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'المظهر 🎨' : 'Palette'}</span>
+          </button>
+        );
+
+      case 'archive':
+        if (!onOpenArchiveModal) return null;
+        return (
+          <button
+            key="archive"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenArchiveModal();
+            }}
+            title={t('history_archive')}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+          >
+            <Calendar className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <span className="hidden md:inline">{language === 'ar' ? 'الأرشيف 📅' : 'Archive'}</span>
+          </button>
+        );
+
+      case 'mute':
+        return (
+          <button
+            key="mute"
+            type="button"
+            onClick={handleToggleMute}
+            title={isMuted ? (language === 'ar' ? 'تشغيل الصوت' : 'Unmute') : (language === 'ar' ? 'كتم الصوت' : 'Mute')}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shadow-2xs font-medium text-xs active:scale-95 shrink-0"
+          >
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-500 shrink-0" /> : <Volume2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+            <span className="hidden md:inline">{isMuted ? (language === 'ar' ? 'تشغيل' : 'Unmute') : (language === 'ar' ? 'كتم' : 'Mute')}</span>
+          </button>
+        );
+
+      case 'theme':
+        return (
+          <button
+            key="theme"
+            type="button"
+            onClick={handleThemeToggle}
+            title={theme === 'light' ? (language === 'ar' ? 'الوضع الليلي' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري' : 'Light Mode')}
+            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shadow-2xs font-medium text-xs active:scale-95 shrink-0"
+          >
+            {theme === 'light' ? <Moon className="w-3.5 h-3.5 text-slate-700 shrink-0" /> : <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+            <span className="hidden md:inline">{theme === 'light' ? (language === 'ar' ? 'ليلي' : 'Dark') : (language === 'ar' ? 'نهاري' : 'Light')}</span>
+          </button>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <header className="sticky top-0 z-30 w-full bg-white/80 dark:bg-[#0c0e14]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] px-3 sm:px-6 py-2.5 transition-colors duration-200 shadow-2xs">
       <div className={`w-full ${isFullWidth ? 'max-w-none px-1 sm:px-2' : 'max-w-[1720px] mx-auto'} flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300`}>
@@ -314,217 +895,11 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls & Toggles */}
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          {/* Quick Omnisearch Command Palette Trigger (Ctrl+K) */}
-          {onOpenCommandPalette && (
-            <>
-              {/* Desktop Pill */}
-              <button
-                type="button"
-                onClick={() => {
-                  soundSynth.playTactileClick();
-                  haptic.vibrateLight();
-                  onOpenCommandPalette();
-                }}
-                title={language === 'ar' ? 'البحث السريع والأوامر الفورية (Ctrl+K)' : 'Quick Command Palette (Ctrl+K)'}
-                className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 text-xs transition-all cursor-pointer shadow-2xs group"
-              >
-                <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition-colors" />
-                <span className="text-slate-600 dark:text-zinc-300 font-medium">
-                  {language === 'ar' ? 'بحث أو أمر سريع...' : 'Search commands...'}
-                </span>
-                <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-[10px] font-mono font-bold text-slate-500 dark:text-zinc-400 shadow-2xs">
-                  ⌘K
-                </kbd>
-              </button>
-
-              {/* Mobile / Tablet Icon */}
-              <button
-                type="button"
-                onClick={() => {
-                  soundSynth.playTactileClick();
-                  haptic.vibrateLight();
-                  onOpenCommandPalette();
-                }}
-                title={language === 'ar' ? 'البحث السريع والأوامر الفورية (⌘K)' : 'Command Palette'}
-                className="lg:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 cursor-pointer shadow-xs transition-colors"
-              >
-                <Search className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              </button>
-            </>
-          )}
-
-          {/* Quick Reminder Trigger */}
-          {onOpenQuickReminder && (
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                onOpenQuickReminder();
-              }}
-              title={language === 'ar' ? 'منبهات وتذكيرات اليوم (خلف الشاشة)' : 'Daily Alarms & Custom Reminders'}
-              className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95"
-            >
-              <Bell className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-              <span className="hidden sm:inline">
-                {language === 'ar' ? 'تذكير 🔔' : 'Reminder'}
-              </span>
-            </button>
-          )}
-
-          {/* Courses & Study Hub Trigger */}
-          {onOpenCourses && (
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                onOpenCourses();
-              }}
-              title={language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI)' : 'Smart Course Study Roadmap (AI)'}
-              className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95"
-            >
-              <GraduationCap className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
-              <span className="hidden sm:inline">
-                {language === 'ar' ? 'الكورسات 📚' : 'Courses'}
-              </span>
-            </button>
-          )}
-
-          {/* PWA Install Button */}
-          {isInstallable && (
-            <button
-              onClick={promptInstall}
-              title={t('install_app_btn')}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer shadow-sm shadow-emerald-600/20 transition-all animate-pulse"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">{t('install_app_btn')}</span>
-            </button>
-          )}
-
-          {/* Zero-Inertia Panic Button (Desktop / Tablet) */}
-          <button
-            onClick={handlePanicClick}
-            title={t('panic_tooltip')}
-            className="hidden md:flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 border border-rose-200 dark:border-rose-500/40 text-rose-700 dark:text-rose-300 transition-all active:scale-95 cursor-pointer shadow-xs"
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-            <span className="hidden sm:inline">{t('panic_button')}</span>
-          </button>
-
-          {/* Survival Mode MVD Toggle (Desktop / Tablet) */}
-          <button
-            onClick={handleSurvivalToggle}
-            title={t('survival_tooltip')}
-            className={`hidden md:flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-xl border transition-all cursor-pointer shadow-xs font-semibold ${
-              isSurvival
-                ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-400 text-amber-800 dark:text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.2)]'
-                : 'bg-slate-100 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
-            }`}
-          >
-            <ShieldAlert className={`w-3.5 h-3.5 ${isSurvival ? 'text-amber-600 dark:text-amber-400' : ''}`} />
-            <span className="hidden sm:inline">MVD</span>
-          </button>
-
-          {/* Buffer Queue Button */}
-          <button
-            onClick={onOpenBufferModal}
-            title={t('buffer_tooltip')}
-            className="hidden sm:flex relative p-2 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200 cursor-pointer shadow-xs"
-          >
-            <Clock className="w-4 h-4" />
-            {pendingBufferCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-white dark:text-zinc-950 font-black text-[9px] flex items-center justify-center">
-                {pendingBufferCount}
-              </span>
-            )}
-          </button>
-
-          {/* Quick Audio Mute Toggle */}
-          <button
-            type="button"
-            onClick={handleToggleMute}
-            title={isMuted ? (language === 'ar' ? 'تشغيل الأصوات (مكتوم حالياً)' : 'Unmute Sounds') : (language === 'ar' ? 'كتم الأصوات الهادئة' : 'Mute Sounds')}
-            className={`p-2 rounded-xl border transition-all cursor-pointer shadow-xs ${
-              isMuted
-                ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20'
-                : 'bg-slate-100 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
-            }`}
-          >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </button>
-
-          {/* Sleep & Rest Quick Action */}
-          {onOpenSleepRest && (
-            <button
-              type="button"
-              onClick={onOpenSleepRest}
-              title={language === 'ar' ? 'نظام ومواعيد النوم والاستشفاء البيولوجي' : 'Sleep & Rest Recovery'}
-              className="hidden sm:flex p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 cursor-pointer shadow-xs transition-colors"
-            >
-              <Moon className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Niyyah (Intention) Consecration Quick Trigger */}
-          {onOpenNiyyahModal && (
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                onOpenNiyyahModal();
-              }}
-              title={language === 'ar' ? 'محراب استحضار وتجديد النوايا الأربع' : 'Niyyah & Intention Sanctuary'}
-              className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 cursor-pointer shadow-xs transition-colors"
-            >
-              <Compass className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* Multi-Profile Switcher */}
-          {onOpenProfileModal && (
-            <button
-              type="button"
-              onClick={onOpenProfileModal}
-              title={t('profile_manager')}
-              className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 cursor-pointer shadow-xs transition-colors text-xs font-bold"
-            >
-              <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span>{activeProfileEmoji || '⚡'}</span>
-              <span className="hidden xl:inline max-w-[80px] truncate">{activeProfileName || (language === 'ar' ? 'الأساسي' : 'Default')}</span>
-            </button>
-          )}
-
-          {/* Theme Toggle Button [☀️ / 🌙] */}
-          <button
-            type="button"
-            onClick={handleThemeToggle}
-            title={theme === 'light' ? t('dark_mode') : t('light_mode')}
-            className="hidden sm:flex p-2 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800 cursor-pointer transition-colors shadow-xs"
-          >
-            {theme === 'light' ? (
-              <Moon className="w-4 h-4 text-slate-700" />
-            ) : (
-              <Sun className="w-4 h-4 text-amber-400" />
-            )}
-          </button>
-
-          {/* Quick Lock / Logout Button */}
-          {onLogout && (
-            <button
-              type="button"
-              onClick={onLogout}
-              title={language === 'ar' ? 'قفل المنظومة وتسجيل الخروج' : 'Lock & Logout'}
-              className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-900 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-zinc-800 hover:border-rose-300 dark:hover:border-rose-800 text-slate-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-colors shadow-xs"
-            >
-              <Lock className="w-4 h-4" />
-            </button>
-          )}
+          {/* Pinned Quick Action Buttons (User Customizable, Max 4) */}
+          {pinnedActions.map((actionId) => renderPinnedAction(actionId))}
 
           {/* Unified LifeOS Control Center Dropdown */}
-          <div className="relative">
+          <div ref={controlCenterRef} className="relative">
             <button
               type="button"
               onClick={() => {
@@ -567,8 +942,28 @@ export const Header: React.FC<HeaderProps> = ({
                     </span>
                   </div>
 
-                  {/* Mobile Quick Action Strip (Emergency & Vital Modes on small screens) */}
-                  <div className="sm:hidden p-2 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-1.5">
+                  {/* Pin Customizer Banner / Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowControlCenter(false);
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setIsPinModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-between p-2 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 transition-all cursor-pointer text-xs font-bold group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Pin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 group-hover:rotate-12 transition-transform" />
+                      <span>{language === 'ar' ? 'تخصيص الأزرار العلوية' : 'Customize Top Pins'}</span>
+                    </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-mono font-bold">
+                      {pinnedActions.length}/{MAX_PINNED_ACTIONS}
+                    </span>
+                  </button>
+
+                  {/* Quick Action Strip (Emergency & Vital Modes on all screens) */}
+                  <div className="p-2 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-1.5">
                     <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 block">
                       {language === 'ar' ? 'أدوات الوصول السريع' : 'Quick Actions'}
                     </span>
@@ -631,20 +1026,19 @@ export const Header: React.FC<HeaderProps> = ({
                         </button>
                       )}
 
-                      {/* Quick Reminder */}
-                      {onOpenQuickReminder && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowControlCenter(false);
-                            onOpenQuickReminder();
-                          }}
-                          className="flex items-center gap-1.5 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 text-xs font-medium border border-amber-200 dark:border-amber-800/40"
-                        >
-                          <Bell className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="truncate">{language === 'ar' ? 'منبهات وتذكيرات' : 'Reminders'}</span>
-                        </button>
-                      )}
+                      {/* Quick Audio Mute Toggle */}
+                      <button
+                        type="button"
+                        onClick={handleToggleMute}
+                        className={`flex items-center gap-1.5 p-2 rounded-xl border text-xs font-medium transition-colors ${
+                          isMuted
+                            ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400'
+                            : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700'
+                        }`}
+                      >
+                        {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-500 shrink-0" /> : <Volume2 className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400 shrink-0" />}
+                        <span className="truncate">{isMuted ? (language === 'ar' ? 'تشغيل الصوت' : 'Unmute') : (language === 'ar' ? 'كتم الصوت' : 'Mute')}</span>
+                      </button>
 
                       {/* Theme Toggle */}
                       <button
@@ -652,20 +1046,48 @@ export const Header: React.FC<HeaderProps> = ({
                         onClick={() => {
                           handleThemeToggle();
                         }}
-                        className="flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium border border-slate-200 dark:border-zinc-700 col-span-2 justify-center"
+                        className="flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium border border-slate-200 dark:border-zinc-700"
                       >
                         {theme === 'light' ? <Moon className="w-3.5 h-3.5 text-slate-700 shrink-0" /> : <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
-                        <span>{theme === 'light' ? (language === 'ar' ? 'الوضع الليلي' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري' : 'Light Mode')}</span>
+                        <span className="truncate">{theme === 'light' ? (language === 'ar' ? 'الوضع الليلي' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري' : 'Light Mode')}</span>
                       </button>
+
+                      {/* PWA Install Button */}
+                      {isInstallable && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowControlCenter(false);
+                            promptInstall();
+                          }}
+                          className="flex items-center gap-1.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-300 dark:border-emerald-800 col-span-2 justify-center"
+                        >
+                          <Download className="w-3.5 h-3.5 shrink-0" />
+                          <span>{t('install_app_btn')}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  {/* Category 1: Analytics & Reports */}
+                  {/* Category 1: Analytics & Productivity */}
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 px-2 block">
-                      {language === 'ar' ? 'التقارير والأرشيف' : 'Analytics & Archive'}
+                      {language === 'ar' ? 'الإنتاجية والمسارات والتقارير' : 'Productivity & Analytics'}
                     </span>
                     <div className="grid grid-cols-2 gap-1.5">
+                      {onOpenCourses && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowControlCenter(false);
+                            onOpenCourses();
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer text-start border border-indigo-200/80 dark:border-indigo-800/50 col-span-2 shadow-xs"
+                        >
+                          <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                          <span className="truncate">{language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI) 📚' : 'AI Course Study Roadmap 📚'}</span>
+                        </button>
+                      )}
                       {onOpenArchiveModal && (
                         <button
                           type="button"
@@ -867,6 +1289,20 @@ export const Header: React.FC<HeaderProps> = ({
                           <span className="truncate">{language === 'ar' ? 'منارة الحكمة' : 'Life Wisdom'}</span>
                         </button>
                       )}
+
+                      {onOpenNiyyahModal && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowControlCenter(false);
+                            onOpenNiyyahModal();
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50 col-span-2"
+                        >
+                          <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span className="truncate">{language === 'ar' ? 'محراب استحضار وتجديد النوايا' : 'Niyyah Sanctuary'}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -970,237 +1406,164 @@ export const Header: React.FC<HeaderProps> = ({
                       </button>
                     </div>
                   </div>
+
+                  {/* Popover Footer: Profile & Logout */}
+                  <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                    {onOpenProfileModal && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowControlCenter(false);
+                          onOpenProfileModal();
+                        }}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold cursor-pointer hover:bg-slate-200 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        <Users className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                        <span>{activeProfileEmoji || '⚡'}</span>
+                        <span className="max-w-[100px] truncate">{activeProfileName || (language === 'ar' ? 'الملف الشخصي' : 'Profile')}</span>
+                      </button>
+                    )}
+                    {onLogout && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowControlCenter(false);
+                          onLogout();
+                        }}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors ms-auto"
+                      >
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        <span>{language === 'ar' ? 'قفل وخروج' : 'Logout'}</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Secondary Menu Button (< md) */}
-          <div className="relative md:hidden">
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 cursor-pointer"
-            >
-              <MoreVertical className="w-4 h-4" />
-            </button>
-
-            {showMobileMenu && (
-              <>
-                <div
-                  className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 backdrop-blur-2xs cursor-default"
-                  onClick={() => setShowMobileMenu(false)}
-                  onTouchStart={() => setShowMobileMenu(false)}
-                />
-                <div
-                  className={`absolute top-full mt-2 ${isRTL ? 'left-0' : 'right-0'} z-50 w-52 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xl p-1.5 space-y-1 animate-fade-in`}
-                >
-                {onOpenAiCoach && (
-                  <button
-                    onClick={() => {
-                      onOpenAiCoach();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-start cursor-pointer"
-                  >
-                    <Lightbulb className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    <span>{t('ai_coach_title')}</span>
-                  </button>
-                )}
-
-                {onOpenEvaluationModal && (
-                  <button
-                    onClick={() => {
-                      onOpenEvaluationModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-start cursor-pointer"
-                  >
-                    <Trophy className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span>{language === 'ar' ? 'التقييم الدوري والتحفيز' : 'Evaluation & Motivation'}</span>
-                  </button>
-                )}
-
-                {onOpenRewardsModal && (
-                  <button
-                    onClick={() => {
-                      onOpenRewardsModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-start cursor-pointer"
-                  >
-                    <Gift className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span>{language === 'ar' ? 'متجر المكافآت الواقعية 🎁' : 'Real-Life Rewards 🎁'}</span>
-                  </button>
-                )}
-
-                {onOpenHabitModal && (
-                  <button
-                    onClick={() => {
-                      onOpenHabitModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-start cursor-pointer"
-                  >
-                    <PlusCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>{language === 'ar' ? 'إضافة عبادة أو عادة' : 'Add Habit/Deed'}</span>
-                  </button>
-                )}
-
-                {onOpenArchiveModal && (
-                  <button
-                    onClick={() => {
-                      onOpenArchiveModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-start cursor-pointer"
-                  >
-                    <Calendar className="w-4 h-4 text-emerald-600" />
-                    <span>{t('history_archive')}</span>
-                  </button>
-                )}
-
-                {onOpenProfileModal && (
-                  <button
-                    onClick={() => {
-                      onOpenProfileModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-start cursor-pointer"
-                  >
-                    <Users className="w-4 h-4 text-indigo-600" />
-                    <span>{t('profile_manager')}</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={() => {
-                    onOpenGoalsModal();
-                    setShowMobileMenu(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-start cursor-pointer"
-                >
-                  <Target className="w-4 h-4 text-sky-600" />
-                  <span>{t('goals_velocity')}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    onOpenBatteryGuide();
-                    setShowMobileMenu(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-start cursor-pointer"
-                >
-                  <BatteryCharging className="w-4 h-4 text-amber-600" />
-                  <span>{t('battery_guide')}</span>
-                </button>
-
-                {onOpenShortcutsModal && (
-                  <button
-                    onClick={() => {
-                      onOpenShortcutsModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-start cursor-pointer"
-                  >
-                    <Command className="w-4 h-4 text-indigo-600" />
-                    <span>{t('shortcuts_modal_title')}</span>
-                  </button>
-                )}
-
-                {!isPwaStandalone && onOpenA2hsModal && (
-                  <button
-                    onClick={() => {
-                      onOpenA2hsModal();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-start cursor-pointer border-t border-slate-100 dark:border-zinc-800"
-                  >
-                    <span>📱</span>
-                    <span>{language === 'ar' ? 'إضافة أيقونة للشاشة الرئيسية' : 'Add to Home Screen'}</span>
-                  </button>
-                )}
-
-                {onOpenOnboardingWizard && (
-                  <button
-                    onClick={() => {
-                      onOpenOnboardingWizard();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-start cursor-pointer"
-                  >
-                    <SlidersHorizontal className="w-4 h-4 text-amber-500" />
-                    <span>{language === 'ar' ? 'تخصيص مجالك وإيقاعك الأسبوعي' : 'Customize Domain & Rhythm'}</span>
-                  </button>
-                )}
-
-                {onOpenSleepRest && (
-                  <button
-                    onClick={() => {
-                      onOpenSleepRest();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-start cursor-pointer"
-                  >
-                    <Moon className="w-4 h-4 text-indigo-500" />
-                    <span>{language === 'ar' ? 'نظام ومواعيد النوم والاستشفاء 🌙' : 'Sleep & Rest Recovery 🌙'}</span>
-                  </button>
-                )}
-
-                {onOpenPrayerLocation && (
-                  <button
-                    onClick={() => {
-                      onOpenPrayerLocation();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-start cursor-pointer"
-                  >
-                    <MapPin className="w-4 h-4 text-emerald-500" />
-                    <span>{language === 'ar' ? 'تحديد الدولة ومواقيت الصلاة 📍' : 'Prayer Location & Methods 📍'}</span>
-                  </button>
-                )}
-
-                {onOpenArabicPoetry && (
-                  <button
-                    onClick={() => {
-                      onOpenArabicPoetry();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-start cursor-pointer"
-                  >
-                    <Scroll className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <span>{language === 'ar' ? 'ديوان الشعر العربي الكلاسيكي' : 'Classical Arabic Poetry'}</span>
-                  </button>
-                )}
-
-                {onOpenLifeWisdom && (
-                  <button
-                    onClick={() => {
-                      onOpenLifeWisdom();
-                      setShowMobileMenu(false);
-                    }}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-start cursor-pointer"
-                  >
-                    <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>{language === 'ar' ? 'منارة الحكمة والنماذج العقلية' : 'Life Wisdom & Models'}</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={() => {
-                    onOpenSettingsModal();
-                    setShowMobileMenu(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 text-start cursor-pointer"
-                >
-                  <Settings className="w-4 h-4 text-slate-600" />
-                  <span>{t('settings')}</span>
-                </button>
-              </div>
               </>
             )}
           </div>
         </div>
       </div>
+
+      {/* Pin Customizer Modal */}
+      {isPinModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 animate-fade-in">
+          {/* Clickable backdrop with outside click */}
+          <div
+            className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm cursor-pointer"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setIsPinModalOpen(false);
+            }}
+          />
+          <div className="relative z-10 w-full max-w-xl rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-5 sm:p-7 shadow-2xl space-y-5 max-h-[88vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                  <Pin className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                    {language === 'ar' ? 'تخصيص أزرار الشريط العلوي' : 'Customize Top Header Pins'}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400">
+                    {language === 'ar'
+                      ? `اختر حتى ${MAX_PINNED_ACTIONS} أزرار مفضلة لتظهر في الأعلى دون زحام (${pinnedActions.length}/${MAX_PINNED_ACTIONS})`
+                      : `Select up to ${MAX_PINNED_ACTIONS} quick pins for the top bar (${pinnedActions.length}/${MAX_PINNED_ACTIONS})`}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPinModalOpen(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Counter Badge & Reset to Default */}
+            <div className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 font-medium">
+              <span>
+                {language === 'ar'
+                  ? `المحدد حالياً: ${pinnedActions.length} من أصل ${MAX_PINNED_ACTIONS}`
+                  : `Selected: ${pinnedActions.length} of ${MAX_PINNED_ACTIONS}`}
+              </span>
+              <button
+                type="button"
+                onClick={handleResetPins}
+                className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>{language === 'ar' ? 'استعادة الافتراضي' : 'Reset default'}</span>
+              </button>
+            </div>
+
+            {/* Grid of Options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {PINNABLE_OPTIONS.map((opt) => {
+                const isPinned = pinnedActions.includes(opt.id);
+                const isMaxReached = !isPinned && pinnedActions.length >= MAX_PINNED_ACTIONS;
+                const IconComp = opt.icon;
+
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    disabled={isMaxReached}
+                    onClick={() => handleTogglePin(opt.id)}
+                    className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-start gap-3 select-none ${
+                      isPinned
+                        ? 'bg-emerald-500/10 border-emerald-500/50 shadow-xs ring-1 ring-emerald-500/30'
+                        : isMaxReached
+                        ? 'opacity-40 cursor-not-allowed bg-slate-50 dark:bg-zinc-900/50 border-slate-200/50 dark:border-zinc-800/50'
+                        : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
+                    }`}
+                  >
+                    <div className={`p-2 rounded-xl border shrink-0 ${opt.badgeClass}`}>
+                      <IconComp className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {language === 'ar' ? opt.labelAr : opt.labelEn}
+                        </span>
+                        <div
+                          className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
+                            isPinned
+                              ? 'bg-emerald-600 border-emerald-600 text-white'
+                              : 'border-slate-300 dark:border-zinc-700'
+                          }`}
+                        >
+                          {isPinned && <Check className="w-3 h-3 stroke-[3]" />}
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-2">
+                        {language === 'ar' ? opt.descAr : opt.descEn}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setIsPinModalOpen(false);
+                }}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md cursor-pointer transition-all active:scale-95"
+              >
+                {language === 'ar' ? 'حفظ وتأكيد ✔' : 'Done & Save ✔'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

@@ -128,8 +128,9 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
 
   if (words.length === 0 || !currentWord) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in" dir={isAr ? 'rtl' : 'ltr'}>
-        <div className="bg-white dark:bg-[#14151F] rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-slate-200 dark:border-white/[0.1] shadow-2xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer" onClick={onClose} />
+        <div className="relative z-10 bg-white dark:bg-[#14151F] rounded-3xl p-6 max-w-sm w-full text-center space-y-4 border border-slate-200 dark:border-white/[0.1] shadow-2xl">
           <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl">
             🎉
           </div>
@@ -204,8 +205,9 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-      <div className="relative w-full max-w-lg rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm cursor-pointer" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4">
         {/* Top Bar: Mode Switcher & Close */}
         <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">

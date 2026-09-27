@@ -80,8 +80,17 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      {/* Backdrop - Click outside to close */}
+      <div
+        className="fixed inset-0 bg-black/75 backdrop-blur-sm cursor-pointer"
+        onClick={() => {
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          onClose();
+        }}
+      />
+      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50 shrink-0">
           <div className="flex items-center gap-2.5">

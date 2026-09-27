@@ -57,8 +57,17 @@ export const ScheduleAnomalyModal: React.FC<ScheduleAnomalyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      {/* Backdrop - Click outside to close */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
+        onClick={() => {
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          onClose();
+        }}
+      />
+      <div className="relative z-10 w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 via-white dark:via-zinc-900 to-white dark:to-zinc-900">
           <div className="flex items-center gap-2.5">

@@ -149,8 +149,17 @@ export const MiniCrmDrawer: React.FC<MiniCrmDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm animate-fade-in transition-colors duration-200">
-      <div className="w-full max-w-2xl xl:max-w-3xl h-full bg-white dark:bg-zinc-950 border-s border-slate-200 dark:border-zinc-800 p-6 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-end animate-fade-in transition-colors duration-200">
+      {/* Backdrop - Click outside to close */}
+      <div
+        className="fixed inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm cursor-pointer"
+        onClick={() => {
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          onClose();
+        }}
+      />
+      <div className="relative z-10 w-full max-w-2xl xl:max-w-3xl h-full bg-white dark:bg-zinc-950 border-s border-slate-200 dark:border-zinc-800 p-6 overflow-y-auto space-y-6 flex flex-col justify-between shadow-2xl">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-zinc-800">

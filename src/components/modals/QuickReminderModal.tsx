@@ -201,7 +201,16 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+      {/* Backdrop - Click outside to close */}
+      <div
+        className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm cursor-pointer"
+        onClick={() => {
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          onClose();
+        }}
+      />
       <div className="relative z-10 w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-zinc-800">

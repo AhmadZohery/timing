@@ -110,7 +110,8 @@ export const FridayKahfModal: React.FC<FridayKahfModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-fade-in"
       dir={isAr ? 'rtl' : 'ltr'}
     >
-      <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl bg-white dark:bg-[#12131F] border border-slate-200 dark:border-white/[0.09] shadow-2xl overflow-hidden">
+      <div className="fixed inset-0 cursor-pointer" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl bg-white dark:bg-[#12131F] border border-slate-200 dark:border-white/[0.09] shadow-2xl overflow-hidden">
         {/* Top Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between shrink-0 bg-slate-50/80 dark:bg-white/[0.02]">
           <div className="flex items-center gap-3">
