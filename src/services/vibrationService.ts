@@ -97,6 +97,24 @@ class VibrationService {
       } catch (_) {}
     }
   }
+
+  // VisionOS Dynamic Island liquid expansion haptic
+  public vibrateIslandOpen() {
+    if (this.hasVibration()) {
+      try {
+        navigator.vibrate([10, 20, 8]);
+      } catch (_) {}
+    }
+  }
+
+  // VisionOS Dynamic Island magnetic latch snap
+  public vibrateIslandClose() {
+    if (this.hasVibration()) {
+      try {
+        navigator.vibrate(12);
+      } catch (_) {}
+    }
+  }
 }
 
 export const haptic = new VibrationService();

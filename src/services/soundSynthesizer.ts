@@ -460,6 +460,88 @@ class SoundSynthesizer {
     } catch (_) {}
   }
 
+  // VisionOS Dynamic Island Velvet Pneumatic Expansion Chime
+  public playIslandOpenSound() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // 1. Resonant pneumatic harmonic glide
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(520, now);
+      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+
+      gain1.gain.setValueAtTime(0.001, now);
+      gain1.gain.linearRampToValueAtTime(0.08, now + 0.03);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.24);
+
+      // 2. Velvet crystalline harmonic overtone
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1046.5, now + 0.02);
+      osc2.frequency.exponentialRampToValueAtTime(1318.5, now + 0.14);
+
+      gain2.gain.setValueAtTime(0.001, now + 0.02);
+      gain2.gain.linearRampToValueAtTime(0.04, now + 0.05);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.26);
+
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.02);
+      osc2.stop(now + 0.28);
+    } catch (_) {}
+  }
+
+  // VisionOS Magnetic Precision Aperture Latch Snap
+  public playIslandCloseSound() {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      // 1. Crisp high-frequency acoustic latch tick
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.035);
+
+      gain.gain.setValueAtTime(0.09, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.045);
+
+      // 2. Sub-bass magnetic body thud (AirPods Pro case snap feel)
+      const subOsc = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      subOsc.type = 'triangle';
+      subOsc.frequency.setValueAtTime(110, now + 0.005);
+      subOsc.frequency.exponentialRampToValueAtTime(45, now + 0.05);
+
+      subGain.gain.setValueAtTime(0.12, now + 0.005);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
+
+      subOsc.connect(subGain);
+      subGain.connect(ctx.destination);
+      subOsc.start(now + 0.005);
+      subOsc.stop(now + 0.06);
+    } catch (_) {}
+  }
+
   // 10-Second Combat Sports Clapper Warning (Double wooden block strike for final round flurry)
   public playCombatClapper() {
     if (this.isMuted) return;
