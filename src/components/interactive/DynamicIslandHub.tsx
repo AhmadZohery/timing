@@ -1,22 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Flame,
-  Clock,
   Timer,
   Compass,
   Zap,
-  Trophy,
   X,
-  ChevronDown,
   BookOpen,
   Disc,
   Star,
-  Bell,
-  GraduationCap,
   Sparkles,
+  Check,
+  ChevronRight,
+  Bell,
 } from 'lucide-react';
-import type { DailyLog, UserState, StationId } from '../../types';
+import type { DailyLog, UserState, StationId, PrayerName } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
@@ -41,15 +39,85 @@ interface DynamicIslandHubProps {
   onOpenQuickReminder?: () => void;
 }
 
-function formatRemainingTime(minutes: number, isAr: boolean): string {
-  if (minutes <= 0) return isAr ? 'حان الآن 🕌' : 'Now 🕌';
-  if (minutes < 60) return `${minutes}${isAr ? 'د' : 'm'}`;
+/**
+ * Bulletproof Chronograph Time Remaining Chip.
+ * Uses structured separate spans in an explicit LTR flexbox
+ * so digits and unit indicators (6 and س) never get flipped by the
+ * browser's Unicode Bidirectional (BiDi) algorithm. Always renders: 6س 20د.
+ */
+interface TimeRemainingChipProps {
+  minutes: number;
+  isAr: boolean;
+  isApproaching?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+export const TimeRemainingChip: React.FC<TimeRemainingChipProps> = ({
+  minutes,
+  isAr,
+  isApproaching,
+  size = 'sm',
+}) => {
+  if (minutes <= 0) {
+    return (
+      <span className="font-bold text-emerald-400 text-xs">
+        {isAr ? 'حان الآن 🕌' : 'Now 🕌'}
+      </span>
+    );
+  }
+
   const hours = Math.floor(minutes / 60);
   const remainingMins = minutes % 60;
-  if (remainingMins === 0) {
-    return `${hours}${isAr ? 'س' : 'h'}`;
+
+  const fontClasses =
+    size === 'lg'
+      ? 'text-lg font-black'
+      : size === 'md'
+      ? 'text-sm font-bold'
+      : 'text-[11px] font-bold';
+
+  const unitClasses =
+    size === 'lg'
+      ? 'text-xs font-semibold opacity-75'
+      : size === 'md'
+      ? 'text-[11px] font-medium opacity-80'
+      : 'text-[10px] font-medium opacity-80';
+
+  return (
+    <span
+      dir="ltr"
+      className={`inline-flex items-center gap-1 font-mono select-none ${fontClasses} ${
+        isApproaching ? 'text-amber-300' : 'text-teal-300'
+      }`}
+    >
+      {hours > 0 && (
+        <span className="inline-flex items-center gap-0.5">
+          <span>{hours}</span>
+          <span className={unitClasses}>{isAr ? 'س' : 'h'}</span>
+        </span>
+      )}
+      {(remainingMins > 0 || hours === 0) && (
+        <span className="inline-flex items-center gap-0.5">
+          <span>{remainingMins}</span>
+          <span className={unitClasses}>{isAr ? 'د' : 'm'}</span>
+        </span>
+      )}
+    </span>
+  );
+};
+
+function formatClockTime(date: Date, isAr: boolean): string {
+  try {
+    return date.toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    const h = date.getHours();
+    const m = date.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
   }
-  return isAr ? `${hours}س ${remainingMins}د` : `${hours}h ${remainingMins}m`;
 }
 
 export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
@@ -57,10 +125,10 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   userState,
   todayLog: _todayLog,
   onSelectStation,
-  onOpenAiCoach,
+  onOpenAiCoach: _onOpenAiCoach,
   onOpenTwoMinuteRule,
-  onOpenEvaluation,
-  onOpenSleepRest,
+  onOpenEvaluation: _onOpenEvaluation,
+  onOpenSleepRest: _onOpenSleepRest,
   onRewardToast: _onRewardToast,
   onOpenLifestyleModal,
   onOpenWirdModal,
@@ -71,6 +139,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   const { language } = useTranslation();
   const isAr = language === 'ar';
   const [isExpanded, setIsExpanded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const prayerData = useMemo(() => {
     const now = new Date();
@@ -86,7 +155,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     return { fridayStatus, nextP, pTimes };
   }, [userState?.settings?.prayerLocation]);
 
-  const { fridayStatus, nextP } = prayerData;
+  const { fridayStatus, nextP, pTimes } = prayerData;
   const isApproaching = nextP.minutesRemaining > 0 && nextP.minutesRemaining <= 15;
 
   const currentMeta = resolveStationMetadata(
@@ -95,6 +164,30 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     userState?.settings?.stationCustomOverrides,
     isAr
   );
+
+  // 5 Canonical Prayers for Timeline
+  const prayersTimeline = useMemo(() => {
+    const list: Array<{ key: PrayerName; ar: string; en: string; time: Date }> = [
+      { key: 'fajr', ar: 'الفجر', en: 'Fajr', time: pTimes.fajr },
+      { key: 'dhuhr', ar: 'الظهر', en: 'Dhuhr', time: pTimes.dhuhr },
+      { key: 'asr', ar: 'العصر', en: 'Asr', time: pTimes.asr },
+      { key: 'maghrib', ar: 'المغرب', en: 'Maghrib', time: pTimes.maghrib },
+      { key: 'isha', ar: 'العشاء', en: 'Isha', time: pTimes.isha },
+    ];
+
+    const nextIndex = list.findIndex((p) => p.key === nextP.name);
+
+    return list.map((p, idx) => {
+      const isTarget = p.key === nextP.name;
+      // If next prayer is found, earlier index means already passed today
+      const isPast = nextIndex !== -1 ? idx < nextIndex : false;
+      return {
+        ...p,
+        isTarget,
+        isPast,
+      };
+    });
+  }, [pTimes, nextP.name]);
 
   const handleOpen = () => {
     soundSynth.playIslandOpenSound();
@@ -108,14 +201,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     setIsExpanded(false);
   };
 
-  const handleToggle = () => {
-    if (isExpanded) {
-      handleClose();
-    } else {
-      handleOpen();
-    }
-  };
-
+  // Keyboard shortcut: ESC to dismiss
   useEffect(() => {
     if (!isExpanded) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -127,13 +213,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isExpanded]);
 
-  const islandContainerRef = React.useRef<HTMLDivElement>(null);
-
+  // Click outside to dismiss
   useEffect(() => {
     if (!isExpanded) return;
     const handleOutsideClick = (e: Event) => {
       const target = e.target as Node;
-      if (islandContainerRef.current && !islandContainerRef.current.contains(target)) {
+      if (containerRef.current && !containerRef.current.contains(target)) {
         handleClose();
       }
     };
@@ -141,175 +226,168 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     return () => document.removeEventListener('pointerdown', handleOutsideClick, true);
   }, [isExpanded]);
 
-  // Spring physics curves for luxury liquid morphing
-  const openSpring = {
-    type: 'spring' as const,
-    damping: 30,
-    stiffness: 360,
-    mass: 0.75,
-  };
-
-  const closeSpring = {
-    type: 'spring' as const,
-    damping: 34,
-    stiffness: 440,
-    mass: 0.65,
-  };
-
   return (
     <>
-      {/* Invisible Touch Layer for Quick Dismiss without screen darkening */}
+      {/* Non-dimming touch dismiss layer */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            key="island-backdrop-touch-catcher"
+            key="island-dismiss-layer"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={handleClose}
-            className="fixed inset-0 z-40 bg-transparent cursor-pointer"
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] cursor-pointer"
           />
         )}
       </AnimatePresence>
 
-      <div ref={islandContainerRef} className="relative z-40 flex justify-center w-full max-w-md">
-        <AnimatePresence mode="wait">
-          {!isExpanded ? (
-            // ================================================================
-            // HAUTE-DESIGN IDLE CAPSULE (Obsidian Sanctuary & Moonlit Aurora)
-            // ================================================================
-            <motion.div
-              key="compact-island-capsule"
-              layoutId="dynamic-island-masterpiece"
-              onClick={handleToggle}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              whileHover={{ scale: 1.025 }}
-              whileTap={{ scale: 0.95 }}
-              transition={isExpanded ? openSpring : closeSpring}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleToggle();
+      <div className="relative z-50 flex justify-center w-full">
+        {/* Single persistent morphing container with liquid mercury physics */}
+        <motion.div
+          ref={containerRef}
+          layout
+          initial={false}
+          animate={{
+            borderRadius: isExpanded ? 28 : 9999,
+          }}
+          transition={{
+            type: 'spring',
+            stiffness: 420,
+            damping: 32,
+            mass: 0.75,
+          }}
+          className={`relative select-none overflow-hidden transition-colors duration-300 ${
+            isExpanded
+              ? 'w-[94vw] max-w-md bg-[#070A0E]/98 dark:bg-black/98 text-white border border-white/[0.14] p-4 sm:p-5 shadow-[0_28px_72px_rgba(0,0,0,0.92),inset_0_1px_1.5px_rgba(255,255,255,0.22)] backdrop-blur-3xl'
+              : isApproaching
+              ? 'w-auto max-w-[92vw] bg-[#070A0E]/95 dark:bg-black/95 text-white border border-amber-400/40 ring-1 ring-amber-400/25 px-3.5 py-1.5 shadow-[0_0_24px_rgba(245,158,11,0.22),inset_0_1px_1px_rgba(255,255,255,0.2)] cursor-pointer hover:scale-[1.02] active:scale-[0.97]'
+              : 'w-auto max-w-[92vw] bg-[#070A0E]/95 dark:bg-black/95 text-white border border-white/[0.14] px-3.5 py-1.5 shadow-[0_8px_24px_-4px_rgba(0,0,0,0.65),inset_0_1px_1px_0_rgba(255,255,255,0.18)] cursor-pointer hover:scale-[1.02] active:scale-[0.97]'
+          }`}
+          onClick={!isExpanded ? handleOpen : undefined}
+          role={!isExpanded ? 'button' : undefined}
+          tabIndex={!isExpanded ? 0 : undefined}
+          onKeyDown={
+            !isExpanded
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOpen();
+                  }
                 }
-              }}
-              className={`group relative flex items-center gap-1.5 sm:gap-2.5 px-3.5 py-1.5 rounded-full select-none cursor-pointer transition-all duration-500 overflow-hidden ${
-                isApproaching
-                  ? 'bg-gradient-to-r from-amber-950/40 via-[#0B0F17]/95 to-amber-950/40 text-white border border-amber-400/40 ring-1 ring-amber-400/30 shadow-[0_0_28px_rgba(245,158,11,0.22),inset_0_1px_1px_rgba(255,255,255,0.2)]'
-                  : 'bg-[#0B0F17]/92 dark:bg-black/95 text-white border border-white/[0.12] shadow-[0_8px_24px_-4px_rgba(0,0,0,0.55),inset_0_1px_1px_0_rgba(255,255,255,0.18)]'
-              }`}
-            >
-              {/* Inner ambient specular shimmer highlight */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none rounded-full" />
+              : undefined
+          }
+        >
+          {/* Subtle top specular shimmer line */}
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
 
-              {/* Luminous Core Beacon */}
+          {/* ================================================================ */}
+          {/* COMPACT PILL STATE                                              */}
+          {/* ================================================================ */}
+          {!isExpanded && (
+            <motion.div
+              key="compact-content"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              className="flex items-center gap-2 sm:gap-2.5"
+            >
+              {/* Spiritual Beacon Aura */}
               <span className="relative flex h-2 w-2 shrink-0">
                 {isApproaching ? (
                   <>
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-amber-500 to-yellow-300 shadow-[0_0_10px_rgba(245,158,11,0.95)]" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-amber-400 to-yellow-300 shadow-[0_0_8px_rgba(245,158,11,0.9)]" />
                   </>
                 ) : (
                   <>
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-65" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-teal-400 to-emerald-400 shadow-[0_0_8px_rgba(45,212,191,0.8)]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-60" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-teal-400 to-emerald-400 shadow-[0_0_6px_rgba(45,212,191,0.8)]" />
                   </>
                 )}
               </span>
 
-              {/* Station Tag: ONLY show if NOT at HOME */}
+              {/* Station Tag: ONLY show if outside HOME */}
               {currentStation !== 'HOME' && (
-                <>
-                  <span className="text-[11px] font-bold text-teal-300 truncate max-w-[110px] sm:max-w-[130px] tracking-tight">
-                    {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
-                  </span>
-                  <span className="text-white/20 text-xs select-none">|</span>
-                </>
+                <span className="text-[11px] font-bold text-teal-300/90 truncate max-w-[100px] tracking-tight">
+                  {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
+                </span>
               )}
 
-              {/* Next Prayer Countdown with Chronograph Precision */}
-              <div className="flex items-center gap-1.5 text-[11px] font-medium shrink-0">
-                <span className={isApproaching ? 'text-amber-200 font-bold' : 'text-slate-300 font-medium'}>
-                  {nextP.arabicName}
-                </span>
+              {/* Prayer Name */}
+              <span
+                className={`text-[11px] font-semibold tracking-tight ${
+                  isApproaching ? 'text-amber-200' : 'text-slate-200'
+                }`}
+              >
+                {nextP.arabicName}
+              </span>
 
-                {isApproaching ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-400/15 text-amber-200 border border-amber-400/30 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                    <bdi dir="ltr">{formatRemainingTime(nextP.minutesRemaining, isAr)}</bdi>
-                  </span>
-                ) : (
-                  <span className="font-bold font-mono text-teal-300 text-[11px] tracking-tight">
-                    <bdi dir="ltr">{formatRemainingTime(nextP.minutesRemaining, isAr)}</bdi>
-                  </span>
-                )}
+              {/* Countdown Chip with Zero BiDi Text Flipping */}
+              <div
+                className={`flex items-center px-1.5 py-0.5 rounded-full ${
+                  isApproaching
+                    ? 'bg-amber-400/15 border border-amber-400/30'
+                    : 'bg-white/5 border border-white/10'
+                }`}
+              >
+                <TimeRemainingChip
+                  minutes={nextP.minutesRemaining}
+                  isAr={isAr}
+                  isApproaching={isApproaching}
+                  size="sm"
+                />
               </div>
 
-              {/* Streak Flame Counter */}
-              <div className="hidden xs:flex items-center gap-1 text-[11px] font-mono text-amber-400 font-bold shrink-0">
-                <span className="text-white/20 text-xs me-0.5 select-none">|</span>
-                <Flame className="w-3 h-3 fill-amber-400 text-amber-400 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
-                <span>
-                  <bdi dir="ltr">{userState?.streakDays || 0}</bdi>
-                </span>
-              </div>
+              {/* Flame Streak Chip */}
+              {(userState?.streakDays || 0) > 0 && (
+                <div className="hidden xs:flex items-center gap-0.5 text-[10px] font-mono font-bold text-amber-400/90">
+                  <Flame className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                  <span>{userState?.streakDays}</span>
+                </div>
+              )}
 
-              {/* Friday Salawat Season Blossom Chip */}
+              {/* Friday Salawat Season Blossom */}
               {fridayStatus.isWindow && (
-                <>
-                  <span className="text-white/20 text-xs select-none">|</span>
-                  <span
-                    className="text-xs text-amber-300"
-                    title={
-                      isAr
-                        ? 'موسم الصلاة الإبراهيمية ليلة ويوم الجمعة'
-                        : 'Friday Salawat Window'
-                    }
-                  >
-                    <Star className="w-3 h-3 text-amber-300 fill-amber-300/40 inline animate-spin-slow" />
-                  </span>
-                </>
+                <Star className="w-2.5 h-2.5 text-amber-300 fill-amber-300/40 animate-spin-slow shrink-0" />
               )}
-
-              <ChevronDown className="w-3.5 h-3.5 text-white/40 -me-0.5 shrink-0 group-hover:text-white transition-colors" />
             </motion.div>
-          ) : (
-            // ================================================================
-            // VISIONOS MASTERPIECE DRAWER (Liquid Aperture Expansion)
-            // ================================================================
+          )}
+
+          {/* ================================================================ */}
+          {/* EXPANDED MASTERPIECE SANCTUARY                                   */}
+          {/* ================================================================ */}
+          {isExpanded && (
             <motion.div
-              key="expanded-island-masterpiece"
-              layoutId="dynamic-island-masterpiece"
-              initial={{ opacity: 0, scale: 0.96, y: -6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -6 }}
-              transition={openSpring}
-              className="absolute top-0 left-1/2 -translate-x-1/2 z-50 w-[94vw] max-w-md rounded-[32px] bg-[#0B0F17]/96 dark:bg-black/98 text-white border border-white/[0.12] p-5 shadow-[0_32px_72px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.18)] backdrop-blur-3xl space-y-4"
+              key="expanded-content"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2, delay: 0.05 }}
+              className="space-y-4"
             >
-              {/* Top Navigation Row */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+              {/* Header Row */}
+              <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08]">
                 <div className="flex items-center gap-2">
-                  <span className="relative flex h-2.5 w-2.5">
+                  <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-tr from-teal-400 to-emerald-400" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-teal-400 to-emerald-400" />
                   </span>
-                  <span className="text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-200 to-amber-200 uppercase tracking-wider font-mono">
-                    {isAr ? 'الجزيرة الحية • مضمار Island' : 'LifeOS Dynamic Island'}
+                  <span className="text-[11px] font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-200 to-amber-200 uppercase tracking-wider font-mono">
+                    {isAr ? 'الجزيرة التفاعلية • مضمار Live' : 'LifeOS Dynamic Sanctuary'}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="hidden sm:inline-block text-[10px] font-mono text-white/40 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                <div className="flex items-center gap-1.5">
+                  <span className="hidden sm:inline-block text-[9px] font-mono text-white/40 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">
                     ESC
                   </span>
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="p-1 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                    className="p-1 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                     aria-label={isAr ? 'إغلاق' : 'Close'}
                   >
                     <X className="w-4 h-4" />
@@ -317,20 +395,21 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 </div>
               </div>
 
-              {/* Celestial Prayer Hero Complication Card */}
+              {/* Hero Live Activity Card: Next Prayer & 5-Prayer Orbital Ribbon */}
               <div
-                className={`p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
+                className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
                   isApproaching
-                    ? 'bg-gradient-to-br from-amber-500/15 via-[#0B0F17]/90 to-amber-950/20 border-amber-400/35 shadow-[0_0_24px_rgba(245,158,11,0.15)]'
-                    : 'bg-white/[0.04] border-white/[0.08]'
+                    ? 'bg-gradient-to-br from-amber-500/15 via-[#0C0F15] to-amber-950/25 border-amber-400/35 shadow-[0_0_24px_rgba(245,158,11,0.15)]'
+                    : 'bg-white/[0.03] border-white/[0.08]'
                 }`}
               >
-                <div className="flex items-center justify-between relative z-10">
+                {/* Upper Hero Row */}
+                <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-base shadow-sm ${
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-lg shadow-sm ${
                         isApproaching
-                          ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                          ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
                           : 'bg-teal-400/15 text-teal-300 border border-teal-400/30'
                       }`}
                     >
@@ -340,36 +419,104 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                       <span className="text-[10px] text-white/50 block font-medium">
                         {isAr ? 'الصلاة القادمة' : 'Next Prayer'}
                       </span>
-                      <span
-                        className={`text-base font-black ${
-                          isApproaching ? 'text-amber-300' : 'text-white'
-                        }`}
-                      >
-                        {nextP.arabicName}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-lg font-black tracking-tight ${
+                            isApproaching ? 'text-amber-300' : 'text-white'
+                          }`}
+                        >
+                          {nextP.arabicName}
+                        </span>
+                        <span className="text-xs font-mono font-medium text-white/60">
+                          {formatClockTime(nextP.time, isAr)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
+                  {/* Countdown Badge */}
                   <div className="text-end">
-                    <span className="font-mono text-sm font-bold text-white/90 block">
-                      {nextP.time.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                    <span className="text-[9px] text-white/40 block font-medium mb-0.5">
+                      {isAr ? 'الوقت المتبقي' : 'Time Remaining'}
                     </span>
-                    <span
-                      className={`inline-block text-xs font-mono font-black ${
-                        isApproaching ? 'text-amber-300' : 'text-teal-300'
+                    <div
+                      className={`inline-flex items-center px-2 py-1 rounded-xl border ${
+                        isApproaching
+                          ? 'bg-amber-400/15 border-amber-400/35 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+                          : 'bg-teal-500/10 border-teal-400/25'
                       }`}
                     >
-                      <bdi dir="ltr">{formatRemainingTime(nextP.minutesRemaining, isAr)}</bdi>
-                    </span>
+                      <TimeRemainingChip
+                        minutes={nextP.minutesRemaining}
+                        isAr={isAr}
+                        isApproaching={isApproaching}
+                        size="md"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Approaching Serene Encouragement Banner */}
+                {/* 5-Prayer Cosmic Timeline Ribbon */}
+                <div className="pt-2 border-t border-white/[0.06]">
+                  <div className="flex items-center justify-between gap-1 relative">
+                    {/* Underlying Track Line */}
+                    <div className="absolute top-3 inset-x-4 h-[2px] bg-white/[0.08] -z-0" />
+
+                    {prayersTimeline.map((prayer) => {
+                      return (
+                        <div
+                          key={prayer.key}
+                          className="flex flex-col items-center gap-1 relative z-10 flex-1"
+                        >
+                          {/* Node Icon / Indicator */}
+                          <div
+                            className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                              prayer.isTarget
+                                ? isApproaching
+                                  ? 'bg-amber-400 text-black font-black shadow-[0_0_10px_rgba(245,158,11,0.9)] ring-2 ring-amber-300/40'
+                                  : 'bg-teal-400 text-black font-black shadow-[0_0_10px_rgba(45,212,191,0.8)] ring-2 ring-teal-300/40'
+                                : prayer.isPast
+                                ? 'bg-teal-500/20 text-teal-300 border border-teal-400/30'
+                                : 'bg-white/5 text-white/30 border border-white/10'
+                            }`}
+                          >
+                            {prayer.isTarget ? (
+                              <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+                            ) : prayer.isPast ? (
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            ) : (
+                              <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                            )}
+                          </div>
+
+                          {/* Prayer Name */}
+                          <span
+                            className={`text-[10px] font-bold ${
+                              prayer.isTarget
+                                ? isApproaching
+                                  ? 'text-amber-300'
+                                  : 'text-teal-300'
+                                : prayer.isPast
+                                ? 'text-white/60'
+                                : 'text-white/30'
+                            }`}
+                          >
+                            {isAr ? prayer.ar : prayer.en}
+                          </span>
+
+                          {/* Prayer Time */}
+                          <span className="text-[9px] font-mono text-white/40">
+                            {formatClockTime(prayer.time, isAr)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Serene Encouragement Banner on Approaching */}
                 {isApproaching && (
-                  <div className="mt-3 pt-2.5 border-t border-amber-400/20 flex items-center gap-2 text-xs text-amber-200/95 font-medium relative z-10">
+                  <div className="mt-3 pt-2 border-t border-amber-400/20 flex items-center gap-2 text-[11px] text-amber-200/95 font-medium">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
                     <span>
                       {isAr
@@ -380,82 +527,95 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 )}
               </div>
 
-              {/* Quick Status Pill Track */}
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] space-y-1">
-                  <span className="text-[10px] text-white/50 block">
-                    {isAr ? 'المحطة الحالية' : 'Active Station'}
-                  </span>
-                  <div className="flex items-center justify-between font-bold text-teal-300">
-                    <span className="truncate max-w-[120px]">
-                      {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
-                    </span>
-                    <Compass className="w-3.5 h-3.5 shrink-0" />
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] space-y-1">
-                  <span className="text-[10px] text-white/50 block">
-                    {isAr ? 'سلسلة التتابع' : 'Streak'}
-                  </span>
-                  <div className="flex items-center justify-between font-bold text-amber-400">
-                    <span>
-                      {userState?.streakDays || 0} {isAr ? 'أيام' : 'days'}
-                    </span>
-                    <Flame className="w-3.5 h-3.5 fill-current" />
-                  </div>
-                </div>
-              </div>
-
-              {/* 1-Tap Quick Action Shortcuts */}
-              <div className="space-y-1.5 pt-1">
-                {/* Friday Salawat Season Priority Action */}
-                {fridayStatus.isWindow && onOpenSmartTasbih && (
+              {/* Spatial 4-Tile Luxury Glass Action Deck */}
+              <div className="grid grid-cols-2 gap-2">
+                {/* Tile 1: Smart Haptic Tasbih */}
+                {onOpenSmartTasbih && (
                   <button
                     type="button"
                     onClick={() => {
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();
                       handleClose();
-                      onOpenSmartTasbih('salawat_ibrahimiyyah');
+                      onOpenSmartTasbih(
+                        fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100'
+                      );
                     }}
-                    className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-teal-500/15 to-amber-500/20 hover:from-amber-500/30 hover:to-amber-500/30 text-amber-300 text-xs font-bold border border-amber-400/30 transition-all cursor-pointer active:scale-98 shadow-sm"
+                    className={`tap-spring p-3 rounded-2xl border text-start transition-all cursor-pointer active:scale-95 group ${
+                      fridayStatus.isWindow
+                        ? 'bg-gradient-to-br from-amber-500/15 to-transparent border-amber-400/30 hover:border-amber-400/50'
+                        : 'bg-white/[0.03] hover:bg-white/[0.06] border-white/[0.08] hover:border-teal-400/30'
+                    }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-400 fill-amber-400/40 shrink-0" />
-                      <span>
-                        {isAr
-                          ? 'موسم الصلاة الإبراهيمية المباركة'
-                          : 'Friday Salawat Ibrahimiyyah'}
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center ${
+                          fridayStatus.isWindow
+                            ? 'bg-amber-400/20 text-amber-300'
+                            : 'bg-teal-400/15 text-teal-300'
+                        }`}
+                      >
+                        {fridayStatus.isWindow ? (
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                        ) : (
+                          <Disc className="w-3.5 h-3.5" />
+                        )}
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-teal-300">
+                        {fridayStatus.isWindow ? '+25 XP' : '100x'}
                       </span>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-400 font-black">
-                      +25 XP
+                    <span className="text-xs font-bold text-white block group-hover:text-teal-200 transition-colors">
+                      {fridayStatus.isWindow
+                        ? isAr
+                          ? 'الصلاة الإبراهيمية'
+                          : 'Friday Salawat'
+                        : isAr
+                        ? 'المسبحة اللمسية'
+                        : 'Smart Tasbih'}
+                    </span>
+                    <span className="text-[10px] text-white/50 block mt-0.5">
+                      {fridayStatus.isWindow
+                        ? isAr
+                          ? 'موسم يوم الجمعة'
+                          : 'Friday Special'
+                        : isAr
+                        ? 'أذكار وعداد لمسي'
+                        : 'Haptic Remembrance'}
                     </span>
                   </button>
                 )}
 
-                {/* General Smart Tasbih quick launch if not Friday */}
-                {!fridayStatus.isWindow && onOpenSmartTasbih && (
+                {/* Tile 2: Quran Daily Wird */}
+                {onOpenWirdModal && (
                   <button
                     type="button"
                     onClick={() => {
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();
                       handleClose();
-                      onOpenSmartTasbih('tahlil_100');
+                      onOpenWirdModal();
                     }}
-                    className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 text-xs font-bold border border-teal-400/25 transition-all cursor-pointer active:scale-98"
+                    className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-emerald-400/30 text-start transition-all cursor-pointer active:scale-95 group"
                   >
-                    <div className="flex items-center gap-2">
-                      <Disc className="w-4 h-4 text-teal-400 shrink-0" />
-                      <span>{isAr ? 'المسبحة اللمسية الذكية' : 'Smart Haptic Tasbih'}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="w-7 h-7 rounded-xl bg-emerald-400/15 text-emerald-300 flex items-center justify-center">
+                        <BookOpen className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-emerald-300">
+                        📖
+                      </span>
                     </div>
-                    <span className="text-[10px] font-mono text-teal-300 font-bold">100x</span>
+                    <span className="text-xs font-bold text-white block group-hover:text-emerald-200 transition-colors">
+                      {isAr ? 'الورد القرآني' : 'Quran Wird'}
+                    </span>
+                    <span className="text-[10px] text-white/50 block mt-0.5">
+                      {isAr ? 'قراءة وتدبر يومي' : 'Daily Tadabbur'}
+                    </span>
                   </button>
                 )}
 
-                {/* 20m Focus Session */}
+                {/* Tile 3: 20-Minute Focus Sprint */}
                 <button
                   type="button"
                   onClick={() => {
@@ -464,168 +624,109 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     handleClose();
                     onSelectStation('WORK_MICRO_SPRINT');
                   }}
-                  className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-xs font-bold border border-sky-400/25 transition-all cursor-pointer active:scale-98"
+                  className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-sky-400/30 text-start transition-all cursor-pointer active:scale-95 group"
                 >
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-sky-400" />
-                    <span>
-                      {isAr ? 'بدء جلسة عمل وتركيز 20 دقيقة' : 'Start 20m Focus Session'}
-                    </span>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="w-7 h-7 rounded-xl bg-sky-400/15 text-sky-300 flex items-center justify-center">
+                      <Zap className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-sky-300">20m</span>
                   </div>
-                  <span className="text-[10px] font-mono text-sky-300 font-bold">20m</span>
+                  <span className="text-xs font-bold text-white block group-hover:text-sky-200 transition-colors">
+                    {isAr ? 'سبرنت تركيز 20د' : '20m Focus Sprint'}
+                  </span>
+                  <span className="text-[10px] text-white/50 block mt-0.5">
+                    {isAr ? 'إنتاجية بدون تشتت' : 'Zero Distraction'}
+                  </span>
                 </button>
 
-                {/* 2-Minute Anti-Friction Rule */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    handleClose();
-                    onOpenTwoMinuteRule?.();
-                  }}
-                  className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-bold border border-amber-400/25 transition-all cursor-pointer active:scale-98"
-                >
-                  <div className="flex items-center gap-2">
-                    <Timer className="w-4 h-4 text-amber-400" />
-                    <span>
-                      {isAr ? 'كسر التسويف: قاعدة الدقيقتين' : '2-Minute Anti-Friction'}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono text-amber-300 font-bold">120s</span>
-                </button>
-
-                {/* AI Behavioral Guide */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    handleClose();
-                    onOpenAiCoach?.();
-                  }}
-                  className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 text-xs font-bold border border-indigo-400/25 transition-all cursor-pointer active:scale-98"
-                >
-                  <div className="flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-indigo-400" />
-                    <span>
-                      {isAr ? 'استشارة المرشد السلوكي الذكي' : 'Behavioral Mindset Guide'}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono text-indigo-300 font-bold">Coach</span>
-                </button>
-
-                {/* Quick Reminder & Alarm */}
-                {onOpenQuickReminder && (
+                {/* Tile 4: 2-Minute Anti-Friction Rule or Quick Reminder */}
+                {onOpenTwoMinuteRule ? (
                   <button
                     type="button"
                     onClick={() => {
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();
                       handleClose();
-                      onOpenQuickReminder();
+                      onOpenTwoMinuteRule();
                     }}
-                    className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 text-xs font-bold border border-purple-400/25 transition-all cursor-pointer active:scale-98"
+                    className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-amber-400/30 text-start transition-all cursor-pointer active:scale-95 group"
                   >
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-purple-400" />
-                      <span>{isAr ? 'منبه ومفكرة تذكير ذكية سريعة' : 'Quick Reminder & Alarm'}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="w-7 h-7 rounded-xl bg-amber-400/15 text-amber-300 flex items-center justify-center">
+                        <Timer className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-amber-300">
+                        120s
+                      </span>
                     </div>
-                    <span className="text-[10px] font-mono text-purple-300 font-bold">🔔</span>
+                    <span className="text-xs font-bold text-white block group-hover:text-amber-200 transition-colors">
+                      {isAr ? 'قاعدة الدقيقتين' : '2-Min Anti-Friction'}
+                    </span>
+                    <span className="text-[10px] text-white/50 block mt-0.5">
+                      {isAr ? 'كسر حاجز التسويف' : 'Beat Procrastination'}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      handleClose();
+                      onOpenQuickReminder?.();
+                    }}
+                    className="tap-spring p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-purple-400/30 text-start transition-all cursor-pointer active:scale-95 group"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="w-7 h-7 rounded-xl bg-purple-400/15 text-purple-300 flex items-center justify-center">
+                        <Bell className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-purple-300">
+                        🔔
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-white block group-hover:text-purple-200 transition-colors">
+                      {isAr ? 'منبه ذكي سريع' : 'Quick Reminder'}
+                    </span>
+                    <span className="text-[10px] text-white/50 block mt-0.5">
+                      {isAr ? 'تنبيه فوري مخصص' : 'Instant Reminder'}
+                    </span>
                   </button>
                 )}
+              </div>
 
-                {/* AI Course Study Roadmap */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    handleClose();
-                    localStorage.setItem('midmar_work_view_mode', 'learning_tracker');
-                    localStorage.setItem('midmar_learning_subtab', 'courses');
-                    window.dispatchEvent(
-                      new CustomEvent('midmar_switch_work_mode', {
-                        detail: { mode: 'learning_tracker', subTab: 'courses' },
-                      })
-                    );
-                    onSelectStation('WORK_MICRO_SPRINT');
-                  }}
-                  className="tap-spring w-full flex items-center justify-between p-2.5 rounded-2xl bg-gradient-to-r from-indigo-500/15 via-sky-500/10 to-indigo-500/15 hover:from-indigo-500/25 hover:to-sky-500/25 text-indigo-300 text-xs font-bold border border-indigo-400/25 transition-all cursor-pointer active:scale-98"
-                >
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-indigo-400" />
-                    <span>{isAr ? 'مخطط ومسار الكورسات الذكي (AI)' : 'AI Course Study Roadmap'}</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-indigo-300 font-bold">📚</span>
-                </button>
-
-                {/* Bottom Sub-Actions Grid */}
-                <div className="grid grid-cols-2 gap-1.5 pt-1">
-                  {onOpenWirdModal ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundSynth.playTactileClick();
-                        haptic.vibrateLight();
-                        handleClose();
-                        onOpenWirdModal();
-                      }}
-                      className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 text-xs font-bold border border-teal-400/25 cursor-pointer active:scale-95"
-                    >
-                      <BookOpen className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                      <span>{isAr ? 'الورد القرآني' : 'Quran Wird'}</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundSynth.playTactileClick();
-                        haptic.vibrateLight();
-                        handleClose();
-                        onOpenEvaluation?.();
-                      }}
-                      className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 text-xs font-bold border border-white/10 cursor-pointer active:scale-95"
-                    >
-                      <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{isAr ? 'التقييم الدوري' : 'Scorecard'}</span>
-                    </button>
-                  )}
-
-                  {onOpenLifestyleModal ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundSynth.playTactileClick();
-                        haptic.vibrateLight();
-                        handleClose();
-                        onOpenLifestyleModal();
-                      }}
-                      className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-xs font-bold border border-sky-400/25 cursor-pointer active:scale-95"
-                    >
-                      <Compass className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                      <span>{isAr ? 'نمط الحياة' : 'Lifestyle'}</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        soundSynth.playTactileClick();
-                        haptic.vibrateLight();
-                        handleClose();
-                        onOpenSleepRest?.();
-                      }}
-                      className="tap-spring flex items-center justify-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/90 text-xs font-bold border border-white/10 cursor-pointer active:scale-95"
-                    >
-                      <Clock className="w-3.5 h-3.5 text-indigo-400" />
-                      <span>{isAr ? 'النوم والاستشفاء' : 'Sleep Rest'}</span>
-                    </button>
-                  )}
+              {/* Bottom Subtle Station Context Strip */}
+              <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-white/60">
+                  <Compass className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span className="text-[11px]">
+                    {isAr ? 'المحطة الحالية:' : 'Active Station:'}
+                  </span>
+                  <span className="text-[11px] font-bold text-white truncate max-w-[140px]">
+                    {isAr ? currentMeta.titleAr : currentMeta.titleEn}
+                  </span>
                 </div>
+
+                {onOpenLifestyleModal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      handleClose();
+                      onOpenLifestyleModal();
+                    }}
+                    className="text-[10px] font-semibold text-teal-300 hover:text-teal-200 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>{isAr ? 'تخصيص النمط' : 'Customize'}</span>
+                    <ChevronRight className="w-3 h-3 rtl:rotate-180" />
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+        </motion.div>
       </div>
     </>
   );
