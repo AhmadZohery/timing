@@ -163,6 +163,22 @@ class PrayerNotificationManager {
 
         const diffMinutes = Math.floor((now.getTime() - item.time.getTime()) / 60000);
 
+        // Pre-Prayer Approaching Alert (10 minutes before Adhan)
+        const msUntilPrayer = item.time.getTime() - now.getTime();
+        const minutesUntilPrayer = Math.floor(msUntilPrayer / 60000);
+        if (minutesUntilPrayer > 0 && minutesUntilPrayer <= 10) {
+          const preKey = `pre-adhan-${item.name}-${todayDateStr}`;
+          if (!this.hasNotified(preKey)) {
+            this.markNotified(preKey);
+            await this.showNotification(
+              `اقترب موعد ${item.titleAr} ⏳ (خلال ${minutesUntilPrayer} دقائق)`,
+              `استعد بالوضوء والسكينة لصلاتك في أول وقتها لتنال أجر الصف الأول وبركة الوقت.`,
+              `prayer-pre-${item.name}`,
+              'wird_adhkar'
+            );
+          }
+        }
+
         // 0) Adhan Entry Alert (Expanded from 5m to 45m grace window to handle mobile deep-sleep wakeups)
         if (diffMinutes >= 0 && diffMinutes <= 45) {
           const key = `adhan-${item.name}-${todayDateStr}`;

@@ -2,12 +2,29 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
+function devApiFallbackPlugin() {
+  return {
+    name: 'dev-api-fallback',
+    configureServer(server: any) {
+      server.middlewares.use((req: any, res: any, next: any) => {
+        if (req.url === '/api/status' || req.url?.startsWith('/api/status?')) {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: false, localOnly: true, uptimeSeconds: 0, aiConfigured: false }));
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   base: './',
   plugins: [
     react(),
     tailwindcss(),
+    devApiFallbackPlugin(),
   ],
   server: {
     host: true,

@@ -13,10 +13,26 @@ class SoundSynthesizer {
   private ambientListeners: Set<(isPlaying: boolean, type: AmbientSoundType) => void> = new Set();
   private athanAudio: HTMLAudioElement | null = null;
   private isAthanPlaying = false;
+  private isUnlocked = false;
 
   constructor() {
     audioCoordinator.register('ambient', () => this.stopAmbient());
     audioCoordinator.register('athan', () => this.stopAthanAudio());
+
+    if (typeof window !== 'undefined') {
+      const unlock = () => {
+        this.isUnlocked = true;
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+        window.removeEventListener('pointerdown', unlock, true);
+        window.removeEventListener('keydown', unlock, true);
+        window.removeEventListener('touchstart', unlock, true);
+      };
+      window.addEventListener('pointerdown', unlock, { capture: true, once: true });
+      window.addEventListener('keydown', unlock, { capture: true, once: true });
+      window.addEventListener('touchstart', unlock, { capture: true, once: true });
+    }
   }
 
   public subscribeAmbient(listener: (isPlaying: boolean, type: AmbientSoundType) => void): () => void {
@@ -61,7 +77,10 @@ class SoundSynthesizer {
       this.ctx = new AudioCtx();
     }
     if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      const hasActivation = typeof navigator !== 'undefined' && (navigator as any).userActivation ? (navigator as any).userActivation.hasBeenActive : false;
+      if (hasActivation || this.isUnlocked) {
+        this.ctx.resume().catch(() => {});
+      }
     }
     return this.ctx;
   }

@@ -1,7 +1,11 @@
 // Navigator Vibration API Haptic Controller for Wear OS & Android Phones
 class VibrationService {
   private hasVibration(): boolean {
-    return typeof navigator !== 'undefined' && 'vibrate' in navigator;
+    if (typeof navigator === 'undefined' || !('vibrate' in navigator)) return false;
+    if ((navigator as any).userActivation && !(navigator as any).userActivation.hasBeenActive) {
+      return false;
+    }
+    return true;
   }
 
   // Work micro sprint completion: Discreet double-buzz
