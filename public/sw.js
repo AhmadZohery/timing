@@ -122,6 +122,20 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+  // Never intercept localhost development, Vite HMR, or dynamic modules to ensure instant load
+  if (
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.port === '5173' ||
+    url.pathname.startsWith('/@') ||
+    url.pathname.includes('/node_modules/') ||
+    url.pathname.startsWith('/src/') ||
+    url.search.includes('t=')
+  ) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

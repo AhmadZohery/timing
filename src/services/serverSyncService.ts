@@ -65,10 +65,14 @@ export class ServerSyncService {
    */
   async checkServerAvailability(): Promise<boolean> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1200);
       const res = await fetch('/api/status', {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         this.isOnline = data.ok === true;

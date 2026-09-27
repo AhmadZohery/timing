@@ -15,18 +15,27 @@ initializeDatabaseSeed()
     console.error('Failed to initialize database seed:', err);
   });
 
-// Register Service Worker for offline-first PWA and actionable notifications
+// Register Service Worker for offline-first PWA (production only)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((reg) => {
-        console.log('Service Worker registered successfully:', reg.scope);
-      })
-      .catch((err) => {
-        console.warn('Service Worker registration failed:', err);
-      });
-  });
+  if (import.meta.env.DEV) {
+    // In local development, unregister any stale service workers to ensure instant Vite HMR
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister();
+      }
+    }).catch(() => {});
+  } else {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((reg) => {
+          console.log('Service Worker registered successfully:', reg.scope);
+        })
+        .catch((err) => {
+          console.warn('Service Worker registration failed:', err);
+        });
+    });
+  }
 }
 
 createRoot(document.getElementById('root')!).render(

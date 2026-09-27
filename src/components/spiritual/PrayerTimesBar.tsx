@@ -275,33 +275,39 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Auto-detect real location & synchronize official online prayer times
+  // Optional background synchronization of official online prayer times (once per session, non-blocking)
   useEffect(() => {
     let isMounted = true;
+    const sessionKey = 'midmar_online_prayer_synced_session';
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(sessionKey)) {
+      return;
+    }
 
-    const syncLiveTimes = async () => {
-      const activeLoc = await autoDetectAndSyncPrayerLocation(loc);
-      const lat = activeLoc?.latitude ?? activeCity.lat;
-      const lng = activeLoc?.longitude ?? activeCity.lng;
-      const method = activeLoc?.calculationMethod ?? activeCity.defaultMethod;
+    const timer = setTimeout(async () => {
+      try {
+        const activeLoc = await autoDetectAndSyncPrayerLocation(loc);
+        const lat = activeLoc?.latitude ?? activeCity.lat;
+        const lng = activeLoc?.longitude ?? activeCity.lng;
+        const method = activeLoc?.calculationMethod ?? activeCity.defaultMethod;
 
-      if (activeLoc?.city && activeLoc.city !== selectedCityId) {
-        setSelectedCityId(activeLoc.city);
-      }
+        if (activeLoc?.city && activeLoc.city !== selectedCityId) {
+          setSelectedCityId(activeLoc.city);
+        }
 
-      const onlineTimes = await fetchAladhanPrayerTimings(lat, lng, method);
-      if (onlineTimes && isMounted) {
-        setPrayerTimes(onlineTimes);
-        setIsOnlineLive(true);
-      }
-    };
-
-    syncLiveTimes();
+        const onlineTimes = await fetchAladhanPrayerTimings(lat, lng, method);
+        if (onlineTimes && isMounted) {
+          setPrayerTimes(onlineTimes);
+          setIsOnlineLive(true);
+          sessionStorage.setItem(sessionKey, 'true');
+        }
+      } catch (_) {}
+    }, 1200);
 
     return () => {
       isMounted = false;
+      clearTimeout(timer);
     };
-  }, [selectedCityId, loc]);
+  }, []);
 
   // Recalculate or fallback offline calculation when city changes
   useEffect(() => {

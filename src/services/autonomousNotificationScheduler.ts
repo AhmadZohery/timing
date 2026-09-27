@@ -62,7 +62,14 @@ class AutonomousNotificationScheduler {
     this.isScheduling = true;
 
     try {
-      const reg = await navigator.serviceWorker.ready;
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('SW ready timeout')), 1500)),
+      ]).catch(() => null);
+      if (!reg) {
+        this.isScheduling = false;
+        return 0;
+      }
       const userState = await db.user_state.get('current_user');
       const settings = userState?.settings;
 
