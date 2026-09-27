@@ -151,46 +151,90 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     }
 
     const nextCount = count + 1;
+    const isMultiStage = currentPreset.stages.length > 1;
 
-    if (isTargetMode && nextCount >= target) {
-      // Completed current stage
-      if (stageIndex < currentPreset.stages.length - 1) {
-        // Move to next stage in multi-stage (e.g. Khitam Salah: 33 SubhanAllah -> 33 Alhamdulillah)
+    // 1. Multi-stage Presets (e.g. Khitam Salah: 33 SubhanAllah -> 33 Alhamdulillah -> 33 Allahu Akbar)
+    if (isMultiStage) {
+      // If current stage was already completed (e.g. count >= target) and user taps again:
+      if (count >= target) {
+        if (stageIndex < currentPreset.stages.length - 1) {
+          // Advance to next stage smoothly with 1
+          const nextStage = stageIndex + 1;
+          setStageIndex(nextStage);
+          setCount(1);
+          soundSynth.playStreakMilestoneChime();
+          haptic.vibrateLight();
+          recordTasbihTap(activeMode, nextStage, 1, currentPreset.stages[nextStage]?.target || 33);
+        } else {
+          // Completed all stages in multi-stage preset!
+          soundSynth.playCompletionChime();
+          haptic.vibrateSprintCelebration();
+          const nextCycles = totalCompletedCycles + 1;
+          setTotalCompletedCycles(nextCycles);
+          localStorage.setItem('midmar_tasbih_cycles', String(nextCycles));
+          const res = await updateDailyTasbihProgress(activeMode, target * currentPreset.stages.length, target);
+          if (onRewardToast) {
+            onRewardToast(
+              res.message ||
+                (isAr
+                  ? `✨ تقبل الله طاعتك! أتممت ذكر ${currentPreset.titleAr} (+${currentPreset.pointsReward} XP)`
+                  : `✨ Dhikr completed: ${currentPreset.titleEn} (+${currentPreset.pointsReward} XP)`)
+            );
+          }
+          setStageIndex(0);
+          setCount(0);
+          recordTasbihTap(activeMode, 0, 0, target);
+        }
+        return;
+      }
+
+      // Counting up towards target within current stage
+      setCount(nextCount);
+      recordTasbihTap(activeMode, stageIndex, nextCount, target);
+
+      if (nextCount === target) {
+        // Reached target (e.g. 33)! Display 33 proudly with milestone celebration
         soundSynth.playStreakMilestoneChime();
         haptic.vibrateWorkDone();
-        const nextStage = stageIndex + 1;
-        setStageIndex(nextStage);
-        setCount(0);
-        recordTasbihTap(activeMode, nextStage, 0, currentPreset.stages[nextStage]?.target || 33);
-      } else {
-        // Completed entire preset!
-        soundSynth.playCompletionChime();
-        haptic.vibrateSprintCelebration();
-        const nextCycles = totalCompletedCycles + 1;
-        setTotalCompletedCycles(nextCycles);
-        localStorage.setItem('midmar_tasbih_cycles', String(nextCycles));
-
-        // Save progress to Dexie DB and award XP
-        const res = await updateDailyTasbihProgress(activeMode, nextCount, target);
-        recordTasbihTap(activeMode, 0, 0, target);
-
-        if (onRewardToast) {
-          onRewardToast(
-            res.message ||
-              (isAr
-                ? `✨ تقبل الله طاعتك! أتممت ذكر ${currentPreset.titleAr} (+${currentPreset.pointsReward} XP)`
-                : `✨ Dhikr completed: ${currentPreset.titleEn} (+${currentPreset.pointsReward} XP)`)
-          );
-        }
-
-        // Reset to first stage for another cycle
-        setStageIndex(0);
-        setCount(0);
       }
-    } else {
-      setCount(nextCount);
-      // Persist every intermediate tap immediately
-      recordTasbihTap(activeMode, stageIndex, nextCount, target);
+      return;
+    }
+
+    // 2. Single-Stage & Free Presets:
+    // When user hits target exactly (e.g. 33)
+    if (isTargetMode && nextCount === target) {
+      setCount(target);
+      soundSynth.playCompletionChime();
+      haptic.vibrateSprintCelebration();
+      const nextCycles = totalCompletedCycles + 1;
+      setTotalCompletedCycles(nextCycles);
+      localStorage.setItem('midmar_tasbih_cycles', String(nextCycles));
+
+      const res = await updateDailyTasbihProgress(activeMode, nextCount, target);
+      recordTasbihTap(activeMode, 0, target, target);
+
+      if (onRewardToast) {
+        onRewardToast(
+          res.message ||
+            (isAr
+              ? `✨ أتممت هدف الـ ${target}! يمكنك الاستمرار بالزيادة أو بدء دورة جديدة (+${currentPreset.pointsReward} XP)`
+              : `✨ Reached goal of ${target}! You can keep going or start a new cycle.`)
+        );
+      }
+      return;
+    }
+
+    // User is continuing beyond target (زيادة: 34, 35, 36...) OR counting before target
+    setCount(nextCount);
+    recordTasbihTap(activeMode, stageIndex, nextCount, target);
+
+    // If counting beyond target, celebrate every multiple (e.g. 66, 99)
+    if (isTargetMode && nextCount > target && nextCount % target === 0) {
+      soundSynth.playStreakMilestoneChime();
+      haptic.vibrateWorkDone();
+      const nextCycles = totalCompletedCycles + 1;
+      setTotalCompletedCycles(nextCycles);
+      localStorage.setItem('midmar_tasbih_cycles', String(nextCycles));
     }
   };
 
@@ -768,11 +812,23 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
               {count}
             </span>
             {isTargetMode ? (
-              <span className="text-xs font-mono text-emerald-400 font-bold mt-1">
-                من أصل {target}
+              <span className="text-xs font-mono font-bold mt-1">
+                {count > target ? (
+                  <span className="text-amber-400">
+                    ✓ {target} + {count - target} {isAr ? 'زيادة' : 'extra'}
+                  </span>
+                ) : count === target ? (
+                  <span className="text-emerald-300 animate-pulse">
+                    ✓ {isAr ? `أتممت ${target} كاملة` : `Target ${target} hit!`}
+                  </span>
+                ) : (
+                  <span className="text-emerald-400">
+                    {isAr ? 'من أصل' : 'of'} {target}
+                  </span>
+                )}
               </span>
             ) : (
-              <span className="text-[11px] font-mono text-amber-400 font-bold mt-1">تسبيح حر</span>
+              <span className="text-[11px] font-mono text-amber-400 font-bold mt-1">{isAr ? 'تسبيح حر' : 'Free Dhikr'}</span>
             )}
             <span className="mt-1 text-[10px] text-zinc-500 font-medium flex items-center gap-1">
               <span>انقر أو اضغط مسافة</span>

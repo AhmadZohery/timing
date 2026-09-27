@@ -499,9 +499,9 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       {/* ============================================================ */}
       {/* 1. TOP SANCTUARY CONTROL & MODE NAVIGATION BAR              */}
       {/* ============================================================ */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/60 dark:border-white/[0.08]">
-        {/* Right (RTL): City & Official Live Status */}
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-200/60 dark:border-white/[0.08] w-full">
+        {/* Right (RTL): City & Official Live Status in one unified line */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 min-w-0">
           <div className="relative shrink-0" ref={cityPickerRef}>
             <button
               type="button"
@@ -574,7 +574,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
         </div>
 
         {/* Left (RTL): Quick Adhan Audio and Friday Salawat */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {(() => {
             const fridayStatus = checkIsFridaySalawatWindow(currentTime, loc);
             if (fridayStatus.isWindow) {

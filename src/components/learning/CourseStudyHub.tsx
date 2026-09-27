@@ -1224,16 +1224,14 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
               </button>
             </div>
 
-            {/* Token Saver Tracker Banner */}
+            {/* Speed & Privacy Assurance Badge */}
             <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 text-[10px]">
               <span className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400 font-bold">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                <span>{isAr ? 'معالجة محلية ذكية لحماية التوكن' : '0-Token Local Smart Processing'}</span>
+                <span>{isAr ? 'معالجة ذكية فورية وبخصوصية تامة' : 'Instant Private On-Device Processing'}</span>
               </span>
-              <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                {isAr
-                  ? `وفّرت: ${localIntelligence.getTokensSaved().toLocaleString()} توكن ⚡`
-                  : `Saved: ${localIntelligence.getTokensSaved().toLocaleString()} tokens ⚡`}
+              <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                ⚡ {isAr ? 'استجابة فائقة السرعة' : 'Ultra-Fast'}
               </span>
             </div>
 
@@ -1271,13 +1269,13 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
                 </p>
               )}
 
-              {/* Live Deterministic Local NLP Preview (0 Tokens / Instant 0ms) */}
+              {/* Live Deterministic Local NLP Preview */}
               {liveLocalPreview && (
                 <div className="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/40 space-y-1.5 animate-fade-in text-xs">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                      <span>{isAr ? 'استنتاج محلي فوري (0 توكن مستهلك) ⚡' : 'Instant local comprehension (0 tokens)'}</span>
+                      <span>{isAr ? 'استنتاج ذكي فوري ⚡' : 'Instant smart comprehension ⚡'}</span>
                     </span>
                     <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
                       {Math.round(liveLocalPreview.confidence * 100)}% {isAr ? 'دقة' : 'match'}

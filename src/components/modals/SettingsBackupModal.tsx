@@ -26,7 +26,6 @@ import {
   Server,
   RefreshCw,
   Radio,
-  Coins,
   Headphones,
 } from 'lucide-react';
 import QRCode from 'qrcode';
@@ -49,7 +48,6 @@ import { notificationService } from '../../services/notificationService';
 import { accountabilityNotificationManager } from '../../services/accountabilityNotificationManager';
 import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
 import { serverSync, type ServerSyncStatus } from '../../services/serverSyncService';
-import { localIntelligence } from '../../services/localIntelligenceEngine';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { aiCoach } from '../../services/aiCoachService';
 import {
@@ -90,7 +88,6 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   const [isCheckingServer, setIsCheckingServer] = useState<boolean>(false);
   const [isTestingServerPush, setIsTestingServerPush] = useState<boolean>(false);
   const [serverSyncMsg, setServerSyncMsg] = useState<{ text: string; success: boolean } | null>(null);
-  const [tokensSaved, setTokensSaved] = useState<number>(() => localIntelligence.getTokensSaved());
   const [isTestingLockscreen, setIsTestingLockscreen] = useState(false);
 
   useEffect(() => {
@@ -99,7 +96,6 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
       setServerStatus(st);
     });
     serverSync.isPushSubscribed().then(setIsPushSubscribed);
-    setTokensSaved(localIntelligence.getTokensSaved());
     return unsub;
   }, [isOpen]);
 
@@ -1103,20 +1099,20 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
             </div>
           </div>
 
-          {/* Token Economy Badge */}
+          {/* Privacy & Zero-Cloud Guarantee Badge */}
           <div className="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-500/20 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <Coins className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div className="min-w-0">
                 <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200 block truncate">
                   {language === 'ar'
-                    ? `وفرت ${tokensSaved.toLocaleString()} توكن عبر الذكاء المحلي (0 Tokens)`
-                    : `Saved ${tokensSaved.toLocaleString()} tokens via Local Intelligence`}
+                    ? 'نظام تشغيل محلي 100% وبخصوصية تامة'
+                    : '100% Private On-Device Operating System'}
                 </span>
                 <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">
                   {language === 'ar'
-                    ? 'تقسيم الكورسات والمنبهات يتم محلياً دون استهلاك رصيد الـ AI'
-                    : 'Course & alarm parsing processed on-device with 0 API calls'}
+                    ? 'كافة البيانات والخطط تُعالج وتُخزن على جهازك دون إرسالها لأي طرف ثالث'
+                    : 'All plans and data processed and stored on-device without third-party sharing'}
                 </span>
               </div>
             </div>

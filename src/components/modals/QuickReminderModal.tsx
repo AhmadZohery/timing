@@ -252,10 +252,10 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-amber-500" />
-                <span>{isAr ? 'إدخال صوتي أو نصي ذكي (0 توكن ⚡):' : 'Voice or Natural NLP Input (0 Tokens ⚡):'}</span>
+                <span>{isAr ? 'إدخال صوتي أو نصي ذكي وفوري ⚡:' : 'Instant Voice or Smart Input ⚡:'}</span>
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold">
-                {isAr ? 'معالجة محلية 100%' : '100% On-Device'}
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold">
+                {isAr ? 'معالجة محلية وفورية' : 'Instant On-Device'}
               </span>
             </div>
 
