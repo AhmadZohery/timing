@@ -16,6 +16,7 @@ import {
   GraduationCap,
   Trophy,
   Briefcase,
+  Target,
 } from 'lucide-react';
 import {
   TARGET_LANGUAGES,
@@ -41,6 +42,7 @@ import { LanguageMovesModal, type MoveType } from './LanguageMovesModal';
 import { HandsFreeImmersionModal } from './HandsFreeImmersionModal';
 import { CefrAdvancementModal } from './CefrAdvancementModal';
 import { ExecutiveEnglishStudioModal } from './ExecutiveEnglishStudioModal';
+import { EnglishPlacementDiagnosticModal } from './EnglishPlacementDiagnosticModal';
 
 interface LanguageMasteryCardProps {
   className?: string;
@@ -99,6 +101,17 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
 
   // Executive English Studio & Meeting Simulator State
   const [isExecutiveStudioOpen, setIsExecutiveStudioOpen] = useState(false);
+
+  // Career English Placement & Diagnostic State
+  const [isPlacementOpen, setIsPlacementOpen] = useState(false);
+  const [userPersona, setUserPersona] = useState<{ career: string; region: string; level: string } | null>(() => {
+    try {
+      const raw = localStorage.getItem('midmar_english_persona');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Refresh words when language, quota, or CEFR level changes
   useEffect(() => {
@@ -304,8 +317,31 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
           </div>
         </div>
 
-        {/* Action Controls: Quota & Add Word Button */}
+        {/* Action Controls: Placement Diagnostic, Quota & Add Word Button */}
         <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+          {/* Placement Diagnostic Test Button */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsPlacementOpen(true);
+            }}
+            className="tap-spring flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-indigo-500/15 to-amber-500/15 text-amber-700 dark:text-amber-300 text-xs font-bold border border-amber-400/40 hover:border-amber-400 transition-all cursor-pointer shadow-xs"
+            title={isAr ? 'اختبار تحديد المستوى وتشخيص الإنجليزية حسب وظيفتك ومكانك' : 'Career English Diagnostic'}
+          >
+            <Target className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>
+              {userPersona
+                ? isAr
+                  ? `مستواك: ${userPersona.level} 🎯`
+                  : `Level: ${userPersona.level} 🎯`
+                : isAr
+                ? 'اختبار تحديد المستوى 🎯'
+                : 'Placement Test 🎯'}
+            </span>
+          </button>
+
           {/* Add Word Button */}
           <button
             type="button"
@@ -1300,6 +1336,24 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
       <ExecutiveEnglishStudioModal
         isOpen={isExecutiveStudioOpen}
         onClose={() => setIsExecutiveStudioOpen(false)}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Career English Placement & Diagnostic Modal */}
+      <EnglishPlacementDiagnosticModal
+        isOpen={isPlacementOpen}
+        onClose={() => setIsPlacementOpen(false)}
+        isAr={isAr}
+        onPlacementApplied={(lvl) => {
+          setSelectedCefrLevel(lvl);
+          try {
+            const raw = localStorage.getItem('midmar_english_persona');
+            if (raw) setUserPersona(JSON.parse(raw));
+          } catch (_) {}
+          const words = spacedRepetition.getWordsByLevel(lvl, activeLang);
+          setTodayWords(words.length > 0 ? words : spacedRepetition.getTodayWords(dailyQuota));
+          setStats(spacedRepetition.getStats());
+        }}
         onRewardToast={onRewardToast}
       />
     </div>
