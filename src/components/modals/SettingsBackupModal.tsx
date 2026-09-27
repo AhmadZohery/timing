@@ -27,10 +27,12 @@ import {
   RefreshCw,
   Radio,
   Coins,
+  Headphones,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import type { UserState, AppSettings, WeekendPreset, DayWorkRhythm } from '../../types';
 import { db } from '../../db/db';
+import { NotificationSoundsModal } from './NotificationSoundsModal';
 import {
   exportDatabaseToJson,
   downloadBackupFile,
@@ -76,6 +78,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   const [showQrSync, setShowQrSync] = useState(false);
   const [pasteSyncText, setPasteSyncText] = useState('');
   const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
+  const [isSoundTonesModalOpen, setIsSoundTonesModalOpen] = useState(false);
 
   // Server Sync & Web Push Hub state
   const [serverStatus, setServerStatus] = useState<ServerSyncStatus>(() => serverSync.getStatus());
@@ -634,6 +637,45 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
               onChange={(e) => handleUpdateSettings({ vibrationEnabled: e.target.checked })}
               className="w-4 h-4 accent-purple-600 cursor-pointer"
             />
+          </div>
+
+          {/* Differentiated Cognitive Notification Tones Entry Button */}
+          <div className="pt-1.5 border-t border-slate-200 dark:border-zinc-800">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsSoundTonesModalOpen(true);
+              }}
+              className="w-full p-3 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-slate-800/40 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between gap-3 text-right cursor-pointer group shadow-2xs"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 group-hover:scale-105 transition-transform">
+                  <Headphones className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-bold text-slate-800 dark:text-zinc-200 truncate">
+                      {language === 'ar' ? 'تخصيص نغمات الإشعارات والأذان' : 'Customize Notification & Adhan Tones'}
+                    </p>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+                      جديد 🎵
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+                    {language === 'ar'
+                      ? 'التمييز الصوتي الإدراكي (نغمات خاصة للصلاة، السبرنتات، الأوراد، الاستراحات)'
+                      : 'Cognitive acoustic identity for prayers, sprints, wirts, and breaks'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-xs font-bold text-amber-600 dark:text-amber-400 shrink-0 flex items-center gap-1 group-hover:translate-x-[-2px] transition-transform">
+                <span>{language === 'ar' ? 'تخصيص' : 'Customize'}</span>
+                <span>←</span>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -1594,6 +1636,13 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
         >
           {t('close')}
         </button>
+
+        {/* Cognitive Notification Tones Customization Modal */}
+        <NotificationSoundsModal
+          isOpen={isSoundTonesModalOpen}
+          onClose={() => setIsSoundTonesModalOpen(false)}
+          userState={userState}
+        />
       </div>
     </div>
   );

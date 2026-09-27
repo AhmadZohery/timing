@@ -12,6 +12,7 @@ import {
   BellRing,
   Play,
   Pause,
+  Headphones,
 } from 'lucide-react';
 import { db } from '../../db/db';
 import type { UserState, PrayerLocationConfig, PrayerAudioSettings } from '../../types';
@@ -25,6 +26,7 @@ import {
 } from '../../utils/prayerCalculator';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
+import { NotificationSoundsModal } from './NotificationSoundsModal';
 
 export { MUADHIN_OPTIONS };
 
@@ -50,16 +52,20 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
   const prayerAudio = userState?.settings?.prayerAudioSettings || {
     adhanEnabled: false,
     muadhin: 'makkah',
+    chimeWhenDisabled: 'rast_minaret',
     prePrayerAlertEnabled: true,
     prePrayerAlertMinutes: 10,
   };
   const [adhanEnabled, setAdhanEnabled] = useState(prayerAudio.adhanEnabled);
   const [selectedMuadhin, setSelectedMuadhin] = useState(prayerAudio.muadhin || 'makkah');
+  const [selectedChime, setSelectedChime] = useState(prayerAudio.chimeWhenDisabled || 'rast_minaret');
   const [prePrayerAlert, setPrePrayerAlert] = useState(prayerAudio.prePrayerAlertEnabled ?? true);
   const [prePrayerMins, setPrePrayerMins] = useState(prayerAudio.prePrayerAlertMinutes || 10);
 
   const [previewAudio, setPreviewAudio] = useState<HTMLAudioElement | null>(null);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [activeChimePreview, setActiveChimePreview] = useState<string | null>(null);
+  const [isSoundTonesModalOpen, setIsSoundTonesModalOpen] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -89,18 +95,38 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
     setIsPlayingPreview(true);
   };
 
+  const togglePlayChimePreview = (chimeId: string) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (activeChimePreview === chimeId) {
+      setActiveChimePreview(null);
+      return;
+    }
+    if (previewAudio) {
+      previewAudio.pause();
+      setIsPlayingPreview(false);
+    }
+    setActiveChimePreview(chimeId);
+    soundSynth.playPrayerSpiritualChime(chimeId);
+    setTimeout(() => {
+      setActiveChimePreview((curr) => (curr === chimeId ? null : curr));
+    }, 2400);
+  };
+
   const handleUpdateAdhanSettings = async (partial: Partial<PrayerAudioSettings>) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     const updated: PrayerAudioSettings = {
       adhanEnabled,
       muadhin: selectedMuadhin,
+      chimeWhenDisabled: selectedChime,
       prePrayerAlertEnabled: prePrayerAlert,
       prePrayerAlertMinutes: prePrayerMins,
       ...partial,
     };
     if (partial.adhanEnabled !== undefined) setAdhanEnabled(partial.adhanEnabled);
     if (partial.muadhin !== undefined) setSelectedMuadhin(partial.muadhin);
+    if (partial.chimeWhenDisabled !== undefined) setSelectedChime(partial.chimeWhenDisabled);
     if (partial.prePrayerAlertEnabled !== undefined) setPrePrayerAlert(partial.prePrayerAlertEnabled);
     if (partial.prePrayerAlertMinutes !== undefined) setPrePrayerMins(partial.prePrayerAlertMinutes);
 
@@ -377,65 +403,204 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
                 )}
               </div>
 
-              {/* Muadhin Voice Selector */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
-                  اختر صوت المؤذن المفضل:
-                </label>
+              {/* Muadhin Voice Selector (When Adhan is Enabled) */}
+              {adhanEnabled ? (
                 <div className="space-y-2">
-                  {MUADHIN_OPTIONS.map((m) => {
-                    const isSelected = selectedMuadhin === m.id;
-                    const isThisPlaying = isPlayingPreview && previewAudio?.src === m.audioUrl;
-                    return (
-                      <div
-                        key={m.id}
-                        onClick={() => handleUpdateAdhanSettings({ muadhin: m.id })}
-                        className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
-                          isSelected
-                            ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs'
-                            : 'bg-white dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <span className="text-xl">{m.icon}</span>
-                          <div className="truncate">
-                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                              {m.nameAr}
-                            </p>
-                            <span className="text-[10px] text-amber-500 font-mono">
-                              {isSelected ? 'المؤذن المعتمد حالياً ✔' : 'انقر للاختيار'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            togglePlayPreview(m.audioUrl);
-                          }}
-                          className={`p-2 rounded-xl border flex items-center gap-1 text-[11px] font-bold shrink-0 transition-colors cursor-pointer ${
-                            isThisPlaying
-                              ? 'bg-amber-500 text-black border-amber-400'
-                              : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600'
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                      اختر صوت المؤذن المفضل:
+                    </label>
+                    <span className="text-[10px] text-amber-500 font-bold">
+                      الافتراضي: الحرم المكي الشريف 🕋
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {MUADHIN_OPTIONS.map((m) => {
+                      const isSelected = selectedMuadhin === m.id;
+                      const isThisPlaying = isPlayingPreview && previewAudio?.src === m.audioUrl;
+                      return (
+                        <div
+                          key={m.id}
+                          onClick={() => handleUpdateAdhanSettings({ muadhin: m.id })}
+                          className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                            isSelected
+                              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs'
+                              : 'bg-white dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                           }`}
                         >
-                          {isThisPlaying ? (
-                            <>
-                              <Pause className="w-3.5 h-3.5 fill-current" />
-                              <span>إيقاف</span>
-                            </>
-                          ) : (
-                            <>
-                              <Play className="w-3.5 h-3.5 fill-current" />
-                              <span>استماع</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })}
+                          <div className="flex items-center gap-2.5 truncate">
+                            <span className="text-xl">{m.icon}</span>
+                            <div className="truncate">
+                              <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                {m.nameAr}
+                              </p>
+                              <span className="text-[10px] text-amber-500 font-mono">
+                                {isSelected ? 'المؤذن المعتمد حالياً ✔' : 'انقر للاختيار'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePlayPreview(m.audioUrl);
+                            }}
+                            className={`p-2 rounded-xl border flex items-center gap-1 text-[11px] font-bold shrink-0 transition-colors cursor-pointer ${
+                              isThisPlaying
+                                ? 'bg-amber-500 text-black border-amber-400'
+                                : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600'
+                            }`}
+                          >
+                            {isThisPlaying ? (
+                              <>
+                                <Pause className="w-3.5 h-3.5 fill-current" />
+                                <span>إيقاف</span>
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-3.5 h-3.5 fill-current" />
+                                <span>استماع</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
+              ) : (
+                /* Spiritual Prayer Chime Selector (Active when Full Adhan Audio is Disabled) */
+                <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <BellRing className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-emerald-200">
+                        الرنين الروحي النبوي البديل للصلاة (مفعّل تلقائياً)
+                      </h4>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                        نغمات مئذنة وقورة وخافتة بدلاً من إيقاف التنبيه بالكامل، لتذكيرك بالصلاة في بيئة العمل دون إحراج
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-1">
+                    {[
+                      {
+                        id: 'rast_minaret',
+                        nameAr: 'مقام الرست النبوي الشريف (مآذن الحرمين)',
+                        descAr: 'نغمات مئذنة توافقية مقدسة (D4 → G4 → A4 → D5)',
+                        isDefault: true,
+                      },
+                      {
+                        id: 'andalusian_peace',
+                        nameAr: 'رنين السكينة الأندلسية (432Hz)',
+                        descAr: 'تردد طبيعي دافئ مفعم بالخشوع والسكينة',
+                      },
+                      {
+                        id: 'serenity_chime',
+                        nameAr: 'رنين الخشوع والوقار الصافي',
+                        descAr: 'نغمات هادئة صافية لا تقطع حبل التركيز بعنف',
+                      },
+                    ].map((chime) => {
+                      const isSelected = selectedChime === chime.id;
+                      const isPlaying = activeChimePreview === chime.id;
+                      return (
+                        <div
+                          key={chime.id}
+                          onClick={() => handleUpdateAdhanSettings({ chimeWhenDisabled: chime.id as any })}
+                          className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-500/10 border-emerald-500 shadow-xs'
+                              : 'bg-white dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <span className="text-xl">📿</span>
+                            <div className="truncate">
+                              <div className="flex items-center gap-1.5">
+                                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                                  {chime.nameAr}
+                                </p>
+                                {chime.isDefault && (
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-400 font-bold">
+                                    الموصى به
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
+                                {isSelected ? 'الرنين المعتمد حالياً ✔' : chime.descAr}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePlayChimePreview(chime.id);
+                            }}
+                            className={`p-2 rounded-xl border flex items-center gap-1 text-[11px] font-bold shrink-0 transition-colors cursor-pointer ${
+                              isPlaying
+                                ? 'bg-emerald-500 text-black border-emerald-400 shadow-md animate-pulse'
+                                : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-600'
+                            }`}
+                          >
+                            {isPlaying ? (
+                              <>
+                                <Pause className="w-3.5 h-3.5 fill-current" />
+                                <span>إيقاف</span>
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-3.5 h-3.5 fill-current" />
+                                <span>استماع</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Full Cognitive Tones Hub Entry Button */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setIsSoundTonesModalOpen(true);
+                  }}
+                  className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between gap-3 text-right cursor-pointer group shadow-2xs"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 group-hover:scale-105 transition-transform">
+                      <Headphones className="w-4.5 h-4.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          تخصيص جميع نغمات التطبيق الإدراكية
+                        </p>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
+                          نظام كامل 🎧
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                        نغمات خاصة ومميزة لإتمام السبرنتات، انتهاء الاستراحة، الأوراد، الماء، والشعلة
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                    فتح الإعدادات ←
+                  </span>
+                </button>
               </div>
             </div>
           ) : (
@@ -600,6 +765,13 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
             إغلاق
           </button>
         </div>
+
+        {/* Cognitive Notification Tones Customization Modal */}
+        <NotificationSoundsModal
+          isOpen={isSoundTonesModalOpen}
+          onClose={() => setIsSoundTonesModalOpen(false)}
+          userState={userState}
+        />
       </div>
     </div>
   );

@@ -610,9 +610,33 @@ export type ThemePaletteId =
   | 'cosmic_titanium' // تيتانيوم الفضاء الأبل برو (Space Tech)
   | 'nordic_slate';   // الصلصال الشمالي النقي (Minimalist)
 
+export type NotificationSoundCategory =
+  | 'prayer_athan'
+  | 'prayer_chime'
+  | 'sprint_completion'
+  | 'break_refocus'
+  | 'quick_alarm'
+  | 'wird_adhkar'
+  | 'hydration_neat'
+  | 'streak_celebration'
+  | 'urgent_warning';
+
+export interface NotificationTonesConfig {
+  prayerTone?: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary' | 'takbeerat_only';
+  prayerChimeAlternative?: 'rast_minaret' | 'andalusian_peace' | 'serenity_chime';
+  sprintCompletionTone?: 'harmonic_ascent' | 'victory_fanfare' | 'crystal_clarity';
+  breakRefocusTone?: 'tibetan_gong' | 'double_brass' | 'calm_resumption';
+  quickAlarmTone?: 'marimba_pulse' | 'triple_stride' | 'resonant_beacon';
+  wirdAdhkarTone?: 'solfeggio_528' | 'sacred_echo' | 'tranquil_dawn';
+  hydrationNeatTone?: 'water_drop' | 'spring_dew' | 'vitality_bubble';
+  streakCelebrationTone?: 'triumphant_fanfare' | 'heroic_chord' | 'celestial_ascent';
+  urgentWarningTone?: 'minor_third_alert' | 'urgent_pulse' | 'resolute_call';
+}
+
 export interface PrayerAudioSettings {
   adhanEnabled: boolean;
-  muadhin: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary';
+  muadhin: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary' | 'takbeerat_only';
+  chimeWhenDisabled?: 'rast_minaret' | 'andalusian_peace' | 'serenity_chime';
   prePrayerAlertEnabled: boolean; // default true
   prePrayerAlertMinutes: number; // default 10
 }
@@ -629,6 +653,7 @@ export interface AppSettings {
   prayerLocation?: PrayerLocationConfig;
   prayerNotificationsEnabled?: boolean;
   prayerAudioSettings?: PrayerAudioSettings;
+  notificationTones?: NotificationTonesConfig;
   followUpReminderMinutes?: number; // default 15
   secondReminderMinutes?: number; // default 30
   fridayReminderDelayMinutes?: number; // default 120 (2 hours)

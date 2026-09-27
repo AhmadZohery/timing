@@ -3,7 +3,7 @@
 // يضمن تشغيل مصدر صوتي واحد حصرياً (القرآن، أثير السيرة، الضوضاء البيئية، النطق)
 // ============================================================================
 
-export type AudioChannelId = 'quran' | 'gym_faith' | 'ambient' | 'speech';
+export type AudioChannelId = 'quran' | 'gym_faith' | 'ambient' | 'speech' | 'athan';
 
 class AudioCoordinator {
   private channels: Map<AudioChannelId, () => void> = new Map();

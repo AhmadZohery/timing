@@ -1,5 +1,6 @@
-import type { AmbientSoundType } from '../types';
+import type { AmbientSoundType, NotificationSoundCategory, NotificationTonesConfig } from '../types';
 import { audioCoordinator } from './audioCoordinator';
+import { MUADHIN_OPTIONS } from '../utils/prayerCalculator';
 
 // 100% Free Algorithmic Web Audio Synthesizer (0 External MP3s / 0 Cloud Bandwidth)
 class SoundSynthesizer {
@@ -10,9 +11,12 @@ class SoundSynthesizer {
   private currentAmbientType: AmbientSoundType = 'none';
   private isMuted: boolean = typeof window !== 'undefined' && localStorage.getItem('midmar_sound_muted') === 'true';
   private ambientListeners: Set<(isPlaying: boolean, type: AmbientSoundType) => void> = new Set();
+  private athanAudio: HTMLAudioElement | null = null;
+  private isAthanPlaying = false;
 
   constructor() {
     audioCoordinator.register('ambient', () => this.stopAmbient());
+    audioCoordinator.register('athan', () => this.stopAthanAudio());
   }
 
   public subscribeAmbient(listener: (isPlaying: boolean, type: AmbientSoundType) => void): () => void {
@@ -673,12 +677,557 @@ class SoundSynthesizer {
         } catch (_) {}
         this.binauralLeftOsc = null;
         this.binauralRightOsc = null;
-        this.binauralGain = null;
-      }, 650);
+        }, 650);
     } catch (_) {
       this.binauralLeftOsc = null;
       this.binauralRightOsc = null;
       this.binauralGain = null;
+    }
+  }
+
+  // =========================================================================
+  // Differentiated Cognitive Sound System (نظام التمييز الصوتي الإدراكي)
+  // =========================================================================
+
+  // 1. Distinct Spiritual Prayer Chime (Used when Athan audio is disabled, or as offline fallback)
+  // Replaces generic sounds with a sacred, reverent Islamic minaret chime in Maqam Rast
+  public playPrayerSpiritualChime(variant: 'rast_minaret' | 'andalusian_peace' | 'serenity_chime' | string = 'rast_minaret') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      let notes = [293.66, 392.00, 440.00, 587.33]; // D4, G4, A4, D5 (Maqam Rast / Minaret Chime)
+      if (variant === 'andalusian_peace') {
+        notes = [329.63, 493.88, 587.33, 659.25]; // E4, B4, D5, E5
+      } else if (variant === 'serenity_chime') {
+        notes = [261.63, 392.00, 523.25]; // C4, G4, C5
+      }
+
+      notes.forEach((freq, idx) => {
+        const startTime = now + idx * 0.14;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        const gain2 = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, startTime);
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(freq * 1.5, startTime); // Harmonic fifth for sacred warmth
+
+        gain1.gain.setValueAtTime(0.0001, startTime);
+        gain1.gain.exponentialRampToValueAtTime(0.18, startTime + 0.05);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + 2.2);
+
+        gain2.gain.setValueAtTime(0.0001, startTime);
+        gain2.gain.exponentialRampToValueAtTime(0.04, startTime + 0.05);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.5);
+
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+
+        osc1.onended = () => {
+          try {
+            osc1.disconnect();
+            gain1.disconnect();
+            osc2.disconnect();
+            gain2.disconnect();
+          } catch (_) {}
+        };
+
+        osc1.start(startTime);
+        osc1.stop(startTime + 2.3);
+        osc2.start(startTime);
+        osc2.stop(startTime + 1.6);
+      });
+    } catch (_) {}
+  }
+
+  // 2. Sprint / Work Session Completion (Triumphant Ascending Arpeggio)
+  public playSprintCompletionChime(variant: 'harmonic_ascent' | 'victory_fanfare' | 'crystal_clarity' | string = 'harmonic_ascent') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      let notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      if (variant === 'victory_fanfare') {
+        notes = [392.00, 523.25, 659.25, 783.99]; // G4, C5, E5, G5
+      } else if (variant === 'crystal_clarity') {
+        notes = [880.00, 1174.66, 1760.00]; // A5, D6, A6
+      }
+
+      notes.forEach((freq, idx) => {
+        const startTime = now + idx * 0.08;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.3);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.onended = () => {
+          try {
+            osc.disconnect();
+            gain.disconnect();
+          } catch (_) {}
+        };
+
+        osc.start(startTime);
+        osc.stop(startTime + 1.35);
+      });
+    } catch (_) {}
+  }
+
+  // 3. Break Over / Refocus Tone (Tibetan Singing Bowl Gong)
+  public playBreakOverChime(variant: 'tibetan_gong' | 'double_brass' | 'calm_resumption' | string = 'tibetan_gong') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      if (variant === 'double_brass') {
+        this.playBoxingBell();
+        return;
+      }
+
+      const freqs = variant === 'calm_resumption' ? [440, 660] : [880, 1320, 1760];
+      freqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.14 / (i + 1), now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.onended = () => {
+          try {
+            osc.disconnect();
+            gain.disconnect();
+          } catch (_) {}
+        };
+        osc.start(now);
+        osc.stop(now + 2.1);
+      });
+    } catch (_) {}
+  }
+
+  // 4. Quick Alarms & Reminders (Rhythmic Marimba Pulse)
+  public playAlarmReminderChime(variant: 'marimba_pulse' | 'triple_stride' | 'resonant_beacon' | string = 'marimba_pulse') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      let notes = [950, 1150, 1320];
+      if (variant === 'triple_stride') notes = [800, 1000, 1200];
+      if (variant === 'resonant_beacon') notes = [1100, 1350];
+
+      notes.forEach((freq, idx) => {
+        const startTime = now + idx * 0.12;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.25, startTime + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.16);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.onended = () => {
+          try {
+            osc.disconnect();
+            gain.disconnect();
+          } catch (_) {}
+        };
+
+        osc.start(startTime);
+        osc.stop(startTime + 0.18);
+      });
+    } catch (_) {}
+  }
+
+  // 5. Hydration & Physical Movement (Crystal Water Droplet Chime)
+  public playHydrationChime(variant: 'water_drop' | 'spring_dew' | 'vitality_bubble' | string = 'water_drop') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      const playDrop = (delay: number, startFreq: number, endFreq: number) => {
+        const time = now + delay;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startFreq, time);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, time + 0.04);
+
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.exponentialRampToValueAtTime(0.22, time + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.18);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.onended = () => {
+          try {
+            osc.disconnect();
+            gain.disconnect();
+          } catch (_) {}
+        };
+        osc.start(time);
+        osc.stop(time + 0.2);
+      };
+
+      if (variant === 'vitality_bubble') {
+        playDrop(0, 1100, 1800);
+        playDrop(0.09, 1300, 2100);
+        playDrop(0.18, 1600, 2500);
+      } else if (variant === 'spring_dew') {
+        playDrop(0, 1200, 1900);
+        playDrop(0.12, 1400, 2200);
+      } else {
+        // Standard crystal water drop
+        playDrop(0, 1350, 2150);
+        playDrop(0.11, 1550, 2400);
+      }
+    } catch (_) {}
+  }
+
+  // 6. Quran Wird & Adhkar (528 Hz Solfeggio Tranquility Chime)
+  public playWirdAdhkarChime(variant: 'solfeggio_528' | 'sacred_echo' | 'tranquil_dawn' | string = 'solfeggio_528') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      let baseFreq = 528.0;
+      if (variant === 'sacred_echo') baseFreq = 432.0;
+      if (variant === 'tranquil_dawn') baseFreq = 660.0;
+
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      const gain2 = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(baseFreq, now);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(baseFreq * 2, now);
+
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.20, now + 0.08);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+      gain2.gain.setValueAtTime(0.0001, now);
+      gain2.gain.exponentialRampToValueAtTime(0.05, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.6);
+
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+
+      osc1.onended = () => {
+        try {
+          osc1.disconnect();
+          gain1.disconnect();
+          osc2.disconnect();
+          gain2.disconnect();
+        } catch (_) {}
+      };
+      osc1.start(now);
+      osc1.stop(now + 2.3);
+      osc2.start(now);
+      osc2.stop(now + 1.7);
+    } catch (_) {}
+  }
+
+  // 7. Streak Milestones & Shields (Major Triumphant Fanfare)
+  public playStreakFanfare(variant: 'triumphant_fanfare' | 'heroic_chord' | 'celestial_ascent' | string = 'triumphant_fanfare') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      if (variant === 'heroic_chord') {
+        [440, 554.37, 659.25, 880].forEach((freq) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.12, now + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.onended = () => {
+            try {
+              osc.disconnect();
+              gain.disconnect();
+            } catch (_) {}
+          };
+          osc.start(now);
+          osc.stop(now + 1.3);
+        });
+        return;
+      }
+
+      if (variant === 'celestial_ascent') {
+        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+          const startTime = now + idx * 0.07;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.14, startTime + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.onended = () => {
+            try {
+              osc.disconnect();
+              gain.disconnect();
+            } catch (_) {}
+          };
+          osc.start(startTime);
+          osc.stop(startTime + 1.25);
+        });
+        return;
+      }
+
+      this.playStreakMilestoneChime();
+    } catch (_) {
+      this.playStreakMilestoneChime();
+    }
+  }
+
+  // 8. Urgent Warning / Catch-Up (Dignified Minor Alert)
+  public playUrgentWarningTone(variant: 'minor_third_alert' | 'urgent_pulse' | 'resolute_call' | string = 'minor_third_alert') {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      const now = ctx.currentTime;
+
+      if (variant === 'urgent_pulse') {
+        [0, 0.16].forEach((delay) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, now + delay);
+          osc.frequency.exponentialRampToValueAtTime(180, now + delay + 0.12);
+          gain.gain.setValueAtTime(0.001, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.16, now + delay + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.onended = () => {
+            try {
+              osc.disconnect();
+              gain.disconnect();
+            } catch (_) {}
+          };
+          osc.start(now + delay);
+          osc.stop(now + delay + 0.15);
+        });
+        return;
+      }
+
+      if (variant === 'resolute_call') {
+        [440, 523.25, 440].forEach((freq, idx) => {
+          const startTime = now + idx * 0.12;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.onended = () => {
+            try {
+              osc.disconnect();
+              gain.disconnect();
+            } catch (_) {}
+          };
+          osc.start(startTime);
+          osc.stop(startTime + 0.25);
+        });
+        return;
+      }
+
+      this.playWarningSound();
+    } catch (_) {
+      this.playWarningSound();
+    }
+  }
+
+  // =========================================================================
+  // Authentic Athan Audio Player with Fail-Safe Offline Fallback
+  // =========================================================================
+  public async playAthanAudio(muadhinId = 'makkah'): Promise<void> {
+    if (this.isMuted) return;
+    this.stopAthanAudio();
+
+    const opt = MUADHIN_OPTIONS.find((m) => m.id === muadhinId) || MUADHIN_OPTIONS[0];
+    try {
+      audioCoordinator.requestExclusive('athan');
+      const aud = new Audio(opt.audioUrl);
+      aud.volume = 0.95;
+      this.athanAudio = aud;
+      this.isAthanPlaying = true;
+
+      aud.onended = () => {
+        this.isAthanPlaying = false;
+        this.athanAudio = null;
+      };
+      aud.onerror = () => {
+        this.isAthanPlaying = false;
+        this.athanAudio = null;
+        // Offline / Network fail-safe: play distinct synthesized spiritual chime
+        this.playPrayerSpiritualChime('rast_minaret');
+      };
+
+      await aud.play();
+    } catch {
+      this.isAthanPlaying = false;
+      this.athanAudio = null;
+      // Autoplay blocked / Network fail-safe
+      this.playPrayerSpiritualChime('rast_minaret');
+    }
+  }
+
+  public stopAthanAudio(): void {
+    if (this.athanAudio) {
+      try {
+        this.athanAudio.pause();
+        this.athanAudio.currentTime = 0;
+      } catch (_) {}
+      this.athanAudio = null;
+    }
+    this.isAthanPlaying = false;
+  }
+
+  public isAthanActive(): boolean {
+    return this.isAthanPlaying;
+  }
+
+  // =========================================================================
+  // Centralized Sound Dispatcher & Preferences Integration
+  // =========================================================================
+  public getNotificationTonesConfig(): NotificationTonesConfig {
+    try {
+      const raw = localStorage.getItem('midmar_notification_tones');
+      if (raw) return JSON.parse(raw);
+    } catch (_) {}
+    return {
+      prayerTone: 'makkah', // Default: Athan of Al-Haram Al-Makki
+      prayerChimeAlternative: 'rast_minaret',
+      sprintCompletionTone: 'harmonic_ascent',
+      breakRefocusTone: 'tibetan_gong',
+      quickAlarmTone: 'marimba_pulse',
+      wirdAdhkarTone: 'solfeggio_528',
+      hydrationNeatTone: 'water_drop',
+      streakCelebrationTone: 'triumphant_fanfare',
+      urgentWarningTone: 'minor_third_alert',
+    };
+  }
+
+  public saveNotificationTonesConfig(cfg: NotificationTonesConfig): void {
+    try {
+      localStorage.setItem('midmar_notification_tones', JSON.stringify(cfg));
+    } catch (_) {}
+  }
+
+  public playNotificationSound(category: NotificationSoundCategory, specificToneId?: string) {
+    if (this.isMuted) return;
+    const cfg = this.getNotificationTonesConfig();
+
+    switch (category) {
+      case 'prayer_athan': {
+        const tone = specificToneId || cfg.prayerTone || 'makkah';
+        if (tone === 'spiritual_chime') {
+          this.playPrayerSpiritualChime(cfg.prayerChimeAlternative || 'rast_minaret');
+        } else {
+          this.playAthanAudio(tone);
+        }
+        break;
+      }
+      case 'prayer_chime': {
+        const tone = specificToneId || cfg.prayerChimeAlternative || 'rast_minaret';
+        this.playPrayerSpiritualChime(tone);
+        break;
+      }
+      case 'sprint_completion': {
+        const tone = specificToneId || cfg.sprintCompletionTone || 'harmonic_ascent';
+        this.playSprintCompletionChime(tone);
+        break;
+      }
+      case 'break_refocus': {
+        const tone = specificToneId || cfg.breakRefocusTone || 'tibetan_gong';
+        this.playBreakOverChime(tone);
+        break;
+      }
+      case 'quick_alarm': {
+        const tone = specificToneId || cfg.quickAlarmTone || 'marimba_pulse';
+        this.playAlarmReminderChime(tone);
+        break;
+      }
+      case 'wird_adhkar': {
+        const tone = specificToneId || cfg.wirdAdhkarTone || 'solfeggio_528';
+        this.playWirdAdhkarChime(tone);
+        break;
+      }
+      case 'hydration_neat': {
+        const tone = specificToneId || cfg.hydrationNeatTone || 'water_drop';
+        this.playHydrationChime(tone);
+        break;
+      }
+      case 'streak_celebration': {
+        const tone = specificToneId || cfg.streakCelebrationTone || 'triumphant_fanfare';
+        this.playStreakFanfare(tone);
+        break;
+      }
+      case 'urgent_warning': {
+        const tone = specificToneId || cfg.urgentWarningTone || 'minor_third_alert';
+        this.playUrgentWarningTone(tone);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Dedicated intelligent prayer notification handler
+   * - If Adhan audio is enabled: plays selected Muadhin (default Makkah)
+   * - If Adhan audio is disabled: plays distinct spiritual prayer chime
+   */
+  public playPrayerNotification(settings?: {
+    adhanEnabled?: boolean;
+    muadhin?: string;
+    chimeWhenDisabled?: string;
+  }) {
+    if (this.isMuted) return;
+    const cfg = this.getNotificationTonesConfig();
+    const isAdhanEnabled = settings?.adhanEnabled ?? false;
+
+    if (isAdhanEnabled) {
+      const muadhin = settings?.muadhin || cfg.prayerTone || 'makkah';
+      this.playAthanAudio(muadhin);
+    } else {
+      const chime = settings?.chimeWhenDisabled || cfg.prayerChimeAlternative || 'rast_minaret';
+      this.playPrayerSpiritualChime(chime);
     }
   }
 }

@@ -461,7 +461,7 @@ export function calculateNightIntervals(
 }
 
 export interface MuadhinOption {
-  id: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary';
+  id: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary' | 'takbeerat_only';
   nameAr: string;
   audioUrl: string;
   icon: string;
@@ -470,33 +470,39 @@ export interface MuadhinOption {
 export const MUADHIN_OPTIONS: MuadhinOption[] = [
   {
     id: 'makkah',
-    nameAr: 'أذان الحرم المكي الشريف (الشيخ علي ملا)',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/ali_ibn_ahmed_malla.mp3',
+    nameAr: 'أذان الحرم المكي الشريف (الشيخ علي ملا) - الافتراضي 🕋',
+    audioUrl: 'https://cdn.aladhan.com/audio/adhans/a1.mp3',
     icon: '🕋',
   },
   {
     id: 'madinah',
-    nameAr: 'أذان المسجد النبوي الشريف (الشيخ عصام بخاري)',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/essam_boukhari.mp3',
+    nameAr: 'أذان المسجد النبوي الشريف (الشيخ عصام بخاري) 🕌',
+    audioUrl: 'https://cdn.aladhan.com/audio/adhans/a2.mp3',
     icon: '🕌',
   },
   {
     id: 'aqsa',
-    nameAr: 'أذان المسجد الأقصى المبارك',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/al-aqsa.mp3',
+    nameAr: 'أذان المسجد الأقصى المبارك ✨',
+    audioUrl: 'https://cdn.aladhan.com/audio/adhans/a3.mp3',
     icon: '✨',
   },
   {
     id: 'abdulbasit',
-    nameAr: 'أذان الشيخ عبد الباسط عبد الصمد (مصر)',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/abdelbasset_abdessamad.mp3',
+    nameAr: 'أذان مصر الكنانة (الشيخ عبد الباسط عبد الصمد) 🎙️',
+    audioUrl: 'https://cdn.aladhan.com/audio/adhans/a4.mp3',
     icon: '🎙️',
   },
   {
     id: 'mishary',
-    nameAr: 'أذان الشيخ مشاري بن راشد العفاسي',
-    audioUrl: 'https://media.sd.ma/assabile/adhan/mishary_rashid_alafasy.mp3',
+    nameAr: 'أذان الشيخ مشاري بن راشد العفاسي 🌟',
+    audioUrl: 'https://cdn.aladhan.com/audio/adhans/a5.mp3',
     icon: '🌟',
+  },
+  {
+    id: 'takbeerat_only',
+    nameAr: 'تكبيرات الأذان فقط (مختصر وسريع) 🔔',
+    audioUrl: 'https://cdn.aladhan.com/audio/adhans/a8.mp3',
+    icon: '🔔',
   },
 ];
 

@@ -139,7 +139,8 @@ class AccountabilityNotificationManager {
                 [
                   { action: 'mark_late_prayer', title: 'صليت الآن ✔' },
                   { action: 'open_prayer', title: 'مراجعة الصلوات 🕌' },
-                ]
+                ],
+                'urgent_warning'
               );
               break; // Don't spam multiple prayers at the exact same tick
             }
@@ -177,7 +178,8 @@ class AccountabilityNotificationManager {
                 '📖 تذكير بركة اليوم: سورة البقرة بانتظارك 🌱',
                 'مضى نصف النهار ولم تسجل قراءة وردك بعد.. «أخذها بركة وتركها حسرة»، 15 دقيقة تصنع فارقاً عظيماً في بركة يومك.',
                 'late-wird-afternoon',
-                [{ action: 'open_wird', title: 'بدء قراءة الورد 📖' }]
+                [{ action: 'open_wird', title: 'بدء قراءة الورد 📖' }],
+                'wird_adhkar'
               );
             }
           }
@@ -192,7 +194,8 @@ class AccountabilityNotificationManager {
                 '🛡️ استدراك الورد القرآني قبل انقضاء اليوم',
                 `متبقٍ ${remainingPages} صفحة لإتمام وردك اليومي.. ما زال بإمكانك قراءة ما تيسر من سورة البقرة لتنعم بحفظ الله وسكينته.`,
                 'late-wird-evening',
-                [{ action: 'open_wird', title: 'إتمام الورد القرآني 📖' }]
+                [{ action: 'open_wird', title: 'إتمام الورد القرآني 📖' }],
+                'wird_adhkar'
               );
             }
           }
@@ -215,7 +218,8 @@ class AccountabilityNotificationManager {
                 '🌙 تفقد حصاد اليوم وإغلاق المحطات',
                 'شارف اليوم على الانتهاء.. دقائق يسيرة لتسجيل إنجازاتك وتصفية ذهنك استعداداً لنوم عميق وبداية مشرقة لغدك.',
                 'late-evening-checkin',
-                [{ action: 'open_checkin', title: 'مراجعة اليوم 🌟' }]
+                [{ action: 'open_checkin', title: 'مراجعة اليوم 🌟' }],
+                'break_refocus'
               );
             }
           }
@@ -230,13 +234,11 @@ class AccountabilityNotificationManager {
    * Instant test notification for user testing and verification
    */
   public async testNotification(type: 'prayer' | 'wird' | 'checkin'): Promise<boolean> {
-    soundSynth.playCompletionChime();
-    haptic.vibrateLight();
-
     let title = '';
     let body = '';
     let tag = '';
     let actions: Array<{ action: string; title: string }> = [];
+    let category: 'urgent_warning' | 'wird_adhkar' | 'break_refocus' = 'urgent_warning';
 
     if (type === 'prayer') {
       title = '🕌 تجربة: تذكير استدراك صلاة العصر';
@@ -246,19 +248,22 @@ class AccountabilityNotificationManager {
         { action: 'mark_late_prayer', title: 'صليت الآن ✔' },
         { action: 'open_prayer', title: 'مراجعة الصلوات 🕌' },
       ];
+      category = 'urgent_warning';
     } else if (type === 'wird') {
       title = '📖 تجربة: تذكير ورد سورة البقرة المباركة';
       body = '«أخذها بركة وتركها حسرة ولا تستطيعها البطلة».. ما زال ورد سورة البقرة بانتظارك 🌱.';
       tag = 'test-late-wird';
       actions = [{ action: 'open_wird', title: 'بدء قراءة الورد 📖' }];
+      category = 'wird_adhkar';
     } else {
       title = '🌙 تجربة: تذكير تفقد وإغلاق اليوم';
       body = 'شارف يومك على الانتهاء.. راجع إنجازاتك ودروعك لتنعم بذهن هادئ ونوم مستقر.';
       tag = 'test-late-checkin';
       actions = [{ action: 'open_checkin', title: 'مراجعة اليوم 🌟' }];
+      category = 'break_refocus';
     }
 
-    return this.showNotification(title, body, tag, actions);
+    return this.showNotification(title, body, tag, actions, category);
   }
 
   /**
@@ -268,9 +273,16 @@ class AccountabilityNotificationManager {
     title: string,
     body: string,
     tag: string,
-    actions: Array<{ action: string; title: string }> = []
+    actions: Array<{ action: string; title: string }> = [],
+    category: 'urgent_warning' | 'wird_adhkar' | 'break_refocus' = 'urgent_warning'
   ): Promise<boolean> {
-    soundSynth.playCompletionChime();
+    if (category === 'wird_adhkar') {
+      soundSynth.playWirdAdhkarChime();
+    } else if (category === 'break_refocus') {
+      soundSynth.playBreakOverChime();
+    } else {
+      soundSynth.playUrgentWarningTone();
+    }
     haptic.vibrateLight();
 
     if (!('Notification' in window)) return false;

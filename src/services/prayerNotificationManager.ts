@@ -173,7 +173,9 @@ class PrayerNotificationManager {
               diffMinutes > 5
                 ? `مضت ${diffMinutes} دقيقة على دخول وقت ${item.titleAr}.. استدرك صلاتك الآن لتنال أجر الفريضة وبركة وقتها.`
                 : `حيّ على الصلاة، حيّ على الفلاح.. بادر بالاستعداد للصلاة في أول وقتها لتنال أجر الصف الأول.`,
-              `prayer-adhan-${item.name}`
+              `prayer-adhan-${item.name}`,
+              'prayer_adhan',
+              settings?.prayerAudioSettings
             );
           }
         }
@@ -235,7 +237,8 @@ class PrayerNotificationManager {
             await this.showNotification(
               `حان موعد ${item.titleAr} منذ ${followUpMinutes} دقيقة 🕌`,
               `هل أديت ${item.titleAr} في وقتها؟ الصلاة أحب الأعمال إلى الله، انقر لتسجيل صلاتك.`,
-              `prayer-followup-${item.name}`
+              `prayer-followup-${item.name}`,
+              'urgent_warning'
             );
           }
         }
@@ -248,7 +251,8 @@ class PrayerNotificationManager {
             await this.showNotification(
               `تذكير لطيف بـ ${item.titleAr} 🤍`,
               `لا تؤخر ${item.titleAr} عن وقتها، الصلاة راحة للنفس وبركة في الوقت والعمل.`,
-              `prayer-warning-${item.name}`
+              `prayer-warning-${item.name}`,
+              'urgent_warning'
             );
           }
         }
@@ -258,9 +262,23 @@ class PrayerNotificationManager {
     }
   }
 
-  private async showNotification(title: string, body: string, tag: string) {
-    soundSynth.playCompletionChime();
-    haptic.vibrateLight();
+  private async showNotification(
+    title: string,
+    body: string,
+    tag: string,
+    category: 'prayer_adhan' | 'urgent_warning' | 'wird_adhkar' = 'prayer_adhan',
+    prayerAudioSettings?: any
+  ) {
+    if (category === 'prayer_adhan') {
+      soundSynth.playPrayerNotification(prayerAudioSettings);
+      haptic.vibrateSprintCelebration();
+    } else if (category === 'urgent_warning') {
+      soundSynth.playUrgentWarningTone();
+      haptic.vibrateLight();
+    } else {
+      soundSynth.playWirdAdhkarChime();
+      haptic.vibrateLight();
+    }
 
     if (!('Notification' in window)) return;
 

@@ -125,7 +125,7 @@ class SleepNotificationManager {
   }
 
   private async showNotification(title: string, body: string, tag: string) {
-    soundSynth.playCompletionChime();
+    soundSynth.playBreakOverChime();
     haptic.vibrateLight();
 
     if (!('Notification' in window)) return;

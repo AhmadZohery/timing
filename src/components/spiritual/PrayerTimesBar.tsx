@@ -224,7 +224,10 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       setIsAdhanPlaying(true);
       setActiveAdhanAudio(aud);
       onRewardToast?.(isAr ? `📢 يُرفع الأذان الآن بصوت: ${opt.nameAr}` : `Adhan playing: ${opt.nameAr}`);
-    }).catch(() => {});
+    }).catch(() => {
+      soundSynth.playPrayerSpiritualChime(pAudio?.chimeWhenDisabled || 'rast_minaret');
+      onRewardToast?.(isAr ? `📿 رنين الصلاة الروحي (مقام الرست النبوي الشريف)` : `Prayer spiritual chime`);
+    });
     aud.onended = () => {
       setIsAdhanPlaying(false);
     };
