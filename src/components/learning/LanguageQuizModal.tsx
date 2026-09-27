@@ -183,9 +183,15 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer animate-fade-in" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4 animate-scale-up text-slate-900 dark:text-white">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg max-h-[92vh] rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4 animate-scale-in text-slate-900 dark:text-white overflow-y-auto cursor-default"
+        onClick={(e) => e.stopPropagation()}
+        dir={isAr ? 'rtl' : 'ltr'}
+      >
         {/* Top Bar: Mode Switcher & Close */}
         <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-white/[0.06]">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
@@ -272,7 +278,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-mono text-slate-500 dark:text-zinc-400">
             <span>
-              {isAr ? 'السؤال' : 'Question'} {currentIndex + 1} / {words.length}
+              {isAr ? 'السؤال' : 'Question'} {currentIndex + 1} / {effectiveWords.length}
             </span>
             <span className="font-bold text-indigo-600 dark:text-indigo-400">
               {score} {isAr ? 'إجابات صحيحة' : 'Correct'}
@@ -322,7 +328,12 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                     {isAr ? 'أكمل الفراغ بالكلمة الصحيحة:' : 'Fill in the blank with the correct word:'}
                   </span>
                   <p dir="ltr" className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white font-serif">
-                    {currentWord.contextSentence.replace(new RegExp(currentWord.word, 'gi'), '_______')}
+                    {currentWord.contextSentence
+                      ? currentWord.contextSentence.replace(
+                          new RegExp(currentWord.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                          '_______'
+                        )
+                      : '_______'}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-zinc-400">
                     «{currentWord.contextSentenceAr}»

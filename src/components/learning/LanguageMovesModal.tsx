@@ -293,9 +293,15 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
   const activeIdiom = idiomsDeck[currentIndex % (idiomsDeck.length || 1)] || currentWord;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-fade-in">
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-md cursor-pointer animate-fade-in" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-white/[0.08] p-5 sm:p-7 shadow-2xl space-y-4 animate-scale-up text-slate-900 dark:text-white max-h-[92vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-2xl max-h-[92vh] rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-white/[0.08] p-5 sm:p-7 shadow-2xl space-y-4 animate-scale-in text-slate-900 dark:text-white overflow-y-auto cursor-default"
+        onClick={(e) => e.stopPropagation()}
+        dir={isAr ? 'rtl' : 'ltr'}
+      >
         {/* Top Header */}
         <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
