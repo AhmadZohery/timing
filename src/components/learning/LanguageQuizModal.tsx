@@ -16,6 +16,8 @@ import {
 import {
   VOCABULARY_DATABASE,
   type VocabularyWord,
+  type CefrLevel,
+  CEFR_LEVELS_INFO,
 } from '../../data/languages/vocabularyDatabase';
 import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
@@ -32,6 +34,7 @@ interface LanguageQuizModalProps {
   words?: VocabularyWord[];
   speechCode: string;
   onCompleted?: (score: number, total: number) => void;
+  initialLevel?: CefrLevel | 'ALL';
 }
 
 export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
@@ -40,10 +43,12 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   words = [],
   speechCode,
   onCompleted,
+  initialLevel = 'ALL',
 }) => {
   const { language, isRTL } = useTranslation();
   const isAr = language === 'ar';
 
+  const [selectedLevel, setSelectedLevel] = useState<CefrLevel | 'ALL'>(initialLevel);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
@@ -53,12 +58,28 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const [activeQuizMode, setActiveQuizMode] = useState<QuizMode>('multiple_choice');
 
   // Guaranteed words fallback so the modal NEVER blocks or fails
-  const effectiveWords = useMemo(() => {
+  const rawWords = useMemo(() => {
     if (words && words.length > 0) return words;
     const today = spacedRepetition.getTodayWords();
     if (today && today.length > 0) return today;
     return spacedRepetition.getAllWordsForLanguage();
   }, [words]);
+
+  // Words filtered by selectedLevel
+  const effectiveWords = useMemo(() => {
+    if (selectedLevel === 'ALL') return rawWords;
+    const filtered = rawWords.filter((w) => w.level === selectedLevel);
+    return filtered.length > 0 ? filtered : rawWords;
+  }, [rawWords, selectedLevel]);
+
+  // Level counts
+  const levelCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: rawWords.length };
+    CEFR_LEVELS_INFO.forEach((c) => {
+      counts[c.level] = rawWords.filter((w) => w.level === c.level).length;
+    });
+    return counts;
+  }, [rawWords]);
 
   // Close on ESC
   useEffect(() => {
@@ -277,11 +298,63 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
           </button>
         </div>
 
+        {/* CEFR Level Selector Filter */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setSelectedLevel('ALL');
+              setCurrentIndex(0);
+              setSelectedOption(null);
+              setIsAnswerSubmitted(false);
+            }}
+            className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              selectedLevel === 'ALL'
+                ? 'bg-slate-950 text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300'
+            }`}
+          >
+            <span>{isAr ? 'الكل' : 'All'}</span>
+            <span className="text-[10px] opacity-75 ms-1 font-mono">({levelCounts.ALL || 0})</span>
+          </button>
+          {CEFR_LEVELS_INFO.map((lvl) => {
+            const count = levelCounts[lvl.level] || 0;
+            const isSelected = selectedLevel === lvl.level;
+            return (
+              <button
+                key={lvl.level}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setSelectedLevel(lvl.level);
+                  setCurrentIndex(0);
+                  setSelectedOption(null);
+                  setIsAnswerSubmitted(false);
+                }}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1 border ${
+                  isSelected
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-xs'
+                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-indigo-400'
+                }`}
+              >
+                <span className="font-mono font-bold">{lvl.level}</span>
+                <span className="text-[10px] opacity-75 font-mono">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Quiz Progress Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-mono text-slate-500 dark:text-zinc-400">
-            <span>
-              {isAr ? 'السؤال' : 'Question'} {currentIndex + 1} / {effectiveWords.length}
+            <span className="flex items-center gap-1.5">
+              <span>{isAr ? 'السؤال' : 'Question'} {currentIndex + 1} / {effectiveWords.length}</span>
+              <span className="px-1.5 py-0.2 rounded bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 font-mono font-bold text-[10px]">
+                {currentWord.level}
+              </span>
             </span>
             <span className="font-bold text-indigo-600 dark:text-indigo-400">
               {score} {isAr ? 'إجابات صحيحة' : 'Correct'}
@@ -300,18 +373,31 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
             {/* Question Card Display */}
             <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 text-center space-y-2">
               {activeQuizMode === 'listening' ? (
-                <div className="py-3 space-y-2">
+                <div className="py-3 space-y-2.5">
                   <div className="w-14 h-14 mx-auto rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-md animate-pulse">
                     <Headphones className="w-7 h-7" />
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleSpeakWord}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-300 font-bold text-xs border border-indigo-200 dark:border-indigo-800/40"
-                  >
-                    <Volume2 className="w-4 h-4" />
-                    <span>{isAr ? 'أعد الاستماع' : 'Replay Audio'}</span>
-                  </button>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSpeakWord}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-300 font-bold text-xs border border-indigo-200 dark:border-indigo-800/40 shadow-2xs hover:bg-slate-50 cursor-pointer active:scale-95"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                      <span>{isAr ? 'استمع (1.0x)' : 'Play (1.0x)'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        speechService.speak(currentWord.word, speechCode, 0.75);
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-300 font-mono font-bold text-xs border border-indigo-200 dark:border-indigo-800/40 shadow-2xs hover:bg-slate-50 cursor-pointer active:scale-95"
+                      title={isAr ? 'نطق هادئ وبطيء' : 'Slow audio'}
+                    >
+                      <span>0.75x 🐢</span>
+                    </button>
+                  </div>
                   <p className="text-xs text-slate-500 dark:text-zinc-400">
                     {isAr ? 'استمع جيداً ثم اختر المعنى العربي المطابق' : 'Listen carefully and select the Arabic meaning'}
                   </p>
@@ -422,6 +508,74 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                 );
               })}
             </div>
+
+            {/* Learning Reinforcement Hub (Context Sentence, Collocations & Mnemonic Hook) */}
+            {isAnswerSubmitted && (
+              <div className="space-y-2 pt-1 animate-fade-in text-start">
+                {/* Context Sentence */}
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-900/90 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 leading-relaxed flex-1">
+                      “{currentWord.contextSentence}”
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        speechService.speak(currentWord.contextSentence, speechCode, 0.9);
+                      }}
+                      className="p-1 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 shrink-0 cursor-pointer"
+                      title={isAr ? 'استمع للجملة كاملة' : 'Listen full sentence'}
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <p className="text-emerald-700 dark:text-emerald-400 font-sans font-medium">
+                    «{currentWord.contextSentenceAr}»
+                  </p>
+                </div>
+
+                {/* Collocations */}
+                {currentWord.collocations && currentWord.collocations.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                      {isAr ? '🔗 متلازمات شائعة:' : '🔗 Collocations:'}
+                    </span>
+                    {currentWord.collocations.map((col, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          speechService.speak(col, speechCode, 0.95);
+                        }}
+                        className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                        title={isAr ? 'انقر للاستماع للنطق' : 'Click to hear pronunciation'}
+                      >
+                        <span>{col}</span>
+                        <Volume2 className="w-3 h-3 opacity-60" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mnemonic Hook */}
+                {currentWord.mnemonicHook && (
+                  <div className="p-2.5 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/25 flex items-start gap-2 text-xs">
+                    <span className="text-base shrink-0">🧠</span>
+                    <div>
+                      <span className="font-bold text-amber-900 dark:text-amber-300 block text-[11px]">
+                        {isAr ? 'خطاف الذاكرة الصوري (Mnemonic Hook):' : 'Visual Memory Hook:'}
+                      </span>
+                      <p className="text-amber-950/80 dark:text-amber-200/90 text-[11px] leading-relaxed font-sans">
+                        {currentWord.mnemonicHook}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Cognitive Knot Breaker & Etymology Deconstructor */}
             {isAnswerSubmitted && (selectedOption?.trim() !== correctAnswer.trim() || isLeech) && (

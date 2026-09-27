@@ -16,7 +16,11 @@ import {
   ChevronLeft,
   Layers,
 } from 'lucide-react';
-import type { VocabularyWord } from '../../data/languages/vocabularyDatabase';
+import {
+  type VocabularyWord,
+  type CefrLevel,
+  CEFR_LEVELS_INFO,
+} from '../../data/languages/vocabularyDatabase';
 import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -32,6 +36,7 @@ interface LanguageMovesModalProps {
   isAr: boolean;
   languageName: string;
   initialMove?: MoveType;
+  initialLevel?: CefrLevel | 'ALL';
 }
 
 export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
@@ -42,26 +47,47 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
   isAr,
   languageName,
   initialMove = 'flashcards',
+  initialLevel = 'ALL',
 }) => {
   const [activeMove, setActiveMove] = useState<MoveType>(initialMove);
+  const [selectedLevel, setSelectedLevel] = useState<CefrLevel | 'ALL'>(initialLevel);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isAudioSpeaking, setIsAudioSpeaking] = useState(false);
 
   // Guaranteed words fallback so the modal NEVER fails or renders blank
-  const effectiveWords = useMemo(() => {
+  const rawWords = useMemo(() => {
     if (words && words.length > 0) return words;
     const today = spacedRepetition.getTodayWords();
     if (today && today.length > 0) return today;
     return spacedRepetition.getAllWordsForLanguage();
   }, [words]);
 
-  // Sync initialMove when opening
+  // Words filtered by selectedLevel
+  const effectiveWords = useMemo(() => {
+    if (selectedLevel === 'ALL') return rawWords;
+    const filtered = rawWords.filter((w) => w.level === selectedLevel);
+    return filtered.length > 0 ? filtered : rawWords;
+  }, [rawWords, selectedLevel]);
+
+  // Level counts
+  const levelCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: rawWords.length };
+    CEFR_LEVELS_INFO.forEach((c) => {
+      counts[c.level] = rawWords.filter((w) => w.level === c.level).length;
+    });
+    return counts;
+  }, [rawWords]);
+
+  // Sync initialMove & initialLevel when opening
   useEffect(() => {
     if (isOpen) {
       setActiveMove(initialMove);
+      setSelectedLevel(initialLevel || 'ALL');
       setIsFlipped(false);
+      setCurrentIndex(0);
     }
-  }, [isOpen, initialMove]);
+  }, [isOpen, initialMove, initialLevel]);
 
   // Current active word
   const currentWord = effectiveWords[currentIndex] || effectiveWords[0];
@@ -321,7 +347,7 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                {isAr ? 'بطاقات فلاش 3D، ترديد صوتي، تركيب جمل، وتكرار متباعد ذكي' : '3D flashcards, shadowing, syntax rebuilder & speed sprint'}
+                {isAr ? 'بطاقات فلاش 3D، مستويات CEFR، ترديد صوتي، وخطافات الذاكرة' : '3D flashcards, CEFR levels, shadowing & mnemonic hooks'}
               </p>
             </div>
           </div>
@@ -333,6 +359,54 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
+
+        {/* CEFR Interactive Level Progression Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setSelectedLevel('ALL');
+              setCurrentIndex(0);
+              setIsFlipped(false);
+            }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              selectedLevel === 'ALL'
+                ? 'bg-slate-950 text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300'
+            }`}
+          >
+            <span>{isAr ? 'الكل' : 'All'}</span>
+            <span className="text-[10px] opacity-75 ms-1.5 font-mono">({levelCounts.ALL || 0})</span>
+          </button>
+          {CEFR_LEVELS_INFO.map((lvl) => {
+            const count = levelCounts[lvl.level] || 0;
+            const isSelected = selectedLevel === lvl.level;
+            return (
+              <button
+                key={lvl.level}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setSelectedLevel(lvl.level);
+                  setCurrentIndex(0);
+                  setIsFlipped(false);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 border ${
+                  isSelected
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/30'
+                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-indigo-400 dark:hover:border-indigo-600'
+                }`}
+              >
+                <span className="font-mono font-black">{lvl.level}</span>
+                <span className="text-[10px] font-medium">{isAr ? lvl.nameAr : lvl.nameEn}</span>
+                <span className="text-[10px] opacity-75 font-mono">({count})</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Move Selector Pills */}
@@ -409,7 +483,7 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                   transition: 'transform 0.55s cubic-bezier(0.4, 0, 0.2, 1)',
                   transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
                 }}
-                className="relative min-h-[300px] w-full rounded-2xl"
+                className="relative min-h-[340px] w-full rounded-2xl"
               >
                 {/* FRONT FACE OF FLASHCARD */}
                 <div
@@ -425,8 +499,11 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                   }}
                 >
                   <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
-                      {languageName}
+                    <span className="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                      <span>{languageName}</span>
+                      <span className="px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-mono font-bold text-[10px]">
+                        {currentWord.level}
+                      </span>
                     </span>
                     <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
                       <RotateCw className="w-3.5 h-3.5" />
@@ -443,6 +520,19 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                       {currentWord.phonetic}
                     </p>
 
+                    {/* Audio Playing Waveform */}
+                    {isAudioSpeaking && (
+                      <div className="flex items-center justify-center gap-1 h-4 pt-1">
+                        {[0.6, 1.2, 0.8, 1.4, 0.7].map((h, idx) => (
+                          <span
+                            key={idx}
+                            className="w-1 bg-indigo-500 rounded-full animate-pulse"
+                            style={{ height: `${h * 14}px`, animationDelay: `${idx * 120}ms` }}
+                          />
+                        ))}
+                      </div>
+                    )}
+
                     <div className="pt-3 flex items-center justify-center gap-2">
                       <button
                         type="button"
@@ -450,12 +540,14 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                           e.stopPropagation();
                           soundSynth.playTactileClick();
                           haptic.vibrateLight();
+                          setIsAudioSpeaking(true);
                           speechService.speak(currentWord.word, speechCode, 1.0);
+                          setTimeout(() => setIsAudioSpeaking(false), 1400);
                         }}
                         className="px-4 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
                       >
                         <Volume2 className="w-4 h-4" />
-                        <span>{isAr ? 'نطق أصلي' : 'Native Audio'}</span>
+                        <span>{isAr ? 'نطق أصلي (1.0x)' : 'Native Audio'}</span>
                       </button>
                       <button
                         type="button"
@@ -463,11 +555,14 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                           e.stopPropagation();
                           soundSynth.playTactileClick();
                           haptic.vibrateLight();
+                          setIsAudioSpeaking(true);
                           speechService.speak(currentWord.word, speechCode, 0.75);
+                          setTimeout(() => setIsAudioSpeaking(false), 1800);
                         }}
                         className="px-3 py-2 rounded-2xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-indigo-700 dark:text-indigo-300 font-mono text-xs font-bold border border-slate-200 dark:border-zinc-700 cursor-pointer active:scale-95"
+                        title={isAr ? 'نطق هادئ للتعلم' : 'Slow pronunciation'}
                       >
-                        0.75x
+                        0.75x 🐢
                       </button>
                     </div>
                   </div>
@@ -486,9 +581,9 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                     WebkitBackfaceVisibility: 'hidden',
                     transform: 'rotateY(180deg)',
                   }}
-                  className="absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-white dark:via-zinc-900 to-emerald-500/[0.02] dark:to-zinc-950 border-2 border-emerald-300/80 dark:border-emerald-800/60 p-5 sm:p-6 flex flex-col justify-between shadow-sm select-none"
+                  className="absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-white dark:via-zinc-900 to-emerald-500/[0.02] dark:to-zinc-950 border-2 border-emerald-300/80 dark:border-emerald-800/60 p-4 sm:p-5 flex flex-col justify-between shadow-sm select-none overflow-y-auto"
                 >
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-xs pb-1">
                     <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-4 h-4" />
                       <span>{isAr ? 'المعنى والسياق العملي' : 'Meaning & Context'}</span>
@@ -507,22 +602,85 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                   </div>
 
                   {/* Meaning & Context */}
-                  <div className="space-y-2 py-2">
+                  <div className="space-y-2 py-1">
                     <div className="text-center">
                       <h3 className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400 font-sans">
                         {currentWord.translationAr}
                       </h3>
                     </div>
 
-                    {/* Context sentence */}
+                    {/* Context sentence with audio trigger */}
                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950/80 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
-                      <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed">
-                        “{currentWord.contextSentence}”
-                      </p>
+                      <div className="flex items-start justify-between gap-2">
+                        <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed flex-1">
+                          “{currentWord.contextSentence}”
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            soundSynth.playTactileClick();
+                            speechService.speak(currentWord.contextSentence, speechCode, 0.85);
+                          }}
+                          className="p-1 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 shrink-0 cursor-pointer"
+                          title={isAr ? 'استمع للجملة كاملة' : 'Listen full sentence'}
+                        >
+                          <Volume2 className="w-4 h-4" />
+                        </button>
+                      </div>
                       <p className="text-emerald-700 dark:text-emerald-400 font-sans text-start leading-relaxed font-medium">
                         «{currentWord.contextSentenceAr}»
                       </p>
                     </div>
+
+                    {/* Interactive Collocations Chips */}
+                    {currentWord.collocations && currentWord.collocations.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                          {isAr ? '🔗 متلازمات شائعة:' : '🔗 Collocations:'}
+                        </span>
+                        {currentWord.collocations.map((col, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              soundSynth.playTactileClick();
+                              haptic.vibrateLight();
+                              speechService.speak(col, speechCode, 0.95);
+                            }}
+                            className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                            title={isAr ? 'انقر للاستماع للنطق' : 'Click to hear pronunciation'}
+                          >
+                            <span>{col}</span>
+                            <Volume2 className="w-3 h-3 opacity-60" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Creative Mnemonic Hook */}
+                    {currentWord.mnemonicHook && (
+                      <div className="p-2 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/25 flex items-start gap-2 text-xs">
+                        <span className="text-base shrink-0">🧠</span>
+                        <div className="text-start">
+                          <span className="font-bold text-amber-900 dark:text-amber-300 block text-[11px]">
+                            {isAr ? 'خطاف الذاكرة الصوري (Mnemonic Hook):' : 'Visual Memory Hook:'}
+                          </span>
+                          <p className="text-amber-950/80 dark:text-amber-200/90 text-[11px] leading-relaxed font-sans">
+                            {currentWord.mnemonicHook}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Etymology / Root Insight */}
+                    {currentWord.etymologyRoot && (
+                      <div className="px-2 py-1 rounded-lg bg-slate-100/70 dark:bg-zinc-800/50 text-[10px] font-mono text-slate-500 dark:text-zinc-400 text-start flex items-center gap-1.5">
+                        <span>🏛️</span>
+                        <span>{currentWord.etymologyRoot}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* SRS Leitner 3-Level Quick Rating Buttons */}

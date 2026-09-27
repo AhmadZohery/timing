@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Flame,
   Shield,
@@ -1445,8 +1446,8 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Pin Customizer Modal */}
-      {isPinModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 animate-fade-in">
+      {isPinModalOpen && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 animate-fade-in" role="dialog" aria-modal="true">
           {/* Clickable backdrop with outside click */}
           <div
             className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm cursor-pointer"
@@ -1455,9 +1456,9 @@ export const Header: React.FC<HeaderProps> = ({
               setIsPinModalOpen(false);
             }}
           />
-          <div className="relative z-10 w-full max-w-xl rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 p-5 sm:p-7 shadow-2xl space-y-5 max-h-[88vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-xl rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-zinc-800 p-5 sm:p-7 shadow-2xl flex flex-col max-h-[85vh]">
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-800 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
                   <Pin className="w-4 h-4" />
@@ -1483,7 +1484,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Counter Badge & Reset to Default */}
-            <div className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 font-medium">
+            <div className="flex items-center justify-between text-xs px-3 py-2 my-3 rounded-xl bg-slate-50 dark:bg-zinc-900/90 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-300 font-medium shrink-0">
               <span>
                 {language === 'ar'
                   ? `المحدد حالياً: ${pinnedActions.length} من أصل ${MAX_PINNED_ACTIONS}`
@@ -1499,8 +1500,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
 
-            {/* Grid of Options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* Grid of Options (Scrollable area) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto pr-1 flex-1 min-h-0">
               {PINNABLE_OPTIONS.map((opt) => {
                 const isPinned = pinnedActions.includes(opt.id);
                 const isMaxReached = !isPinned && pinnedActions.length >= MAX_PINNED_ACTIONS;
@@ -1514,10 +1515,10 @@ export const Header: React.FC<HeaderProps> = ({
                     onClick={() => handleTogglePin(opt.id)}
                     className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-start gap-3 select-none ${
                       isPinned
-                        ? 'bg-emerald-500/10 border-emerald-500/50 shadow-xs ring-1 ring-emerald-500/30'
+                        ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border-emerald-500/50 shadow-xs ring-1 ring-emerald-500/30'
                         : isMaxReached
-                        ? 'opacity-40 cursor-not-allowed bg-slate-50 dark:bg-zinc-900/50 border-slate-200/50 dark:border-zinc-800/50'
-                        : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
+                        ? 'opacity-40 cursor-not-allowed bg-slate-50 dark:bg-zinc-900/40 border-slate-200/50 dark:border-zinc-800/40'
+                        : 'bg-white dark:bg-zinc-900/90 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
                     }`}
                   >
                     <div className={`p-2 rounded-xl border shrink-0 ${opt.badgeClass}`}>
@@ -1548,7 +1549,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-end">
+            <div className="pt-3.5 mt-3 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-end shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -1562,7 +1563,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

@@ -37,6 +37,8 @@ import { LanguageMovesModal } from '../learning/LanguageMovesModal';
 import {
   TARGET_LANGUAGES,
   type TargetLanguageCode,
+  type CefrLevel,
+  CEFR_LEVELS_INFO,
 } from '../../data/languages/vocabularyDatabase';
 import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
@@ -145,14 +147,29 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   );
   const [langStats, setLangStats] = useState(() => spacedRepetition.getStats());
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [selectedBentoLevel, setSelectedBentoLevel] = useState<CefrLevel | 'ALL'>('ALL');
   const [speechPlaying, setSpeechPlaying] = useState(false);
 
-  const homeLangWords = useMemo(() => {
+  const allHomeLangWords = useMemo(() => {
     spacedRepetition.setActiveLanguage(activeLangCode);
     const words = spacedRepetition.getTodayWords();
     if (words && words.length > 0) return words;
     return spacedRepetition.getAllWordsForLanguage(activeLangCode);
   }, [activeLangCode, langStats]);
+
+  const homeLangWords = useMemo(() => {
+    if (selectedBentoLevel === 'ALL') return allHomeLangWords;
+    const filtered = allHomeLangWords.filter((w) => w.level === selectedBentoLevel);
+    return filtered.length > 0 ? filtered : allHomeLangWords;
+  }, [allHomeLangWords, selectedBentoLevel]);
+
+  const bentoLevelCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: allHomeLangWords.length };
+    CEFR_LEVELS_INFO.forEach((c) => {
+      counts[c.level] = allHomeLangWords.filter((w) => w.level === c.level).length;
+    });
+    return counts;
+  }, [allHomeLangWords]);
 
   const currentLangObj = useMemo(() => {
     return TARGET_LANGUAGES.find((l) => l.code === activeLangCode) || TARGET_LANGUAGES[0];
@@ -162,7 +179,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     return spacedRepetition.calculateFluencyProfile(activeLangCode);
   }, [activeLangCode, langStats]);
 
-  const featuredWord = homeLangWords[0];
+  const featuredWord = homeLangWords[0] || allHomeLangWords[0];
 
   // Live Quran Progress Query & Quick Increment Handler
   const quranList = useLiveQuery(() => db.quran_progress.toArray(), []);
@@ -1329,48 +1346,150 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Featured Word Hero Glance */}
-        {featuredWord && (
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/40 dark:from-indigo-950/20 dark:via-[#141624] dark:to-zinc-900/60 border border-indigo-100/90 dark:border-indigo-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
-            <div className="flex items-center gap-3.5">
+        {/* CEFR Level Selector Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setSelectedBentoLevel('ALL');
+            }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              selectedBentoLevel === 'ALL'
+                ? 'bg-slate-950 text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300'
+            }`}
+          >
+            <span>{isAr ? 'الكل' : 'All'}</span>
+            <span className="text-[10px] opacity-75 ms-1.5 font-mono">({bentoLevelCounts.ALL || 0})</span>
+          </button>
+          {CEFR_LEVELS_INFO.map((lvl) => {
+            const count = bentoLevelCounts[lvl.level] || 0;
+            const isSelected = selectedBentoLevel === lvl.level;
+            return (
               <button
+                key={lvl.level}
                 type="button"
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
-                  setSpeechPlaying(true);
-                  speechService.speak(featuredWord.word, currentLangObj.speechCode, 1.0);
-                  setTimeout(() => setSpeechPlaying(false), 1200);
+                  setSelectedBentoLevel(lvl.level);
                 }}
-                className="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-md hover:shadow-indigo-500/30 transition-transform active:scale-95 cursor-pointer shrink-0"
-                title={isAr ? 'استمع للنطق الأصلي' : 'Listen Native Pronunciation'}
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-1.5 border ${
+                  isSelected
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-xs ring-2 ring-indigo-400/30'
+                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-indigo-400'
+                }`}
               >
-                <Volume2 className={`w-5 h-5 ${speechPlaying ? 'animate-bounce' : ''}`} />
+                <span className="font-mono font-black">{lvl.level}</span>
+                <span className="text-[10px] font-medium">{isAr ? lvl.nameAr : lvl.nameEn}</span>
+                <span className="text-[10px] opacity-75 font-mono">({count})</span>
               </button>
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white font-serif tracking-tight">
-                    {featuredWord.word}
-                  </span>
-                  <span className="font-mono text-xs text-slate-400 dark:text-zinc-500">
-                    {featuredWord.phonetic}
-                  </span>
+            );
+          })}
+        </div>
+
+        {/* Featured Word Hero Glance */}
+        {featuredWord && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/40 dark:from-indigo-950/20 dark:via-[#141624] dark:to-zinc-900/60 border border-indigo-100/90 dark:border-indigo-900/30 flex flex-col gap-3 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="flex flex-col gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setSpeechPlaying(true);
+                      speechService.speak(featuredWord.word, currentLangObj.speechCode, 1.0);
+                      setTimeout(() => setSpeechPlaying(false), 1200);
+                    }}
+                    className="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-md hover:shadow-indigo-500/30 transition-transform active:scale-95 cursor-pointer"
+                    title={isAr ? 'استمع للنطق الأصلي (1.0x)' : 'Listen Native Pronunciation (1.0x)'}
+                  >
+                    <Volume2 className={`w-5 h-5 ${speechPlaying ? 'animate-bounce' : ''}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setSpeechPlaying(true);
+                      speechService.speak(featuredWord.word, currentLangObj.speechCode, 0.75);
+                      setTimeout(() => setSpeechPlaying(false), 1600);
+                    }}
+                    className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-zinc-800 text-[10px] font-mono font-bold text-indigo-700 dark:text-indigo-300 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 cursor-pointer text-center"
+                    title={isAr ? 'نطق هادئ وبطيء' : 'Slow audio'}
+                  >
+                    0.75x 🐢
+                  </button>
                 </div>
-                <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans">
-                  {featuredWord.translationAr}
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white font-serif tracking-tight">
+                      {featuredWord.word}
+                    </span>
+                    <span className="font-mono text-xs text-slate-400 dark:text-zinc-500">
+                      {featuredWord.phonetic}
+                    </span>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                      {featuredWord.level}
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans">
+                    {featuredWord.translationAr}
+                  </p>
+                </div>
+              </div>
+
+              {/* Context Sentence Preview */}
+              <div className="max-w-md bg-white/80 dark:bg-zinc-800/80 p-3 rounded-xl border border-slate-200/70 dark:border-zinc-700/60 text-xs space-y-1">
+                <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed">
+                  “{featuredWord.contextSentence}”
+                </p>
+                <p className="text-emerald-700 dark:text-emerald-400 font-sans text-start leading-relaxed font-medium">
+                  «{featuredWord.contextSentenceAr}»
                 </p>
               </div>
             </div>
 
-            {/* Context Sentence Preview */}
-            <div className="max-w-md bg-white/80 dark:bg-zinc-800/80 p-3 rounded-xl border border-slate-200/70 dark:border-zinc-700/60 text-xs space-y-1">
-              <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed">
-                “{featuredWord.contextSentence}”
-              </p>
-              <p className="text-emerald-700 dark:text-emerald-400 font-sans text-start leading-relaxed font-medium">
-                «{featuredWord.contextSentenceAr}»
-              </p>
-            </div>
+            {/* Clickable Collocations Chips */}
+            {featuredWord.collocations && featuredWord.collocations.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100 dark:border-zinc-800/60">
+                <span className="text-[10px] font-bold text-slate-400 shrink-0">
+                  {isAr ? '🔗 متلازمات شائعة:' : '🔗 Collocations:'}
+                </span>
+                {featuredWord.collocations.map((col, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      speechService.speak(col, currentLangObj.speechCode, 0.95);
+                    }}
+                    className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 text-[10px] font-medium flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                    title={isAr ? 'انقر للاستماع للنطق' : 'Click to listen'}
+                  >
+                    <span>{col}</span>
+                    <Volume2 className="w-2.5 h-2.5 opacity-60" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Memory Hook */}
+            {featuredWord.mnemonicHook && (
+              <div className="text-[11px] text-amber-900 dark:text-amber-200 bg-amber-500/10 dark:bg-amber-500/15 px-3 py-1.5 rounded-xl border border-amber-500/25 flex items-start gap-2">
+                <span className="text-sm shrink-0">🧠</span>
+                <div>
+                  <span className="font-bold block text-[10px] text-amber-800 dark:text-amber-300">
+                    {isAr ? 'خطاف الذاكرة الصوري للربط الذهني:' : 'Visual Mnemonic Hook:'}
+                  </span>
+                  <span>{featuredWord.mnemonicHook}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1648,6 +1767,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         }}
         words={homeLangWords}
         speechCode={currentLangObj.speechCode}
+        initialLevel={selectedBentoLevel}
         onCompleted={(_score, _total) => {
           setLangStats(spacedRepetition.getStats());
           if (onRewardToast) {
@@ -1672,6 +1792,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         isAr={isAr}
         languageName={currentLangObj.nameAr}
         initialMove="flashcards"
+        initialLevel={selectedBentoLevel}
       />
     </div>
   );
