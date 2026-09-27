@@ -607,7 +607,7 @@ export function App() {
 
       {/* Dedicated Apple-Tier Live Capsule Bar ("الشريط الحكيم") */}
       {/* Placed in its own dedicated clear zone: zero floating overlap, zero obstruction */}
-      <div className="w-full flex justify-center py-2 px-3 bg-slate-100/70 dark:bg-zinc-900/70 border-b border-slate-200/60 dark:border-zinc-800/60 backdrop-blur-md relative z-20">
+      <div className="w-full flex justify-center py-2 px-3 relative z-20">
         <DynamicIslandHub
           currentStation={activeStation}
           userState={userState}
@@ -624,6 +624,7 @@ export function App() {
           onOpenWirdModal={() => setIsWirdModalOpen(true)}
           onOpenSmartTasbih={handleOpenSmartTasbih}
           onOpenQuickReminder={() => setIsQuickReminderOpen(true)}
+          onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
           onRewardToast={(msg) => {
             setRewardToast(msg);
             setTimeout(() => setRewardToast(null), 3500);

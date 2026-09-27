@@ -481,13 +481,6 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
   const hoursRemaining = Math.floor(nextPrayer.minutesRemaining / 60);
   const minsRemaining = nextPrayer.minutesRemaining % 60;
-  const timeRemainingFormatted = hoursRemaining > 0
-    ? isAr
-      ? `متبقي ${hoursRemaining} س و ${minsRemaining} د`
-      : `${hoursRemaining}h ${minsRemaining}m left`
-    : isAr
-      ? `متبقي ${minsRemaining} دقيقة`
-      : `${minsRemaining}m left`;
 
   const heroTheme = CELESTIAL_THEMES[nextPrayer.name as PrayerName] || CELESTIAL_THEMES.fajr;
   const nextPrayerRecord = prayers[nextPrayer.name as PrayerName];
@@ -782,7 +775,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-emerald-900 dark:text-emerald-200 truncate">
                     {isAr
-                      ? `🔔 اقترب موعد صلاة ${nextPrayer.arabicName} (متبقي ${nextPrayer.minutesRemaining} دقيقة تقريباً)`
+                      ? `🔔 اقترب موعد صلاة ${nextPrayer.arabicName} (متبقي ${nextPrayer.minutesRemaining} ${nextPrayer.minutesRemaining <= 10 && nextPrayer.minutesRemaining >= 3 ? 'دقائق' : 'دقيقة'} تقريباً)`
                       : `Upcoming: ${nextPrayer.arabicName} in ${nextPrayer.minutesRemaining}m`}
                   </p>
                   <span className="text-[10px] text-emerald-700 dark:text-emerald-300 block truncate">
@@ -875,8 +868,33 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                       <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                         {isAr ? 'الصلاة القادمة' : 'Next Prayer'}
                       </span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-black font-mono">
-                        ⏳ {timeRemainingFormatted}
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-black font-mono inline-flex items-center gap-1">
+                        <span>⏳</span>
+                        {hoursRemaining > 0 ? (
+                          isAr ? (
+                            <span dir="rtl" className="inline-flex items-center gap-1">
+                              <span>متبقي</span>
+                              <span dir="ltr">{hoursRemaining}س</span>
+                              {minsRemaining > 0 && (
+                                <>
+                                  <span>و</span>
+                                  <span dir="ltr">{minsRemaining}د</span>
+                                </>
+                              )}
+                            </span>
+                          ) : (
+                            <span dir="ltr">{hoursRemaining}h {minsRemaining}m left</span>
+                          )
+                        ) : (
+                          isAr ? (
+                            <span dir="rtl" className="inline-flex items-center gap-1">
+                              <span>متبقي</span>
+                              <span dir="ltr">{minsRemaining}د</span>
+                            </span>
+                          ) : (
+                            <span dir="ltr">{minsRemaining}m left</span>
+                          )
+                        )}
                       </span>
                     </div>
                     <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-baseline gap-2.5 mt-0.5">
@@ -1091,7 +1109,31 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                     </div>
                     {isNext && nextPrayer.minutesRemaining > 0 && (
                       <div className="text-[10px] font-mono text-amber-700 dark:text-amber-400 font-black mt-1 whitespace-nowrap leading-tight">
-                        <bdi dir="ltr">{nextPrayer.minutesRemaining}</bdi>{isAr ? 'د ⏳' : 'm ⏳'}
+                        {isAr ? (
+                          nextPrayer.minutesRemaining >= 60 ? (
+                            <span dir="rtl" className="inline-flex items-center gap-0.5">
+                              <span dir="ltr">{Math.floor(nextPrayer.minutesRemaining / 60)}س</span>
+                              {nextPrayer.minutesRemaining % 60 > 0 && (
+                                <>
+                                  <span className="font-sans text-[9px] opacity-70">و</span>
+                                  <span dir="ltr">{nextPrayer.minutesRemaining % 60}د</span>
+                                </>
+                              )}
+                              <span>⏳</span>
+                            </span>
+                          ) : (
+                            <span dir="rtl" className="inline-flex items-center gap-0.5">
+                              <span dir="ltr">{nextPrayer.minutesRemaining}د</span>
+                              <span>⏳</span>
+                            </span>
+                          )
+                        ) : (
+                          <span dir="ltr">
+                            {nextPrayer.minutesRemaining >= 60
+                              ? `${Math.floor(nextPrayer.minutesRemaining / 60)}h${nextPrayer.minutesRemaining % 60 > 0 ? ` ${nextPrayer.minutesRemaining % 60}m` : ''} ⏳`
+                              : `${nextPrayer.minutesRemaining}m ⏳`}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>

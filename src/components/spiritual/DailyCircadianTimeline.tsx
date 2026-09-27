@@ -298,9 +298,16 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       };
     }
 
+    const remMins = nextP.minutesRemaining;
+    const remH = Math.floor(remMins / 60);
+    const remM = remMins % 60;
+    const remFormatted = remH > 0
+      ? `${remH === 1 ? 'ساعة' : remH === 2 ? 'ساعتين' : `${remH} ساعات`}${remM > 0 ? ` و ${remM} دقيقة` : ''}`
+      : `${remMins} ${remMins <= 10 && remMins >= 3 ? 'دقائق' : 'دقيقة'}`;
+
     return {
       title: `الاستعداد لصلاة ${nextP.arabicName}`,
-      detail: `متبقي قرابة ${nextP.minutesRemaining} دقيقة على رفع الأذان`,
+      detail: `متبقي قرابة ${remFormatted} على رفع الأذان`,
       cta: 'تسجيل الصلوات والنوافل 🕌',
       action: () => {
         if (onOpenNawafilModal) {

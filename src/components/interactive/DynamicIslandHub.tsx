@@ -23,6 +23,12 @@ import {
   Clock,
   Brain,
   Bell,
+  Radio,
+  Play,
+  Pause,
+  RotateCcw,
+  RotateCw,
+  ChevronLeft,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, PrayerName } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -35,6 +41,7 @@ import {
 } from '../../utils/prayerCalculator';
 import { resolveStationMetadata } from '../../utils/lifestyleEngine';
 import { checkIsFridaySalawatWindow, type TasbihPresetId } from '../../utils/tasbihEngine';
+import { gymFaithAudio, type GymFaithAudioState } from '../../services/gymFaithAudioService';
 
 interface DynamicIslandHubProps {
   currentStation: StationId;
@@ -51,6 +58,7 @@ interface DynamicIslandHubProps {
   onOpenSmartTasbih?: (mode?: TasbihPresetId) => void;
   onOpenTasbihWithPreset?: (preset: TasbihPresetId) => void;
   onOpenQuickReminder?: () => void;
+  onOpenFaithAudio?: () => void;
 }
 
 /**
@@ -184,11 +192,19 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   onOpenSmartTasbih,
   onOpenTasbihWithPreset: _onOpenTasbihWithPreset,
   onOpenQuickReminder,
+  onOpenFaithAudio,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Faith Audio Live Activity State
+  const [audioState, setAudioState] = useState<GymFaithAudioState>(() => gymFaithAudio.getState());
+
+  useEffect(() => {
+    return gymFaithAudio.subscribe(setAudioState);
+  }, []);
 
   // Pre-Adhan 10-minute alert toggle state
   const [isPreAlertEnabled, setIsPreAlertEnabled] = useState<boolean>(() => {
@@ -205,6 +221,9 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     haptic.vibrateLight();
     const nextVal = !isPreAlertEnabled;
     setIsPreAlertEnabled(nextVal);
+    if (nextVal) {
+      soundSynth.playPrayerSpiritualChime('serenity_chime');
+    }
     try {
       localStorage.setItem('midmar_pre_adhan_alert_armed', String(nextVal));
     } catch (_) {}
@@ -603,34 +622,59 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                 />
               </div>
 
-              {/* Left Wing: Streak Flame / Qibla / Salawat */}
+              {/* Left Wing: Live Faith Audio Equalizer OR Streak Flame / Qibla / Salawat */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {currentStation !== 'HOME' ? (
-                  <span className="text-[10px] font-bold text-emerald-300/90 truncate max-w-[80px] tracking-tight">
-                    {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
-                  </span>
-                ) : (
-                  <div
-                    className="flex items-center gap-0.5 text-[10px] font-mono text-emerald-300/80"
-                    title={isAr ? `اتجاه القبلة: ${qiblaAngle}°` : `Qibla: ${qiblaAngle}°`}
+                {audioState.isPlaying ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      gymFaithAudio.togglePlay();
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                    }}
+                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/35 text-emerald-300 transition-all cursor-pointer select-none active:scale-95"
+                    title={audioState.currentTitleAr || (isAr ? 'أثير السكينة (انقر للإيقاف)' : 'Faith Audio (Click to pause)')}
                   >
-                    <Navigation
-                      className="w-2.5 h-2.5 text-emerald-400"
-                      style={{ transform: `rotate(${qiblaAngle}deg)` }}
-                    />
-                    <span>{qiblaAngle}°</span>
-                  </div>
-                )}
+                    <div className="flex items-end gap-0.5 h-2.5">
+                      <span className="w-0.5 bg-emerald-400 rounded-full animate-bounce" style={{ height: '70%', animationDuration: '0.6s' }} />
+                      <span className="w-0.5 bg-emerald-400 rounded-full animate-bounce" style={{ height: '100%', animationDuration: '0.4s' }} />
+                      <span className="w-0.5 bg-emerald-400 rounded-full animate-bounce" style={{ height: '50%', animationDuration: '0.7s' }} />
+                    </div>
+                    <span className="text-[9px] font-bold font-sans truncate max-w-[62px]">
+                      {audioState.currentTitleAr ? audioState.currentTitleAr.replace(/^(سورة|تلاوة|كتاب)\s+/, '') : (isAr ? 'أثير' : 'Audio')}
+                    </span>
+                  </button>
+                ) : (
+                  <>
+                    {currentStation !== 'HOME' ? (
+                      <span className="text-[10px] font-bold text-emerald-300/90 truncate max-w-[80px] tracking-tight">
+                        {isAr ? currentMeta.shortLabelAr : currentMeta.shortLabelEn}
+                      </span>
+                    ) : (
+                      <div
+                        className="flex items-center gap-0.5 text-[10px] font-mono text-emerald-300/80"
+                        title={isAr ? `اتجاه القبلة: ${qiblaAngle}°` : `Qibla: ${qiblaAngle}°`}
+                      >
+                        <Navigation
+                          className="w-2.5 h-2.5 text-emerald-400"
+                          style={{ transform: `rotate(${qiblaAngle}deg)` }}
+                        />
+                        <span>{qiblaAngle}°</span>
+                      </div>
+                    )}
 
-                {(userState?.streakDays || 0) > 0 && (
-                  <div className="flex items-center gap-0.5 text-[10px] font-mono font-bold text-amber-300">
-                    <Flame className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                    <span>{userState?.streakDays}</span>
-                  </div>
-                )}
+                    {(userState?.streakDays || 0) > 0 && (
+                      <div className="flex items-center gap-0.5 text-[10px] font-mono font-bold text-amber-300">
+                        <Flame className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                        <span>{userState?.streakDays}</span>
+                      </div>
+                    )}
 
-                {fridayStatus.isWindow && (
-                  <Star className="w-2.5 h-2.5 text-amber-300 fill-amber-300/40 animate-spin-slow shrink-0" />
+                    {fridayStatus.isWindow && (
+                      <Star className="w-2.5 h-2.5 text-amber-300 fill-amber-300/40 animate-spin-slow shrink-0" />
+                    )}
+                  </>
                 )}
               </div>
             </motion.div>
@@ -721,6 +765,133 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <span>{isAr ? 'مضمار الفلك الحي' : 'Live Circadian'}</span>
                 </div>
               </div>
+
+              {/* Faith Audio Live Activity Strip */}
+              {audioState.isPlaying || audioState.currentTitleAr ? (
+                <div className="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-slate-900/80 to-teal-950/60 border border-emerald-500/25 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div
+                      onClick={() => {
+                        handleClose();
+                        onOpenFaithAudio?.();
+                      }}
+                      className="flex items-center gap-2.5 min-w-0 cursor-pointer group flex-1"
+                      title={isAr ? 'فتح مشغل الأثير الكامل' : 'Open Faith Audio Sanctuary'}
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white shrink-0 shadow-sm relative">
+                        <Radio className="w-4 h-4" />
+                        {audioState.isPlaying && (
+                          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-emerald-300">
+                            {audioState.isPlaying ? (isAr ? 'أثير حي يعمل الآن' : 'Live Audio') : (isAr ? 'أثير متوقف مؤقتاً' : 'Audio Paused')}
+                          </span>
+                          {audioState.isPlaying && (
+                            <div className="flex items-end gap-0.5 h-2">
+                              <span className="w-0.5 bg-emerald-400 rounded-full animate-bounce" style={{ height: '60%', animationDuration: '0.5s' }} />
+                              <span className="w-0.5 bg-emerald-400 rounded-full animate-bounce" style={{ height: '100%', animationDuration: '0.35s' }} />
+                              <span className="w-0.5 bg-emerald-400 rounded-full animate-bounce" style={{ height: '40%', animationDuration: '0.6s' }} />
+                            </div>
+                          )}
+                        </div>
+                        <h4 className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors truncate">
+                          {audioState.currentTitleAr || (isAr ? 'أثير السكينة والقرآن' : 'Faith Stream')}
+                        </h4>
+                        {audioState.currentSheikhAr && (
+                          <p className="text-[10px] text-white/50 truncate">
+                            {audioState.currentSheikhAr}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Media Micro Controls */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          gymFaithAudio.seekBy(-15);
+                        }}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                        title={isAr ? 'رجوع 15 ثانية' : 'Back 15s'}
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          gymFaithAudio.togglePlay();
+                        }}
+                        className="p-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black shadow-sm transition-all cursor-pointer"
+                        title={audioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
+                      >
+                        {audioState.isPlaying ? (
+                          <Pause className="w-3.5 h-3.5 fill-current" />
+                        ) : (
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          gymFaithAudio.seekBy(15);
+                        }}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                        title={isAr ? 'تقديم 15 ثانية' : 'Forward 15s'}
+                      >
+                        <RotateCw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Progress Line */}
+                  {audioState.duration > 0 && (
+                    <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-400 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.min(100, Math.max(0, (audioState.currentTime / audioState.duration) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    handleClose();
+                    onOpenFaithAudio?.();
+                  }}
+                  className="p-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] hover:border-emerald-400/30 flex items-center justify-between gap-2 cursor-pointer transition-all group"
+                  title={isAr ? 'فتح أثير السكينة' : 'Open Faith Audio'}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                      <Radio className="w-3 h-3" />
+                    </div>
+                    <span className="text-[11px] font-bold text-white/80 group-hover:text-emerald-300 truncate">
+                      {isAr ? 'أثير السكينة والقرآن الكريم (تلاوات وسيرة)' : 'Faith Audio & Quran Stream'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-300 group-hover:translate-x-[-2px] transition-transform shrink-0 flex items-center gap-0.5">
+                    <span>{isAr ? 'استمع الآن' : 'Listen'}</span>
+                    <ChevronLeft className="w-3 h-3 rtl:rotate-0 rotate-180" />
+                  </span>
+                </div>
+              )}
 
               {/* Hero Live Activity Card: Next Prayer, Countdown & Cosmic Timeline */}
               <div

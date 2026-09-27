@@ -86,7 +86,13 @@ export const InteractiveBriefingCard: React.FC<InteractiveBriefingCardProps> = (
         contextNote = `اليوم ${rhythm.dayNameAr} نصف يوم عمل ذكي؛ ننهي أهم مهمتين فقط، ثم نستمتع ببقية اليوم.`;
         ctaLabel = isAr ? 'انطلاقة نصف اليوم ⚡' : 'Start Half-Day ⚡';
       } else {
-        contextNote = `متبقي على صلاة ${prayerInfo.arabicName} قرابة ${prayerInfo.minutesRemaining} دقيقة. انطلاقتك الصباحية تبدأ بورد سورة البقرة المبارك.`;
+        const remMins = prayerInfo.minutesRemaining;
+        const remH = Math.floor(remMins / 60);
+        const remM = remMins % 60;
+        const remFormatted = remH > 0
+          ? `${remH === 1 ? 'ساعة' : remH === 2 ? 'ساعتين' : `${remH} ساعات`}${remM > 0 ? ` و ${remM} دقيقة` : ''}`
+          : `${remMins} ${remMins <= 10 && remMins >= 3 ? 'دقائق' : 'دقيقة'}`;
+        contextNote = `متبقي على صلاة ${prayerInfo.arabicName} قرابة ${remFormatted}. انطلاقتك الصباحية تبدأ بورد سورة البقرة المبارك.`;
         ctaLabel = isAr ? 'ابدأ ورد الصباح 🚀' : 'Start Morning 🚀';
       }
     } else if (isAfternoon) {
