@@ -32,7 +32,9 @@ import {
 import QRCode from 'qrcode';
 import type { UserState, AppSettings, WeekendPreset, DayWorkRhythm } from '../../types';
 import { db } from '../../db/db';
-import { NotificationSoundsModal } from './NotificationSoundsModal';
+const NotificationSoundsModal = React.lazy(() =>
+  import('./NotificationSoundsModal').then((m) => ({ default: m.NotificationSoundsModal }))
+);
 import {
   exportDatabaseToJson,
   downloadBackupFile,
@@ -1638,11 +1640,15 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
         </button>
 
         {/* Cognitive Notification Tones Customization Modal */}
-        <NotificationSoundsModal
-          isOpen={isSoundTonesModalOpen}
-          onClose={() => setIsSoundTonesModalOpen(false)}
-          userState={userState}
-        />
+        {isSoundTonesModalOpen && (
+          <React.Suspense fallback={null}>
+            <NotificationSoundsModal
+              isOpen={isSoundTonesModalOpen}
+              onClose={() => setIsSoundTonesModalOpen(false)}
+              userState={userState}
+            />
+          </React.Suspense>
+        )}
       </div>
     </div>
   );
