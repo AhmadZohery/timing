@@ -428,7 +428,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const shields = userState?.streakShields || 0;
 
   return (
-    <div className="space-y-5 animate-fade-in pb-8">
+    <div className="space-y-5 animate-fade-in">
       {/* ============================================================ */}
       {/* 1. HERO BENTO LIVING STAGE: GREETING + ACTIVE STATION CTA    */}
       {/* ============================================================ */}
@@ -1376,6 +1376,29 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           />
         </div>
       </div>
+
+      {/* Exquisite Cockpit End Footer */}
+      <footer className="pt-4 pb-1 text-center space-y-2 border-t border-slate-200/60 dark:border-white/[0.06] select-none">
+        <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-500 dark:text-zinc-400">
+          <span>🌿</span>
+          <span>{isAr ? 'مِضمار LifeOS • يومك متقن ومبارك ومحفوظ بعون الله' : 'Midmar LifeOS • Flow with Mastery & Purpose'}</span>
+        </div>
+        <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400 dark:text-zinc-500 font-mono">
+          <span>v2.0 • Offline Ready</span>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer underline flex items-center gap-1"
+          >
+            <span>{isAr ? 'العودة لأعلى الصفحة ↑' : 'Back to top ↑'}</span>
+          </button>
+        </div>
+      </footer>
 
       {/* Language Quiz Modal from Home Dashboard */}
       <ErrorBoundary fallbackTitle="تنبيه في اختبار الكلمات اليومي">

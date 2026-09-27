@@ -36,6 +36,7 @@ import { MobileBottomTabBar } from './components/navigation/MobileBottomTabBar';
 import { AmbientSoundscapeBar } from './components/interactive/AmbientSoundscapeBar';
 import { HomeDashboardView } from './components/dashboard/HomeDashboardView';
 import { GlobalAudioCapsule } from './components/spiritual/GlobalAudioCapsule';
+import { gymFaithAudio } from './services/gymFaithAudioService';
 import type { DailyTadabburItem } from './data/dailyTadabburData';
 import type { TasbihPresetId } from './utils/tasbihEngine';
 import type { NiyyahPillar } from './components/spiritual/NiyyahSanctuaryModal';
@@ -142,6 +143,17 @@ export function App() {
       }
     } catch (_) {}
   };
+
+  const [hasAudioTrack, setHasAudioTrack] = useState(() => {
+    const s = gymFaithAudio.getState();
+    return Boolean(s.isPlaying || s.isLoading || s.currentTime > 0 || s.currentSeriesId);
+  });
+
+  useEffect(() => {
+    return gymFaithAudio.subscribe((s) => {
+      setHasAudioTrack(Boolean(s.isPlaying || s.isLoading || s.currentTime > 0 || s.currentSeriesId));
+    });
+  }, []);
 
   // Authentication Gate & Session Security
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated());
@@ -535,7 +547,7 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col font-sans pb-28 md:pb-16 transition-colors duration-200 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col font-sans transition-colors duration-200 relative overflow-x-hidden">
       {/* Living Circadian Sky Aurora (shifts smoothly with sun position) */}
       <CircadianAuroraBackground />
 
@@ -640,7 +652,7 @@ export function App() {
       )}
 
       {/* Main Content Area: Full-Width Responsive Workspace */}
-      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} pb-44 lg:pb-12 transition-all duration-300 space-y-4`}>
+      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} ${hasAudioTrack ? 'pb-36 lg:pb-10' : 'pb-24 lg:pb-8'} transition-all duration-300 space-y-4`}>
         {activeStation === 'HOME' ? (
           <>
             {/* Interactive User-Gesture Notification Permission Banner (Home Dashboard Only) */}
