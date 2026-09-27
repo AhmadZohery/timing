@@ -377,24 +377,27 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
 
       {/* Circadian Progression Ribbon */}
       <div className="relative pt-2 pb-1" dir="ltr">
-        {/* Track Line */}
-        <div className="w-full h-2.5 rounded-full bg-slate-200/80 dark:bg-white/[0.08] overflow-hidden relative shadow-inner">
+        {/* Track Line with ambient glow */}
+        <div className="w-full h-3.5 sm:h-4 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden relative shadow-inner border border-slate-200/60 dark:border-white/[0.05]">
           {/* Progress fill up to current time (Continuous 24h cycle from Fajr) */}
           <div
-            className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-indigo-500 rounded-full transition-all duration-700 shadow-xs"
+            className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-indigo-500 rounded-full transition-all duration-700 shadow-md relative"
             style={{
               width: `${Math.min(100, Math.max(0, (((currentTimeDec >= 5 ? currentTimeDec - 5 : currentTimeDec + 19) / 24) * 100)))}%`,
             }}
-          />
+          >
+            {/* Pulsing beacon on the leading edge */}
+            <div className="absolute right-0 top-0 bottom-0 w-2 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
+          </div>
         </div>
 
         {/* High-Contrast Phase Indicators */}
-        <div className="flex justify-between items-center text-xs font-mono font-bold text-slate-600 dark:text-zinc-300 pt-1.5 px-0.5" dir="rtl">
-          <span><bdi dir="ltr">05:00</bdi> الفجر</span>
-          <span><bdi dir="ltr">12:30</bdi> الظهر</span>
-          <span><bdi dir="ltr">15:30</bdi> العصر</span>
-          <span><bdi dir="ltr">18:30</bdi> المغرب</span>
-          <span><bdi dir="ltr">24:00</bdi> السَّحَر</span>
+        <div className="flex justify-between items-center text-[11px] sm:text-xs font-mono font-bold text-slate-600 dark:text-zinc-300 pt-2 px-0.5" dir="rtl">
+          <span className="flex items-center gap-1"><span>🌅 الفجر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">05:00</bdi></span>
+          <span className="flex items-center gap-1"><span>☀️ الظهر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">12:30</bdi></span>
+          <span className="flex items-center gap-1"><span>⚡ العصر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">15:30</bdi></span>
+          <span className="flex items-center gap-1"><span>🌆 المغرب</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">18:30</bdi></span>
+          <span className="flex items-center gap-1"><span>🌌 السَّحَر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">24:00</bdi></span>
         </div>
       </div>
 

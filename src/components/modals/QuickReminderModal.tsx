@@ -389,21 +389,21 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
               </div>
 
               {/* Quick +Mins Chips */}
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-slate-400 font-bold shrink-0">{isAr ? 'تقديم:' : 'Fast add:'}</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-slate-400 font-bold shrink-0">{isAr ? 'تقديم سريع:' : 'Fast add:'}</span>
                 {[
-                  { label: '+15د', mins: 15 },
-                  { label: '+30د', mins: 30 },
-                  { label: '+1س', mins: 60 },
-                  { label: '+2س', mins: 120 },
+                  { labelAr: '+15 دقيقة', labelEn: '+15m', mins: 15 },
+                  { labelAr: '+30 دقيقة', labelEn: '+30m', mins: 30 },
+                  { labelAr: '+ساعة', labelEn: '+1h', mins: 60 },
+                  { labelAr: '+ساعتين', labelEn: '+2h', mins: 120 },
                 ].map((chip) => (
                   <button
                     key={chip.mins}
                     type="button"
                     onClick={() => handleAddMinutes(chip.mins)}
-                    className="px-2 py-1 rounded-md bg-white dark:bg-zinc-900 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-600 border border-slate-200 dark:border-zinc-800 text-[11px] font-bold text-slate-600 dark:text-zinc-300 transition-colors cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-white dark:bg-zinc-900 hover:bg-amber-500 hover:text-white dark:hover:bg-amber-600 border border-slate-200 dark:border-zinc-800 text-[11px] font-bold text-slate-600 dark:text-zinc-300 transition-colors cursor-pointer"
                   >
-                    {chip.label}
+                    {isAr ? chip.labelAr : chip.labelEn}
                   </button>
                 ))}
               </div>

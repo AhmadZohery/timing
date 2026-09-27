@@ -26,6 +26,7 @@ import { WorkdayPlanner } from '../work/WorkdayPlanner';
 import { SelfLearningTracker } from '../learning/SelfLearningTracker';
 import { CourseStudyHub } from '../learning/CourseStudyHub';
 import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
+import type { AmbientSoundType } from '../../types';
 import { db } from '../../db/db';
 import { AgileStandupModal } from '../work/AgileStandupModal';
 import { ScopeDecisionMatrixModal } from '../work/ScopeDecisionMatrixModal';
@@ -130,19 +131,38 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
     return localStorage.getItem('midmar_work_niyyah') || 'livelihood_halal';
   });
 
-  // 20-minute learning timer (1200 sec)
+  // Selected Sprint Duration (15, 20, 25, 45, 60 minutes)
+  const [selectedSprintMins, setSelectedSprintMins] = useState<number>(() => {
+    return Number(localStorage.getItem('midmar_sprint_selected_mins') || '20');
+  });
+
+  // Focus Acoustics Ambient Sound (Zero-Cloud Web Audio)
+  const [ambientSound, setAmbientSound] = useState<AmbientSoundType>(() => {
+    return (localStorage.getItem('midmar_sprint_ambient') as AmbientSoundType) || 'none';
+  });
+
+  // Cleanup ambient sound on unmount
+  useEffect(() => {
+    return () => {
+      soundSynth.stopAmbient();
+    };
+  }, []);
+
+  // 20-minute learning timer (or custom duration)
   const learningTimer = useWorkerTimer();
   // 15-minute social media break timer (900 sec)
   const socialTimer = useWorkerTimer();
 
-  // Handle completion of 20m learning sprint
+  // Handle completion of learning sprint
   const handleLearningComplete = async () => {
+    soundSynth.stopAmbient();
     soundSynth.playCompletionChime();
     haptic.vibrateWorkDone();
     setPhase('ONE_SEC_FRICTION');
     setFrictionSeconds(3);
 
-    // Auto-log 20 completed minutes directly to db.workday_tasks matching focusTask
+    // Auto-log completed minutes directly to db.workday_tasks matching focusTask
+    const loggedMins = selectedSprintMins;
     if (focusTask.trim()) {
       try {
         const existing = await db.workday_tasks
@@ -153,14 +173,14 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
 
         if (existing) {
           await db.workday_tasks.update(existing.id, {
-            actualMinutes: (existing.actualMinutes || 0) + 20,
+            actualMinutes: (existing.actualMinutes || 0) + loggedMins,
           });
         } else {
           await db.workday_tasks.add({
             id: `wt_sprint_${Date.now()}`,
             title: focusTask.trim(),
-            estimatedMinutes: 20,
-            actualMinutes: 20,
+            estimatedMinutes: loggedMins,
+            actualMinutes: loggedMins,
             completed: false,
             priority: 'high',
             date: effectiveToday,
@@ -242,24 +262,32 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
   const handleStartLearning = () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
-    learningTimer.startTimer(20 * 60, handleLearningComplete);
+    learningTimer.startTimer(selectedSprintMins * 60, handleLearningComplete);
+    if (ambientSound !== 'none') {
+      soundSynth.startAmbient(ambientSound, 0.4);
+    }
   };
 
   const handlePauseLearning = () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     learningTimer.pauseTimer();
+    soundSynth.stopAmbient();
   };
 
   const handleResumeLearning = () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     learningTimer.resumeTimer();
+    if (ambientSound !== 'none') {
+      soundSynth.startAmbient(ambientSound, 0.4);
+    }
   };
 
   const handleResetLearning = () => {
     soundSynth.playTactileClick();
     learningTimer.stopTimer();
+    soundSynth.stopAmbient();
   };
 
   const handleDefer = () => {
@@ -568,6 +596,45 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                   </p>
                 </div>
 
+                {/* Sprint Duration Presets */}
+                <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] text-slate-400 font-bold shrink-0">
+                    {language === 'ar' ? 'المدة:' : 'Duration:'}
+                  </span>
+                  {[
+                    { mins: 15, labelAr: '15 دقيقة', labelEn: '15m' },
+                    { mins: 20, labelAr: '20 دقيقة (قياسي)', labelEn: '20m (Std)' },
+                    { mins: 25, labelAr: '25 دقيقة (بومودورو)', labelEn: '25m (Pomodoro)' },
+                    { mins: 45, labelAr: '45 دقيقة (تركيز عميق)', labelEn: '45m (Deep Work)' },
+                    { mins: 60, labelAr: '60 دقيقة (ساعة كاملة)', labelEn: '60m (Full)' },
+                  ].map((preset) => {
+                    const isSelected = selectedSprintMins === preset.mins;
+                    return (
+                      <button
+                        key={preset.mins}
+                        type="button"
+                        disabled={learningTimer.isRunning}
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setSelectedSprintMins(preset.mins);
+                          localStorage.setItem('midmar_sprint_selected_mins', String(preset.mins));
+                          if (!learningTimer.isRunning) {
+                            learningTimer.stopTimer();
+                          }
+                        }}
+                        className={`py-1 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-sky-600 text-white shadow-xs'
+                            : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300'
+                        } ${learningTimer.isRunning ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {language === 'ar' ? preset.labelAr : preset.labelEn}
+                      </button>
+                    );
+                  })}
+                </div>
+
             {/* Clock Display with Radial SVG Countdown Ring */}
             <div className="relative inline-flex items-center justify-center">
               {/* Outer Pulsing Glow when running */}
@@ -591,7 +658,12 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                   stroke="url(#sprintTimerGradient)"
                   strokeWidth="8"
                   strokeDasharray={540.35}
-                  strokeDashoffset={540.35 * (1 - ((learningTimer.remainingSec || 1200) / (20 * 60)))}
+                  strokeDashoffset={
+                    540.35 *
+                    (1 -
+                      ((learningTimer.remainingSec || selectedSprintMins * 60) /
+                        (selectedSprintMins * 60)))
+                  }
                   strokeLinecap="round"
                   fill="transparent"
                 />
@@ -607,7 +679,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                 <span className="text-4xl sm:text-5xl font-mono font-black text-slate-900 dark:text-cyan-300 tracking-wider tabular-nums">
                   {learningTimer.remainingSec > 0
                     ? formatTime(learningTimer.remainingSec)
-                    : '20:00'}
+                    : `${selectedSprintMins.toString().padStart(2, '0')}:00`}
                 </span>
                 <span className="text-[10px] font-mono font-bold text-slate-500 dark:text-zinc-400 mt-1 uppercase tracking-widest">
                   {learningTimer.isRunning ? (language === 'ar' ? 'تركيز عميق ⚡' : 'Deep Focus ⚡') : (language === 'ar' ? 'جاهز للانطلاق' : 'Ready')}
@@ -644,6 +716,59 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Ambient Focus Acoustics (Zero-Cloud Web Audio) */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-950/70 border border-slate-200/80 dark:border-zinc-800/80 space-y-2 text-start">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="flex items-center gap-1.5 text-slate-700 dark:text-zinc-300">
+                  <Waves className="w-3.5 h-3.5 text-sky-500" />
+                  <span>{language === 'ar' ? 'أثير التركيز وعزل التشتت (أصوات طبيعية):' : 'Focus Acoustics (Zero Cloud):'}</span>
+                </span>
+                {ambientSound !== 'none' && learningTimer.isRunning && (
+                  <span className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1 text-[10px] animate-pulse font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>{language === 'ar' ? 'نشط الآن 🎙️' : 'Active 🎙️'}</span>
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                {[
+                  { id: 'none' as AmbientSoundType, labelAr: '🔇 صامت', labelEn: 'Silent' },
+                  { id: 'brown' as AmbientSoundType, labelAr: '🌊 ضوضاء بنية', labelEn: 'Brown Noise' },
+                  { id: 'rain' as AmbientSoundType, labelAr: '🌧️ صوت المطر', labelEn: 'Rain' },
+                  { id: 'alpha' as AmbientSoundType, labelAr: '⚡ موجات ألفا', labelEn: 'Alpha Wave' },
+                ].map((amb) => {
+                  const isSelected = ambientSound === amb.id;
+                  return (
+                    <button
+                      key={amb.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setAmbientSound(amb.id);
+                        localStorage.setItem('midmar_sprint_ambient', amb.id);
+                        if (learningTimer.isRunning) {
+                          if (amb.id === 'none') {
+                            soundSynth.stopAmbient();
+                          } else {
+                            soundSynth.startAmbient(amb.id, 0.4);
+                          }
+                        }
+                      }}
+                      className={`py-1.5 px-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                        isSelected
+                          ? 'bg-sky-600 text-white shadow-xs'
+                          : 'bg-white dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700'
+                      }`}
+                    >
+                      <span>{language === 'ar' ? amb.labelAr : amb.labelEn}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Urge Surfing Trigger Button (Anti-Craving ACT Therapy) */}
