@@ -22,6 +22,8 @@ import {
   Pause,
   Radio,
   Sparkles,
+  X,
+  Volume2,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -91,7 +93,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   onOpenTwoMinuteRule,
   onOpenEvaluation,
   onOpenSleepRest,
-  onRewardToast: _onRewardToast,
+  onRewardToast,
   onOpenLifestyleModal,
   onOpenWirdModal,
   onOpenSmartTasbih,
@@ -255,19 +257,6 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
   const islandContainerRef = useRef<HTMLDivElement>(null);
 
-  // Close expanded tools on outside click (No screen-dimming backdrop needed!)
-  useEffect(() => {
-    if (!isExpanded) return;
-    const handleOutsideClick = (e: Event) => {
-      const target = e.target as Node;
-      if (islandContainerRef.current && !islandContainerRef.current.contains(target)) {
-        setIsExpanded(false);
-      }
-    };
-    document.addEventListener('pointerdown', handleOutsideClick, true);
-    return () => document.removeEventListener('pointerdown', handleOutsideClick, true);
-  }, [isExpanded]);
-
   const handleToggle = () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
@@ -285,12 +274,41 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     }
   };
 
+  const handleQuickPlayPrayerTone = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    soundSynth.playPrayerNotification(userState?.settings?.prayerAudioSettings);
+    onRewardToast?.(
+      userState?.settings?.prayerAudioSettings?.adhanEnabled
+        ? isAr
+          ? '🕋 استماع لصوت أذان الفريضة'
+          : 'Playing Adhan audio preview'
+        : isAr
+          ? '📿 رنين الصلاة الروحي النبوي'
+          : 'Spiritual prayer chime preview'
+    );
+  };
+
   const activeTicker = tickerItems[tickerIndex % tickerItems.length] || tickerItems[0];
   const prayerTimeFormatted = nextP.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  // Approximate prayer window progress (starts at 5% at 2h away, fills to 100% when 0m)
+  const prayerProgressPct = Math.max(
+    5,
+    Math.min(100, Math.round(((120 - Math.min(nextP.minutesRemaining, 120)) / 120) * 100))
+  );
+
+  const wirdProgressPct = Math.min(
+    100,
+    Math.round((wirdPagesRead / (wirdTargetPages || 1)) * 100)
+  );
+
   return (
-    <div ref={islandContainerRef} className="w-full max-w-4xl mx-auto flex flex-col items-center">
-      {/* Integrated Living Cockpit: Expands INLINE without any screen-darkening backdrop */}
+    <div ref={islandContainerRef} className="relative w-full max-w-4xl mx-auto flex flex-col items-center">
+      {/* ========================================================================= */}
+      {/* 1. PRIMARY CAPSULE PILL (Ultra-Luxurious Floating Top Bar) */}
+      {/* ========================================================================= */}
       <motion.div
         layout
         transition={{
@@ -299,12 +317,10 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
           damping: 32,
           mass: 0.8,
         }}
-        className={`w-full rounded-2xl ${
-          isExpanded ? 'sm:rounded-3xl' : 'sm:rounded-full'
-        } bg-slate-950/92 dark:bg-black/95 text-white border border-white/15 dark:border-white/10 shadow-xl shadow-black/35 backdrop-blur-2xl transition-colors overflow-hidden`}
+        className="relative w-full rounded-full bg-slate-950/92 dark:bg-black/95 text-white border border-white/15 dark:border-white/10 shadow-xl shadow-black/35 backdrop-blur-2xl transition-colors overflow-hidden"
       >
         {/* Specular glass reflection line across top edge */}
-        <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-400/30 via-white/30 to-transparent pointer-events-none" />
 
         {/* PRIMARY COCKPIT ROW */}
         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 px-3 sm:px-4 py-2">
@@ -433,221 +449,442 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
               <span className="text-[11px]">{isAr ? '20د تركيز' : '20m Focus'}</span>
             </button>
 
-            {/* Inline Cockpit Expand Toggle (No screen darkening!) */}
+            {/* Floating Pop-up Cockpit Trigger Button */}
             <button
               type="button"
               onClick={handleToggle}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold transition-all cursor-pointer select-none active:scale-95 ${
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer select-none active:scale-95 ${
                 isExpanded
-                  ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/40'
-                  : 'bg-white/5 hover:bg-white/10 text-white/80 border border-white/10'
+                  ? 'bg-amber-500 text-black border border-amber-400 shadow-md shadow-amber-500/25'
+                  : 'bg-white/5 hover:bg-white/10 text-white/90 border border-white/10'
               }`}
-              title={isExpanded ? (isAr ? 'طي الأدوات' : 'Collapse') : isAr ? 'فتح لوحة الأدوات الذكية' : 'Expand Tools'}
+              title={isExpanded ? (isAr ? 'إغلاق اللوحة' : 'Close HUD') : isAr ? 'فتح لوحة التحكم الذكية' : 'Open HUD'}
             >
-              <span className="text-[11px] hidden xs:inline">{isExpanded ? (isAr ? 'إخفاء' : 'Close') : isAr ? 'الأدوات' : 'Tools'}</span>
+              <span className="text-[11px]">{isExpanded ? (isAr ? 'إغلاق' : 'Close') : isAr ? 'اللوحة' : 'HUD'}</span>
               {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
+      </motion.div>
 
-        {/* INLINE EXPANDED SUPER-COCKPIT GRID (Silky-smooth slide down, ZERO screen-dimming!) */}
-        <AnimatePresence>
-          {isExpanded && (
+      {/* ========================================================================= */}
+      {/* 2. THE FLOATING POP-UP COCKPIT (CREATIVE ART-DIRECTED EXECUTIVE HUD) */}
+      {/* Zero dark screen-dimming! Floats above page content seamlessly! */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {isExpanded && (
+          <>
+            {/* Feather-light click-outside dismisser (Zero screen-dimming, page stays 100% visible) */}
+            <div
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsExpanded(false);
+              }}
+              className="fixed inset-0 z-40 bg-black/[0.02] dark:bg-black/10 backdrop-blur-[0.5px] cursor-pointer"
+            />
+
+            {/* Elevated Floating Pop-up Cockpit Card */}
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.24, ease: 'easeInOut' }}
-              className="border-t border-white/10 px-3 sm:px-4 py-3 bg-white/[0.02]"
+              initial={{ opacity: 0, y: -12, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.97 }}
+              transition={{
+                type: 'spring',
+                stiffness: 440,
+                damping: 30,
+                mass: 0.65,
+              }}
+              className="absolute top-full mt-2.5 left-0 right-0 mx-auto w-full max-w-3xl z-50 rounded-3xl bg-slate-950/96 dark:bg-black/98 text-white border border-white/15 dark:border-white/12 shadow-[0_25px_70px_rgba(0,0,0,0.8)] backdrop-blur-3xl overflow-hidden font-sans"
+              dir={isAr ? 'rtl' : 'ltr'}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                {/* Tool 1: 2-Minute Anti-Friction Rule */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    onOpenTwoMinuteRule?.();
-                  }}
-                  className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/25 text-amber-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                >
-                  <Timer className="w-4 h-4 text-amber-400 shrink-0" />
-                  <div className="truncate">
-                    <span className="block truncate">{isAr ? 'قاعدة الدقيقتين' : '2-Min Rule'}</span>
-                    <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'كسر التسويف' : 'Anti-Friction'}</span>
-                  </div>
-                </button>
+              {/* Top Specular Light Line */}
+              <div className="absolute inset-x-8 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/40 via-white/40 to-transparent pointer-events-none" />
 
-                {/* Tool 2: Smart Tasbih */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    onOpenSmartTasbih?.(fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100');
-                  }}
-                  className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/25 text-teal-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                >
-                  <Disc className="w-4 h-4 text-teal-400 shrink-0" />
-                  <div className="truncate">
-                    <span className="block truncate">{isAr ? 'المسبحة اللمسية' : 'Smart Tasbih'}</span>
-                    <span className="text-[9px] text-white/50 block font-normal">{fridayStatus.isWindow ? 'موسم الجمعة ⭐' : '100x تهليل'}</span>
+              {/* Cockpit Top Bar */}
+              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center shadow-md shadow-amber-500/20">
+                    <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                </button>
-
-                {/* Tool 3: AI Behavioral Coach */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    onOpenAiCoach?.();
-                  }}
-                  className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/25 text-indigo-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                >
-                  <Compass className="w-4 h-4 text-indigo-400 shrink-0" />
-                  <div className="truncate">
-                    <span className="block truncate">{isAr ? 'المرشد السلوكي' : 'Mindset Coach'}</span>
-                    <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'ذكاء نفسي' : 'AI Advice'}</span>
-                  </div>
-                </button>
-
-                {/* Tool 4: Quick Reminder & Alarm */}
-                {onOpenQuickReminder && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      onOpenQuickReminder();
-                    }}
-                    className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/25 text-purple-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                  >
-                    <Bell className="w-4 h-4 text-purple-400 shrink-0" />
-                    <div className="truncate">
-                      <span className="block truncate">{isAr ? 'منبه ومفكرة' : 'Quick Reminder'}</span>
-                      <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'تنبيه ذكي' : 'Alarm'}</span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xs sm:text-sm font-black text-white">
+                        {isAr ? 'لوحة التحكم السريعة والقيادة الذكية' : 'Executive Cockpit HUD'}
+                      </h3>
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Live Flight Deck
+                      </span>
                     </div>
-                  </button>
-                )}
+                    <p className="text-[10px] text-slate-400">
+                      {isAr ? 'وصول لحظي لمحطات اليوم والأوراد وأدوات كسر التسويف' : 'Instant access to daily stations and focus tools'}
+                    </p>
+                  </div>
+                </div>
 
-                {/* Tool 5: AI Course Study Roadmap */}
                 <button
                   type="button"
                   onClick={() => {
                     soundSynth.playTactileClick();
                     haptic.vibrateLight();
-                    localStorage.setItem('midmar_work_view_mode', 'learning_tracker');
-                    localStorage.setItem('midmar_learning_subtab', 'courses');
-                    window.dispatchEvent(
-                      new CustomEvent('midmar_switch_work_mode', {
-                        detail: { mode: 'learning_tracker', subTab: 'courses' },
-                      })
-                    );
-                    onSelectStation('WORK_MICRO_SPRINT');
+                    setIsExpanded(false);
                   }}
-                  className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/25 text-sky-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
+                  className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  title={isAr ? 'إغلاق اللوحة' : 'Close'}
                 >
-                  <GraduationCap className="w-4 h-4 text-sky-400 shrink-0" />
-                  <div className="truncate">
-                    <span className="block truncate">{isAr ? 'مسار الكورسات' : 'Study Roadmap'}</span>
-                    <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'مخطط AI' : 'AI Courses'}</span>
-                  </div>
+                  <X className="w-4 h-4" />
                 </button>
+              </div>
 
-                {/* Tool 6: Quran Wird Modal */}
-                {onOpenWirdModal ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      onOpenWirdModal();
-                    }}
-                    className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/25 text-emerald-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                  >
-                    <BookOpen className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <div className="truncate">
-                      <span className="block truncate">{isAr ? 'الورد القرآني' : 'Quran Wird'}</span>
-                      <span className="text-[9px] text-white/50 block font-normal">{wirdPagesRead}/{wirdTargetPages} ص</span>
-                    </div>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      onOpenEvaluation?.();
-                    }}
-                    className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/90 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                  >
-                    <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div className="truncate">
-                      <span className="block truncate">{isAr ? 'التقييم الدوري' : 'Scorecard'}</span>
-                      <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'مؤشرات اليوم' : 'Daily Review'}</span>
-                    </div>
-                  </button>
-                )}
+              {/* Cockpit Main Body */}
+              <div className="p-3.5 sm:p-4 space-y-3.5 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                {/* ------------------------------------------------------------- */}
+                {/* TIER 1: LIVE STATUS COMMAND DECK (Hero Cards) */}
+                {/* ------------------------------------------------------------- */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Card 1: Next Prayer Hero Deck */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-slate-900/60 border border-amber-500/25 flex flex-col justify-between gap-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400">
+                          <PrayerIcon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-amber-200">
+                              {isAr ? `صلاة ${nextP.arabicName}` : nextP.name.toUpperCase()}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-400">{prayerTimeFormatted}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 leading-tight">
+                            {nextP.minutesRemaining <= 15
+                              ? isAr
+                                ? '🚨 اقترب الأذان.. بادر بالوضوء'
+                                : 'Approaching, prepare for prayer'
+                              : isAr
+                                ? 'استثمر الوقت المتبقي في الإنجاز'
+                                : 'Utilize remaining time'}
+                          </p>
+                        </div>
+                      </div>
 
-                {/* Tool 7: Lifestyle & Rest */}
-                {onOpenLifestyleModal ? (
+                      <span
+                        className={`text-[11px] font-mono font-black px-2.5 py-0.5 rounded-full ${
+                          nextP.minutesRemaining <= 15
+                            ? 'bg-rose-500/25 text-rose-300 border border-rose-500/40 animate-pulse'
+                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                        }`}
+                      >
+                        <bdi dir="ltr">{formatPrayerCountdown(nextP.minutesRemaining, isAr)}</bdi>
+                      </span>
+                    </div>
+
+                    {/* Progress to next prayer */}
+                    <div className="space-y-1">
+                      <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-500 to-amber-300 rounded-full transition-all duration-500"
+                          style={{ width: `${prayerProgressPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[9px] text-slate-400 font-mono">
+                        <span>{isAr ? 'اقتراب وقت الفريضة' : 'Window progression'}</span>
+                        <button
+                          type="button"
+                          onClick={handleQuickPlayPrayerTone}
+                          className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-bold cursor-pointer"
+                        >
+                          <Volume2 className="w-2.5 h-2.5" />
+                          <span>{isAr ? 'معاينة النغمة' : 'Preview tone'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Daily Quran Wird & Continuity Hero Deck */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-slate-900/60 border border-emerald-500/25 flex flex-col justify-between gap-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">
+                          <BookOpen className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-emerald-200">
+                              {isAr ? 'الورد القرآني المبارك' : 'Daily Quran Wird'}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 leading-tight">
+                            {isWirdCompleted
+                              ? isAr
+                                ? '✨ مبارك إتمام وردك اليومي'
+                                : 'Daily wird completed'
+                              : isAr
+                                ? '«أخذها بركة وتركها حسرة»'
+                                : 'Keep your spiritual shield'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                          <Flame className="w-3 h-3 fill-current" />
+                          <span>{userState?.streakDays || 0}d</span>
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          {wirdPagesRead}/{wirdTargetPages} {isAr ? 'ص' : 'p'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress to wird target */}
+                    <div className="space-y-1">
+                      <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-emerald-500 to-teal-300 rounded-full transition-all duration-500"
+                          style={{ width: `${wirdProgressPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[9px] text-slate-400">
+                        <span>{isAr ? 'نسبة إنجاز ورد اليوم' : 'Wird progress'}</span>
+                        {onOpenWirdModal && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              soundSynth.playTactileClick();
+                              haptic.vibrateLight();
+                              setIsExpanded(false);
+                              onOpenWirdModal();
+                            }}
+                            className="text-emerald-400 hover:text-emerald-300 font-bold cursor-pointer"
+                          >
+                            {isAr ? 'فتح الورد 📖' : 'Open Wird 📖'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* TIER 2: FAST-ACTION FLIGHT OPERATIONS MATRIX */}
+                {/* ------------------------------------------------------------- */}
+                <div>
+                  <div className="flex items-center justify-between pb-1.5 px-0.5">
+                    <span className="text-[11px] font-bold text-slate-400">
+                      {isAr ? 'أدوات الإنجاز والهمة السريعة' : 'Quick Velocity Tools'}
+                    </span>
+                    <span className="text-[9px] text-slate-500 font-mono">
+                      {isAr ? 'بنقرة واحدة للبدء' : '1-Tap Launch'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Tool 1: 20-Minute Focus Sprint */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setIsExpanded(false);
+                        onSelectStation('WORK_MICRO_SPRINT');
+                      }}
+                      className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/25 text-sky-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <Zap className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block font-black truncate">{isAr ? 'سبرنت 20د' : '20m Sprint'}</span>
+                        <span className="text-[9px] text-slate-400 block font-normal truncate">{isAr ? 'تركيز فوري' : 'Deep focus'}</span>
+                      </div>
+                    </button>
+
+                    {/* Tool 2: 2-Minute Anti-Friction Rule */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setIsExpanded(false);
+                        onOpenTwoMinuteRule?.();
+                      }}
+                      className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <Timer className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block font-black truncate">{isAr ? 'قاعدة الدقيقتين' : '2-Min Rule'}</span>
+                        <span className="text-[9px] text-slate-400 block font-normal truncate">{isAr ? 'كسر التسويف' : 'Anti-friction'}</span>
+                      </div>
+                    </button>
+
+                    {/* Tool 3: Smart Tactile Tasbih */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setIsExpanded(false);
+                        onOpenSmartTasbih?.(fridayStatus.isWindow ? 'salawat_ibrahimiyyah' : 'tahlil_100');
+                      }}
+                      className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/25 text-teal-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <Disc className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block font-black truncate">{isAr ? 'المسبحة اللمسية' : 'Smart Tasbih'}</span>
+                        <span className="text-[9px] text-slate-400 block font-normal truncate">
+                          {fridayStatus.isWindow ? 'موسم الجمعة ⭐' : '100x تهليل'}
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Tool 4: Behavioral AI Coach */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setIsExpanded(false);
+                        onOpenAiCoach?.();
+                      }}
+                      className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 text-indigo-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <Compass className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block font-black truncate">{isAr ? 'المرشد السلوكي' : 'Mindset Coach'}</span>
+                        <span className="text-[9px] text-slate-400 block font-normal truncate">{isAr ? 'ذكاء نفسي' : 'AI Advice'}</span>
+                      </div>
+                    </button>
+
+                    {/* Tool 5: Quick Reminder / Timer */}
+                    {onOpenQuickReminder && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setIsExpanded(false);
+                          onOpenQuickReminder();
+                        }}
+                        className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/25 text-purple-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Bell className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block font-black truncate">{isAr ? 'منبه ومفكرة' : 'Quick Reminder'}</span>
+                          <span className="text-[9px] text-slate-400 block font-normal truncate">{isAr ? 'تنبيه سريع' : 'Alarm'}</span>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Tool 6: Study Course Tracker */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setIsExpanded(false);
+                        localStorage.setItem('midmar_work_view_mode', 'learning_tracker');
+                        localStorage.setItem('midmar_learning_subtab', 'courses');
+                        window.dispatchEvent(
+                          new CustomEvent('midmar_switch_work_mode', {
+                            detail: { mode: 'learning_tracker', subTab: 'courses' },
+                          })
+                        );
+                        onSelectStation('WORK_MICRO_SPRINT');
+                      }}
+                      className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <GraduationCap className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block font-black truncate">{isAr ? 'مسار الكورسات' : 'Study Roadmap'}</span>
+                        <span className="text-[9px] text-slate-400 block font-normal truncate">{isAr ? 'مخطط AI' : 'AI Study'}</span>
+                      </div>
+                    </button>
+
+                    {/* Tool 7: Sleep & Rest */}
+                    {onOpenSleepRest && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setIsExpanded(false);
+                          onOpenSleepRest();
+                        }}
+                        className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 text-blue-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Clock className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block font-black truncate">{isAr ? 'النوم والاستشفاء' : 'Sleep Rest'}</span>
+                          <span className="text-[9px] text-slate-400 block font-normal truncate">{isAr ? 'طاقة ونوم' : 'Recovery'}</span>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Tool 8: Daily Evaluation / Scorecard */}
+                    {onOpenEvaluation && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setIsExpanded(false);
+                          onOpenEvaluation();
+                        }}
+                        className="tap-spring flex items-center gap-2 p-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-200 text-xs font-bold transition-all text-start cursor-pointer active:scale-98 group"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Trophy className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block font-black truncate">{isAr ? 'بطاقة التقييم' : 'Scorecard'}</span>
+                          <span className="text-[9px] text-slate-400 block font-normal truncate">{userState?.streakDays || 0}d streak</span>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cockpit Footer */}
+              <div className="px-4 py-2.5 border-t border-white/10 bg-white/[0.02] flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{isAr ? 'انقر في أي مكان خارج اللوحة للإغلاق' : 'Click outside to dismiss'}</span>
+                </div>
+
+                {onOpenLifestyleModal && (
                   <button
                     type="button"
                     onClick={() => {
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();
+                      setIsExpanded(false);
                       onOpenLifestyleModal();
                     }}
-                    className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/25 text-sky-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
+                    className="text-[11px] font-bold text-amber-400 hover:text-amber-300 transition-colors cursor-pointer"
                   >
-                    <Compass className="w-4 h-4 text-sky-400 shrink-0" />
-                    <div className="truncate">
-                      <span className="block truncate">{isAr ? 'نمط الحياة' : 'Lifestyle'}</span>
-                      <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'تخصيص المحطات' : 'Stations'}</span>
-                    </div>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      onOpenSleepRest?.();
-                    }}
-                    className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/25 text-indigo-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                  >
-                    <Clock className="w-4 h-4 text-indigo-400 shrink-0" />
-                    <div className="truncate">
-                      <span className="block truncate">{isAr ? 'النوم والاستشفاء' : 'Sleep Rest'}</span>
-                      <span className="text-[9px] text-white/50 block font-normal">{isAr ? 'طاقة الجسد' : 'Recovery'}</span>
-                    </div>
-                  </button>
-                )}
-
-                {/* Tool 8: Daily Evaluation / Scorecard */}
-                {onOpenEvaluation && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      onOpenEvaluation();
-                    }}
-                    className="tap-spring flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/25 text-amber-300 text-xs font-bold transition-all text-start cursor-pointer active:scale-98"
-                  >
-                    <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div className="truncate">
-                      <span className="block truncate">{isAr ? 'بطاقة التقييم' : 'Scorecard'}</span>
-                      <span className="text-[9px] text-white/50 block font-normal">{userState?.streakDays || 0}d streak</span>
-                    </div>
+                    {isAr ? 'تخصيص محطات اليوم ⚙️' : 'Customize Stations ⚙️'}
                   </button>
                 )}
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
