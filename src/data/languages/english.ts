@@ -134,6 +134,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['build resilience', 'mental resilience', 'remarkable resilience'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'تخيل كرة مطاطية تسقط من أعلى؛ كلما صدمتها الأرض بقوة ارتدت للأعلى أعلى وأسرع.',
+    etymologyRoot: 'من اللاتينية resilire (الارتداد السريع نحو الأعلى)',
   },
   {
     id: 'en-b1-2',
@@ -147,6 +149,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['physical endurance', 'endurance training', 'test of endurance'],
     category: 'fitness_sports',
     level: 'B1',
+    mnemonicHook: 'من الفعل Endure (يصمد)؛ عداء ماراثون يواصل الجري وهو يبتسم رغم التعب.',
+    etymologyRoot: 'من اللاتينية indurare (التصلب واكتساب الصلابة)',
   },
   {
     id: 'en-b1-3',
@@ -160,6 +164,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['gain leverage', 'maximum leverage', 'strategic leverage'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'مثل عتلة أرخميدس: "أعطني رافعة ونقطة ارتكاز وسأحرك الأرض بمفردي"!',
+    etymologyRoot: 'من الفرنسية القديمة levier (الرافعة التي ترفع الأثقال)',
   },
   {
     id: 'en-b1-4',
@@ -173,6 +179,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['moral fortitude', 'mental fortitude', 'quiet fortitude'],
     category: 'mindset_focus',
     level: 'C1',
+    mnemonicHook: 'مثل القلعة الحصينة (Fort)؛ جدران فولاذية تحمي مبادئك من التردد والانهيار.',
+    etymologyRoot: 'من اللاتينية fortis (قوي وشجاع وراسخ)',
   },
   {
     id: 'en-b1-5',
@@ -186,6 +194,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['dogged tenacity', 'remarkable tenacity', 'sheer tenacity'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'مثل قبضة يد حديدية ممسكة بالحبل لا تفلت الهدف حتى يكتمل النصر.',
+    etymologyRoot: 'من اللاتينية tenere (يمسك بإحكام شديد)',
   },
   {
     id: 'en-b1-6',
@@ -199,6 +209,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['self-discipline', 'strict discipline', 'iron discipline'],
     category: 'mindset_focus',
     level: 'B1',
+    mnemonicHook: 'مثل جندي في تشكيل نظامي يسير بخطوات واثقة دون أن يشغله ضجيج الطريق.',
+    etymologyRoot: 'من اللاتينية disciplina (التعليم والإرشاد المستمر)',
   },
   {
     id: 'en-b1-7',
@@ -212,22 +224,11 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['build momentum', 'gain momentum', 'maintain momentum'],
     category: 'mindset_focus',
     level: 'B1',
+    mnemonicHook: 'كرة ثلج تتدحرج من قمة الجبل؛ تبدأ صغيرة ثم تتحول إلى قوة جارفة تكتسح كل العقبات.',
+    etymologyRoot: 'من اللاتينية momentum (حركة الدفع السريعة للأمام)',
   },
   {
     id: 'en-b1-8',
-    lang: 'en',
-    word: 'Resilience',
-    phonetic: '/rɪˈzɪl.jəns/',
-    translationAr: 'المرونة النفسية والقدرة على التعافي السريع',
-    partOfSpeech: 'noun',
-    contextSentence: 'Resilience is not the absence of difficulty, but the ability to bounce back.',
-    contextSentenceAr: 'المرونة ليست غياب الصعوبات، بل القدرة على النهوض من جديد.',
-    collocations: ['build resilience', 'emotional resilience', 'remarkable resilience'],
-    category: 'mindset_focus',
-    level: 'B1',
-  },
-  {
-    id: 'en-b1-9',
     lang: 'en',
     word: 'Consistency',
     phonetic: '/kənˈsɪs.tən.si/',
@@ -238,6 +239,8 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['remarkable consistency', 'strive for consistency', 'lack of consistency'],
     category: 'mindset_focus',
     level: 'B1',
+    mnemonicHook: 'قطرات ماء منتظمة تسقط في نفس النقطة كل يوم حتى تفلق الصوان الصلب.',
+    etymologyRoot: 'من اللاتينية consistere (الثبات والتجمع في كيان متماسك)',
   },
   {
     id: 'en-b1-10',
