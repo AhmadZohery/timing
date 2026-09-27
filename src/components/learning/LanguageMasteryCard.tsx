@@ -772,11 +772,11 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
 
                   {/* Context sentence */}
                   <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950/80 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
-                    <p className="font-medium text-slate-900 dark:text-zinc-100">
-                      "{currentWord.contextSentence}"
+                    <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed">
+                      “{currentWord.contextSentence}”
                     </p>
-                    <p className="text-emerald-700 dark:text-emerald-400/90 font-sans">
-                      "{currentWord.contextSentenceAr}"
+                    <p className="text-emerald-700 dark:text-emerald-400 font-sans text-start leading-relaxed font-medium">
+                      «{currentWord.contextSentenceAr}»
                     </p>
                   </div>
                 </div>
@@ -922,11 +922,11 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
               <span>📖</span>
               <span>{isAr ? 'سياق الاستخدام في جملة عملية:' : 'Contextual Sentence:'}</span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-900 dark:text-zinc-100 font-medium leading-relaxed">
-              "{currentWord.contextSentence}"
+            <p dir="ltr" className="text-xs sm:text-sm text-slate-900 dark:text-zinc-100 font-medium leading-relaxed font-serif text-start">
+              “{currentWord.contextSentence}”
             </p>
-            <p className="text-xs text-emerald-700 dark:text-emerald-300/90 leading-relaxed font-sans font-medium">
-              "{currentWord.contextSentenceAr}"
+            <p className="text-xs text-emerald-700 dark:text-emerald-300/90 leading-relaxed font-sans font-medium text-start">
+              «{currentWord.contextSentenceAr}»
             </p>
           </div>
 

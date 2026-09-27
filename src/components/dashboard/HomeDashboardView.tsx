@@ -11,8 +11,6 @@ import {
   Sun,
   Moon,
   Sunrise,
-  Volume2,
-  Globe,
   Activity,
   ShieldCheck,
   Feather,
@@ -20,7 +18,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, UserProfile } from '../../types';
-import { TARGET_LANGUAGES } from '../../data/languages/vocabularyDatabase';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
@@ -32,15 +29,11 @@ import { DailyTadabburCard } from '../spiritual/DailyTadabburCard';
 import { DailyStationsRoadmap } from './DailyStationsRoadmap';
 import { LIFESTYLE_PERSONAS } from '../../utils/lifestyleEngine';
 import type { DailyTadabburItem } from '../../data/dailyTadabburData';
-import { spacedRepetition } from '../../services/spacedRepetitionService';
-import { speechService } from '../../services/speechService';
-import { LanguageQuizModal } from '../learning/LanguageQuizModal';
-import { LanguageMovesModal } from '../learning/LanguageMovesModal';
+import { LanguageMasteryCard } from '../learning/LanguageMasteryCard';
 import { getDailyWisdom } from '../../data/lifeWisdomData';
 import { GymFaithAudioPlayer } from '../spiritual/GymFaithAudioPlayer';
 import { scheduleService, type LearnedSportPattern } from '../../services/scheduleService';
 import { ScheduleAnomalyModal } from '../modals/ScheduleAnomalyModal';
-import { ErrorBoundary } from '../common/ErrorBoundary';
 import { MorningEveningAdhkarModal } from '../spiritual/MorningEveningAdhkarModal';
 import { SurahMulkModal } from '../spiritual/SurahMulkModal';
 import { FastingReminderModal } from '../spiritual/FastingReminderModal';
@@ -113,30 +106,9 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     'GRAND_REWARD_STATE',
   ];
 
-  // Multilingual Daily Vocabulary on Home Dashboard
-  const [isHomeQuizOpen, setIsHomeQuizOpen] = useState(false);
-  const activeLangCode = spacedRepetition.getActiveLanguage();
-  const currentLangObj =
-    TARGET_LANGUAGES.find((l) => l.code === activeLangCode) || TARGET_LANGUAGES[0];
-  const todayWords = useMemo(
-    () => spacedRepetition.getTodayWords(),
-    [activeLangCode, isHomeQuizOpen]
-  );
-  const [languageStats, setLanguageStats] = useState(() => spacedRepetition.getStats());
-
-  const handleHomeQuizCompleted = (score: number, total: number) => {
-    setLanguageStats(spacedRepetition.getStats());
-    onRewardToast(
-      isAr
-        ? `🏆 أحسنت! حققت ${score} من ${total} في اختبار الكلمات اليومي! (+20 XP)`
-        : `🏆 Well done! ${score}/${total} correct in daily quiz! (+20 XP)`
-    );
-  };
-
-  // Dynamic Daily Wisdom & Language Moves State
+  // Dynamic Daily Wisdom State
   const [wisdomCategory, setWisdomCategory] = useState<string>('all');
   const [isReadMoreWisdomOpen, setIsReadMoreWisdomOpen] = useState(false);
-  const [isLanguageMovesOpen, setIsLanguageMovesOpen] = useState(false);
   const dailyWisdom = useMemo(() => getDailyWisdom(new Date(), wisdomCategory), [wisdomCategory]);
 
 
@@ -1239,97 +1211,9 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 5. DAILY VOCABULARY MASTERY BENTO (الحصيلة اللغوية اليومية) */}
+      {/* 5. ELITE DAILY MULTILINGUAL MASTERY & 3D FLASHCARD DECK      */}
       {/* ============================================================ */}
-      <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-3.5">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-base shrink-0">
-              <Globe className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
-                  {isAr ? 'الحصيلة اللغوية اليومية' : 'Daily Language Mastery'}
-                </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-800/40">
-                  {currentLangObj.flag} {currentLangObj.nameAr}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                {isAr
-                  ? `الورد اليومي: ${todayWords.length} كلمات • متبقي للمراجعة التكرارية: ${languageStats.dueReviewsCount}`
-                  : `Daily Quota: ${todayWords.length} words • ${languageStats.dueReviewsCount} due for review`}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playCompletionChime();
-                haptic.vibrateLight();
-                setIsHomeQuizOpen(true);
-              }}
-              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
-            >
-              <span>🎯</span>
-              <span>{isAr ? 'اختبار الكلمات اليومي' : 'Quick Quiz'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                setIsLanguageMovesOpen(true);
-              }}
-              className="px-3.5 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-200 dark:border-indigo-800/40 transition-colors cursor-pointer"
-              title={isAr ? 'عرض بطاقات الكلمات الكاملة' : 'View full cards'}
-            >
-              <span>{isAr ? 'عرض البطاقات والتدريب ←' : 'Full Cards & Drill →'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Active Word Spotlight Banner */}
-        {todayWords[0] && (
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-50/80 via-slate-50 to-white dark:from-indigo-950/20 dark:via-zinc-900 dark:to-zinc-950 border border-indigo-100 dark:border-indigo-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  soundSynth.playTactileClick();
-                  haptic.vibrateLight();
-                  speechService.speak(todayWords[0].word, currentLangObj.speechCode, 1.0);
-                }}
-                className="w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-xs transition-transform active:scale-95 cursor-pointer shrink-0"
-                title={isAr ? 'استمع للنطق البشري' : 'Listen speech'}
-              >
-                <Volume2 className="w-5 h-5" />
-              </button>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-base sm:text-lg font-black text-slate-950 dark:text-white font-serif">
-                    {todayWords[0].word}
-                  </span>
-                  <span className="font-mono text-xs text-slate-400">
-                    {todayWords[0].phonetic}
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 font-sans">
-                  {todayWords[0].translationAr}
-                </p>
-              </div>
-            </div>
-
-            <div className="text-xs text-slate-600 dark:text-zinc-300 bg-white/80 dark:bg-zinc-800/70 px-3 py-1.5 rounded-xl border border-slate-200/60 dark:border-zinc-700/60 max-w-sm truncate">
-              "{todayWords[0].contextSentence}"
-            </div>
-          </div>
-        )}
-      </div>
+      <LanguageMasteryCard onRewardToast={onRewardToast} />
 
       {/* ============================================================ */}
       {/* 6. 24-HOUR CIRCADIAN TIMELINE & GUIDANCE                     */}
@@ -1400,34 +1284,6 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
       </footer>
 
-      {/* Language Quiz Modal from Home Dashboard */}
-      <ErrorBoundary fallbackTitle="تنبيه في اختبار الكلمات اليومي">
-        <LanguageQuizModal
-          isOpen={isHomeQuizOpen}
-          onClose={() => {
-            setIsHomeQuizOpen(false);
-            setLanguageStats(spacedRepetition.getStats());
-          }}
-          words={todayWords}
-          speechCode={currentLangObj.speechCode}
-          onCompleted={handleHomeQuizCompleted}
-        />
-      </ErrorBoundary>
-
-      {/* Language Moves & Full Flashcards Modal */}
-      <ErrorBoundary fallbackTitle="تنبيه في بطاقات الكلمات">
-        <LanguageMovesModal
-          isOpen={isLanguageMovesOpen}
-          onClose={() => {
-            setIsLanguageMovesOpen(false);
-            setLanguageStats(spacedRepetition.getStats());
-          }}
-          words={todayWords}
-          speechCode={currentLangObj.speechCode}
-          isAr={isAr}
-          languageName={currentLangObj.nameAr}
-        />
-      </ErrorBoundary>
 
       {/* Schedule Anomaly Modal */}
       <ScheduleAnomalyModal

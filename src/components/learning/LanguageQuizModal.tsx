@@ -343,11 +343,11 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                   <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-500 block">
                     {isAr ? 'أكمل الفراغ بالكلمة الصحيحة:' : 'Fill in the blank with the correct word:'}
                   </span>
-                  <p className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white dir-ltr">
+                  <p dir="ltr" className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white font-serif">
                     {currentWord.contextSentence.replace(new RegExp(currentWord.word, 'gi'), '_______')}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-zinc-400">
-                    ({currentWord.contextSentenceAr})
+                    «{currentWord.contextSentenceAr}»
                   </p>
                 </div>
               ) : (
@@ -359,7 +359,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                     <button
                       type="button"
                       onClick={handleSpeakWord}
-                      className="p-1.5 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+                      className="p-1.5 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 cursor-pointer"
                     >
                       <Volume2 className="w-4 h-4" />
                     </button>
@@ -372,8 +372,8 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
 
               {/* Hint Toggle */}
               {showHint && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-950/40 p-2 rounded-xl border border-amber-200 dark:border-amber-800/40 animate-fade-in">
-                  💡 {currentWord.contextSentence}
+                <p dir="ltr" className="text-xs text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-950/40 p-2 rounded-xl border border-amber-200 dark:border-amber-800/40 animate-fade-in font-serif">
+                  💡 “{currentWord.contextSentence}”
                 </p>
               )}
             </div>
