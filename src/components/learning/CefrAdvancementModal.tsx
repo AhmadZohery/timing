@@ -5,6 +5,8 @@ import {
   ArrowLeft,
   GraduationCap,
   ShieldCheck,
+  Copy,
+  Check,
 } from 'lucide-react';
 import {
   type VocabularyWord,
@@ -15,6 +17,7 @@ import { spacedRepetition } from '../../services/spacedRepetitionService';
 import { speechService } from '../../services/speechService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
+import { triggerCelebrationConfetti } from '../../utils/gamification';
 
 interface CefrAdvancementModalProps {
   isOpen: boolean;
@@ -53,6 +56,7 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [copiedCert, setCopiedCert] = useState(false);
 
   const levelInfo = CEFR_LEVELS_INFO.find((i) => i.level === level) || CEFR_LEVELS_INFO[0];
 
@@ -137,8 +141,6 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
     }
   }, [isOpen, currentQIndex, currentQ, speechCode]);
 
-  if (!isOpen) return null;
-
   const handleSelectOption = (option: string) => {
     if (isAnswerSubmitted) return;
     soundSynth.playTactileClick();
@@ -147,7 +149,7 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
   };
 
   const handleSubmitAnswer = () => {
-    if (!selectedAnswer || isAnswerSubmitted) return;
+    if (!selectedAnswer || isAnswerSubmitted || !currentQ) return;
 
     const isCorrect = selectedAnswer === currentQ.correctAnswer;
     setIsAnswerSubmitted(true);
@@ -172,10 +174,12 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
     } else {
       // Exam finished
       setIsFinished(true);
-      const passRatio = score / (questions.length || 1);
-      if (passRatio >= 0.75) {
+      const finalScore = score + (selectedAnswer === currentQ?.correctAnswer ? 1 : 0);
+      const ratio = finalScore / (questions.length || 1);
+      if (ratio >= 0.75) {
         soundSynth.playCompletionChime();
         haptic.vibrateSprintCelebration();
+        triggerCelebrationConfetti();
         spacedRepetition.recordExamPassed(level);
         if (onLevelPassed) {
           onLevelPassed(level);
@@ -183,6 +187,50 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
       }
     }
   };
+
+  // Keyboard Shortcuts: 1-4 for options, Enter for Submit / Next, Esc to Close
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (isFinished) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onClose();
+        }
+        return;
+      }
+
+      if (!isAnswerSubmitted) {
+        const num = parseInt(e.key, 10);
+        if (currentQ && num >= 1 && num <= currentQ.options.length) {
+          e.preventDefault();
+          handleSelectOption(currentQ.options[num - 1]);
+          return;
+        }
+
+        if (e.key === 'Enter' && selectedAnswer) {
+          e.preventDefault();
+          handleSubmitAnswer();
+        }
+      } else {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleNextQuestion();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isFinished, isAnswerSubmitted, selectedAnswer, currentQ, onClose, handleSelectOption, handleSubmitAnswer, handleNextQuestion]);
+
+  if (!isOpen) return null;
 
   const passRatio = score / (questions.length || 1);
   const isPassed = passRatio >= 0.75;
@@ -292,35 +340,52 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleSelectOption(opt)}
-                    className={`p-4 rounded-2xl border text-sm text-center transition-all cursor-pointer ${btnStyle}`}
+                    className={`p-4 rounded-2xl border text-sm text-center transition-all cursor-pointer flex items-center justify-between ${btnStyle}`}
                   >
-                    {opt}
+                    <span className="font-mono text-[10px] opacity-40">[{idx + 1}]</span>
+                    <span className="flex-1 text-center font-medium">{opt}</span>
+                    <span className="w-4" />
                   </button>
                 );
               })}
             </div>
 
             {/* Action Bar */}
-            <div className="pt-2 flex justify-end">
-              {!isAnswerSubmitted ? (
-                <button
-                  type="button"
-                  disabled={!selectedAnswer}
-                  onClick={handleSubmitAnswer}
-                  className="py-3 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm disabled:opacity-40 shadow-sm cursor-pointer"
-                >
-                  {isAr ? 'تأكيد الإجابة' : 'Submit Answer'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleNextQuestion}
-                  className="py-3 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm cursor-pointer"
-                >
-                  <span>{currentQIndex + 1 >= questions.length ? (isAr ? 'عرض النتيجة' : 'View Results') : (isAr ? 'السؤال التالي' : 'Next Question')}</span>
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-              )}
+            <div className="pt-2 space-y-2">
+              <div className="flex justify-end">
+                {!isAnswerSubmitted ? (
+                  <button
+                    type="button"
+                    disabled={!selectedAnswer}
+                    onClick={handleSubmitAnswer}
+                    className="py-3 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm disabled:opacity-40 shadow-sm cursor-pointer"
+                  >
+                    {isAr ? 'تأكيد الإجابة (Enter ↵)' : 'Submit Answer (Enter ↵)'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleNextQuestion}
+                    className="py-3 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-sm cursor-pointer"
+                  >
+                    <span>
+                      {currentQIndex + 1 >= questions.length
+                        ? isAr
+                          ? 'عرض النتيجة (Enter ↵)'
+                          : 'View Results (Enter ↵)'
+                        : isAr
+                        ? 'السؤال التالي (Enter ↵)'
+                        : 'Next Question (Enter ↵)'}
+                    </span>
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <div className="text-center">
+                <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
+                  {isAr ? '⌨️ [اضغط 1-4 للاختيار السريع • Enter للتأكيد والتقدم]' : '⌨️ [Press 1-4 to select • Enter to submit & next]'}
+                </span>
+              </div>
             </div>
           </div>
         ) : (
@@ -351,13 +416,40 @@ export const CefrAdvancementModal: React.FC<CefrAdvancementModalProps> = ({
                   <span>{levelInfo.titleAr} ({levelInfo.nameEn}) • موثقة ومحفوظة</span>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="py-3 px-8 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm shadow-md cursor-pointer transition-transform active:scale-95"
-                >
-                  {isAr ? 'استلام الشهادة ومتابعة التعلم 🎓' : 'Claim Certificate & Continue 🎓'}
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      const certText = `🎓 شهادة اعتماد الكفاءة اللغوية الرسمية (CEFR)\n══════════════════════════════\nاللغة: ${languageName}\nالمستوى المعتمد: ${level} - ${levelInfo.titleAr} (${levelInfo.nameEn})\nنسبة النجاح: ${Math.round(passRatio * 100)}% (${score}/${questions.length})\nالمعيار المرجعي: الإطار الأوروبي المشترك للغات (CEFR)\nتاريخ الاعتماد: ${new Date().toLocaleDateString('ar-EG')}\nالحالة: معتمد وموثق في المنظومة 🛡️`;
+                      navigator.clipboard.writeText(certText);
+                      setCopiedCert(true);
+                      setTimeout(() => setCopiedCert(false), 2500);
+                    }}
+                    className="inline-flex items-center gap-2 py-3 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-md cursor-pointer transition-transform active:scale-95"
+                  >
+                    {copiedCert ? (
+                      <>
+                        <Check className="w-4 h-4 text-black" />
+                        <span>{isAr ? 'تم نسخ الشهادة للحافظة!' : 'Certificate Copied!'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 text-black" />
+                        <span>{isAr ? 'نسخ شهادة الاعتماد 📋' : 'Copy Level Certificate 📋'}</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="py-3 px-8 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-md cursor-pointer transition-transform active:scale-95"
+                  >
+                    {isAr ? 'استلام ومتابعة التعلم 🎓' : 'Claim & Continue 🎓'}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="p-6 rounded-3xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 space-y-4">

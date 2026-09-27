@@ -12,6 +12,9 @@ import {
   Headphones,
   FileEdit,
   Repeat,
+  Flame,
+  Copy,
+  Check,
 } from 'lucide-react';
 import {
   VOCABULARY_DATABASE,
@@ -25,6 +28,7 @@ import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { RootDeconstructorCard } from './RootDeconstructorCard';
+import { triggerCelebrationConfetti } from '../../utils/gamification';
 
 export type QuizMode = 'multiple_choice' | 'reverse_recall' | 'cloze_sentence' | 'listening';
 
@@ -56,6 +60,9 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const [isFinished, setIsFinished] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [activeQuizMode, setActiveQuizMode] = useState<QuizMode>('multiple_choice');
+  const [quizStreak, setQuizStreak] = useState(0);
+  const [maxQuizStreak, setMaxQuizStreak] = useState(0);
+  const [copiedCert, setCopiedCert] = useState(false);
 
   // Guaranteed words fallback so the modal NEVER blocks or fails
   const rawWords = useMemo(() => {
@@ -81,15 +88,6 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     return counts;
   }, [rawWords]);
 
-  // Close on ESC
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   // Reset state when opening with words
   useEffect(() => {
     if (isOpen) {
@@ -97,24 +95,17 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
       setSelectedOption(null);
       setIsAnswerSubmitted(false);
       setScore(0);
+      setQuizStreak(0);
+      setMaxQuizStreak(0);
       setIsFinished(false);
       setShowHint(false);
+      setCopiedCert(false);
     }
   }, [isOpen, words]);
 
   const currentWord = effectiveWords[currentIndex] || effectiveWords[0];
   const currentWordProgress = currentWord ? spacedRepetition.getWordProgress(currentWord.id) : undefined;
   const isLeech = currentWord ? spacedRepetition.isLeechWord(currentWord.id) : false;
-
-  // Automatically speak word in listening mode
-  useEffect(() => {
-    if (isOpen && activeQuizMode === 'listening' && currentWord) {
-      const timer = setTimeout(() => {
-        speechService.speak(currentWord.word, speechCode, 0.9);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, activeQuizMode, currentIndex, speechCode, currentWord]);
 
   // Dynamic Options Generator based on Quiz Mode
   const { options, correctAnswer } = useMemo(() => {
@@ -154,7 +145,15 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     }
   }, [currentWord, activeQuizMode]);
 
-  if (!isOpen || !currentWord) return null;
+  // Automatically speak word in listening mode
+  useEffect(() => {
+    if (isOpen && activeQuizMode === 'listening' && currentWord) {
+      const timer = setTimeout(() => {
+        speechService.speak(currentWord.word, speechCode, 0.9);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, activeQuizMode, currentIndex, speechCode, currentWord]);
 
   const handleSpeakWord = () => {
     soundSynth.playTactileClick();
@@ -173,12 +172,21 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
     setIsAnswerSubmitted(true);
 
     if (isCorrect) {
+      const nextStreak = quizStreak + 1;
+      setQuizStreak(nextStreak);
+      setMaxQuizStreak((prev) => Math.max(prev, nextStreak));
       soundSynth.playCompletionChime();
       haptic.vibrateLight();
       setScore((s) => s + 1);
       spacedRepetition.recordResult(currentWord.id, true, 'medium');
+
+      if (nextStreak === 3 || nextStreak === 5 || nextStreak === 10) {
+        haptic.vibrateSprintCelebration();
+        triggerCelebrationConfetti();
+      }
     } else {
-      soundSynth.playTactileClick();
+      setQuizStreak(0);
+      soundSynth.playWarningSound();
       haptic.vibrateWorkDone();
       spacedRepetition.recordResult(currentWord.id, false);
     }
@@ -195,16 +203,67 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
       setCurrentIndex((i) => i + 1);
     } else {
       setIsFinished(true);
+      const finalScore = score + (selectedOption === correctAnswer ? 1 : 0);
+      if (finalScore / effectiveWords.length >= 0.75) {
+        soundSynth.playCompletionChime();
+        haptic.vibrateSprintCelebration();
+        triggerCelebrationConfetti();
+      }
       if (onCompleted) {
-        onCompleted(score + (selectedOption === correctAnswer ? 1 : 0), effectiveWords.length);
+        onCompleted(finalScore, effectiveWords.length);
       }
     }
   };
 
+  // Keyboard Shortcuts: 1-4 for options, Enter for Submit / Next, Esc to Close
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (isFinished) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onClose();
+        }
+        return;
+      }
+
+      // Keyboard choices 1, 2, 3, 4
+      if (!isAnswerSubmitted) {
+        const num = parseInt(e.key, 10);
+        if (num >= 1 && num <= options.length) {
+          e.preventDefault();
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          setSelectedOption(options[num - 1]);
+          return;
+        }
+
+        if (e.key === 'Enter' && selectedOption) {
+          e.preventDefault();
+          handleSubmitAnswer();
+        }
+      } else {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleNextQuestion();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isFinished, isAnswerSubmitted, selectedOption, options, onClose, handleSubmitAnswer, handleNextQuestion]);
+
   const progressPercentage = Math.round(((currentIndex + 1) / effectiveWords.length) * 100);
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight;
 
-  if (typeof document === 'undefined') return null;
+  if (!isOpen || !currentWord || typeof document === 'undefined') return null;
 
   return createPortal(
     <div
@@ -347,7 +406,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
           })}
         </div>
 
-        {/* Quiz Progress Bar */}
+        {/* Quiz Progress Bar & Dynamic Streak Multiplier */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-mono text-slate-500 dark:text-zinc-400">
             <span className="flex items-center gap-1.5">
@@ -356,9 +415,18 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                 {currentWord.level}
               </span>
             </span>
-            <span className="font-bold text-indigo-600 dark:text-indigo-400">
-              {score} {isAr ? 'إجابات صحيحة' : 'Correct'}
-            </span>
+
+            <div className="flex items-center gap-2">
+              {quizStreak >= 2 && (
+                <span className="px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 font-bold text-[11px] flex items-center gap-1 border border-amber-500/30 animate-pulse">
+                  <Flame className="w-3.5 h-3.5 fill-current" />
+                  <span>{quizStreak} {isAr ? 'متتالية!' : 'Streak!'}</span>
+                </span>
+              )}
+              <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                {score} {isAr ? 'إجابات صحيحة' : 'Correct'}
+              </span>
+            </div>
           </div>
           <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
             <div
@@ -591,8 +659,8 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
               </div>
             )}
 
-            {/* Action Bar */}
-            <div className="pt-2">
+            {/* Action Bar & Keyboard Hint */}
+            <div className="pt-2 space-y-2">
               {!isAnswerSubmitted ? (
                 <button
                   type="button"
@@ -600,7 +668,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                   onClick={handleSubmitAnswer}
                   className="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md active:scale-95 transition-all cursor-pointer"
                 >
-                  {isAr ? 'تأكيد الإجابة' : 'Check Answer'}
+                  {isAr ? 'تأكيد الإجابة (Enter ↵)' : 'Check Answer (Enter ↵)'}
                 </button>
               ) : (
                 <button
@@ -608,28 +676,98 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                   onClick={handleNextQuestion}
                   className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
-                  <span>{isAr ? 'السؤال التالي' : 'Next Question'}</span>
+                  <span>{isAr ? 'السؤال التالي (Enter ↵)' : 'Next Question (Enter ↵)'}</span>
                   <ArrowIcon className="w-4 h-4" />
                 </button>
               )}
+              <div className="text-center">
+                <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
+                  {isAr ? '⌨️ [اضغط 1-4 للاختيار السريع • Enter للتأكيد والتقدم]' : '⌨️ [Press 1-4 to select • Enter to submit & next]'}
+                </span>
+              </div>
             </div>
           </div>
         ) : (
-          /* Finished Screen */
-          <div className="py-6 text-center space-y-5">
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs text-3xl">
-              🏆
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
-                {isAr ? 'أحسنت! اكتمل الاختبار اليومي بنجاح' : 'Great Job! Quiz Completed'}
-              </h3>
-              <p className="text-sm text-slate-500 dark:text-zinc-400">
-                {isAr
-                  ? `أحرزت ${score} من إجمالي ${effectiveWords.length} كلمات بنجاح (+${score * 10} XP)`
-                  : `You scored ${score} out of ${effectiveWords.length} words (+${score * 10} XP)`}
-              </p>
-            </div>
+          /* Finished Screen with Royal CEFR Certificate Seal */
+          <div className="py-4 text-center space-y-4 animate-scale-in">
+            {/* Royal CEFR Certificate Seal for High Performers */}
+            {score / effectiveWords.length >= 0.75 ? (
+              <div className="p-5 rounded-3xl bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent border-2 border-amber-500/40 relative overflow-hidden shadow-lg space-y-3">
+                <div className="flex items-center justify-between text-[10px] font-mono font-bold text-amber-700 dark:text-amber-400">
+                  <span className="bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                    ★ CEFR MASTERY SEAL
+                  </span>
+                  {maxQuizStreak >= 3 && (
+                    <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                      <Flame className="w-3.5 h-3.5 fill-current" />
+                      <span>{isAr ? `أعلى متتالية: ${maxQuizStreak}` : `Max Streak: ${maxQuizStreak}`}</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center text-3xl shadow-md ring-4 ring-amber-500/20 animate-bounce">
+                  🏅
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block font-mono">
+                    {isAr ? 'ختم اعتماد الكفاءة اللغوية' : 'Official CEFR Competency Seal'}
+                  </span>
+                  <h4 className="text-xl font-black text-slate-950 dark:text-white font-serif">
+                    {selectedLevel === 'ALL'
+                      ? (isAr ? 'إتقان بنك المفردات الشامل' : 'Comprehensive Vocabulary Mastery')
+                      : `${selectedLevel} • ${CEFR_LEVELS_INFO.find((l) => l.level === selectedLevel)?.titleAr || selectedLevel}`}
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-zinc-300 max-w-sm mx-auto leading-relaxed">
+                    {isAr
+                      ? `أحرزت دقة إتقان استثنائية بلغت ${Math.round((score / effectiveWords.length) * 100)}% (+${score * 10} XP)، مؤكداً استيعابك العميق للمفردات!`
+                      : `Achieved an outstanding ${Math.round((score / effectiveWords.length) * 100)}% accuracy (+${score * 10} XP), validating deep vocabulary retention!`}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    const certText = `🏅 شهادة اعتماد الكفاءة اللغوية (CEFR)\nالمستوى: ${selectedLevel}\nالنتيجة: ${score}/${effectiveWords.length} (${Math.round((score / effectiveWords.length) * 100)}%)\nأعلى متتالية إتقان: ${maxQuizStreak}\nتاريخ الاعتماد: ${new Date().toLocaleDateString('ar-EG')}`;
+                    navigator.clipboard.writeText(certText);
+                    setCopiedCert(true);
+                    setTimeout(() => setCopiedCert(false), 2500);
+                  }}
+                  className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-black text-xs shadow-sm cursor-pointer transition-transform active:scale-95"
+                >
+                  {copiedCert ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'تم نسخ الشهادة للحافظة!' : 'Certificate Copied!'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'نسخ بطاقة الاعتماد والشهادة 📋' : 'Copy Certificate 📋'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs text-3xl">
+                  🏆
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                    {isAr ? 'اكتمل الاختبار بنجاح!' : 'Quiz Completed!'}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-zinc-400">
+                    {isAr
+                      ? `أحرزت ${score} من إجمالي ${effectiveWords.length} كلمات (+${score * 10} XP)`
+                      : `You scored ${score} out of ${effectiveWords.length} words (+${score * 10} XP)`}
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 pt-2">
               <button
                 type="button"
@@ -639,6 +777,8 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
                   setSelectedOption(null);
                   setIsAnswerSubmitted(false);
                   setScore(0);
+                  setQuizStreak(0);
+                  setMaxQuizStreak(0);
                   setIsFinished(false);
                   setShowHint(false);
                 }}

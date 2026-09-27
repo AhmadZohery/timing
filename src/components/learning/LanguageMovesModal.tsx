@@ -246,6 +246,56 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
     return () => window.removeEventListener('keydown', handleSprintKey);
   }, [activeMove, sprintActive, sprintCard, isOpen]);
 
+  // Memoized options for Move 4 (Cloze Audio Dictation)
+  const clozeOptions = useMemo(() => {
+    if (!currentWord) return [];
+    const others = words.filter((w) => w.id !== currentWord.id).map((w) => w.word).slice(0, 2);
+    return [currentWord.word, ...others].sort(() => 0.5 - Math.random());
+  }, [currentWord, words]);
+
+  // Move 4 Cloze Keyboard Controls: 1-3 for options, Enter for Submit / Next
+  useEffect(() => {
+    if (activeMove !== 'cloze_dictation' || !isOpen) return;
+
+    const handleClozeKey = (e: KeyboardEvent) => {
+      if (!clozeSubmitted) {
+        const num = parseInt(e.key, 10);
+        if (num >= 1 && num <= clozeOptions.length) {
+          e.preventDefault();
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          setClozeAnswer(clozeOptions[num - 1]);
+          return;
+        }
+
+        if (e.key === 'Enter' && clozeAnswer) {
+          e.preventDefault();
+          setClozeSubmitted(true);
+          if (clozeAnswer.toLowerCase() === currentWord?.word.toLowerCase()) {
+            soundSynth.playCompletionChime();
+            haptic.vibrateSprintCelebration();
+            triggerCelebrationConfetti();
+          } else {
+            soundSynth.playWarningSound();
+            haptic.vibrateLight();
+          }
+        }
+      } else {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          soundSynth.playTactileClick();
+          haptic.vibrateLight();
+          setClozeAnswer(null);
+          setClozeSubmitted(false);
+          setCurrentIndex((idx) => (idx + 1) % effectiveWords.length);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleClozeKey);
+    return () => window.removeEventListener('keydown', handleClozeKey);
+  }, [activeMove, isOpen, clozeSubmitted, clozeAnswer, clozeOptions, currentWord, effectiveWords.length]);
+
   if (!isOpen || !currentWord) return null;
 
   // --- Move 1: Auditory Shadowing Execution ---
@@ -1192,40 +1242,41 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
 
             {/* Multiple Choice Options */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-              {[
-                currentWord.word,
-                ...(words.filter((w) => w.id !== currentWord.id).map((w) => w.word).slice(0, 2)),
-              ]
-                .sort(() => 0.5 - Math.random())
-                .map((opt, idx) => {
-                  const isSelected = clozeAnswer === opt;
-                  const isCorrect = opt.toLowerCase() === currentWord.word.toLowerCase();
-                  let style = 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200';
-                  if (clozeSubmitted) {
-                    if (isCorrect) style = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold';
-                    else if (isSelected) style = 'bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-800 dark:text-rose-200 font-bold';
-                  } else if (isSelected) {
-                    style = 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-600 text-indigo-900 dark:text-indigo-200 font-bold';
-                  }
+              {clozeOptions.map((opt, idx) => {
+                const isSelected = clozeAnswer === opt;
+                const isCorrect = opt.toLowerCase() === currentWord.word.toLowerCase();
+                let style = 'bg-white dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200';
+                if (clozeSubmitted) {
+                  if (isCorrect) style = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold';
+                  else if (isSelected) style = 'bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-800 dark:text-rose-200 font-bold';
+                } else if (isSelected) {
+                  style = 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-600 text-indigo-900 dark:text-indigo-200 font-bold';
+                }
 
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        if (clozeSubmitted) return;
-                        soundSynth.playTactileClick();
-                        setClozeAnswer(opt);
-                      }}
-                      className={`p-3 rounded-xl border text-sm font-mono transition-all cursor-pointer ${style}`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      if (clozeSubmitted) return;
+                      soundSynth.playTactileClick();
+                      setClozeAnswer(opt);
+                    }}
+                    className={`p-3 rounded-xl border text-sm font-mono transition-all cursor-pointer flex items-center justify-between ${style}`}
+                  >
+                    <span className="text-[10px] opacity-40 font-mono">[{idx + 1}]</span>
+                    <span className="flex-1 text-center font-bold">{opt}</span>
+                    <span className="w-3" />
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2">
+              <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
+                {isAr ? '⌨️ [اضغط 1-3 للاختيار • Enter للتأكيد والتقدم]' : '⌨️ [Press 1-3 to select • Enter to check & advance]'}
+              </span>
+
               {!clozeSubmitted ? (
                 <button
                   type="button"
@@ -1234,27 +1285,30 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
                     setClozeSubmitted(true);
                     if (clozeAnswer?.toLowerCase() === currentWord.word.toLowerCase()) {
                       soundSynth.playCompletionChime();
-                      haptic.vibrateLight();
+                      haptic.vibrateSprintCelebration();
+                      triggerCelebrationConfetti();
                     } else {
                       soundSynth.playWarningSound();
                       haptic.vibrateLight();
                     }
                   }}
-                  className="py-2.5 px-6 rounded-xl bg-indigo-600 text-white font-bold text-xs disabled:opacity-40 cursor-pointer"
+                  className="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs disabled:opacity-40 cursor-pointer shadow-xs active:scale-95 transition-all"
                 >
-                  {isAr ? 'تحقق' : 'Submit'}
+                  {isAr ? 'تحقق (Enter ↵)' : 'Submit (Enter ↵)'}
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
                     setClozeAnswer(null);
                     setClozeSubmitted(false);
                     setCurrentIndex((idx) => (idx + 1) % effectiveWords.length);
                   }}
-                  className="py-2.5 px-6 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer hover:bg-indigo-500 transition-colors"
+                  className="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs cursor-pointer hover:bg-indigo-500 transition-all shadow-xs active:scale-95"
                 >
-                  {isAr ? 'التالي ➔' : 'Next ➔'}
+                  {isAr ? 'التالي ➔ (Enter ↵)' : 'Next ➔ (Enter ↵)'}
                 </button>
               )}
             </div>

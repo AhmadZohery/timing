@@ -17,6 +17,8 @@ import {
   Trophy,
   Briefcase,
   Target,
+  Copy,
+  Check,
 } from 'lucide-react';
 import {
   TARGET_LANGUAGES,
@@ -73,6 +75,7 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
   const [vaultSearch, setVaultSearch] = useState('');
   const [vaultFilter, setVaultFilter] = useState<'all' | 'mastered' | 'knots'>('all');
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isCopiedWord, setIsCopiedWord] = useState(false);
 
   // Quiz Modal State
   const [isQuizOpen, setIsQuizOpen] = useState(false);
@@ -243,6 +246,25 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
           ? `🏆 أحسنت! حققت ${score} من ${total} في اختبار الكلمات اليومي! (+20 XP)`
           : `🏆 Well done! ${score}/${total} correct in daily quiz! (+20 XP)`
       );
+    }
+  };
+
+  const handleCopyWord = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!currentWord) return;
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const mnemonicPart = currentWord.mnemonicHook ? `\n\n🧠 خطاف الذاكرة: ${currentWord.mnemonicHook}` : '';
+    const collocationsPart =
+      currentWord.collocations && currentWord.collocations.length > 0
+        ? `\n🔗 المتلازمات: ${currentWord.collocations.join(' • ')}`
+        : '';
+    const text = `${currentWord.word} (${currentWord.phonetic})\n${currentWord.translationAr}\n\n“${currentWord.contextSentence}”\n«${currentWord.contextSentenceAr}»${mnemonicPart}${collocationsPart}`;
+    navigator.clipboard.writeText(text);
+    setIsCopiedWord(true);
+    setTimeout(() => setIsCopiedWord(false), 2000);
+    if (onRewardToast) {
+      onRewardToast(isAr ? '📋 تم نسخ ملخص البطاقة للحافظة!' : '📋 Flashcard copied to clipboard!');
     }
   };
 
@@ -688,10 +710,20 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                       </span>
                     )}
                   </div>
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
-                    <RotateCw className="w-3.5 h-3.5" />
-                    <span>{isAr ? 'انقر للقلب والكشف' : 'Tap to Flip'}</span>
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopyWord}
+                      className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-zinc-800 transition-colors"
+                      title={isAr ? 'نسخ محتوى الكلمة' : 'Copy word'}
+                    >
+                      {isCopiedWord ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                      <RotateCw className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'انقر للقلب والكشف' : 'Tap to Flip'}</span>
+                    </span>
+                  </div>
                 </div>
 
                 {/* Big Center Word */}
@@ -749,21 +781,31 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                     <CheckCircle2 className="w-4 h-4" />
                     <span>{isAr ? 'المعنى والسياق العملي' : 'Meaning & Context'}</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      setIsFlipped(false);
-                    }}
-                    className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 cursor-pointer"
-                  >
-                    <RotateCw className="w-3.5 h-3.5" />
-                    <span>{isAr ? 'العودة للوجه' : 'Back to Front'}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopyWord}
+                      className="p-1 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-zinc-800 transition-colors"
+                      title={isAr ? 'نسخ محتوى الكلمة' : 'Copy word'}
+                    >
+                      {isCopiedWord ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setIsFlipped(false);
+                      }}
+                      className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 cursor-pointer"
+                    >
+                      <RotateCw className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'العودة للوجه' : 'Back to Front'}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Meaning & Context */}
-                <div className="space-y-2 py-2">
+                <div className="space-y-2 py-1 overflow-y-auto max-h-[170px] scrollbar-none pr-0.5">
                   <div className="text-center">
                     <h3 className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400 font-sans">
                       {currentWord.translationAr}
@@ -771,7 +813,7 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                   </div>
 
                   {/* Context sentence */}
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-950/80 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
+                  <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950/80 border border-slate-200/80 dark:border-zinc-800 text-xs space-y-1">
                     <p dir="ltr" className="font-serif font-semibold text-slate-900 dark:text-zinc-100 text-start leading-relaxed">
                       “{currentWord.contextSentence}”
                     </p>
@@ -779,6 +821,47 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                       «{currentWord.contextSentenceAr}»
                     </p>
                   </div>
+
+                  {/* Visual Mnemonic Hook */}
+                  {currentWord.mnemonicHook && (
+                    <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/[0.08] border border-amber-500/25 flex items-start gap-2 text-start">
+                      <span className="text-base select-none">🧠</span>
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono block">
+                          {isAr ? 'خطاف الذاكرة الصوري' : 'Memory Hook'}
+                        </span>
+                        <p className="text-xs text-amber-900 dark:text-amber-200 leading-snug font-medium">
+                          {currentWord.mnemonicHook}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Clickable Collocations */}
+                  {currentWord.collocations && currentWord.collocations.length > 0 && (
+                    <div className="space-y-1 text-start pt-0.5">
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 font-mono uppercase tracking-wider block">
+                        {isAr ? 'متلازمات شائعة (اضغط للاستماع):' : 'Collocations (click to hear):'}
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {currentWord.collocations.map((col, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              soundSynth.playTactileClick();
+                              speechService.speak(col, currentLangObj.speechCode, 0.95);
+                            }}
+                            className="px-2 py-0.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-mono font-medium border border-emerald-500/20 flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+                          >
+                            <span>{col}</span>
+                            <Volume2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 opacity-70" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* SRS Leitner 3-Level Quick Rating Buttons */}
@@ -860,8 +943,16 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
               )}
             </div>
 
-            {/* Stepper buttons */}
+            {/* Stepper & Action buttons */}
             <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handleCopyWord}
+                className="p-1.5 rounded-lg bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer"
+                title={isAr ? 'نسخ محتوى الكلمة' : 'Copy word'}
+              >
+                {isCopiedWord ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+              </button>
               <button
                 type="button"
                 disabled={activeWordIndex === 0}
@@ -929,6 +1020,21 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
               «{currentWord.contextSentenceAr}»
             </p>
           </div>
+
+          {/* Visual Mnemonic Hook */}
+          {currentWord.mnemonicHook && (
+            <div className="p-3 rounded-xl bg-amber-500/10 dark:bg-amber-500/[0.08] border border-amber-500/25 flex items-start gap-2.5 text-start">
+              <span className="text-base select-none">🧠</span>
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono block">
+                  {isAr ? 'خطاف الذاكرة الصوري والربط الذهني:' : 'Visual Mnemonic Hook:'}
+                </span>
+                <p className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                  {currentWord.mnemonicHook}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Common Collocations */}
           {currentWord.collocations.length > 0 && (
@@ -1059,6 +1165,11 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                     <p className="text-xs text-slate-600 dark:text-zinc-300">
                       {w.translationAr}
                     </p>
+                    {w.mnemonicHook && (
+                      <p className="text-[11px] text-amber-700 dark:text-amber-300/90 font-medium">
+                        🧠 {w.mnemonicHook}
+                      </p>
+                    )}
                   </div>
                   <button
                     type="button"
