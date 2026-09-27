@@ -272,6 +272,22 @@ export class ServerSyncService {
   }
 
   /**
+   * Check if browser has an active PushManager subscription.
+   */
+  async isPushSubscribed(): Promise<boolean> {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return false;
+    }
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      return !!sub;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /**
    * Ensure browser Service Worker is subscribed to Web Push on the server.
    */
   async ensurePushSubscription(profileId: string = 'default'): Promise<boolean> {

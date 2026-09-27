@@ -22,6 +22,11 @@ import {
   KeyRound,
   Smartphone,
   BatteryCharging,
+  Cloud,
+  Server,
+  RefreshCw,
+  Radio,
+  Coins,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import type { UserState, AppSettings, WeekendPreset, DayWorkRhythm } from '../../types';
@@ -39,6 +44,8 @@ import { haptic } from '../../services/vibrationService';
 import { notificationService } from '../../services/notificationService';
 import { accountabilityNotificationManager } from '../../services/accountabilityNotificationManager';
 import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
+import { serverSync, type ServerSyncStatus } from '../../services/serverSyncService';
+import { localIntelligence } from '../../services/localIntelligenceEngine';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { aiCoach } from '../../services/aiCoachService';
 import {
@@ -69,6 +76,131 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   const [showQrSync, setShowQrSync] = useState(false);
   const [pasteSyncText, setPasteSyncText] = useState('');
   const [notificationMsg, setNotificationMsg] = useState<string | null>(null);
+
+  // Server Sync & Web Push Hub state
+  const [serverStatus, setServerStatus] = useState<ServerSyncStatus>(() => serverSync.getStatus());
+  const [isPushSubscribed, setIsPushSubscribed] = useState<boolean>(false);
+  const [isSyncingPush, setIsSyncingPush] = useState<boolean>(false);
+  const [isSyncingPull, setIsSyncingPull] = useState<boolean>(false);
+  const [isCheckingServer, setIsCheckingServer] = useState<boolean>(false);
+  const [isTestingServerPush, setIsTestingServerPush] = useState<boolean>(false);
+  const [serverSyncMsg, setServerSyncMsg] = useState<{ text: string; success: boolean } | null>(null);
+  const [tokensSaved, setTokensSaved] = useState<number>(() => localIntelligence.getTokensSaved());
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const unsub = serverSync.subscribe((st) => {
+      setServerStatus(st);
+    });
+    serverSync.isPushSubscribed().then(setIsPushSubscribed);
+    setTokensSaved(localIntelligence.getTokensSaved());
+    return unsub;
+  }, [isOpen]);
+
+  const handleCheckServer = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsCheckingServer(true);
+    try {
+      const isUp = await serverSync.checkServerAvailability();
+      const isSub = await serverSync.isPushSubscribed();
+      setIsPushSubscribed(isSub);
+      setServerSyncMsg({
+        success: isUp,
+        text: isUp
+          ? (language === 'ar' ? 'السيرفر متصل وجاهز للمزامنة السحابية ✔' : 'Server connected & online ✔')
+          : (language === 'ar' ? 'السيرفر غير متصل (يعمل محلياً 100%)' : 'Server unreachable (local mode)'),
+      });
+    } finally {
+      setIsCheckingServer(false);
+      setTimeout(() => setServerSyncMsg(null), 3500);
+    }
+  };
+
+  const handlePushToServer = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsSyncingPush(true);
+    setServerSyncMsg(null);
+    try {
+      const res = await serverSync.pushToServer();
+      setServerSyncMsg({ success: res.success, text: res.message });
+      if (res.success) {
+        soundSynth.playCompletionChime();
+        haptic.vibrateSprintCelebration();
+      } else {
+        soundSynth.playWarningSound();
+        haptic.vibrateWarning();
+      }
+    } finally {
+      setIsSyncingPush(false);
+      setTimeout(() => setServerSyncMsg(null), 4000);
+    }
+  };
+
+  const handlePullFromServer = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsSyncingPull(true);
+    setServerSyncMsg(null);
+    try {
+      const res = await serverSync.pullFromServer();
+      setServerSyncMsg({ success: res.success, text: res.message });
+      if (res.success) {
+        soundSynth.playCompletionChime();
+        haptic.vibrateSprintCelebration();
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        soundSynth.playWarningSound();
+        haptic.vibrateWarning();
+      }
+    } finally {
+      setIsSyncingPull(false);
+      setTimeout(() => setServerSyncMsg(null), 4000);
+    }
+  };
+
+  const handleRegisterPushDevice = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const ok = await serverSync.ensurePushSubscription();
+    setIsPushSubscribed(ok);
+    if (ok) {
+      soundSynth.playCompletionChime();
+      haptic.vibrateSprintCelebration();
+      setServerSyncMsg({
+        success: true,
+        text: language === 'ar' ? 'تم تسجيل وتفعيل إشعارات قفل الشاشة للجهاز بنجاح 🔔' : 'Device registered for lockscreen push 🔔',
+      });
+    } else {
+      soundSynth.playWarningSound();
+      haptic.vibrateWarning();
+      setServerSyncMsg({
+        success: false,
+        text: language === 'ar' ? 'تعذر تسجيل الجهاز (تأكد من إذن الإشعارات واتصال السيرفر)' : 'Failed to register push device',
+      });
+    }
+    setTimeout(() => setServerSyncMsg(null), 4000);
+  };
+
+  const handleTestServerLockscreenPush = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsTestingServerPush(true);
+    setServerSyncMsg({
+      success: true,
+      text: language === 'ar' ? '⏳ تم إرسال أمر التجربة.. اقفل شاشة هاتفك الآن للتأكد (رنين خلال 5 ثوانٍ)' : 'Test push sent! Lock phone now (fires in 5s)...',
+    });
+    try {
+      const res = await serverSync.sendTestLockscreenPush(5);
+      if (!res.success) {
+        setServerSyncMsg({ success: false, text: res.message });
+      }
+    } finally {
+      setIsTestingServerPush(false);
+      setTimeout(() => setServerSyncMsg(null), 6000);
+    }
+  };
 
   // Security & Authentication state
   const session = authService.getSession();
@@ -902,6 +1034,159 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
             <div className="p-2.5 rounded-lg text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 font-bold animate-fade-in flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
               <span>{notificationMsg}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Cloud Server Sync & Web Push Hub (Docker / Coolify Persistent Storage) */}
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-bold text-xs">
+              <Server className="w-4 h-4" />
+              <span>{language === 'ar' ? 'السيرفر الخاص والمزامنة السحابية (Docker / Coolify)' : 'Private Server Sync & Web Push'}</span>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  serverStatus.isServerAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'
+                }`}
+              />
+              <span className="text-[10px] font-bold font-mono text-slate-600 dark:text-zinc-400">
+                {serverStatus.isServerAvailable
+                  ? (language === 'ar' ? 'السيرفر متصل 🟢' : 'Online 🟢')
+                  : (language === 'ar' ? 'وضع محلي ⚪' : 'Local Mode ⚪')}
+              </span>
+            </div>
+          </div>
+
+          {/* Token Economy Badge */}
+          <div className="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-500/20 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Coins className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200 block truncate">
+                  {language === 'ar'
+                    ? `وفرت ${tokensSaved.toLocaleString()} توكن عبر الذكاء المحلي (0 Tokens)`
+                    : `Saved ${tokensSaved.toLocaleString()} tokens via Local Intelligence`}
+                </span>
+                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 block truncate">
+                  {language === 'ar'
+                    ? 'تقسيم الكورسات والمنبهات يتم محلياً دون استهلاك رصيد الـ AI'
+                    : 'Course & alarm parsing processed on-device with 0 API calls'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-relaxed">
+            {language === 'ar'
+              ? 'اربط تطبيقك بحاوية Docker / Coolify الخاصة بك لمزامنة مساراتك، مهامك، وسجلاتك وحمايتها، وتشغيل تنبيهات قفل الشاشة الدقيقة (Web Push).'
+              : 'Sync your study tracks, tasks, and logs with your private Docker/Coolify server, and enable OS-level lockscreen push alarms.'}
+          </p>
+
+          {/* Sync Actions (Push & Pull) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handlePushToServer}
+              disabled={isSyncingPush}
+              className="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-indigo-600/20 disabled:opacity-50"
+            >
+              <Cloud className="w-4 h-4 shrink-0" />
+              <span>
+                {isSyncingPush
+                  ? (language === 'ar' ? 'جاري رفع البيانات...' : 'Pushing...')
+                  : (language === 'ar' ? '☁️ مزامنة ورفع البيانات للسيرفر' : '☁️ Push Data to Server')}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePullFromServer}
+              disabled={isSyncingPull}
+              className="py-2.5 px-3 rounded-xl bg-white dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            >
+              <Download className="w-4 h-4 shrink-0 text-indigo-500" />
+              <span>
+                {isSyncingPull
+                  ? (language === 'ar' ? 'جاري الاسترجاع...' : 'Pulling...')
+                  : (language === 'ar' ? '📥 استرجاع البيانات من السيرفر' : '📥 Pull from Server')}
+              </span>
+            </button>
+          </div>
+
+          {/* Web Push Device Registration & Test */}
+          <div className="pt-2 border-t border-slate-200/80 dark:border-zinc-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Radio className="w-3.5 h-3.5 text-amber-500" />
+                <span>{language === 'ar' ? 'إشعارات قفل الشاشة من السيرفر (Web Push VAPID):' : 'Server Lockscreen Push (VAPID):'}</span>
+              </span>
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-bold ${
+                  isPushSubscribed
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                }`}
+              >
+                {isPushSubscribed
+                  ? (language === 'ar' ? 'الجهاز مسجل ومفعل ✔' : 'Subscribed ✔')
+                  : (language === 'ar' ? 'غير مسجل' : 'Not Subscribed')}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleRegisterPushDevice}
+                className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-200 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Radio className="w-3.5 h-3.5 text-indigo-500" />
+                <span>{language === 'ar' ? 'تفعيل / تجديد اشتراك الجهاز' : 'Register / Refresh Push'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleTestServerLockscreenPush}
+                disabled={isTestingServerPush}
+                className="py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-800 dark:text-amber-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>{language === 'ar' ? 'تجربة إشعار السيرفر (5 ثوانٍ)' : 'Test Server Push (5s)'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Check Server Button & Status text */}
+          <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/60 dark:border-zinc-800/60">
+            <span className="text-slate-400">
+              {serverStatus.lastSyncedAt
+                ? `${language === 'ar' ? 'آخر مزامنة:' : 'Last sync:'} ${new Date(serverStatus.lastSyncedAt).toLocaleTimeString()}`
+                : (language === 'ar' ? 'لم تتم المزامنة بعد' : 'No sync recorded')}
+            </span>
+
+            <button
+              type="button"
+              onClick={handleCheckServer}
+              disabled={isCheckingServer}
+              className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-bold cursor-pointer"
+            >
+              <RefreshCw className={`w-3 h-3 ${isCheckingServer ? 'animate-spin' : ''}`} />
+              <span>{language === 'ar' ? 'فحص الاتصال بالسيرفر' : 'Check Server Status'}</span>
+            </button>
+          </div>
+
+          {serverSyncMsg && (
+            <div
+              className={`p-2.5 rounded-lg text-xs font-bold animate-fade-in flex items-center gap-2 ${
+                serverSyncMsg.success
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{serverSyncMsg.text}</span>
             </div>
           )}
         </div>

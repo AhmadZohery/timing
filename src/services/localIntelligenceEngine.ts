@@ -1,4 +1,4 @@
-import type { StudyCourse, DeconstructedStep, DailyLog } from '../types';
+import type { StudyCourse, DeconstructedStep, DailyLog, ReminderCategory, ReminderRecurrence } from '../types';
 
 export interface LocalNLPParseResult {
   title: string;
@@ -12,6 +12,16 @@ export interface LocalNLPParseResult {
   reminderTime: string;
   confidence: number; // 0.0 to 1.0
   reasons: string[];
+}
+
+export interface LocalReminderNLPResult {
+  title: string;
+  time: string; // HH:mm format
+  category: ReminderCategory;
+  recurrence: ReminderRecurrence;
+  confidence: number; // 0.0 to 1.0
+  explanation: string;
+  detectedDelayMins?: number;
 }
 
 export interface VelocityForecast {
@@ -341,6 +351,183 @@ export class LocalIntelligenceEngine {
       daysDifference: diffDays,
       burnoutRiskLevel,
       burnoutAdvice,
+    };
+  }
+
+  /**
+   * High-Precision Arabic & Multilingual Natural Language Reminder & Alarm Parser.
+   * Extracts clean titles, relative time offsets, clock times, recurrences, and categories locally (0 tokens).
+   */
+  parseReminderIntent(prompt: string): LocalReminderNLPResult {
+    const text = prompt.trim();
+    const lower = text.toLowerCase();
+    let confidence = 0.5;
+    const explanations: string[] = [];
+
+    // 1. Recurrence
+    let recurrence: ReminderRecurrence = 'once';
+    if (/(كل يوم|يوميا|يومياً|طوال الأسبوع|daily|every day)/i.test(lower)) {
+      recurrence = 'daily';
+      confidence += 0.15;
+      explanations.push('التكرار: يومياً');
+    } else if (/(أيام العمل|أيام الشغل|من الأحد للخميس|weekdays|workdays)/i.test(lower)) {
+      recurrence = 'weekdays';
+      confidence += 0.15;
+      explanations.push('التكرار: أيام العمل');
+    } else {
+      explanations.push('التكرار: اليوم فقط');
+    }
+
+    // 2. Category
+    let category: ReminderCategory = 'custom';
+    if (/(ماء|شرب|مية|دواء|علاج|فيتامين|قطرة|صيدلية|طبيب|دكتور|حبوب|مسكن|فحص|صحة|water|medicine|pill)/i.test(lower)) {
+      category = 'health';
+      confidence += 0.15;
+      explanations.push('التصنيف: صحة وعافية');
+    } else if (/(شغل|اجتماع|ميتينج|مكالمة|تسليم|عميل|بريد|إيميل|مهمة|ريبورت|مشروع|تيم|work|meeting|call)/i.test(lower)) {
+      category = 'work';
+      confidence += 0.15;
+      explanations.push('التصنيف: عمل ومتابعات');
+    } else if (/(كورس|مذاكرة|درس|كتاب|قراءة|حفظ|مراجعة|تلاوة|محاضرة|واجب|بحث|study|course|read)/i.test(lower)) {
+      category = 'learning';
+      confidence += 0.15;
+      explanations.push('التصنيف: تعلم ودراسة');
+    } else if (/(مشي|رياضة|تمرين|جيم|ضغط|إطالة|حركة|جري|كارديو|عضلات|walk|gym|workout)/i.test(lower)) {
+      category = 'fitness';
+      confidence += 0.15;
+      explanations.push('التصنيف: لياقة وحركة');
+    } else if (/(صلاة|استغفار|ذكر|تسبيح|ورد|قيام|قرآن|بقرة|أذكار|توبة|دعاء|prayer|dhikr)/i.test(lower)) {
+      category = 'spiritual';
+      confidence += 0.15;
+      explanations.push('التصنيف: روحانيات وأذكار');
+    }
+
+    // 3. Time detection
+    const now = new Date();
+    let targetTime = '';
+    let detectedDelayMins: number | undefined;
+
+    // Relative offset patterns
+    if (/(بعد|كمان|in)\s*(ربع\s*ساعة|15\s*min|15\s*دقيقة)/i.test(lower)) {
+      detectedDelayMins = 15;
+    } else if (/(بعد|كمان|in)\s*(ثلث\s*ساعة|20\s*min|20\s*دقيقة)/i.test(lower)) {
+      detectedDelayMins = 20;
+    } else if (/(بعد|كمان|in)\s*(نص|نصف)\s*ساعة|half\s*an?\s*hour|30\s*min/i.test(lower)) {
+      detectedDelayMins = 30;
+    } else if (/(بعد|كمان)\s*ساعة\s*إلا\s*ربع|45\s*min|45\s*دقيقة/i.test(lower)) {
+      detectedDelayMins = 45;
+    } else if (/(بعد|كمان|in)\s*(ساعتين|2\s*hours)/i.test(lower)) {
+      detectedDelayMins = 120;
+    } else if (/(بعد|كمان|in)\s*(ساعة|an?\s*hour)/i.test(lower)) {
+      detectedDelayMins = 60;
+    } else {
+      const minMatch = lower.match(/(?:بعد|كمان|خلال|في|in)\s*(\d+)\s*(?:دقيقة|دقائق|د|mins?|minutes?)/i);
+      if (minMatch && minMatch[1]) {
+        detectedDelayMins = parseInt(minMatch[1], 10);
+      } else {
+        const hrMatch = lower.match(/(?:بعد|كمان|خلال|في|in)\s*(\d+)\s*(?:ساعة|ساعات|س|hrs?|hours?)/i);
+        if (hrMatch && hrMatch[1]) {
+          detectedDelayMins = parseInt(hrMatch[1], 10) * 60;
+        }
+      }
+    }
+
+    if (detectedDelayMins !== undefined) {
+      const future = new Date(now.getTime() + detectedDelayMins * 60 * 1000);
+      const h = String(future.getHours()).padStart(2, '0');
+      const m = String(future.getMinutes()).padStart(2, '0');
+      targetTime = `${h}:${m}`;
+      confidence += 0.25;
+      explanations.push(`الموعد: بعد ${detectedDelayMins} دقيقة (${targetTime})`);
+    } else {
+      // Explicit clock time patterns
+      const explicitTimeMatch = lower.match(/(?:الساعة|at)?\s*(\d{1,2})(?::(\d{2}))?\s*(صباحا|صباحاً|ص|مساء|مساءً|م|بالليل|عصرا|عصراً|ظهرا|ظهراً|am|pm)?/i);
+      if (explicitTimeMatch && explicitTimeMatch[1]) {
+        let hour = parseInt(explicitTimeMatch[1], 10);
+        const minute = explicitTimeMatch[2] ? parseInt(explicitTimeMatch[2], 10) : 0;
+        const period = explicitTimeMatch[3] ? explicitTimeMatch[3].toLowerCase() : '';
+
+        const isPM = /(مساء|مساءً|م|بالليل|عصرا|عصراً|ظهرا|ظهراً|pm)/i.test(period);
+        const isAM = /(صباحا|صباحاً|ص|am)/i.test(period);
+
+        if (isPM && hour < 12) hour += 12;
+        if (isAM && hour === 12) hour = 0;
+
+        // Auto PM inference if hour is small and already passed in AM
+        if (!period && hour <= 11 && now.getHours() >= hour + 2) {
+          hour += 12;
+        }
+
+        const h = String(hour % 24).padStart(2, '0');
+        const m = String(minute).padStart(2, '0');
+        targetTime = `${h}:${m}`;
+        confidence += 0.25;
+        explanations.push(`الموعد الصريح: الساعة ${targetTime}`);
+      } else {
+        // Natural prayer / day windows
+        if (/(الفجر|باكرا|الصبح|dawn)/.test(lower)) {
+          targetTime = '05:30';
+          confidence += 0.15;
+          explanations.push('الموعد: موعد الفجر والصباح (05:30)');
+        } else if (/(الظهر|ظهرا|noon)/.test(lower)) {
+          targetTime = '12:30';
+          confidence += 0.15;
+          explanations.push('الموعد: موعد الظهر (12:30)');
+        } else if (/(العصر|عصرا|afternoon)/.test(lower)) {
+          targetTime = '15:45';
+          confidence += 0.15;
+          explanations.push('الموعد: موعد العصر (15:45)');
+        } else if (/(المغرب|sunset)/.test(lower)) {
+          targetTime = '18:15';
+          confidence += 0.15;
+          explanations.push('الموعد: موعد المغرب (18:15)');
+        } else if (/(العشاء|بالليل|مساء|مساءً|night)/.test(lower)) {
+          targetTime = '20:30';
+          confidence += 0.15;
+          explanations.push('الموعد: المساء (20:30)');
+        } else {
+          const defaultFuture = new Date(now.getTime() + 30 * 60 * 1000);
+          const h = String(defaultFuture.getHours()).padStart(2, '0');
+          const m = String(defaultFuture.getMinutes()).padStart(2, '0');
+          targetTime = `${h}:${m}`;
+          explanations.push('موعد افتراضي: بعد 30 دقيقة');
+        }
+      }
+    }
+
+    // 4. Extract clean title
+    let cleanTitle = text
+      .replace(/(فكرني|ذكرني|تذكير|منبه|عاوز تذكير|اعملي منبه|نبهني|remind me to|set alarm for)\s*(?:بـ|ب|أن|ان|إني|اني|لـ|ل|to)?/gi, '')
+      .replace(/(بعد|كمان|in)\s*(ربع\s*ساعة|ثلث\s*ساعة|نص\s*ساعة|نصف\s*ساعة|ساعة\s*إلا\s*ربع|ساعة|ساعتين|half an hour|an hour)/gi, '')
+      .replace(/(?:بعد|كمان|خلال|في|in)\s*\d+\s*(?:دقيقة|دقائق|ساعة|ساعات|mins?|minutes?|hours?)/gi, '')
+      .replace(/الساعة\s*\d{1,2}(?::\d{2})?\s*(صباحا|صباحاً|مساء|مساءً|بالليل|عصرا|ظهرا|am|pm)?/gi, '')
+      .replace(/(كل يوم|يوميا|يومياً|طوال الأسبوع|أيام العمل|الصبح|الفجر|الظهر|العصر|المغرب|العشاء|بالليل)/gi, '')
+      .replace(/[،,.]/g, '')
+      .trim();
+
+    if (!cleanTitle || cleanTitle.length < 2) {
+      if (category === 'health') cleanTitle = 'شرب الماء وترطيب الجسم';
+      else if (category === 'work') cleanTitle = 'متابعة العمل ومكالمة هامة';
+      else if (category === 'learning') cleanTitle = 'جلسة مذاكرة وتطوير مهارة';
+      else if (category === 'fitness') cleanTitle = 'حركة واستراحة مشي وتمدد';
+      else if (category === 'spiritual') cleanTitle = 'ورد الأذكار والاستغفار';
+      else cleanTitle = 'تنبيه شخصي مجدول';
+    } else {
+      confidence += 0.1;
+      explanations.push(`العنوان: "${cleanTitle}"`);
+    }
+
+    // Record token savings (0 tokens consumed)
+    this.recordTokensSaved(350);
+
+    return {
+      title: cleanTitle,
+      time: targetTime,
+      category,
+      recurrence,
+      confidence: Math.min(0.98, confidence),
+      explanation: explanations.join(' • '),
+      detectedDelayMins,
     };
   }
 }
