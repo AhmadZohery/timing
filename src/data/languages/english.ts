@@ -118,7 +118,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['mental clarity', 'seek clarity', 'unmatched clarity'],
     category: 'mindset_focus',
     level: 'A2',
-    mnemonicHook: 'تخيل سماء زرقاء خالية تماماً من الغيوم، أو ماء رقراق نقي (Clear).',
+    mnemonicHook: 'تخيل سماء زرقاء خالية تماماً من الغيوم، أو ماء رقراق نقي (Clear) يمنحك وضوحاً تاماً.',
     etymologyRoot: 'من اللاتينية clarus (الساطع النقي المشرق)',
   },
   // B1-B2 Words
@@ -149,7 +149,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['physical endurance', 'endurance training', 'test of endurance'],
     category: 'fitness_sports',
     level: 'B1',
-    mnemonicHook: 'من الفعل Endure (يصمد)؛ عداء ماراثون يواصل الجري وهو يبتسم رغم التعب.',
+    mnemonicHook: 'من الفعل Endure (يصمد كحجر متين)، عداء ماراثون يواصل الجري وهو يبتسم رغم التعب.',
     etymologyRoot: 'من اللاتينية indurare (التصلب واكتساب الصلابة)',
   },
   {
@@ -254,6 +254,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['physical endurance', 'test of endurance', 'stamina and endurance'],
     category: 'fitness_sports',
     level: 'B1',
+    mnemonicHook: 'تذكر In-Dure (التحمل الصلب كحجر متين)، البطل الذي يكمل الماراثون رغم التعب.',
   },
   {
     id: 'en-b1-11',
@@ -267,6 +268,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['terminal velocity', 'sprint velocity', 'gain velocity'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'Velo تعني دراجة سريعة، والـ Velocity هي سهم منطلق نحو هدف محدد لا يحيد.',
   },
   {
     id: 'en-b1-12',
@@ -280,6 +282,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['mental clarity', 'crystal clarity', 'gain clarity'],
     category: 'mindset_focus',
     level: 'B1',
+    mnemonicHook: 'من Clear (صافٍ نقي كزجاج نافذة تم تنظيفه تماماً في صباح مشرق).',
   },
   {
     id: 'en-b1-13',
@@ -293,6 +296,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['flawless execution', 'speed of execution', 'strategy execution'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'من Execute (يُخرج الفكرة من خيال الدماغ إلى أرض الواقع بضربة سيف قاطعة).',
   },
   {
     id: 'en-b1-14',
@@ -306,6 +310,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['speedy recovery', 'active recovery', 'full recovery'],
     category: 'fitness_sports',
     level: 'A2',
+    mnemonicHook: 'Re-Cover (تغطية الجسد واسترداد العافية والطاقة بعد عاصفة من الجهد).',
   },
   {
     id: 'en-b1-15',
@@ -319,6 +324,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['strive for mastery', 'skill mastery', 'complete mastery'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'أن تصبح Master (سيد الصنعة) الذي يفعل الصعب كأنه يتنفس بسهولة.',
   },
   // Advanced & Academic Proficiency (C1 - Effective Operational)
   {
@@ -333,6 +339,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['tolerate ambiguity', 'moral ambiguity', 'resolve ambiguity'],
     category: 'business_tech',
     level: 'C1',
+    mnemonicHook: 'Ambi (كلا الاتجاهين)، طريق يتفرع لفرعين ضبابيين لا تدري أيهما تختار.',
     etymologyRoot: 'Latin: ambigere (to wander about, be in doubt)',
   },
   {
@@ -347,6 +354,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['pragmatic approach', 'pragmatic solution', 'pragmatic mindset'],
     category: 'business_tech',
     level: 'C1',
+    mnemonicHook: 'تذكر «براغماتي»، الشخص العملي الذي يزن الأمور بنتائجها الواقعية لا بالنظريات.',
     etymologyRoot: 'Greek: pragma (deed, act)',
   },
   {
@@ -361,6 +369,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['eloquent speech', 'eloquent silence', 'eloquently expressed'],
     category: 'daily_fluency',
     level: 'C1',
+    mnemonicHook: 'من Loq (الحديث والبيان)، لسان فصيح عذب ينساب كالماء العذب ويأسر الأسماع.',
     etymologyRoot: 'Latin: eloqui (to speak out)',
   },
   {
@@ -375,6 +384,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['close scrutiny', 'under intense scrutiny', 'withstand scrutiny'],
     category: 'business_tech',
     level: 'C1',
+    mnemonicHook: 'عدسة مكبرة دقيقة تفحص كل خيط وتفصيلة صغيرة تحت ضوء مجهر قاطع.',
   },
   {
     id: 'en-c1-5',
@@ -388,6 +398,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['fully cognizant of', 'cognizant of risks', 'remain cognizant'],
     category: 'mindset_focus',
     level: 'C1',
+    mnemonicHook: 'من Recognize (يتعرف ويدرك)؛ شخص متيقظ ومدرك تماماً لأبعاد الموقف وخفاياه.',
   },
   // Elite Mastery & Nuance (C2 - Native Fluency)
   {
@@ -402,6 +413,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['quintessential example', 'quintessentially modern', 'quintessential trait'],
     category: 'mindset_focus',
     level: 'C2',
+    mnemonicHook: 'الجوهر الخالص والمثال الأسمى للشيء في أبهى وأصدق صوره.',
     etymologyRoot: 'Medieval Latin: quinta essentia (fifth element / purest essence)',
   },
   {
@@ -416,6 +428,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['pure serendipity', 'stroke of serendipity', 'happy serendipity'],
     category: 'mindset_focus',
     level: 'C2',
+    mnemonicHook: 'أمراء جزيرة سرنديب الذين كانوا يجدون الكنوز الثمينة بالصدفة السعيدة غير المخططة.',
   },
   {
     id: 'en-c2-3',
@@ -429,6 +442,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ephemeral nature', 'ephemeral pleasure', 'ephemeral beauty'],
     category: 'mindset_focus',
     level: 'C2',
+    mnemonicHook: 'عابر وسريع الزوال كقطرة ندى الصباح على ورقة شجر قبل سطوع حرارة الشمس.',
   },
   {
     id: 'en-c2-4',
@@ -442,6 +456,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['meticulous attention to detail', 'meticulous planning', 'meticulously designed'],
     category: 'business_tech',
     level: 'C2',
+    mnemonicHook: 'صائغ مجوهرات شديد الدقة يزن الذهب بالمليغرام ولا يفلت منه أدق تفصيل.',
   },
   // Cultural Idioms & Aphorisms (الأمثال والتعابير الاصطلاحية)
   {
@@ -456,6 +471,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ready to hit the ground running'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'المظلي الذي تلمس قدماه الأرض فيبدأ بالجري فوراً دون تردد أو تأخير.',
     isIdiom: true,
     literalTranslationAr: 'يضرب الأرض راكضاً ومندفعاً',
   },
@@ -471,6 +487,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['decide to bite the bullet'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'عض الرصاصة في المعارك القديمة لتحمل الألم واتخاذ القرار الصعب المؤجل.',
     isIdiom: true,
     literalTranslationAr: 'يعض على الرصاصة (استعارة حربية قديمة)',
   },
@@ -486,6 +503,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['burn the midnight oil studying'],
     category: 'mindset_focus',
     level: 'B1',
+    mnemonicHook: 'إشعال مصباح الزيت للدراسة والعمل بعد منتصف الليل حتى بزوغ الفجر.',
     isIdiom: true,
     literalTranslationAr: 'يحرق زيت القنديل في منتصف الليل',
   },
@@ -501,6 +519,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['does not cost an arm and a leg'],
     category: 'travel_lifestyle',
     level: 'B1',
+    mnemonicHook: 'ثمن باهظ جداً لدرجة كأنه يطلب منك التضحية بذراع وساق لشرائه!',
     isIdiom: true,
     literalTranslationAr: 'يكلف ذراعاً وساقاً كاملين',
   },
@@ -517,6 +536,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ready to call it a day', 'decide to call it a day'],
     category: 'business_tech',
     level: 'B1',
+    mnemonicHook: 'مناداة اليوم بأنه انتهى؛ إعلان ختام ساعات العمل وحزم الأمتعة للراحة والاستشفاء.',
     isIdiom: true,
     literalTranslationAr: 'نسميه يوماً (أي نعتبر يوم العمل انتهى)',
   },
@@ -532,6 +552,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['cut straight to the chase'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'مشاهد مطاردة السيارات المشوقة في السينما؛ تجاوز المقدمات والدخول في صلب الموضوع فوراً.',
     isIdiom: true,
     literalTranslationAr: 'اقطع الشريط وانتقل لمشهد المطاردة (أصلها من السينما)',
   },
@@ -547,6 +568,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['touch base with someone', 'touch base briefly'],
     category: 'business_tech',
     level: 'B1',
+    mnemonicHook: 'لمس القاعدة الرياضية سريعاً لتأكيد النقطة والاطمئنان على سير الخطة.',
     isIdiom: true,
     literalTranslationAr: 'لمس القاعدة (مستعارة من لعبة البيسبول)',
   },
@@ -562,6 +584,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['hard to wrap my head around it'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'لف العقل حول فكرة صلبة لاستيعابها وفهمها من جميع زواياها وأبعادها.',
     isIdiom: true,
     literalTranslationAr: 'ألف رأسي حول الشيء',
   },
@@ -577,6 +600,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['exactly hit the nail on the head'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'ضرب المسمار على رأسه تماماً بالمطرقة من الضربة الأولى دون أي خطأ.',
     isIdiom: true,
     literalTranslationAr: 'ضرب المسمار على رأسه تماماً',
   },
@@ -592,6 +616,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['feel a bit under the weather'],
     category: 'daily_fluency',
     level: 'A2',
+    mnemonicHook: 'الشعور بثقل الغيوم وتقلبات الطقس على الجسد كإجهاد عابر.',
     isIdiom: true,
     literalTranslationAr: 'تحت تأثير الطقس المتقلب',
   },
@@ -607,6 +632,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['go back to the drawing board'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'العودة إلى طاولة الرسم بعد فشل المخطط لبدء التصميم من جديد بوعي أكبر.',
     isIdiom: true,
     literalTranslationAr: 'العودة إلى لوحة الرسم التخطيطي',
   },
@@ -622,6 +648,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['play it by ear for dinner'],
     category: 'daily_fluency',
     level: 'B1',
+    mnemonicHook: 'عزف مقطوعة موسيقية بالأذن دون نوتة؛ التصرف بمرونة وليد اللحظة بحسب مجريات الموقف.',
     isIdiom: true,
     literalTranslationAr: 'يعزف اللحن بالأذن والسمع دون نوتة موسيقية',
   },
@@ -637,6 +664,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ball is firmly in your court'],
     category: 'business_tech',
     level: 'B1',
+    mnemonicHook: 'كرة التنس سقطت في ملعبك؛ الدور الآن عليك والقرار بيدك لتسديد الضربة.',
     isIdiom: true,
     literalTranslationAr: 'الكرة في ملعبك (من التنس)',
   },
@@ -652,6 +680,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['break the ice easily', 'ice breaker'],
     category: 'daily_fluency',
     level: 'A2',
+    mnemonicHook: 'كسر جليد الصمت البارد بابتسامة دافئة أو سؤال لطيف في بداية اللقاء.',
     isIdiom: true,
     literalTranslationAr: 'تكسير طبقة الجليد العازلة',
   },
@@ -667,6 +696,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['everyone on the same page'],
     category: 'business_tech',
     level: 'B1',
+    mnemonicHook: 'قراءة نفس الصفحة من نفس الكتاب في نفس اللحظة؛ التوافق والانسجام الذهني التام.',
     isIdiom: true,
     literalTranslationAr: 'يقرؤون من نفس الصفحة',
   },
@@ -682,6 +712,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['take advice with a grain of salt'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'ابتلاع الكلام بحبة ملح صغيرة لهضمه بتشكك ووعي نقدي دون تصديق أعمى.',
     isIdiom: true,
     literalTranslationAr: 'تناول الأمر مع حبة ملح (لابتلاعه بحذر)',
   },
@@ -697,6 +728,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['rarely see eye to eye', 'see eye to eye on policy'],
     category: 'business_tech',
     level: 'B1',
+    mnemonicHook: 'تلاقي الأعين في نقطة واحدة بارتفاع متساوٍ؛ التوافق والاتفاق التام على الرأي.',
     isIdiom: true,
     literalTranslationAr: 'يلتقيان عيناً بعين',
   },
@@ -712,6 +744,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['turned out to be a blessing in disguise'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'نعمة متنكرة في زي محنة مؤلمة، يتكشف خيرها وبركتها العظيمة للمؤمن لاحقاً.',
     isIdiom: true,
     literalTranslationAr: 'نعمة وبركة ترتدي قناعاً متنكراً',
   },
@@ -727,6 +760,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ignore the elephant in the room'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'فيل ضخم يقف وسط الغرفة والجميع يتجاهله عمداً لشدة إحراج الحديث عنه.',
     isIdiom: true,
     literalTranslationAr: 'الفيل الضخم الجالس في الغرفة',
   },
@@ -742,6 +776,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['touch base with someone', 'touch base briefly'],
     category: 'daily_fluency',
     level: 'B1',
+    mnemonicHook: 'لمس القاعدة الرياضية سريعاً لتأكيد النقطة والاطمئنان على سير الخطة.',
     isIdiom: true,
     literalTranslationAr: 'يلمس القاعدة الرئيسية (مأخوذة من البيسبول)',
   },
@@ -757,6 +792,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ready to hit the ground running'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'انطلاقة صاروخية سريعة كعدّاء ينطلق بأقصى سرعته منذ اللحظة الأولى لصافرة البداية.',
     isIdiom: true,
     literalTranslationAr: 'تلمس قدماه الأرض وهو يركض فوراً',
   },
@@ -772,6 +808,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['cut straight to the chase'],
     category: 'daily_fluency',
     level: 'B1',
+    mnemonicHook: 'اختصار الكلام والوصول إلى النقطة الجوهرية دون إطالة أو حشو.',
     isIdiom: true,
     literalTranslationAr: 'اقطع المشهد وانتقل مباشرة لمطاردة الحدث',
   },
@@ -787,6 +824,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ready to call it a day'],
     category: 'daily_fluency',
     level: 'A2',
+    mnemonicHook: 'إنهاء نوبة العمل اليومية بضمير مرتاح لإعطاء الجسد حقه من الراحة.',
     isIdiom: true,
     literalTranslationAr: 'يعلن أن اليوم قد انتهى',
   },
@@ -802,6 +840,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['make sure we are on the same page'],
     category: 'business_tech',
     level: 'B1',
+    mnemonicHook: 'تطابق الرؤية والتفكير بين الفريق الواحد دون تعارض أو سوء فهم.',
     isIdiom: true,
     literalTranslationAr: 'نقرأ من نفس الصفحة',
   },
@@ -817,6 +856,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['just bite the bullet and do it'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'عض الرصاصة في المعارك القديمة لتحمل الألم واتخاذ القرار الصعب المؤجل.',
     isIdiom: true,
     literalTranslationAr: 'يعض على رصاصة من شدة الألم في الجراحة القديمة',
   },
@@ -832,6 +872,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['go back to the drawing board'],
     category: 'business_tech',
     level: 'B2',
+    mnemonicHook: 'إعادة بناء الاستراتيجية من نقطة الصفر بعد ظهور معطيات تجريبية جديدة.',
     isIdiom: true,
     literalTranslationAr: 'العودة إلى طاولة الرسم الهندسي',
   },
@@ -847,6 +888,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['just playing devil’s advocate'],
     category: 'business_tech',
     level: 'C1',
+    mnemonicHook: 'تبني وجهة النظر المعارضة عمداً في النقاش لاختبار صلابة الفكرة واكتشاف ثغراتها.',
     isIdiom: true,
     literalTranslationAr: 'يقوم بدور محامي الخصم',
   },
@@ -862,6 +904,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['a bit under the weather'],
     category: 'fitness_sports',
     level: 'B1',
+    mnemonicHook: 'الشعور بثقل الغيوم وتقلبات الطقس على الجسد كإجهاد عابر.',
     isIdiom: true,
     literalTranslationAr: 'تحت تأثير الطقس والرياح',
   },
@@ -877,6 +920,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['burning the midnight oil'],
     category: 'mindset_focus',
     level: 'B2',
+    mnemonicHook: 'إشعال مصباح الزيت للدراسة والعمل بعد منتصف الليل حتى بزوغ الفجر.',
     isIdiom: true,
     literalTranslationAr: 'يحرق زيت القنديل في منتصف الليل للمذاكرة',
   },
@@ -910,6 +954,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['move the needle on revenue', 'barely move the needle'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'تحريك عقرب الميزان أو المؤشر إلى الأمام بنتيجة ملموسة لا يمكن إنكارها.',
     isIdiom: true,
     literalTranslationAr: 'يحرك مؤشر العداد الميكانيكي',
   },
@@ -925,6 +970,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['trying to boil the ocean', 'don’t boil the ocean'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'محاولة غلي مياه المحيط بالكامل! مبالغة مستحيلة في تعقيد نطاق العمل.',
     isIdiom: true,
     literalTranslationAr: 'محاولة غلي مياه المحيط بالكامل',
   },
@@ -940,6 +986,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['weekly backlog grooming', 'backlog grooming session'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'تشذيب وتهذيب شجرة المهام وقص الزوائد لتنظيم قائمة الانتظار ببراعة.',
   },
   {
     id: 'en-pm-5',
@@ -953,6 +1000,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['critical blocker', 'remove blockers', 'unblock the team'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'صخرة ضخمة تسد مسار الطريق تتطلب تكاتف الفريق لإزاحتها فوراً.',
   },
   {
     id: 'en-pm-6',
@@ -966,6 +1014,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['lack the bandwidth', 'free up bandwidth', 'limited bandwidth'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'سعة أنبوب الإنترنت؛ مقدار طاقتك الاستيعابية التي تسمح بقبول عمل إضافي.',
   },
   {
     id: 'en-pm-7',
@@ -979,6 +1028,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['accrue technical debt', 'pay down technical debt', 'crippling tech debt'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'اقتراض حل سريع بربا تقني، يوجب سداده لاحقاً بجهد مضاعف إذا أهملته.',
   },
   {
     id: 'en-pm-8',
@@ -992,6 +1042,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['circle back on this', 'circle back tomorrow'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'رسم دائرة والعودة لنفس النقطة بعد اكتمال البيانات لاتخاذ القرار النهائي.',
     isIdiom: true,
   },
   {
@@ -1006,6 +1057,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['table this for now', 'table the discussion'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'وضع الورقة جانباً على الطاولة للتركيز على المهمة الجارية دون تشتيت.',
     isIdiom: true,
   },
   {
@@ -1020,6 +1072,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['have a hard stop', 'face a hard stop'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'جدار أحمر قاطع: إنهاء الاجتماع بدقة دون تأخير ثانية واحدة.',
     isIdiom: true,
   },
   {
@@ -1034,6 +1087,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['double down on quality', 'double down on customer feedback'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'مضاعفة الرهان والجهد على ما أثبت كفاءته لجني أقصى العوائد.',
     isIdiom: true,
   },
   {
@@ -1048,6 +1102,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['grab the low-hanging fruit', 'identify low-hanging fruit'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'ثمار الشجرة الدانية التي تقطفها بيدك بسهولة وتجني مذاقها الحلو فوراً.',
     isIdiom: true,
   },
   {
@@ -1062,6 +1117,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['define the north star', 'track our north star metric'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'نجم الشمال الثابت الذي يهتدي به البحارة وسط الظلمات لتحديد وجهتهم.',
   },
   {
     id: 'en-pm-14',
@@ -1075,6 +1131,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['drive cross-functional alignment', 'ensure cross-functional alignment'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'عزف أوركسترا متناغم يعزف فيه المبرمج والمصمم والمسوق نفس اللحن.',
   },
   {
     id: 'en-pm-15',
@@ -1088,6 +1145,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['get stakeholder buy-in', 'secure executive buy-in'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'شراء الفكرة بالحماس والاقتناع من المدراء والشركاء لضمان دعمهم.',
   },
   {
     id: 'en-pm-16',
@@ -1101,6 +1159,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['blameless retrospective', 'retrospective action items'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'مرآة الشوط؛ وقفة تأمل صادقة بعد الجري السريع لتطوير الأداء القادم.',
   },
   {
     id: 'en-pm-17',
@@ -1114,6 +1173,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['on the critical path', 'critical path analysis'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'خيط الدومينو الإلزامي: أي تأخير فيه يؤخر سقوط الحجر الأخير للمشروع.',
   },
   {
     id: 'en-pm-18',
@@ -1127,6 +1187,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['acceptable trade-off', 'evaluate the trade-offs'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'ميزان ذو كفتين: إذا أردت سرعة أعلى، فقد تضطر للتنازل عن بعض الميزات.',
   },
   {
     id: 'en-pm-19',
@@ -1140,6 +1201,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['identify the bottleneck', 'eliminate bottlenecks'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'عنق القارورة الضيق الذي يحبس تدفق الماء مهما كان حجم القارورة ضخماً.',
   },
   {
     id: 'en-pm-20',
@@ -1153,6 +1215,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['key deliverable', 'milestone deliverables', 'signed-off deliverables'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'صندوق الهدية المكتمل الجاهز للتسليم في يد العميل في الموعد المحدد.',
   },
   {
     id: 'en-pm-21',
@@ -1166,6 +1229,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['strict timeboxing', 'timebox this task'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'حبس المهمة داخل صندوق زمني محكم: 25 دقيقة تنتهي بلا تمديد.',
   },
   {
     id: 'en-pm-22',
@@ -1179,6 +1243,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['run a spike', 'research spike', 'architectural spike'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'مسبار استكشافي سريع تخترق به المجهول التقني لتتأكد قبل البناء الكبير.',
   },
   {
     id: 'en-pm-23',
@@ -1192,6 +1257,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['sprint velocity', 'predictable velocity', 'track velocity'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'Velo تعني دراجة سريعة، والـ Velocity هي سهم منطلق نحو هدف محدد لا يحيد.',
   },
   {
     id: 'en-pm-24',
@@ -1205,6 +1271,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['agreed Definition of Done', 'meet the DoD criteria'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'قائمة التفتيش الصارمة قبل إقلاع الطائرة: لن نغادر حتى تكتمل كل علامات الصح.',
   },
   {
     id: 'en-pm-25',
@@ -1218,6 +1285,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['clear the runway for launch', 'clear the runway of blockers'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'كنس مدرج المطار من كل حصاة لتهبط طائرة الفريق بسلام وسرعة.',
     isIdiom: true,
   },
   {
@@ -1232,6 +1300,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['put in the parking lot', 'revisit parking lot items'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'ركن السيارة في الموقف لتناول الطعام أولاً ثم العودة إليها لاحقاً.',
     isIdiom: true,
   },
   {
@@ -1246,6 +1315,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['drill down into the data', 'drill down into root causes'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'الحفر بمثقاب عميق للوصول إلى منبع المياه الجوفية وأصل المشكلة.',
     isIdiom: true,
   },
   {
@@ -1260,6 +1330,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['strategic pivot', 'pivot quickly', 'successful pivot'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'تثبيت قدم واحدة على الأرض وتدوير الجسد نحو اتجاه رياضي جديد بمرونة.',
   },
   {
     id: 'en-pm-29',
@@ -1273,6 +1344,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['de-scope non-essential features', 'agree to de-scope'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'إلقاء الأمتعة غير الضرورية من القارب في العاصفة للوصول إلى بر الأمان.',
   },
   {
     id: 'en-pm-30',
@@ -1286,6 +1358,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['effective stakeholder management', 'stakeholder matrix'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'دبلوماسية القيادة: إبقاء الجميع على اطلاع دائم وتوجيه سفينة التوقعات بهدوء.',
   },
   {
     id: 'en-pm-31',
@@ -1299,6 +1372,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['conduct root cause analysis', 'identify root causes'],
     category: 'agile_pm_leadership',
     level: 'C1',
+    mnemonicHook: 'فحص جذور الشجرة الذابلة تحت التراب بدلاً من رش الأوراق بالماء فقط.',
   },
   {
     id: 'en-pm-32',
@@ -1312,6 +1386,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['provide diplomatic pushback', 'tactful pushback'],
     category: 'agile_pm_leadership',
     level: 'C2',
+    mnemonicHook: 'فن قول «لا» بلباقة الملوك؛ حماية وقت الفريق وأولوياته بأسلوب احترافي راقٍ.',
   },
   {
     id: 'en-pm-33',
@@ -1325,6 +1400,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['clear escalation path', 'escalation hierarchy'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'سلم الطوارئ الإداري الواضح لرفع المشكلات الكبرى لمن يملك سلطة حلها.',
   },
   {
     id: 'en-pm-34',
@@ -1338,6 +1414,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['quick sync up', 'sync up offline'],
     category: 'agile_pm_leadership',
     level: 'B1',
+    mnemonicHook: 'ضبط عقارب الساعات معاً لنتحرك في نفس اللحظة نحو نفس الهدف.',
     isIdiom: true,
   },
   {
@@ -1352,6 +1429,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['daily standup', 'virtual standup', 'run the standup'],
     category: 'agile_pm_leadership',
     level: 'B1',
+    mnemonicHook: 'وقوف خاطف على الأقدام لربع ساعة حتى لا يطول الكلام ويسود التركيز.',
   },
   {
     id: 'en-pm-36',
@@ -1365,6 +1443,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['prevent burnout', 'burnout recovery'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'درع فولاذي يحميك من حرارة الإجهاد بوضع خطوط حمراء بين العمل والراحة.',
   },
   {
     id: 'en-pm-37',
@@ -1378,6 +1457,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['touch base later', 'touch base briefly'],
     category: 'agile_pm_leadership',
     level: 'B2',
+    mnemonicHook: 'لمس القاعدة الرياضية سريعاً لتأكيد النقطة والاطمئنان على سير الخطة.',
     isIdiom: true,
   },
   // --- Enhanced CEFR Expansion Suite ---
@@ -1427,7 +1507,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     etymologyRoot: 'من اللاتينية progredi (التقدم والسير قدماً)',
   },
   {
-    id: 'en-b1-10',
+    id: 'en-b1-16',
     lang: 'en',
     word: 'Prioritize',
     phonetic: '/praɪˈɔːr.ə.taɪz/',
@@ -1442,7 +1522,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     etymologyRoot: 'من اللاتينية prior (الأسبق في الرتبة والفضل)',
   },
   {
-    id: 'en-b1-11',
+    id: 'en-b1-17',
     lang: 'en',
     word: 'Optimize',
     phonetic: '/ˈɑːp.tə.maɪz/',
@@ -1468,7 +1548,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['gain mastery', 'path to mastery', 'technical mastery'],
     category: 'mindset_focus',
     level: 'B2',
-    mnemonicHook: 'تخيل معلماً أستاذاً (Master) متمرساً يُخرج روائع لا نظير لها.',
+    mnemonicHook: 'أن تصبح Master (سيد الصنعة) المتمرس الذي يُخرج روائع متقنة بسهولة.',
     etymologyRoot: 'من اللاتينية magister (المعلم الخبير ذو السلطان المعرفي)',
   },
   {
@@ -1498,7 +1578,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['quintessential example', 'quintessential quality'],
     category: 'daily_fluency',
     level: 'C1',
-    mnemonicHook: 'Quint (الخامس) + Essential (الجوهر)، أي "العنصر الخامس" الأسمى في الفلسفة القديمة.',
+    mnemonicHook: 'Quint (الخامس) + Essential (الجوهر)، أي "العنصر الخامس" الأسمى والأنقى في الفلسفة القديمة.',
     etymologyRoot: 'من اللاتينية quinta essentia (الجوهر الخامس السماوي الخالص)',
   },
   {
@@ -1513,7 +1593,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['eloquent speech', 'eloquent silence', 'remarkably eloquent'],
     category: 'daily_fluency',
     level: 'C1',
-    mnemonicHook: 'تذكر: e (خارج) + loq (ينطق بالكلام الفصيح العذب).',
+    mnemonicHook: 'من الجذر loq (الحديث والبيان)؛ لسان فصيح بليغ ينساب كالماء العذب ويأسر الألباب.',
     etymologyRoot: 'من اللاتينية eloqui (النطق البليغ والإبانة التامة)',
   },
   {
@@ -1543,7 +1623,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['happy serendipity', 'pure serendipity'],
     category: 'mindset_focus',
     level: 'C2',
-    mnemonicHook: 'من حكاية "أمراء سرنديب الثلاثة" الذين كانوا يكتشفون الكنوز بحسن توفيق دون تخطيط.',
+    mnemonicHook: 'من حكاية "أمراء سرنديب الثلاثة" الذين كانوا يكتشفون الكنوز الثمينة بحسن توفيق وتيسير قدري دون تخطيط.',
     etymologyRoot: 'مستقاة من الاسم العربي القديم لسريلانكا (سرنديب)',
   },
   {
@@ -1558,7 +1638,7 @@ export const ENGLISH_WORDS: VocabularyWord[] = [
     collocations: ['ephemeral beauty', 'ephemeral nature', 'ephemeral moment'],
     category: 'travel_lifestyle',
     level: 'C2',
-    mnemonicHook: 'تخيل فقاعة صابون ألوانها مبهجة لكنها سريعة الزوال بلحظة.',
+    mnemonicHook: 'عابر وسريع الزوال كفقاعة صابون أو قطرة ندى الصباح على ورقة شجر قبل شروق الشمس.',
     etymologyRoot: 'من اليونانية ephemeros (كائن يدوم يوماً واحداً فقط)',
   },
 ];

@@ -62,23 +62,40 @@ const STORAGE_CUSTOM_KEY = 'midmar_language_custom_words';
 const LEITNER_INTERVALS_DAYS = [1, 2, 5, 12, 30];
 const MAX_SESSION_REVIEWS = 25; // Prevents the "Review Avalanche" / burnout
 
-class SpacedRepetitionService {
+const safeGetItem = (key: string): string | null => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+  } catch (_) {}
+  return null;
+};
+
+const safeSetItem = (key: string, value: string): void => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  } catch (_) {}
+};
+
+export class SpacedRepetitionService {
   private activeLanguage: TargetLanguageCode;
   private dailyQuota: number;
   private progress: Record<string, WordProgressItem> = {};
   private customWords: VocabularyWord[] = [];
 
   constructor() {
-    this.activeLanguage = (localStorage.getItem(STORAGE_LANG_KEY) as TargetLanguageCode) || 'en';
-    this.dailyQuota = Number(localStorage.getItem(STORAGE_QUOTA_KEY) || '10');
+    this.activeLanguage = (safeGetItem(STORAGE_LANG_KEY) as TargetLanguageCode) || 'en';
+    this.dailyQuota = Number(safeGetItem(STORAGE_QUOTA_KEY) || '10');
 
     try {
-      const savedProgress = localStorage.getItem(STORAGE_PROGRESS_KEY);
+      const savedProgress = safeGetItem(STORAGE_PROGRESS_KEY);
       if (savedProgress) this.progress = JSON.parse(savedProgress);
     } catch (_) {}
 
     try {
-      const savedCustom = localStorage.getItem(STORAGE_CUSTOM_KEY);
+      const savedCustom = safeGetItem(STORAGE_CUSTOM_KEY);
       if (savedCustom) this.customWords = JSON.parse(savedCustom);
     } catch (_) {}
 
@@ -115,15 +132,11 @@ class SpacedRepetitionService {
   }
 
   private saveProgress() {
-    try {
-      localStorage.setItem(STORAGE_PROGRESS_KEY, JSON.stringify(this.progress));
-    } catch (_) {}
+    safeSetItem(STORAGE_PROGRESS_KEY, JSON.stringify(this.progress));
   }
 
   private saveCustomWords() {
-    try {
-      localStorage.setItem(STORAGE_CUSTOM_KEY, JSON.stringify(this.customWords));
-    } catch (_) {}
+    safeSetItem(STORAGE_CUSTOM_KEY, JSON.stringify(this.customWords));
   }
 
   public getActiveLanguage(): TargetLanguageCode {
@@ -132,7 +145,7 @@ class SpacedRepetitionService {
 
   public setActiveLanguage(lang: TargetLanguageCode) {
     this.activeLanguage = lang;
-    localStorage.setItem(STORAGE_LANG_KEY, lang);
+    safeSetItem(STORAGE_LANG_KEY, lang);
   }
 
   public getDailyQuota(): number {
@@ -141,7 +154,7 @@ class SpacedRepetitionService {
 
   public setDailyQuota(quota: number) {
     this.dailyQuota = quota;
-    localStorage.setItem(STORAGE_QUOTA_KEY, quota.toString());
+    safeSetItem(STORAGE_QUOTA_KEY, quota.toString());
   }
 
   public getAllWordsForLanguage(lang?: TargetLanguageCode): VocabularyWord[] {
@@ -483,7 +496,7 @@ class SpacedRepetitionService {
   public getPassedExams(lang?: TargetLanguageCode): CefrLevel[] {
     const targetLang = lang || this.activeLanguage;
     try {
-      const data = localStorage.getItem(`midmar_language_passed_exams_${targetLang}`);
+      const data = safeGetItem(`midmar_language_passed_exams_${targetLang}`);
       return data ? JSON.parse(data) : [];
     } catch {
       return [];
@@ -495,7 +508,7 @@ class SpacedRepetitionService {
     const passed = this.getPassedExams(targetLang);
     if (!passed.includes(level)) {
       passed.push(level);
-      localStorage.setItem(`midmar_language_passed_exams_${targetLang}`, JSON.stringify(passed));
+      safeSetItem(`midmar_language_passed_exams_${targetLang}`, JSON.stringify(passed));
     }
   }
 
