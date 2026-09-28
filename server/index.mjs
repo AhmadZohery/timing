@@ -4,9 +4,29 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 import webpush from 'web-push';
+import {
+  initPostgres,
+  isPgConnected,
+  pgCreateUser,
+  pgFindUserByIdentifier,
+  pgFindUserById,
+  pgListUsers,
+  pgUpdateUserLogin,
+  pgCountUsers,
+  pgSaveUserSyncData,
+  pgGetUserSyncData,
+  pgSavePushSubscription,
+  pgGetAllPushSubscriptions,
+  pgSaveScheduledAlarm,
+  pgGetPendingAlarms,
+  pgMarkAlarmSent,
+} from './postgres.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Initialize PostgreSQL Schema on boot (Non-blocking self-healing)
+initPostgres().catch((err) => console.error('[PostgreSQL Auto-Boot]', err.message));
 
 const PORT = parseInt(process.env.PORT || '80', 10);
 const DIST_DIR = path.resolve(__dirname, '../dist');
@@ -221,14 +241,20 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/status' && req.method === 'GET') {
     const deepseekKey = process.env.DEEPSEEK_API_KEY ? 'configured' : 'missing';
     const geminiKey = process.env.GEMINI_API_KEY ? 'configured' : 'missing';
-    const subs = getSubscriptions();
+    const subs = isPgConnected() ? await pgGetAllPushSubscriptions() : getSubscriptions();
     const totalSubs = Object.values(subs).reduce((acc, arr) => acc + (arr?.length || 0), 0);
+    const usersCount = isPgConnected() ? await pgCountUsers() : (fs.existsSync(path.resolve(DATA_DIR, 'users.json')) ? 1 : 0);
 
     return sendJson(res, 200, {
       ok: true,
       status: 'online',
       serverTime: new Date().toISOString(),
       uptimeSeconds: Math.floor(process.uptime()),
+      database: {
+        engine: isPgConnected() ? 'PostgreSQL' : 'FileStorage (Local)',
+        connected: isPgConnected(),
+        usersCount,
+      },
       storage: {
         dataDir: DATA_DIR,
         backupsCount: fs.existsSync(BACKUPS_DIR) ? fs.readdirSync(BACKUPS_DIR).length : 0,
@@ -242,6 +268,189 @@ const server = http.createServer(async (req, res) => {
       aiProviders: { deepseek: deepseekKey, gemini: geminiKey },
       cachedAiQueriesCount: aiResponseCache.size,
     });
+  }
+
+  // --------------------------------------------------------------------------
+  // Centralized Authentication API (PostgreSQL / Local File Fallback)
+  // --------------------------------------------------------------------------
+
+  // 1.1 Register New User
+  if (pathname === '/api/auth/register' && req.method === 'POST') {
+    try {
+      const payload = await parseJsonBody(req);
+      const { id, username, email, displayName, passwordHash, salt, pinHash, role } = payload;
+
+      if (!username || !passwordHash || !salt) {
+        return sendJson(res, 400, { ok: false, error: 'بيانات التسجيل غير مكتملة' });
+      }
+
+      if (isPgConnected()) {
+        const existing = await pgFindUserByIdentifier(username);
+        if (existing) {
+          return sendJson(res, 409, { ok: false, error: 'اسم المستخدم مسجل مسبقاً في قاعدة البيانات' });
+        }
+        if (email) {
+          const existingEmail = await pgFindUserByIdentifier(email);
+          if (existingEmail) {
+            return sendJson(res, 409, { ok: false, error: 'البريد الإلكتروني مسجل مسبقاً' });
+          }
+        }
+        const user = await pgCreateUser({
+          id: id || `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          username,
+          email: email || `${username.toLowerCase()}@local.app`,
+          displayName: displayName || username,
+          passwordHash,
+          salt,
+          pinHash: pinHash || null,
+          role: role || 'user',
+        });
+        return sendJson(res, 201, { ok: true, user, storage: 'postgresql' });
+      } else {
+        const usersFile = path.resolve(DATA_DIR, 'users.json');
+        let users = [];
+        if (fs.existsSync(usersFile)) {
+          try { users = JSON.parse(fs.readFileSync(usersFile, 'utf-8')); } catch (_) {}
+        }
+        if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
+          return sendJson(res, 409, { ok: false, error: 'اسم المستخدم مسجل مسبقاً' });
+        }
+        const user = {
+          id: id || `user_${Date.now()}`,
+          username,
+          email: email || `${username.toLowerCase()}@local.app`,
+          displayName: displayName || username,
+          passwordHash,
+          salt,
+          pinHash: pinHash || null,
+          role: role || 'user',
+          createdAt: new Date().toISOString(),
+        };
+        users.push(user);
+        fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
+        return sendJson(res, 201, { ok: true, user, storage: 'file' });
+      }
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
+  // 1.2 Login with Username/Email & Password
+  if (pathname === '/api/auth/login' && req.method === 'POST') {
+    try {
+      const payload = await parseJsonBody(req);
+      const { usernameOrEmail, passwordHash, requestSaltOnly } = payload;
+      if (!usernameOrEmail) {
+        return sendJson(res, 400, { ok: false, error: 'يرجى إدخال اسم المستخدم أو البريد' });
+      }
+
+      let user = null;
+      if (isPgConnected()) {
+        user = await pgFindUserByIdentifier(usernameOrEmail);
+      } else {
+        const usersFile = path.resolve(DATA_DIR, 'users.json');
+        if (fs.existsSync(usersFile)) {
+          try {
+            const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+            user = users.find((u) => u.username.toLowerCase() === usernameOrEmail.toLowerCase() || u.email?.toLowerCase() === usernameOrEmail.toLowerCase());
+          } catch (_) {}
+        }
+      }
+
+      if (!user) {
+        return sendJson(res, 404, { ok: false, error: 'الحساب غير موجود' });
+      }
+
+      if (requestSaltOnly) {
+        return sendJson(res, 200, { ok: true, salt: user.salt });
+      }
+
+      if (passwordHash && user.passwordHash !== passwordHash) {
+        return sendJson(res, 401, { ok: false, error: 'كلمة المرور غير صحيحة' });
+      }
+
+      if (isPgConnected()) {
+        await pgUpdateUserLogin(user.id);
+      }
+
+      const { passwordHash: _, ...safeUser } = user;
+      return sendJson(res, 200, { ok: true, user: safeUser, storage: isPgConnected() ? 'postgresql' : 'file' });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
+  // 1.3 Verify PIN for Scoped Account
+  if (pathname === '/api/auth/verify-pin' && req.method === 'POST') {
+    try {
+      const payload = await parseJsonBody(req);
+      const { accountIdOrUsername, pinHash } = payload;
+      if (!accountIdOrUsername || !pinHash) {
+        return sendJson(res, 400, { ok: false, error: 'بيانات التحقق من الـ PIN ناقصة' });
+      }
+
+      let user = null;
+      if (isPgConnected()) {
+        user = (await pgFindUserById(accountIdOrUsername)) || (await pgFindUserByIdentifier(accountIdOrUsername));
+      } else {
+        const usersFile = path.resolve(DATA_DIR, 'users.json');
+        if (fs.existsSync(usersFile)) {
+          try {
+            const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+            user = users.find((u) => u.id === accountIdOrUsername || u.username.toLowerCase() === accountIdOrUsername.toLowerCase());
+          } catch (_) {}
+        }
+      }
+
+      if (!user) {
+        return sendJson(res, 404, { ok: false, error: 'الحساب غير موجود' });
+      }
+
+      if (!user.pinHash) {
+        return sendJson(res, 400, { ok: false, error: 'لم يتم تفعيل رمز الـ PIN لهذا الحساب' });
+      }
+
+      if (user.pinHash !== pinHash) {
+        return sendJson(res, 401, { ok: false, error: 'رمز الـ PIN غير صحيح' });
+      }
+
+      if (isPgConnected()) {
+        await pgUpdateUserLogin(user.id);
+      }
+
+      const { passwordHash: _, ...safeUser } = user;
+      return sendJson(res, 200, { ok: true, user: safeUser, storage: isPgConnected() ? 'postgresql' : 'file' });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
+  // 1.4 List All Registered Users on Server (For Device Switcher / Multi-Account)
+  if (pathname === '/api/auth/users' && req.method === 'GET') {
+    try {
+      if (isPgConnected()) {
+        const users = await pgListUsers();
+        return sendJson(res, 200, { ok: true, users, source: 'postgresql' });
+      } else {
+        const usersFile = path.resolve(DATA_DIR, 'users.json');
+        let users = [];
+        if (fs.existsSync(usersFile)) {
+          try {
+            users = JSON.parse(fs.readFileSync(usersFile, 'utf-8')).map((u) => ({
+              id: u.id,
+              username: u.username,
+              displayName: u.displayName,
+              role: u.role,
+              hasPin: Boolean(u.pinHash),
+              lastLoginAt: u.lastLoginAt,
+            }));
+          } catch (_) {}
+        }
+        return sendJson(res, 200, { ok: true, users, source: 'file' });
+      }
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
   }
 
   // 2. Web Push: Get VAPID Public Key
@@ -387,26 +596,42 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 7. Sync Push: Save client state to server disk
+  // 7. Sync Push: Save client state to PostgreSQL / disk
   if (pathname === '/api/sync/push' && req.method === 'POST') {
     try {
       const payload = await parseJsonBody(req);
-      const profileId = payload.profileId || 'default';
+      const profileId = payload.profileId || payload.userId || 'default';
       const cleanProfileId = profileId.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const targetFile = path.resolve(DATA_DIR, `sync_${cleanProfileId}.json`);
+      const clientTimestamp = payload.timestamp || Date.now();
 
+      let pgSaved = false;
+      if (isPgConnected()) {
+        try {
+          await pgSaveUserSyncData(cleanProfileId, payload.data || {}, clientTimestamp);
+          pgSaved = true;
+        } catch (dbErr) {
+          console.warn('[PostgreSQL Sync Save Error]:', dbErr.message);
+        }
+      }
+
+      // Keep disk file as secondary safeguard
+      const targetFile = path.resolve(DATA_DIR, `sync_${cleanProfileId}.json`);
       const record = {
         profileId: cleanProfileId,
         syncedAt: new Date().toISOString(),
-        clientTimestamp: payload.timestamp || Date.now(),
+        clientTimestamp,
         data: payload.data || {},
+        storage: pgSaved ? 'postgresql' : 'file',
       };
 
       fs.writeFileSync(targetFile, JSON.stringify(record, null, 2), 'utf-8');
       return sendJson(res, 200, {
         ok: true,
-        message: 'تمت مزامنة البيانات وحفظها على السيرفر بنجاح',
+        message: pgSaved
+          ? 'تم حفظ ومزامنة البيانات بنجاح في قاعدة بيانات بوستجري المركزية'
+          : 'تمت مزامنة البيانات وحفظها على السيرفر بنجاح',
         syncedAt: record.syncedAt,
+        storage: record.storage,
         sizeBytes: Buffer.byteLength(JSON.stringify(record)),
       });
     } catch (err) {
@@ -414,20 +639,41 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 8. Sync Pull: Retrieve saved state from server
+  // 8. Sync Pull: Retrieve saved state from PostgreSQL / disk
   if (pathname === '/api/sync/pull' && req.method === 'GET') {
     try {
-      const profileId = url.searchParams.get('profileId') || 'default';
+      const profileId = url.searchParams.get('profileId') || url.searchParams.get('userId') || 'default';
       const cleanProfileId = profileId.replace(/[^a-zA-Z0-9_-]/g, '_');
-      const targetFile = path.resolve(DATA_DIR, `sync_${cleanProfileId}.json`);
 
+      // 1. Try PostgreSQL first
+      if (isPgConnected()) {
+        try {
+          const pgRecord = await pgGetUserSyncData(cleanProfileId);
+          if (pgRecord) {
+            return sendJson(res, 200, {
+              ok: true,
+              profileId: cleanProfileId,
+              data: pgRecord.data,
+              syncedAt: pgRecord.syncedAt,
+              clientTimestamp: pgRecord.clientTimestamp,
+              version: pgRecord.version,
+              storage: 'postgresql',
+            });
+          }
+        } catch (dbErr) {
+          console.warn('[PostgreSQL Sync Pull Error]:', dbErr.message);
+        }
+      }
+
+      // 2. Fallback to local disk file
+      const targetFile = path.resolve(DATA_DIR, `sync_${cleanProfileId}.json`);
       if (!fs.existsSync(targetFile)) {
         return sendJson(res, 404, { ok: false, message: 'لا توجد بيانات محفوظة لهذا الحساب على السيرفر بعد' });
       }
 
       const raw = fs.readFileSync(targetFile, 'utf-8');
       const record = JSON.parse(raw);
-      return sendJson(res, 200, { ok: true, ...record });
+      return sendJson(res, 200, { ok: true, ...record, storage: 'file' });
     } catch (err) {
       return sendJson(res, 500, { ok: false, error: err.message });
     }

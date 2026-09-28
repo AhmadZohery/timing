@@ -111,12 +111,30 @@ export class ServerSyncService {
       const userState = await db.user_state.get('current_user');
       const profileId = userState?.activeProfileId || 'profile_default';
 
-      const [courses, dailyLogs, workdayTasks, goals, profiles] = await Promise.all([
+      const [
+        courses,
+        dailyLogs,
+        workdayTasks,
+        goals,
+        profiles,
+        customHabits,
+        workoutLogs,
+        languageProgress,
+        tasbihCounters,
+        customReminders,
+        bufferQueue,
+      ] = await Promise.all([
         db.study_courses.toArray(),
         db.daily_logs.toArray(),
         db.workday_tasks.toArray(),
         db.goals.toArray(),
         db.profiles.toArray(),
+        db.custom_habits.toArray(),
+        db.workout_logs.toArray(),
+        db.language_progress.toArray(),
+        db.tasbih_counters.toArray(),
+        db.custom_reminders.toArray(),
+        db.buffer_queue.toArray(),
       ]);
 
       const payload = {
@@ -128,6 +146,12 @@ export class ServerSyncService {
           workdayTasks,
           goals,
           profiles,
+          customHabits,
+          workoutLogs,
+          languageProgress,
+          tasbihCounters,
+          customReminders,
+          bufferQueue,
           userSettings: userState?.settings,
         },
       };
@@ -148,7 +172,7 @@ export class ServerSyncService {
 
       return {
         success: true,
-        message: 'تمت مزامنة وحفظ جميع المسارات والبيانات على السيرفر بنجاح ☁️',
+        message: 'تمت مزامنة وحفظ جميع الجداول والبيانات بنجاح في قاعدة بيانات بوستجري المركزية ☁️',
         syncedAt,
       };
     } catch (err: any) {
@@ -212,6 +236,48 @@ export class ServerSyncService {
       if (Array.isArray(data.goals) && data.goals.length > 0) {
         await db.goals.bulkPut(data.goals);
         count += data.goals.length;
+      }
+
+      // Restore profiles
+      if (Array.isArray(data.profiles) && data.profiles.length > 0) {
+        await db.profiles.bulkPut(data.profiles);
+        count += data.profiles.length;
+      }
+
+      // Restore custom habits
+      if (Array.isArray(data.customHabits) && data.customHabits.length > 0) {
+        await db.custom_habits.bulkPut(data.customHabits);
+        count += data.customHabits.length;
+      }
+
+      // Restore workout logs
+      if (Array.isArray(data.workoutLogs) && data.workoutLogs.length > 0) {
+        await db.workout_logs.bulkPut(data.workoutLogs);
+        count += data.workoutLogs.length;
+      }
+
+      // Restore language progress
+      if (Array.isArray(data.languageProgress) && data.languageProgress.length > 0) {
+        await db.language_progress.bulkPut(data.languageProgress);
+        count += data.languageProgress.length;
+      }
+
+      // Restore tasbih counters
+      if (Array.isArray(data.tasbihCounters) && data.tasbihCounters.length > 0) {
+        await db.tasbih_counters.bulkPut(data.tasbihCounters);
+        count += data.tasbihCounters.length;
+      }
+
+      // Restore custom reminders
+      if (Array.isArray(data.customReminders) && data.customReminders.length > 0) {
+        await db.custom_reminders.bulkPut(data.customReminders);
+        count += data.customReminders.length;
+      }
+
+      // Restore buffer queue
+      if (Array.isArray(data.bufferQueue) && data.bufferQueue.length > 0) {
+        await db.buffer_queue.bulkPut(data.bufferQueue);
+        count += data.bufferQueue.length;
       }
 
       const syncedAt = record.syncedAt || new Date().toISOString();

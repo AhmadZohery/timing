@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Timing LifeOS Application & Native Server
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timing_app
+    restart: always
+    ports:
+      - "${PORT:-80}:80"
+    environment:
+      - PORT=80
+      - NODE_ENV=production
+      - DATA_DIR=/app/data
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-timing}:${POSTGRES_PASSWORD:-timing_secret_password_2026}@postgres:5432/${POSTGRES_DB:-timing}
+      # Optional AI Keys (can be set directly in Coolify UI):
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - timing_data:/app/data
+
+  # ----------------------------------------------------------------------------
+  # 2. Centralized PostgreSQL Database Engine (v16 Alpine)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: timing_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-timing}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-timing_secret_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-timing}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-timing} -d $${POSTGRES_DB:-timing}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  timing_data:
+    name: timing_data
+  postgres_data:
+    name: timing_postgres_data

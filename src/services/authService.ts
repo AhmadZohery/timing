@@ -292,7 +292,40 @@ class AuthService {
   }
 
   /**
-   * Register the primary owner account on first application setup
+   * Synchronize registered account with the central server (PostgreSQL)
+   */
+  public async syncAccountWithServer(account: AuthAccount): Promise<{ success: boolean; error?: string }> {
+    if (typeof window === 'undefined') return { success: true };
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: account.id,
+          username: account.username,
+          displayName: account.displayName,
+          email: account.email,
+          passwordHash: account.passwordHash,
+          salt: account.salt,
+          pinHash: account.pinHash,
+          role: account.isOwner ? 'owner' : 'user',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (res.status === 409) {
+          return { success: false, error: data.error || 'اسم المستخدم مسجل مسبقاً على السيرفر المركزي' };
+        }
+      }
+      return { success: true };
+    } catch (_) {
+      // Offline fallback: allow local-first creation
+      return { success: true };
+    }
+  }
+
+  /**
+   * Initialize and register the Master Owner account
    */
   public async registerOwner(
     displayName: string,
@@ -341,6 +374,12 @@ class AuthService {
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
+
+      // Register with centralized PostgreSQL database if online
+      const syncResult = await this.syncAccountWithServer(account);
+      if (!syncResult.success) {
+        return { success: false, error: syncResult.error };
+      }
 
       await db.auth_accounts.add(account);
       this.setLastActiveAccountId(account.id);
@@ -407,6 +446,12 @@ class AuthService {
         lastLoginAt: new Date().toISOString(),
       };
 
+      // Register with centralized PostgreSQL database if online
+      const syncResult = await this.syncAccountWithServer(account);
+      if (!syncResult.success) {
+        return { success: false, error: syncResult.error };
+      }
+
       await db.auth_accounts.add(account);
       this.setLastActiveAccountId(account.id);
 
@@ -432,7 +477,7 @@ class AuthService {
   }
 
   /**
-   * Authenticate via username/email and password
+   * Authenticate via username/email and password with central PostgreSQL fallback
    */
   public async login(
     usernameOrEmail: string,
@@ -452,6 +497,46 @@ class AuthService {
           a.email?.toLowerCase() === cleanInput ||
           (all.length === 1 && (cleanInput === 'admin' || cleanInput === 'ahmad' || cleanInput === 'owner'))
       );
+
+      // If account not found in local IndexedDB, attempt to authenticate with PostgreSQL server
+      if (!account && typeof window !== 'undefined') {
+        try {
+          const saltRes = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usernameOrEmail: cleanInput, requestSaltOnly: true }),
+          });
+          const saltData = await saltRes.json().catch(() => ({}));
+          if (saltRes.ok && saltData.salt) {
+            const computedPasswordHash = await this.hashSecret(password, saltData.salt);
+            const loginRes = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ usernameOrEmail: cleanInput, passwordHash: computedPasswordHash }),
+            });
+            const loginData = await loginRes.json().catch(() => ({}));
+            if (loginRes.ok && loginData.user) {
+              const remoteUser = loginData.user;
+              account = {
+                id: remoteUser.id,
+                username: remoteUser.username,
+                displayName: remoteUser.displayName,
+                email: remoteUser.email,
+                passwordHash: computedPasswordHash,
+                salt: saltData.salt,
+                pinHash: remoteUser.pinHash || undefined,
+                isOwner: remoteUser.role === 'owner',
+                createdAt: remoteUser.createdAt || new Date().toISOString(),
+                lastLoginAt: new Date().toISOString(),
+              };
+              await db.auth_accounts.put(account);
+              this.setLastActiveAccountId(account.id);
+            } else if (!loginRes.ok) {
+              return { success: false, error: loginData.error || 'اسم المستخدم أو كلمة المرور غير صحيحة' };
+            }
+          }
+        } catch (_) {}
+      }
 
       if (!account) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
