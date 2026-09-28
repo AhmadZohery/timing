@@ -47,23 +47,85 @@ export const HandsFreeImmersionModal: React.FC<HandsFreeImmersionModalProps> = (
     };
   }, []);
 
-  // Handle ESC key to close
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
-
   const handleClose = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     speechService.stop();
     setIsPlaying(false);
     onClose();
   };
+
+  const togglePlay = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (isPlaying) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      speechService.stop();
+      setIsPlaying(false);
+      setPhase('idle');
+    } else {
+      setIsPlaying(true);
+    }
+  };
+
+  const handleNext = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    speechService.stop();
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setCurrentIndex((prev) => (prev + 1) % words.length);
+  };
+
+  const handlePrev = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    speechService.stop();
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setCurrentIndex((prev) => (prev - 1 + words.length) % words.length);
+  };
+
+  // Keyboard navigation & controls (Space: Play/Pause, Arrows: Next/Prev, 1-4: Speed, Esc: Close)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        handleClose();
+      } else if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        handleNext();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        handlePrev();
+      } else if (e.key === '1') {
+        soundSynth.playTactileClick();
+        haptic.vibrateLight();
+        setSpeechRate(0.75);
+      } else if (e.key === '2') {
+        soundSynth.playTactileClick();
+        haptic.vibrateLight();
+        setSpeechRate(0.9);
+      } else if (e.key === '3') {
+        soundSynth.playTactileClick();
+        haptic.vibrateLight();
+        setSpeechRate(1.0);
+      } else if (e.key === '4') {
+        soundSynth.playTactileClick();
+        haptic.vibrateLight();
+        setSpeechRate(1.2);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isPlaying, words.length, speechRate]);
 
   const currentWord = words[currentIndex] || words[0];
 
@@ -114,35 +176,6 @@ export const HandsFreeImmersionModal: React.FC<HandsFreeImmersionModalProps> = (
   }, [isOpen, isPlaying, currentIndex, speechCode, speechRate, words.length]);
 
   if (!isOpen || words.length === 0) return null;
-
-  const togglePlay = () => {
-    soundSynth.playTactileClick();
-    haptic.vibrateLight();
-    if (isPlaying) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      speechService.stop();
-      setIsPlaying(false);
-      setPhase('idle');
-    } else {
-      setIsPlaying(true);
-    }
-  };
-
-  const handleNext = () => {
-    soundSynth.playTactileClick();
-    haptic.vibrateLight();
-    speechService.stop();
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setCurrentIndex((prev) => (prev + 1) % words.length);
-  };
-
-  const handlePrev = () => {
-    soundSynth.playTactileClick();
-    haptic.vibrateLight();
-    speechService.stop();
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setCurrentIndex((prev) => (prev - 1 + words.length) % words.length);
-  };
 
   return (
     <div className="fixed inset-0 z-50 bg-[#050507]/95 backdrop-blur-2xl flex flex-col justify-between p-6 sm:p-10 select-none animate-in fade-in duration-300 text-white">
@@ -238,8 +271,20 @@ export const HandsFreeImmersionModal: React.FC<HandsFreeImmersionModalProps> = (
             {currentWord.translationAr}
           </h2>
           {currentWord.contextSentence && (
-            <div className="pt-2 border-t border-zinc-800/70 text-xs sm:text-sm text-zinc-300 space-y-1">
-              <p className="italic text-zinc-300">"{currentWord.contextSentence}"</p>
+            <div
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                speechService.speak(currentWord.contextSentence, speechCode, speechRate * 0.95);
+              }}
+              className="pt-2 border-t border-zinc-800/70 text-xs sm:text-sm text-zinc-300 space-y-1 cursor-pointer hover:bg-zinc-800/40 p-2 rounded-xl transition-all"
+              title={isAr ? 'اضغط للاستماع للجملة السياقية 🔊' : 'Click to hear sentence 🔊'}
+            >
+              <div className="flex items-center justify-between text-indigo-400 text-[11px] font-bold">
+                <span>{isAr ? '📖 جملة السياق (اضغط للاستماع):' : '📖 Context Sentence (tap to hear):'}</span>
+                <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/40">🔊 TTS</span>
+              </div>
+              <p className="italic text-zinc-200">"{currentWord.contextSentence}"</p>
               <p className="text-emerald-400/90">"{currentWord.contextSentenceAr}"</p>
             </div>
           )}
@@ -253,10 +298,11 @@ export const HandsFreeImmersionModal: React.FC<HandsFreeImmersionModalProps> = (
           <button
             type="button"
             onClick={handlePrev}
-            className="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 cursor-pointer"
-            title={isAr ? 'الكلمة السابقة' : 'Previous Word'}
+            className="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+            title={isAr ? 'الكلمة السابقة (←)' : 'Previous Word (←)'}
           >
             <SkipBack className="w-5 h-5" />
+            <kbd className="hidden sm:inline-block font-mono text-[10px] text-zinc-500 bg-zinc-800 px-1 py-0.5 rounded border border-zinc-700">←</kbd>
           </button>
 
           {/* Big Play / Pause */}
@@ -280,15 +326,19 @@ export const HandsFreeImmersionModal: React.FC<HandsFreeImmersionModalProps> = (
                 <span>{isAr ? 'بدء الاستماع المتواصل ⚡' : 'Start Immersion ⚡'}</span>
               </>
             )}
+            <kbd className={`font-mono text-[10px] px-2 py-0.5 rounded-md ${isPlaying ? 'bg-amber-600/30 text-amber-950 border border-amber-600/40' : 'bg-indigo-800/80 text-indigo-200 border border-indigo-700'}`}>
+              Space
+            </kbd>
           </button>
 
           {/* Next */}
           <button
             type="button"
             onClick={handleNext}
-            className="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 cursor-pointer"
-            title={isAr ? 'الكلمة التالية' : 'Next Word'}
+            className="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+            title={isAr ? 'الكلمة التالية (→)' : 'Next Word (→)'}
           >
+            <kbd className="hidden sm:inline-block font-mono text-[10px] text-zinc-500 bg-zinc-800 px-1 py-0.5 rounded border border-zinc-700">→</kbd>
             <SkipForward className="w-5 h-5" />
           </button>
         </div>
@@ -299,23 +349,39 @@ export const HandsFreeImmersionModal: React.FC<HandsFreeImmersionModalProps> = (
             <Gauge className="w-3.5 h-3.5" />
             <span>{isAr ? 'سرعة الإلقاء:' : 'Playback Speed:'}</span>
           </span>
-          {[0.75, 0.9, 1.0, 1.2].map((rate) => (
+          {[
+            { rate: 0.75, key: '1' },
+            { rate: 0.9, key: '2' },
+            { rate: 1.0, key: '3' },
+            { rate: 1.2, key: '4' },
+          ].map(({ rate, key }) => (
             <button
               key={rate}
               type="button"
               onClick={() => {
                 soundSynth.playTactileClick();
+                haptic.vibrateLight();
                 setSpeechRate(rate);
               }}
-              className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition-colors cursor-pointer flex items-center gap-1 ${
                 speechRate === rate
-                  ? 'bg-indigo-500 text-white'
+                  ? 'bg-indigo-500 text-white shadow-xs'
                   : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800'
               }`}
             >
-              {rate}x
+              <span>{rate}x</span>
+              <kbd className="text-[9px] opacity-60">[{key}]</kbd>
             </button>
           ))}
+        </div>
+
+        {/* Keyboard Helper Hint */}
+        <div className="text-center pt-1 border-t border-zinc-900">
+          <p className="text-[10px] font-mono text-zinc-500">
+            {isAr
+              ? '⌨️ [Space: تشغيل/إيقاف مؤقت • ←/→: الكلمة السابقة/التالية • 1-4: السرعة • Esc: إغلاق]'
+              : '⌨️ [Space: Play/Pause • ←/→: Prev/Next • 1-4: Speed • Esc: Close]'}
+          </p>
         </div>
       </div>
     </div>

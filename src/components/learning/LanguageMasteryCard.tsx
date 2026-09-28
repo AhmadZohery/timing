@@ -213,6 +213,70 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
     }, 220);
   };
 
+  const isAnyModalOpen =
+    isQuizOpen ||
+    isAddWordOpen ||
+    isMovesOpen ||
+    isImmersionOpen ||
+    isExamOpen ||
+    isExecutiveStudioOpen ||
+    isPlacementOpen;
+
+  // Keyboard navigation for Flashcards (Space: Flip, 1: Easy, 2: Medium, 3: Hard, P: Audio, Arrows: Next/Prev)
+  useEffect(() => {
+    if (viewMode !== 'flashcards' || isAnyModalOpen || todayWords.length === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        soundSynth.playTactileClick();
+        haptic.vibrateLight();
+        setIsFlipped((f) => !f);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (isRTL) {
+          handlePrevWord();
+        } else {
+          handleNextWord();
+        }
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (isRTL) {
+          handleNextWord();
+        } else {
+          handlePrevWord();
+        }
+      } else if (e.key === '1') {
+        e.preventDefault();
+        handleRateFlashcard('easy');
+      } else if (e.key === '2') {
+        e.preventDefault();
+        handleRateFlashcard('medium');
+      } else if (e.key === '3') {
+        e.preventDefault();
+        handleRateFlashcard('hard');
+      } else if (e.key === 'p' || e.key === 'P' || e.key === 'ح') {
+        e.preventDefault();
+        handleSpeak();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    viewMode,
+    isAnyModalOpen,
+    isRTL,
+    todayWords.length,
+    activeWordIndex,
+    currentWord,
+  ]);
+
   const handleStartTodayQuiz = () => {
     soundSynth.playCompletionChime();
     haptic.vibrateLight();
@@ -719,9 +783,10 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                     >
                       {isCopiedWord ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                    <span className="flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
                       <RotateCw className="w-3.5 h-3.5" />
                       <span>{isAr ? 'انقر للقلب والكشف' : 'Tap to Flip'}</span>
+                      <kbd className="hidden sm:inline-block font-mono text-[9px] px-1 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40">Space</kbd>
                     </span>
                   </div>
                 </div>
@@ -746,6 +811,7 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                     >
                       <Volume2 className="w-4 h-4" />
                       <span>{isAr ? 'نطق أصلي' : 'Native Audio'}</span>
+                      <kbd className="hidden sm:inline-block font-mono text-[9px] px-1.5 py-0.5 rounded bg-indigo-800/80 text-indigo-100 border border-indigo-700">P</kbd>
                     </button>
                     <button
                       type="button"
@@ -796,10 +862,11 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                         soundSynth.playTactileClick();
                         setIsFlipped(false);
                       }}
-                      className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 cursor-pointer"
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-900 cursor-pointer"
                     >
                       <RotateCw className="w-3.5 h-3.5" />
                       <span>{isAr ? 'العودة للوجه' : 'Back to Front'}</span>
+                      <kbd className="hidden sm:inline-block font-mono text-[9px] px-1 py-0.5 rounded bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 border border-slate-300 dark:border-zinc-700">Space</kbd>
                     </button>
                   </div>
                 </div>
@@ -873,31 +940,49 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRateFlashcard('hard')}
-                      className="py-2.5 px-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-900/60 transition-transform active:scale-95 cursor-pointer text-center"
+                      className="py-2.5 px-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-300 font-bold text-xs border border-rose-200 dark:border-rose-900/60 transition-transform active:scale-95 cursor-pointer text-center flex flex-col items-center justify-center gap-0.5"
                     >
                       <div className="text-sm">🔴</div>
-                      <div>{isAr ? 'صعب (إعادة)' : 'Hard'}</div>
+                      <div className="flex items-center gap-1">
+                        <span>{isAr ? 'صعب (إعادة)' : 'Hard'}</span>
+                        <kbd className="font-mono text-[9px] px-1 py-0.2 rounded bg-rose-200/80 dark:bg-rose-900/60 text-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-800">[3]</kbd>
+                      </div>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleRateFlashcard('medium')}
-                      className="py-2.5 px-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-700 dark:text-amber-300 font-bold text-xs border border-amber-200 dark:border-amber-900/60 transition-transform active:scale-95 cursor-pointer text-center"
+                      className="py-2.5 px-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-700 dark:text-amber-300 font-bold text-xs border border-amber-200 dark:border-amber-900/60 transition-transform active:scale-95 cursor-pointer text-center flex flex-col items-center justify-center gap-0.5"
                     >
                       <div className="text-sm">🟡</div>
-                      <div>{isAr ? 'متوسط (جيد)' : 'Good'}</div>
+                      <div className="flex items-center gap-1">
+                        <span>{isAr ? 'متوسط (جيد)' : 'Good'}</span>
+                        <kbd className="font-mono text-[9px] px-1 py-0.2 rounded bg-amber-200/80 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-800">[2]</kbd>
+                      </div>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleRateFlashcard('easy')}
-                      className="py-2.5 px-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-900/60 transition-transform active:scale-95 cursor-pointer text-center"
+                      className="py-2.5 px-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold text-xs border border-emerald-200 dark:border-emerald-900/60 transition-transform active:scale-95 cursor-pointer text-center flex flex-col items-center justify-center gap-0.5"
                     >
                       <div className="text-sm">🟢</div>
-                      <div>{isAr ? 'سهل (أتقنتها)' : 'Easy'}</div>
+                      <div className="flex items-center gap-1">
+                        <span>{isAr ? 'سهل (أتقنتها)' : 'Easy'}</span>
+                        <kbd className="font-mono text-[9px] px-1 py-0.2 rounded bg-emerald-200/80 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">[1]</kbd>
+                      </div>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Keyboard Shortcut Helper Bar */}
+          <div className="text-center py-1">
+            <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500">
+              {isAr
+                ? '⌨️ [Space: قلب البطاقة • 1: سهل • 2: متوسط • 3: صعب • P: استماع للنطق • ←/→: التنقل]'
+                : '⌨️ [Space: Flip • 1: Easy • 2: Good • 3: Hard • P: Pronounce • ←/→: Navigate]'}
+            </span>
           </div>
 
           {/* Morphological Root Deconstructor & Leech Breaker */}

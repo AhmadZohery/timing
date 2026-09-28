@@ -27,6 +27,23 @@ interface SelfLearningTrackerProps {
 const STORAGE_TRACKS_KEY = 'midmar_learning_tracks_v1';
 const STORAGE_LOGS_KEY = 'midmar_learning_logs_v1';
 
+const safeGetItem = (key: string): string | null => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(key);
+    }
+  } catch (_) {}
+  return null;
+};
+
+const safeSetItem = (key: string, value: string): void => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  } catch (_) {}
+};
+
 const DEFAULT_TRACKS: LearningTrackItem[] = [
   {
     id: 'track_1',
@@ -73,7 +90,7 @@ export const SelfLearningTracker: React.FC<SelfLearningTrackerProps> = ({
   // 1. Tracks State
   const [tracks, setTracks] = useState<LearningTrackItem[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_TRACKS_KEY);
+      const saved = safeGetItem(STORAGE_TRACKS_KEY);
       return saved ? JSON.parse(saved) : DEFAULT_TRACKS;
     } catch {
       return DEFAULT_TRACKS;
@@ -83,20 +100,20 @@ export const SelfLearningTracker: React.FC<SelfLearningTrackerProps> = ({
   // 2. Logs State
   const [logs, setLogs] = useState<LearningSessionLog[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_LOGS_KEY);
+      const saved = safeGetItem(STORAGE_LOGS_KEY);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
 
-  // Save to LocalStorage
+  // Save to LocalStorage safely
   useEffect(() => {
-    localStorage.setItem(STORAGE_TRACKS_KEY, JSON.stringify(tracks));
+    safeSetItem(STORAGE_TRACKS_KEY, JSON.stringify(tracks));
   }, [tracks]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_LOGS_KEY, JSON.stringify(logs));
+    safeSetItem(STORAGE_LOGS_KEY, JSON.stringify(logs));
   }, [logs]);
 
   // Selected Track for Active Focus Session
