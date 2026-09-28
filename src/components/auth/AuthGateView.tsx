@@ -809,8 +809,23 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full text-center py-2 text-[11px] text-slate-500">
-        مِضمار (Midmar LifeOS) • نظام تشغيل وإدارة الحياة المتكامل 2026
+      <footer className="relative z-10 w-full text-center py-3 text-[11px] text-slate-500 space-y-1">
+        <div>
+          <span>{isAr ? 'كافة الحقوق محفوظة © 2026 لمؤسسة ' : 'All Rights Reserved © 2026 '}</span>
+          <a
+            href="https://fikradm.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-amber-400 hover:text-amber-300 font-bold hover:underline"
+          >
+            فكرة دي إم (FikraDM.com)
+          </a>
+        </div>
+        <div className="text-[10px] text-slate-600">
+          {isAr
+            ? 'منظومة تايمينج (Timing OS) لإدارة الإيقاع الحيوي والإنتاجية'
+            : 'Timing OS • Circadian Mastery & Peak Productivity Platform'}
+        </div>
       </footer>
     </div>
   );

@@ -26,6 +26,7 @@ import { systemHeartbeat } from './services/systemHeartbeatCoordinator';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { CompanionSidebar } from './components/dashboard/CompanionSidebar';
 import { NotificationPermissionBanner } from './components/common/NotificationPermissionBanner';
+import { BrandFooter } from './components/common/BrandFooter';
 import { usePwaInstall } from './hooks/usePwaInstall';
 
 // Living Interactive & Creative Components (V12 & V13)
@@ -832,6 +833,9 @@ export function App() {
           )}
         </div>
         )}
+
+        {/* Official FikraDM & Timing OS Brand Footer */}
+        <BrandFooter language={language} />
       </main>
 
       {/* Native Apple-Tier Floating Glass Bottom Navigation Bar (< lg) */}
