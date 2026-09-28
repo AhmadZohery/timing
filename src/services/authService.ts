@@ -6,6 +6,25 @@ const PERSISTENT_STORAGE_KEY = 'midmar_auth_persistent_session';
 const AUTOLOCK_MINUTES_KEY = 'midmar_autolock_minutes';
 const LAST_ACTIVITY_KEY = 'midmar_last_activity_ts';
 const EXPLICIT_LOCKED_KEY = 'midmar_explicit_locked';
+const LAST_ACTIVE_ACCOUNT_KEY = 'midmar_last_active_account_id';
+const PIN_ATTEMPTS_STORAGE_KEY = 'midmar_pin_attempts_map';
+
+export interface LocalAccountSummary {
+  id: string;
+  username: string;
+  displayName: string;
+  email?: string;
+  isOwner: boolean;
+  hasPin: boolean;
+  lastLoginAt?: string;
+}
+
+export interface PinLockoutInfo {
+  isLocked: boolean;
+  requiresPassword: boolean;
+  cooldownRemainingSeconds: number;
+  failedAttempts: number;
+}
 
 /**
  * Detect if running in local development environment (localhost / 127.0.0.1)
@@ -151,6 +170,128 @@ class AuthService {
   }
 
   /**
+   * Get all registered accounts on this device in safe summary format
+   */
+  public async getAvailableLocalAccounts(): Promise<LocalAccountSummary[]> {
+    try {
+      const accounts = await db.auth_accounts.toArray();
+      return accounts.map((a) => ({
+        id: a.id,
+        username: a.username,
+        displayName: a.displayName,
+        email: a.email,
+        isOwner: !!a.isOwner,
+        hasPin: !!(a.pinHash && a.pinHash.length > 0),
+        lastLoginAt: a.lastLoginAt,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get the last active account used on this device
+   */
+  public async getLastActiveAccount(): Promise<AuthAccount | null> {
+    try {
+      const lastId = typeof localStorage !== 'undefined' ? localStorage.getItem(LAST_ACTIVE_ACCOUNT_KEY) : null;
+      if (lastId) {
+        const found = await db.auth_accounts.get(lastId);
+        if (found) return found;
+      }
+      return await this.getOwnerAccount();
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Store the last active account ID on this device
+   */
+  public setLastActiveAccountId(accountId: string): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(LAST_ACTIVE_ACCOUNT_KEY, accountId);
+      }
+    } catch (_) {}
+  }
+
+  /**
+   * Anti-Brute-Force & Rate Limiting Helpers
+   */
+  private getAttemptsMap(): Record<string, { failedAttempts: number; cooldownUntil: number }> {
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        const raw = sessionStorage.getItem(PIN_ATTEMPTS_STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  private saveAttemptsMap(map: Record<string, { failedAttempts: number; cooldownUntil: number }>): void {
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(PIN_ATTEMPTS_STORAGE_KEY, JSON.stringify(map));
+      }
+    } catch (_) {}
+  }
+
+  public getPinLockoutInfo(accountId: string): PinLockoutInfo {
+    const map = this.getAttemptsMap();
+    const entry = map[accountId];
+    if (!entry) {
+      return {
+        isLocked: false,
+        requiresPassword: false,
+        cooldownRemainingSeconds: 0,
+        failedAttempts: 0,
+      };
+    }
+
+    const now = Date.now();
+    const cooldownRemainingSeconds = Math.max(0, Math.ceil((entry.cooldownUntil - now) / 1000));
+    const isLocked = cooldownRemainingSeconds > 0;
+    const requiresPassword = entry.failedAttempts >= 5;
+
+    return {
+      isLocked,
+      requiresPassword,
+      cooldownRemainingSeconds,
+      failedAttempts: entry.failedAttempts,
+    };
+  }
+
+  public recordFailedPinAttempt(accountId: string): PinLockoutInfo {
+    const map = this.getAttemptsMap();
+    const current = map[accountId] || { failedAttempts: 0, cooldownUntil: 0 };
+    current.failedAttempts += 1;
+
+    const now = Date.now();
+    // After 3 failed attempts: 30s cooldown; After 4 attempts: 60s cooldown; After 5: requires password
+    if (current.failedAttempts === 3) {
+      current.cooldownUntil = now + 30 * 1000;
+    } else if (current.failedAttempts === 4) {
+      current.cooldownUntil = now + 60 * 1000;
+    } else if (current.failedAttempts >= 5) {
+      current.cooldownUntil = now + 300 * 1000; // 5 minutes
+    }
+
+    map[accountId] = current;
+    this.saveAttemptsMap(map);
+
+    return this.getPinLockoutInfo(accountId);
+  }
+
+  public resetPinAttempts(accountId: string): void {
+    const map = this.getAttemptsMap();
+    if (map[accountId]) {
+      delete map[accountId];
+      this.saveAttemptsMap(map);
+    }
+  }
+
+  /**
    * Register the primary owner account on first application setup
    */
   public async registerOwner(
@@ -202,6 +343,7 @@ class AuthService {
       };
 
       await db.auth_accounts.add(account);
+      this.setLastActiveAccountId(account.id);
 
       // Create initial active session
       this.createSession(account, true);
@@ -266,6 +408,7 @@ class AuthService {
       };
 
       await db.auth_accounts.add(account);
+      this.setLastActiveAccountId(account.id);
 
       // Create matching user profile
       const newProfileId = `profile_${account.id}`;
@@ -319,10 +462,12 @@ class AuthService {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
       }
 
-      // Update last login
+      // Update last login & reset pin attempts
       await db.auth_accounts.update(account.id, {
         lastLoginAt: new Date().toISOString(),
       });
+      this.resetPinAttempts(account.id);
+      this.setLastActiveAccountId(account.id);
 
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem(EXPLICIT_LOCKED_KEY);
@@ -336,38 +481,118 @@ class AuthService {
   }
 
   /**
-   * Quick authenticate via numeric PIN (if set)
+   * Quick authenticate via numeric PIN for a specific account (scoped PIN authentication)
+   * This guarantees that even if multiple users set the exact same PIN (e.g. 1234),
+   * each user ONLY unlocks their own account, preventing any account collisions or data leakage!
    */
   public async loginWithPin(
     pin: string,
+    accountIdOrUsername?: string,
     rememberMe = true
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{
+    success: boolean;
+    error?: string;
+    requiresPassword?: boolean;
+    cooldownRemainingSeconds?: number;
+    remainingAttempts?: number;
+    account?: AuthAccount;
+  }> {
     const cleanPin = pin.trim();
     if (!cleanPin || cleanPin.length < 4) {
-      return { success: false, error: 'رمز PIN غير مكتمل' };
+      return { success: false, error: 'رمز PIN غير مكتمل (4 أرقام على الأقل)' };
     }
 
     try {
-      const owner = await this.getOwnerAccount();
-      if (!owner || !owner.pinHash) {
-        return { success: false, error: 'لم يتم تعيين رمز PIN سريع لهذا الحساب' };
+      let targetAccount: AuthAccount | null = null;
+
+      if (accountIdOrUsername && accountIdOrUsername.trim()) {
+        const query = accountIdOrUsername.trim().toLowerCase();
+        const all = await db.auth_accounts.toArray();
+        targetAccount =
+          all.find(
+            (a) =>
+              a.id === accountIdOrUsername.trim() ||
+              a.username.toLowerCase() === query ||
+              a.email?.toLowerCase() === query
+          ) || null;
+      } else {
+        targetAccount = await this.getLastActiveAccount();
       }
 
-      const computedPinHash = await this.hashSecret(cleanPin, owner.salt);
-      if (computedPinHash !== owner.pinHash) {
-        return { success: false, error: 'رمز الـ PIN غير صحيح' };
+      if (!targetAccount) {
+        return { success: false, error: 'لم يتم العثور على الحساب المطلوب. يرجى اختيار الحساب أولاً.' };
       }
 
-      await db.auth_accounts.update(owner.id, {
+      // Check brute-force lockout status
+      const lockout = this.getPinLockoutInfo(targetAccount.id);
+      if (lockout.requiresPassword) {
+        return {
+          success: false,
+          error: 'تم تجاوز الحد الأقصى لمحاولات الـ PIN (5 مرات). لحماية الحساب، يرجى تسجيل الدخول بكلمة المرور الرئيسية.',
+          requiresPassword: true,
+        };
+      }
+
+      if (lockout.isLocked) {
+        return {
+          success: false,
+          error: `تم تجميد المحاولات مؤقتاً لحماية الحساب. يرجى الانتظار (${lockout.cooldownRemainingSeconds} ثانية) أو الدخول بكلمة المرور.`,
+          cooldownRemainingSeconds: lockout.cooldownRemainingSeconds,
+          requiresPassword: true,
+        };
+      }
+
+      if (!targetAccount.pinHash) {
+        return {
+          success: false,
+          error: 'هذا الحساب لم يقم بتعيين رمز PIN سريع. يرجى الدخول بكلمة المرور.',
+          requiresPassword: true,
+        };
+      }
+
+      const computedPinHash = await this.hashSecret(cleanPin, targetAccount.salt);
+      if (computedPinHash !== targetAccount.pinHash) {
+        const updatedLockout = this.recordFailedPinAttempt(targetAccount.id);
+        const remaining = Math.max(0, 5 - updatedLockout.failedAttempts);
+
+        if (updatedLockout.requiresPassword) {
+          return {
+            success: false,
+            error: 'تم قفل الـ PIN بعد 5 محاولات خاطئة. يرجى تسجيل الدخول بكلمة المرور الرئيسية.',
+            requiresPassword: true,
+          };
+        }
+
+        if (updatedLockout.isLocked) {
+          return {
+            success: false,
+            error: `رمز الـ PIN غير صحيح. تم تجميد الإدخال مؤقتاً لمدة ${updatedLockout.cooldownRemainingSeconds} ثانية.`,
+            cooldownRemainingSeconds: updatedLockout.cooldownRemainingSeconds,
+          };
+        }
+
+        return {
+          success: false,
+          error: `رمز الـ PIN غير صحيح. (المحاولات المتبقية: ${remaining})`,
+          remainingAttempts: remaining,
+        };
+      }
+
+      // PIN Correct! Reset lockout counter
+      this.resetPinAttempts(targetAccount.id);
+
+      // Update last active account and login timestamp
+      await db.auth_accounts.update(targetAccount.id, {
         lastLoginAt: new Date().toISOString(),
       });
+      this.setLastActiveAccountId(targetAccount.id);
 
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem(EXPLICIT_LOCKED_KEY);
       }
 
-      this.createSession(owner, rememberMe);
-      return { success: true };
+      this.createSession(targetAccount, rememberMe);
+      return { success: true, account: targetAccount };
     } catch (err: any) {
       return { success: false, error: err?.message || 'فشل التحقق من رمز PIN' };
     }

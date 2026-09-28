@@ -12,8 +12,16 @@ import {
   Globe,
   Fingerprint,
   Sparkles,
+  Users,
+  CheckCircle2,
+  Plus,
 } from 'lucide-react';
-import { authService, isLocalEnvironment, DEFAULT_MASTER_ACCOUNT } from '../../services/authService';
+import {
+  authService,
+  isLocalEnvironment,
+  DEFAULT_MASTER_ACCOUNT,
+  type LocalAccountSummary,
+} from '../../services/authService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
@@ -31,6 +39,12 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   const [hasAccount, setHasAccount] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isPinMode, setIsPinMode] = useState(false);
+
+  // Multi-Account on Device State
+  const [localAccounts, setLocalAccounts] = useState<LocalAccountSummary[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [showAccountPicker, setShowAccountPicker] = useState<boolean>(false);
+  const [lockoutCooldown, setLockoutCooldown] = useState<number>(0);
 
   // Setup / Register Form State
   const [setupName, setSetupName] = useState(DEFAULT_MASTER_ACCOUNT.displayName);
@@ -50,27 +64,83 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Initialize and load accounts on this device
   useEffect(() => {
-    authService.hasRegisteredAccount().then((exists) => {
+    const initAuth = async () => {
+      const exists = await authService.hasRegisteredAccount();
       setHasAccount(exists);
       if (!exists) {
         setAuthMode('register');
       } else {
         setAuthMode('login');
-      }
-      if (exists) {
-        authService.getOwnerAccount().then((owner) => {
-          if (owner) {
-            setLoginUsername(owner.username || DEFAULT_MASTER_ACCOUNT.username);
-            if (owner.pinHash) {
-              setIsPinMode(true);
+        const accounts = await authService.getAvailableLocalAccounts();
+        setLocalAccounts(accounts);
+
+        const lastActive = await authService.getLastActiveAccount();
+        if (lastActive) {
+          setSelectedAccountId(lastActive.id);
+          setLoginUsername(lastActive.username);
+          if (lastActive.pinHash) {
+            setIsPinMode(true);
+            const lockout = authService.getPinLockoutInfo(lastActive.id);
+            if (lockout.cooldownRemainingSeconds > 0) {
+              setLockoutCooldown(lockout.cooldownRemainingSeconds);
             }
+          } else {
+            setIsPinMode(false);
           }
-        });
+        } else if (accounts.length > 0) {
+          setSelectedAccountId(accounts[0].id);
+          setLoginUsername(accounts[0].username);
+          if (accounts[0].hasPin) {
+            setIsPinMode(true);
+          }
+        }
       }
       setIsLoading(false);
-    });
+    };
+
+    initAuth();
   }, []);
+
+  // Cooldown countdown timer for brute-force rate limiting
+  useEffect(() => {
+    if (lockoutCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setLockoutCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutCooldown]);
+
+  const selectedAccount =
+    localAccounts.find((a) => a.id === selectedAccountId) ||
+    localAccounts[0] ||
+    null;
+
+  const handleSelectAccount = (acc: LocalAccountSummary) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setSelectedAccountId(acc.id);
+    setLoginUsername(acc.username);
+    setShowAccountPicker(false);
+    setErrorMsg(null);
+    setLoginPin('');
+    if (acc.hasPin) {
+      setIsPinMode(true);
+      const lockout = authService.getPinLockoutInfo(acc.id);
+      if (lockout.cooldownRemainingSeconds > 0) {
+        setLockoutCooldown(lockout.cooldownRemainingSeconds);
+      }
+    } else {
+      setIsPinMode(false);
+    }
+  };
 
   const handleLocalBypass = () => {
     soundSynth.playCompletionChime();
@@ -127,26 +197,48 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
     e.preventDefault();
     setErrorMsg(null);
 
+    if (isPinMode && lockoutCooldown > 0) {
+      setErrorMsg(
+        isAr
+          ? `يرجى الانتظار (${lockoutCooldown} ثانية) قبل المحاولة مجدداً أو الدخول بكلمة المرور.`
+          : `Please wait (${lockoutCooldown}s) before trying again or sign in with password.`
+      );
+      return;
+    }
+
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     setIsSubmitting(true);
 
     try {
-      let res;
       if (isPinMode) {
-        res = await authService.loginWithPin(loginPin, rememberMe);
+        const pinRes = await authService.loginWithPin(loginPin, selectedAccountId || loginUsername, rememberMe);
+        if (pinRes.success) {
+          soundSynth.playCompletionChime();
+          haptic.vibrateSprintCelebration();
+          onAuthenticated();
+        } else {
+          soundSynth.playWarningSound();
+          haptic.vibrateWarning();
+          setErrorMsg(pinRes.error || (isAr ? 'رمز الـ PIN غير صحيح' : 'Invalid PIN'));
+          if (pinRes.cooldownRemainingSeconds) {
+            setLockoutCooldown(pinRes.cooldownRemainingSeconds);
+          }
+          if (pinRes.requiresPassword) {
+            setIsPinMode(false);
+          }
+        }
       } else {
-        res = await authService.login(loginUsername, loginPassword, rememberMe);
-      }
-
-      if (res.success) {
-        soundSynth.playCompletionChime();
-        haptic.vibrateSprintCelebration();
-        onAuthenticated();
-      } else {
-        soundSynth.playWarningSound();
-        haptic.vibrateWarning();
-        setErrorMsg(res.error || (isAr ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Invalid credentials'));
+        const loginRes = await authService.login(loginUsername, loginPassword, rememberMe);
+        if (loginRes.success) {
+          soundSynth.playCompletionChime();
+          haptic.vibrateSprintCelebration();
+          onAuthenticated();
+        } else {
+          soundSynth.playWarningSound();
+          haptic.vibrateWarning();
+          setErrorMsg(loginRes.error || (isAr ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Invalid credentials'));
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -426,6 +518,122 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
           ) : (
             /* 2. LOGIN FORM (Returning User) */
             <form onSubmit={handleLogin} className="space-y-4 text-xs">
+              {/* Selected Account Identity Pill & Multi-Account Switcher */}
+              {selectedAccount && (
+                <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-amber-400/15 to-transparent border border-amber-500/30 flex items-center justify-center font-black text-amber-300 text-sm shrink-0 shadow-inner">
+                      {selectedAccount.displayName ? selectedAccount.displayName.charAt(0) : '👤'}
+                    </div>
+                    <div className="overflow-hidden">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-white text-xs truncate">{selectedAccount.displayName}</span>
+                        {selectedAccount.isOwner && (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                            {isAr ? 'المالك 👑' : 'Owner 👑'}
+                          </span>
+                        )}
+                        {selectedAccount.hasPin && (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            PIN 🔑
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-mono text-slate-400 truncate">@{selectedAccount.username}</p>
+                    </div>
+                  </div>
+
+                  {localAccounts.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setShowAccountPicker((prev) => !prev);
+                      }}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-amber-400 text-xs font-bold transition-all shrink-0 flex items-center gap-1 cursor-pointer border border-white/[0.08]"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>{showAccountPicker ? (isAr ? 'إخفاء' : 'Hide') : (isAr ? 'تبديل' : 'Switch')}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Multi-Account Drawer */}
+              {showAccountPicker && (
+                <div className="p-3 rounded-2xl bg-white/[0.02] border border-amber-500/20 space-y-2 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 pb-1 border-b border-white/[0.06]">
+                    <span>{isAr ? 'اختر الحساب المطلوب على هذا الجهاز:' : 'Select Account on this device:'}</span>
+                    <span className="text-[10px] font-mono text-amber-400">({localAccounts.length} {isAr ? 'حسابات' : 'accounts'})</span>
+                  </div>
+
+                  <div className="grid gap-1.5 max-h-48 overflow-y-auto pr-1">
+                    {localAccounts.map((acc) => {
+                      const isCurrent = acc.id === selectedAccountId;
+                      return (
+                        <button
+                          key={acc.id}
+                          type="button"
+                          onClick={() => handleSelectAccount(acc)}
+                          className={`w-full p-2.5 rounded-xl text-start transition-all cursor-pointer flex items-center justify-between gap-2.5 ${
+                            isCurrent
+                              ? 'bg-amber-500/15 border border-amber-500/40 text-amber-300'
+                              : 'bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.06] text-slate-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                              isCurrent ? 'bg-amber-500 text-black' : 'bg-white/[0.08] text-slate-300'
+                            }`}>
+                              {acc.displayName.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-xs">{acc.displayName}</span>
+                                {acc.isOwner && <span className="text-[9px] text-amber-400 font-mono">👑</span>}
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-400">@{acc.username}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            {acc.hasPin ? (
+                              <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-0.5">
+                                <span>🔑</span>
+                                <span className="hidden sm:inline">PIN</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-slate-400 font-mono flex items-center gap-0.5">
+                                <span>🔒</span>
+                                <span className="hidden sm:inline">Password</span>
+                              </span>
+                            )}
+                            {isCurrent && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-1.5 border-t border-white/[0.06] flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setAuthMode('register');
+                        setShowAccountPicker(false);
+                      }}
+                      className="text-[11px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'إضافة / تسجيل حساب جديد' : 'Add New Account'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Toggle Mode: Password vs PIN */}
               <div className="flex items-center justify-center gap-2 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
                 <button
@@ -500,22 +708,50 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                   </div>
                 </>
               ) : (
-                <div className="space-y-2 py-2">
-                  <label className="block text-slate-300 font-bold text-center">
-                    {isAr ? 'أدخل رمز الـ PIN السريع (4-6 أرقام):' : 'Enter Quick Numeric PIN:'}
-                  </label>
-                  <div className="relative max-w-[200px] mx-auto">
-                    <input
-                      type="password"
-                      maxLength={6}
-                      autoFocus
-                      required
-                      value={loginPin}
-                      onChange={(e) => setLoginPin(e.target.value.replace(/\D/g, ''))}
-                      placeholder="••••"
-                      className="w-full py-3 text-center text-xl font-mono tracking-[0.5em] rounded-2xl bg-white/[0.04] border-2 border-amber-500/40 text-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400"
-                    />
+                <div className="space-y-3 py-2">
+                  <div className="text-center space-y-1">
+                    <label className="block text-slate-300 font-bold">
+                      {isAr
+                        ? `أدخل رمز الـ PIN لحساب (${selectedAccount?.displayName || loginUsername}):`
+                        : `Enter Quick PIN for (${selectedAccount?.displayName || loginUsername}):`}
+                    </label>
+                    <p className="text-[10px] text-slate-400 font-mono">
+                      {isAr ? '🔒 مشفر بـ Salt مستقل ومحمي ضد التخمين' : '🔒 Scoped cryptographic PIN'}
+                    </p>
                   </div>
+
+                  {lockoutCooldown > 0 ? (
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs text-center space-y-1.5 animate-in fade-in">
+                      <p className="font-bold flex items-center justify-center gap-1.5">
+                        <span>⏳</span>
+                        <span>{isAr ? `تجميد مؤقت: يرجى الانتظار (${lockoutCooldown} ثانية)` : `Cooldown: please wait (${lockoutCooldown}s)`}</span>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setIsPinMode(false);
+                        }}
+                        className="text-[11px] text-amber-400 underline font-bold cursor-pointer"
+                      >
+                        {isAr ? 'الدخول بكلمة المرور الرئيسية الآن' : 'Sign in with Master Password'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative max-w-[200px] mx-auto">
+                      <input
+                        type="password"
+                        maxLength={6}
+                        autoFocus
+                        required
+                        disabled={lockoutCooldown > 0}
+                        value={loginPin}
+                        onChange={(e) => setLoginPin(e.target.value.replace(/\D/g, ''))}
+                        placeholder="••••"
+                        className="w-full py-3 text-center text-xl font-mono tracking-[0.5em] rounded-2xl bg-white/[0.04] border-2 border-amber-500/40 text-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-40"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
