@@ -823,8 +823,8 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
         </div>
         <div className="text-[10px] text-slate-600">
           {isAr
-            ? 'منظومة تايمينج (Timing OS) لإدارة الإيقاع الحيوي والإنتاجية'
-            : 'Timing OS • Circadian Mastery & Peak Productivity Platform'}
+            ? 'منظومة مِضمار (Midmar LifeOS) لإدارة الإيقاع الحيوي والإنتاجية'
+            : 'Midmar LifeOS • Circadian Mastery & Peak Productivity Platform'}
         </div>
       </footer>
     </div>

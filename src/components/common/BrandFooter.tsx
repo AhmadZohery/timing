@@ -16,7 +16,7 @@ export const BrandFooter: React.FC<BrandFooterProps> = ({ language = 'ar' }) => 
         <div className="flex flex-wrap items-center justify-center gap-2">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-black tracking-wide">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-            <span>{isAr ? 'منظومة تايمينج المتكاملة • Timing OS' : 'Timing Operating System'}</span>
+            <span>{isAr ? 'منظومة مِضمار المتكاملة • Midmar LifeOS' : 'Midmar Life Operating System'}</span>
           </div>
 
           <a
