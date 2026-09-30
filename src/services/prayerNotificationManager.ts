@@ -313,8 +313,8 @@ class PrayerNotificationManager {
         const reg = await navigator.serviceWorker.ready;
         await reg.showNotification(title, {
           body,
-          icon: '/favicon.svg',
-          badge: '/favicon.svg',
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
           tag,
           renotify: true,
           actions: [
@@ -327,7 +327,7 @@ class PrayerNotificationManager {
 
       new Notification(title, {
         body,
-        icon: '/favicon.svg',
+        icon: '/icons/icon-192x192.png',
         tag,
       });
     } catch (err) {

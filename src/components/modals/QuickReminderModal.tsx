@@ -74,6 +74,28 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [nlpPreview, setNlpPreview] = useState<LocalReminderNLPResult | null>(null);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [testPushStatus, setTestPushStatus] = useState<string | null>(null);
+  const [isTestingLockscreen, setIsTestingLockscreen] = useState(false);
+
+  const handleTestLockscreen = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setIsTestingLockscreen(true);
+    setTestPushStatus(
+      isAr
+        ? '⏳ تم إطلاق أمر التنبيه.. اقفل شاشة هاتفك الآن لتتأكد من وصوله والتطبيق مغلق (خلال 5 ثوانٍ)'
+        : 'Test alert sent! Lock your phone now (fires in 5s)...'
+    );
+    try {
+      const res = await autonomousNotificationScheduler.testLockscreenAlarm(5);
+      if (!res.success) {
+        setTestPushStatus(res.message);
+      }
+    } finally {
+      setIsTestingLockscreen(false);
+      setTimeout(() => setTestPushStatus(null), 8000);
+    }
+  };
 
   // Cleanup voice recognition on unmount
   useEffect(() => {
@@ -246,7 +268,38 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {/* Quick Lockscreen Alarm Tester Banner */}
+          <div className="p-3 rounded-2xl bg-slate-100/90 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm shrink-0">
+                🔔
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                  {isAr ? 'تجربة التنبيه أثناء قفل الشاشة أو إغلاق التطبيق' : 'Test Closed-App & Lockscreen Alarm'}
+                </div>
+                <div className="text-[10px] text-slate-500 dark:text-zinc-400">
+                  {isAr ? 'تأكد فوراً من وصول التنبيهات ورنينها حتى لو هاتفك مقفل والتطبيق مغلق' : 'Verify alarms fire when phone is locked & app closed'}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleTestLockscreen}
+              disabled={isTestingLockscreen}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs shadow-xs transition-all cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
+            >
+              {isTestingLockscreen ? (isAr ? 'جاري الإطلاق...' : 'Launching...') : (isAr ? 'تجربة رنين (5ث) 🚀' : 'Test Alarm (5s) 🚀')}
+            </button>
+          </div>
+
+          {testPushStatus && (
+            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-800/60 text-amber-950 dark:text-amber-200 text-xs font-bold animate-fade-in text-center leading-relaxed">
+              {testPushStatus}
+            </div>
+          )}
+
           {/* Smart Voice & Natural Input (0 Tokens) */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/20 space-y-2.5 shadow-2xs">
             <div className="flex items-center justify-between">

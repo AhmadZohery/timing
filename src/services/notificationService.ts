@@ -37,8 +37,8 @@ class NotificationService {
     try {
       await reg.showNotification(title, {
         body,
-        icon: '/favicon.svg',
-        badge: '/favicon.svg',
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-192x192.png',
         tag: 'station-alert',
         renotify: true,
         data: { type },

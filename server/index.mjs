@@ -136,16 +136,34 @@ setInterval(async () => {
   let changedDisk = false;
 
   for (const alarm of alarms) {
-    const userSubs = subsMap[alarm.profileId] || subsMap['default'] || [];
+    let userSubs = subsMap[alarm.profileId] || [];
+    if (userSubs.length === 0 && subsMap['default']) {
+      userSubs = subsMap['default'];
+    }
+    if (userSubs.length === 0) {
+      userSubs = Object.values(subsMap).flat();
+    }
+
+    // Deduplicate subscriptions by endpoint
+    const uniqueSubs = [];
+    const seenEndpoints = new Set();
+    for (const s of userSubs) {
+      if (s && s.endpoint && !seenEndpoints.has(s.endpoint)) {
+        seenEndpoints.add(s.endpoint);
+        uniqueSubs.push(s);
+      }
+    }
+
     const payload = JSON.stringify({
       title: alarm.title,
       body: alarm.body,
       tag: alarm.tag,
       url: alarm.url || '/',
-      icon: '/favicon.svg',
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-192x192.png',
     });
 
-    for (const sub of userSubs) {
+    for (const sub of uniqueSubs) {
       try {
         await webpush.sendNotification(sub, payload);
         console.log(`📡 [Push Dispatched] Sent: "${alarm.title}" to ${sub.endpoint.slice(0, 30)}...`);
@@ -763,7 +781,10 @@ const server = http.createServer(async (req, res) => {
       const profileId = payload.profileId || 'default';
       const delaySeconds = Math.max(1, payload.delaySeconds || 5);
       const subsMap = getSubscriptions();
-      const userSubs = subsMap[profileId] || subsMap['default'] || [];
+      let userSubs = subsMap[profileId] || subsMap['default'] || [];
+      if (userSubs.length === 0) {
+        userSubs = Object.values(subsMap).flat();
+      }
 
       if (userSubs.length === 0) {
         return sendJson(res, 400, {
@@ -778,7 +799,8 @@ const server = http.createServer(async (req, res) => {
           body: 'ما شاء الله! وصلك التنبيه مباشرة من السيرفر وشاشة هاتفك مقفلة والتطبيق مغلق.',
           tag: 'server-lockscreen-test',
           url: '/',
-          icon: '/favicon.svg',
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
         });
 
         for (const sub of userSubs) {

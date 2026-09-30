@@ -652,16 +652,36 @@ export class ServerSyncService {
       const reg = await navigator.serviceWorker.ready;
       let sub = await reg.pushManager.getSubscription();
 
+      const expectedBytes = this.urlB64ToUint8Array(keyData.publicKey);
+
+      if (sub && sub.options.applicationServerKey) {
+        const currentBytes = new Uint8Array(sub.options.applicationServerKey);
+        let match = currentBytes.length === expectedBytes.length;
+        if (match) {
+          for (let i = 0; i < currentBytes.length; i++) {
+            if (currentBytes[i] !== expectedBytes[i]) {
+              match = false;
+              break;
+            }
+          }
+        }
+        if (!match) {
+          console.log('[Web Push] Server VAPID key renewed; re-subscribing device...');
+          await sub.unsubscribe().catch(() => {});
+          sub = null;
+        }
+      }
+
       if (!sub) {
         sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: this.urlB64ToUint8Array(keyData.publicKey) as unknown as BufferSource,
+          applicationServerKey: expectedBytes as unknown as BufferSource,
         });
       }
 
       if (!sub) return false;
 
-      // 3. Register subscription on server
+      // 3. Register subscription on server (ensures server always has fresh active device endpoint)
       await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

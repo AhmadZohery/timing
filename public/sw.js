@@ -79,6 +79,58 @@ async function removeAlarmFromDB(alarmId) {
   } catch {}
 }
 
+const DEFAULT_ICON = '/icons/icon-192x192.png';
+const DEFAULT_BADGE = '/icons/icon-192x192.png';
+
+function getValidIcon(icon) {
+  if (icon && typeof icon === 'string' && !icon.endsWith('.svg')) {
+    return icon;
+  }
+  return DEFAULT_ICON;
+}
+
+let activeLocalTimeouts = [];
+
+function clearLocalTimeouts() {
+  for (const t of activeLocalTimeouts) {
+    clearTimeout(t);
+  }
+  activeLocalTimeouts = [];
+}
+
+function scheduleUpcomingLocalTimeouts(alarms) {
+  clearLocalTimeouts();
+  const now = Date.now();
+  for (const alarm of alarms) {
+    const delay = alarm.timestampMs - now;
+    // Set timers for anything up to 4 hours in the future while SW stays alive
+    if (delay > 0 && delay <= 4 * 60 * 60 * 1000) {
+      const timeoutId = setTimeout(async () => {
+        try {
+          await self.registration.showNotification(alarm.title, {
+            body: alarm.body,
+            icon: getValidIcon(alarm.icon),
+            badge: DEFAULT_BADGE,
+            tag: alarm.tag,
+            renotify: true,
+            requireInteraction: true,
+            vibrate: [500, 200, 500, 200, 500],
+            actions: alarm.actions || [
+              { action: 'mark_done', title: 'تم بحمد الله ✔' },
+              { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
+            ],
+            data: { url: alarm.url || '/', ...alarm.data },
+          });
+          await removeAlarmFromDB(alarm.id);
+        } catch (e) {
+          console.warn('[SW] Timeout notification trigger notice:', e);
+        }
+      }, delay);
+      activeLocalTimeouts.push(timeoutId);
+    }
+  }
+}
+
 // Check and trigger any alarms whose time has arrived
 async function checkDueAlarms() {
   const alarms = await getAlarmsFromDB();
@@ -90,8 +142,8 @@ async function checkDueAlarms() {
       try {
         await self.registration.showNotification(alarm.title, {
           body: alarm.body,
-          icon: alarm.icon || '/favicon.svg',
-          badge: '/favicon.svg',
+          icon: getValidIcon(alarm.icon),
+          badge: DEFAULT_BADGE,
           tag: alarm.tag,
           renotify: true,
           requireInteraction: true,
@@ -223,15 +275,18 @@ self.addEventListener('message', (event) => {
       (async () => {
         await saveAlarmsToDB(data.alarms);
 
-        // If Notification Triggers API is supported by the browser/Android OS
+        // 1. In-memory local timer for nearest alarms within next 4 hours
+        scheduleUpcomingLocalTimeouts(data.alarms);
+
+        // 2. If Notification Triggers API is supported by the browser/Android OS
         if ('showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined') {
           for (const alarm of data.alarms) {
             if (alarm.timestampMs > Date.now()) {
               try {
                 await self.registration.showNotification(alarm.title, {
                   body: alarm.body,
-                  icon: alarm.icon || '/favicon.svg',
-                  badge: '/favicon.svg',
+                  icon: getValidIcon(alarm.icon),
+                  badge: DEFAULT_BADGE,
                   tag: alarm.tag,
                   requireInteraction: true,
                   vibrate: [500, 200, 500, 200, 500],
@@ -264,8 +319,8 @@ self.addEventListener('message', (event) => {
           try {
             await self.registration.showNotification('🔔 تجربة تنبيه الشاشة المقفلة (مِضمار)', {
               body: 'ما شاء الله! التنبيهات تعمل بنجاح وشاشة هاتفك مقفلة وبأعلى أولوية.',
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
+              icon: DEFAULT_ICON,
+              badge: DEFAULT_BADGE,
               tag: 'test-lockscreen-alert',
               requireInteraction: true,
               vibrate: [500, 250, 500, 250, 500],
@@ -281,8 +336,8 @@ self.addEventListener('message', (event) => {
           setTimeout(async () => {
             await self.registration.showNotification('🔔 تجربة تنبيه الشاشة المقفلة (مِضمار)', {
               body: 'ما شاء الله! التنبيهات تعمل بنجاح وشاشة هاتفك مقفلة وبأعلى أولوية.',
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
+              icon: DEFAULT_ICON,
+              badge: DEFAULT_BADGE,
               tag: 'test-lockscreen-alert',
               requireInteraction: true,
               vibrate: [500, 250, 500, 250, 500],
@@ -334,8 +389,8 @@ self.addEventListener('notificationclick', (event) => {
           try {
             await self.registration.showNotification(event.notification.title + ' (تذكير مؤجل)', {
               body: event.notification.body,
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
+              icon: DEFAULT_ICON,
+              badge: DEFAULT_BADGE,
               tag: event.notification.tag + '-snooze',
               requireInteraction: true,
               vibrate: [500, 200, 500],
@@ -348,8 +403,8 @@ self.addEventListener('notificationclick', (event) => {
         setTimeout(async () => {
           await self.registration.showNotification(event.notification.title + ' (تذكير مؤجل)', {
             body: event.notification.body,
-            icon: '/favicon.svg',
-            badge: '/favicon.svg',
+            icon: DEFAULT_ICON,
+            badge: DEFAULT_BADGE,
             tag: event.notification.tag + '-snooze',
             requireInteraction: true,
             vibrate: [500, 200, 500],
@@ -393,8 +448,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: data.icon || '/favicon.svg',
-    badge: '/favicon.svg',
+    icon: getValidIcon(data.icon),
+    badge: DEFAULT_BADGE,
     tag: data.tag || 'midmar-push-' + Date.now(),
     renotify: true,
     requireInteraction: true,
@@ -406,5 +461,10 @@ self.addEventListener('push', (event) => {
     data: { url: data.url || '/' },
   };
 
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    Promise.all([
+      self.registration.showNotification(data.title, options),
+      checkDueAlarms(),
+    ])
+  );
 });
