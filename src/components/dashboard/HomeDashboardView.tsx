@@ -78,6 +78,8 @@ interface HomeDashboardViewProps {
   onOpenArabicPoetry?: () => void;
   onOpenLifeWisdom?: () => void;
   onOpenPanic?: () => void;
+  onOpenCustomDeck?: () => void;
+  onOpenCalendarShield?: () => void;
 }
 
 export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
@@ -98,11 +100,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   onOpenArabicPoetry,
   onOpenLifeWisdom,
   onOpenPanic,
+  onOpenCustomDeck,
+  onOpenCalendarShield,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), [todayLog?.date]);
   const currentHour = now.getHours();
 
   const personaId = userState?.settings?.lifestylePersona || 'builder_exec';
@@ -121,7 +125,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   // Dynamic Daily Wisdom State
   const [wisdomCategory, setWisdomCategory] = useState<string>('all');
   const [isReadMoreWisdomOpen, setIsReadMoreWisdomOpen] = useState(false);
-  const dailyWisdom = useMemo(() => getDailyWisdom(new Date(), wisdomCategory), [wisdomCategory]);
+  const dailyWisdom = useMemo(() => getDailyWisdom(now, wisdomCategory), [now, wisdomCategory]);
 
 
 
@@ -150,8 +154,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const [selectedBentoLevel, setSelectedBentoLevel] = useState<CefrLevel | 'ALL'>('ALL');
   const [speechPlaying, setSpeechPlaying] = useState(false);
 
-  const allHomeLangWords = useMemo(() => {
+  useEffect(() => {
     spacedRepetition.setActiveLanguage(activeLangCode);
+  }, [activeLangCode]);
+
+  const allHomeLangWords = useMemo(() => {
+    void langStats;
     const words = spacedRepetition.getTodayWords();
     if (words && words.length > 0) return words;
     return spacedRepetition.getAllWordsForLanguage(activeLangCode);
@@ -176,6 +184,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   }, [activeLangCode]);
 
   const fluencyProfile = useMemo(() => {
+    void langStats;
     return spacedRepetition.calculateFluencyProfile(activeLangCode);
   }, [activeLangCode, langStats]);
 
@@ -223,8 +232,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const isMorningTime = currentHour >= 3 && currentHour < 15;
   const isTomorrowMonOrThu = currentDayOfWeek === 0 || currentDayOfWeek === 3;
   const isTodayMonOrThu = currentDayOfWeek === 1 || currentDayOfWeek === 4;
-  const todayDateNum = now.getDate();
-  const hijriInfo = useMemo(() => getHijriDateDetails(now), [todayDateNum, now]);
+  const hijriInfo = useMemo(() => getHijriDateDetails(now), [now]);
 
   // Habit Learning & Sports Flexibility Engine
   const [learnedPattern, setLearnedPattern] = useState<LearnedSportPattern | null>(null);
@@ -769,6 +777,34 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         onRewardToast={onRewardToast}
         onOpenSmartTasbih={onOpenSmartTasbih}
       />
+
+      {/* Calendar Prayer Shield Integration (OPP-0104) */}
+      {onOpenCalendarShield && (
+        <div className="flex items-center justify-between p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs">
+          <div className="flex items-center gap-2.5 text-amber-950 dark:text-amber-200 font-medium">
+            <span className="text-lg">🛡️</span>
+            <div>
+              <span className="font-bold block text-xs">
+                {isAr ? 'درع الصلوات ومزامنة التقويم (OPP-0104)' : 'Calendar Prayer Shield (OPP-0104)'}
+              </span>
+              <span className="text-[11px] text-amber-900/80 dark:text-amber-300/80">
+                {isAr ? 'فحص ملفات .ics ومزامنة أوقات الصلوات لمنع تعارض مواعيد العمل' : 'Import .ics calendar to guard prayer buffers against meeting clashes'}
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenCalendarShield();
+            }}
+            className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0 cursor-pointer shadow-2xs transition-all active:scale-95"
+          >
+            {isAr ? 'فحص التعارضات 📅' : 'Scan Clashes 📅'}
+          </button>
+        </div>
+      )}
 
       {/* ============================================================ */}
       {/* 3.2. AI COGNITIVE COPILOT & BEHAVIORAL INTELLIGENCE CARD     */}
@@ -1523,6 +1559,24 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             <span>{isAr ? 'عرض البطاقات والتدريب ←' : 'Flashcards & Moves Lab →'}</span>
           </button>
         </div>
+
+        {/* Custom Decks Import / Export Launcher (OPP-0103) */}
+        {onOpenCustomDeck && (
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenCustomDeck();
+              }}
+              className="w-full py-2.5 px-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold text-xs border border-indigo-200 dark:border-indigo-800/40 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+            >
+              <span>📥</span>
+              <span>{isAr ? 'استيراد حزم وبطاقات مخصصة (CSV / Anki / JSON) ✨' : 'Import Custom Decks & Cards (CSV / Anki / JSON) ✨'}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ============================================================ */}

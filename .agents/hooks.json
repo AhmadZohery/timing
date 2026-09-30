@@ -1,0 +1,14 @@
+{
+  "PreToolUse": [
+    {
+      "matcher": "run_command",
+      "command": "node ./scripts/hooks/pre-command-guard.mjs"
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "write_to_file|replace_file_content",
+      "command": "node ./scripts/hooks/secret-leak-guard.mjs"
+    }
+  ]
+}

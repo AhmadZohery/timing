@@ -346,7 +346,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
     let prevMs = prevPrayer.time.getTime();
     let nextMs = nextPrayer.time.getTime();
-    const nowMs = Date.now();
+    const nowMs = nextMs - (nextP.minutesRemaining * 60 * 1000);
 
     if (nextMs < prevMs) {
       nextMs += 24 * 60 * 60 * 1000;
@@ -364,7 +364,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
       prevName: isAr ? prevPrayer.ar : prevPrayer.en,
       prevKey: prevPrayer.key,
     };
-  }, [pTimes, nextP.name, isAr]);
+  }, [pTimes, nextP.name, nextP.time, nextP.minutesRemaining, isAr]);
 
   // Logical Focus Sprint Opportunity: Sprint until prayer with 5m buffer
   const prayerSprintMinutes = Math.max(5, nextP.minutesRemaining - 5);
@@ -376,7 +376,9 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     handleClose();
     try {
       localStorage.setItem('midmar_prayer_sprint_minutes', String(prayerSprintMinutes));
-    } catch (_) {}
+    } catch {
+      // ignore
+    }
     onSelectStation('WORK_MICRO_SPRINT');
     if (onRewardToast) {
       onRewardToast(
@@ -394,7 +396,9 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     setConfirmedPrayers(updated);
     try {
       localStorage.setItem('midmar_island_confirmed_prayers', JSON.stringify(updated));
-    } catch (_) {}
+    } catch {
+      // ignore
+    }
     if (onRewardToast) {
       onRewardToast(
         isAr

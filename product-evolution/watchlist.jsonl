@@ -1,0 +1,3 @@
+{"id":"WAT-0001","competitor":"Tarteel AI","feature":"Voice Quran Search & Mistake Detection","watch_type":"threat","last_checked":"2026-09-29T18:00:00Z","notes":"Cloud-only API; latency ~400ms. Local WASM approach could deliver <100ms offline."}
+{"id":"WAT-0002","competitor":"TickTick","feature":"Habit & Calendar Unified View","watch_type":"benchmark","last_checked":"2026-09-29T18:00:00Z","notes":"Strong calendar overlay, but lacks circadian rhythms and prayer boundary awareness."}
+{"id":"WAT-0003","competitor":"AnkiDroid / AnkiMobile","feature":"FSRS v5 Algorithm","watch_type":"opportunity","last_checked":"2026-09-29T18:00:00Z","notes":"FSRS is replacing SM-2 across community flashcards due to 20-30% retention efficiency gains."}

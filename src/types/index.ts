@@ -281,6 +281,8 @@ export interface CustomHabit {
   date: string;
   profileId?: string;
   notes?: string;
+  updatedAt?: number;
+  isDeleted?: boolean;
 }
 
 export type TaskPriority = 'high' | 'medium' | 'normal';
@@ -298,6 +300,8 @@ export interface WorkdayTask {
   taskRole?: 'maker' | 'manager';
   reminderTime?: string; // "HH:mm" e.g. "10:30"
   reminderEnabled?: boolean;
+  updatedAt?: number;
+  isDeleted?: boolean;
 }
 
 export type ReminderRecurrence = 'once' | 'daily' | 'weekdays';
@@ -778,5 +782,69 @@ export interface AuthSession {
   email?: string;
   expiresAt: number;
   rememberMe: boolean;
+}
+
+// External Calendar & Prayer Shield (OPP-0104 / SPEC-0104)
+export interface ExternalCalendarEvent {
+  id: string;
+  userId?: string;
+  summary: string;
+  description?: string;
+  startTime: number; // Unix timestamp ms
+  endTime: number; // Unix timestamp ms
+  location?: string;
+  isAllDay: boolean;
+  status: 'CONFIRMED' | 'TENTATIVE' | 'CANCELLED';
+  sourceFeedUrl?: string;
+  updatedAt?: number;
+}
+
+export interface PrayerShieldBuffer {
+  prayerName: string;
+  prayerNameAr: string;
+  prayerTime: Date;
+  bufferStart: Date;
+  bufferEnd: Date;
+  isConflict: boolean;
+  conflictingEvents: ExternalCalendarEvent[];
+}
+
+export interface FocusSlot {
+  start: Date;
+  end: Date;
+  durationMinutes: number;
+}
+
+// Custom Language Decks (OPP-0103 / SPEC-0103)
+export interface CustomDeck {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  sourceLanguage: string;
+  targetLanguage: string;
+  cardCount: number;
+  tags: string[];
+  isBuiltIn: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface CustomVocabularyWord {
+  id: string;
+  deckId: string;
+  userId: string;
+  term: string;
+  translation: string;
+  pronunciation?: string;
+  exampleSentence?: string;
+  exampleTranslation?: string;
+  cefrLevel?: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+  tags?: string[];
+  status?: 'NEW' | 'LEARNING' | 'MASTERED';
+  box?: number;
+  nextReviewDate?: string;
+  createdAt: number;
+  updatedAt: number;
 }
 

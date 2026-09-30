@@ -1,0 +1,4 @@
+{"id":"RISK-0001","description":"Exposed DeepSeek API key abused by external actors","impact":"HIGH","mitigation":"Revoke in provider dashboard and clean client .env files","status":"MITIGATING"}
+{"id":"RISK-0002","description":"Unauthenticated companion server sync endpoints exploited","impact":"CRITICAL","mitigation":"Add Bearer token session authentication middleware to server/index.mjs","status":"MITIGATED"}
+{"id":"RISK-0003","description":"Multi-device sync overwrites newer offline data on device switch","impact":"HIGH","mitigation":"Implement Field-Level Last-Write-Wins with deletion tombstones (OPP-0101)","status":"OPEN"}
+{"id":"RISK-0004","description":"Zero automated test suite risks silent regressions on Dexie schema changes","impact":"HIGH","mitigation":"Install Vitest and add automated test step to GitHub Actions CI","status":"MITIGATED"}

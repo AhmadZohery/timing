@@ -19,6 +19,9 @@ import type {
   TasbihCounterRecord,
   CustomReminderItem,
   StudyCourse,
+  ExternalCalendarEvent,
+  CustomDeck,
+  CustomVocabularyWord,
 } from '../types';
 
 export class LifeOSDatabase extends Dexie {
@@ -42,6 +45,9 @@ export class LifeOSDatabase extends Dexie {
   tasbih_counters!: Table<TasbihCounterRecord, string>;
   custom_reminders!: Table<CustomReminderItem, string>;
   study_courses!: Table<StudyCourse, string>;
+  external_calendar_events!: Table<ExternalCalendarEvent, string>;
+  custom_decks!: Table<CustomDeck, string>;
+  custom_vocabulary_words!: Table<CustomVocabularyWord, string>;
 
   constructor() {
     super('LifeOS_Database');
@@ -155,6 +161,23 @@ export class LifeOSDatabase extends Dexie {
 
     this.version(11).stores({
       study_courses: 'id, title, category, status, startDate, targetEndDate, createdAt',
+    });
+
+    this.version(12).stores({
+      workday_tasks: 'id, date, profileId, completed, [date+completed], [date+profileId], updatedAt, isDeleted',
+      custom_habits: 'id, date, category, recurrence, completed, updatedAt, isDeleted',
+      external_calendar_events: 'id, startTime, endTime, status, updatedAt',
+      custom_decks: 'id, userId, targetLanguage, createdAt, updatedAt',
+      custom_vocabulary_words: 'id, deckId, userId, box, nextReviewDate, createdAt, updatedAt',
+    }).upgrade(async (tx) => {
+      await tx.table('workday_tasks').toCollection().modify((task: any) => {
+        if (task.updatedAt === undefined) task.updatedAt = Date.now();
+        if (task.isDeleted === undefined) task.isDeleted = false;
+      });
+      await tx.table('custom_habits').toCollection().modify((habit: any) => {
+        if (habit.updatedAt === undefined) habit.updatedAt = Date.now();
+        if (habit.isDeleted === undefined) habit.isDeleted = false;
+      });
     });
   }
 }

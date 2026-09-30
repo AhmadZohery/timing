@@ -53,24 +53,54 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+          if (/node_modules[\/\\](react|react-dom)[\/\\]/i.test(id)) {
             return 'vendor-react';
           }
-          if (id.includes('node_modules/framer-motion/')) {
+          if (/node_modules[\/\\]framer-motion[\/\\]/i.test(id)) {
             return 'vendor-motion';
           }
-          if (id.includes('node_modules/lucide-react/')) {
+          if (/node_modules[\/\\]lucide-react[\/\\]/i.test(id)) {
             return 'vendor-icons';
           }
-          if (id.includes('node_modules/dexie/')) {
+          if (/node_modules[\/\\](dexie|dexie-react-hooks)[\/\\]/i.test(id)) {
             return 'vendor-db';
           }
-          if (id.includes('node_modules/recharts/')) {
-            return 'vendor-charts';
+          if (/node_modules[\/\\]canvas-confetti[\/\\]/i.test(id)) {
+            return 'vendor-confetti';
+          }
+          if (/node_modules[\/\\]dompurify[\/\\]/i.test(id)) {
+            return 'vendor-sanitizer';
+          }
+          if (/data[\/\\]languages[\/\\]/i.test(id)) {
+            return 'data-languages';
+          }
+          if (/gymfaithaudio/i.test(id)) {
+            return 'data-audio';
+          }
+          if (/(quransurahdata|dailytadabburdata|surahkahfdata)/i.test(id)) {
+            return 'data-quran';
+          }
+          if (/(arabicpoetrydata|lifewisdomdata)/i.test(id)) {
+            return 'data-cultural';
+          }
+          if (/components[\/\\]stations[\/\\]/i.test(id)) {
+            return 'stations-bundle';
+          }
+          if (/components[\/\\]spiritual[\/\\]/i.test(id)) {
+            return 'spiritual-bundle';
+          }
+          if (/components[\/\\]work[\/\\]/i.test(id)) {
+            return 'work-bundle';
+          }
+          if (/components[\/\\]learning[\/\\]/i.test(id)) {
+            return 'learning-bundle';
+          }
+          if (/components[\/\\]dashboard[\/\\]/i.test(id)) {
+            return 'dashboard-bundle';
           }
         },
       },
     },
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 2000,
   },
 })

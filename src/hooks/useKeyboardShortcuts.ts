@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { StationId } from '../types';
 
 interface ShortcutHandlers {
@@ -23,12 +23,16 @@ const STATION_MAP: Record<string, StationId> = {
 };
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
+  // Use a ref to prevent unnecessary event listener re-binding churn on every render
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Global Command Palette shortcut (Ctrl+K / Cmd+K) works everywhere
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      // Global Command Palette shortcut (Ctrl+K / Cmd+K) works everywhere, layout-agnostic
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'k' || e.code === 'KeyK')) {
         e.preventDefault();
-        handlers.onOpenCommandPalette?.();
+        handlersRef.current.onOpenCommandPalette?.();
         return;
       }
 
@@ -41,49 +45,46 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
         target.isContentEditable
       ) {
         if (e.key === 'Escape') {
-          handlers.onCloseAll();
+          handlersRef.current.onCloseAll();
         }
         return;
       }
 
       if (e.key === 'Escape') {
-        handlers.onCloseAll();
+        handlersRef.current.onCloseAll();
         return;
       }
 
-      // Station navigation 1-6
-      if (STATION_MAP[e.key]) {
+      // Station navigation 1-6 (layout and numpad agnostic)
+      const digitKey = e.key in STATION_MAP ? e.key : e.code.replace(/^(Digit|Numpad)/, '');
+      if (STATION_MAP[digitKey]) {
         e.preventDefault();
-        handlers.onSelectStation(STATION_MAP[e.key]);
+        handlersRef.current.onSelectStation(STATION_MAP[digitKey]);
         return;
       }
 
+      // Layout-agnostic actions matching both English key, Arabic key, and physical key code
       const key = e.key.toLowerCase();
-      switch (key) {
-        case 'p':
-          e.preventDefault();
-          handlers.onOpenPanic();
-          break;
-        case 'b':
-          e.preventDefault();
-          handlers.onOpenBuffer();
-          break;
-        case 'g':
-          e.preventDefault();
-          handlers.onOpenGoals();
-          break;
-        case 'c':
-          e.preventDefault();
-          handlers.onOpenCrm();
-          break;
-        case 's':
-          e.preventDefault();
-          handlers.onOpenSettings();
-          break;
-        case '?':
-          e.preventDefault();
-          handlers.onOpenShortcuts();
-          break;
+      const code = e.code;
+
+      if (key === 'p' || key === 'ح' || code === 'KeyP') {
+        e.preventDefault();
+        handlersRef.current.onOpenPanic();
+      } else if (key === 'b' || key === 'لا' || code === 'KeyB') {
+        e.preventDefault();
+        handlersRef.current.onOpenBuffer();
+      } else if (key === 'g' || key === 'ل' || code === 'KeyG') {
+        e.preventDefault();
+        handlersRef.current.onOpenGoals();
+      } else if (key === 'c' || key === 'ؤ' || code === 'KeyC') {
+        e.preventDefault();
+        handlersRef.current.onOpenCrm();
+      } else if (key === 's' || key === 'س' || code === 'KeyS') {
+        e.preventDefault();
+        handlersRef.current.onOpenSettings();
+      } else if (key === '?' || key === '؟' || (code === 'Slash' && e.shiftKey)) {
+        e.preventDefault();
+        handlersRef.current.onOpenShortcuts();
       }
     };
 
@@ -91,5 +92,5 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handlers]);
+  }, []);
 }

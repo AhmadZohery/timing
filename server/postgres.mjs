@@ -203,6 +203,15 @@ export async function pgCountUsers() {
 
 export async function pgSaveUserSyncData(userId, data, clientTimestamp) {
   if (!isPostgresAvailable) return null;
+  try {
+    await pool.query(
+      `INSERT INTO users (id, username, email, display_name, password_hash, salt)
+       VALUES ($1, $2, $3, $4, '', '')
+       ON CONFLICT (id) DO NOTHING;`,
+      [userId, `user_${userId}`, `${userId}@local.app`, userId]
+    );
+  } catch (_) {}
+
   const query = `
     INSERT INTO user_sync_data (user_id, data, client_timestamp, synced_at)
     VALUES ($1, $2, $3, NOW())
@@ -296,4 +305,18 @@ export async function pgGetPendingAlarms(nowMs) {
 export async function pgMarkAlarmSent(id) {
   if (!isPostgresAvailable) return;
   await pool.query('UPDATE scheduled_alarms SET sent = TRUE, sent_at = NOW() WHERE id = $1', [id]);
+}
+
+export async function pgCancelScheduledAlarm(profileId, tag) {
+  if (!isPostgresAvailable) return;
+  if (profileId) {
+    await pool.query('DELETE FROM scheduled_alarms WHERE profile_id = $1 AND tag = $2', [profileId, tag]);
+  } else {
+    await pool.query('DELETE FROM scheduled_alarms WHERE tag = $1', [tag]);
+  }
+}
+
+export async function pgClearProfileUnsentAlarms(profileId) {
+  if (!isPostgresAvailable) return;
+  await pool.query('DELETE FROM scheduled_alarms WHERE profile_id = $1 AND sent = FALSE', [profileId]);
 }

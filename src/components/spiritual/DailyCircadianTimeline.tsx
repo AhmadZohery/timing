@@ -391,13 +391,13 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
           </div>
         </div>
 
-        {/* High-Contrast Phase Indicators */}
-        <div className="flex justify-between items-center text-[11px] sm:text-xs font-mono font-bold text-slate-600 dark:text-zinc-300 pt-2 px-0.5" dir="rtl">
-          <span className="flex items-center gap-1"><span>🌅 الفجر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">05:00</bdi></span>
-          <span className="flex items-center gap-1"><span>☀️ الظهر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">12:30</bdi></span>
-          <span className="flex items-center gap-1"><span>⚡ العصر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">15:30</bdi></span>
-          <span className="flex items-center gap-1"><span>🌆 المغرب</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">18:30</bdi></span>
-          <span className="flex items-center gap-1"><span>🌌 السَّحَر</span> <bdi dir="ltr" className="text-slate-400 dark:text-zinc-500 font-sans text-[10px]">24:00</bdi></span>
+        {/* High-Contrast Phase Indicators aligned with progression bar */}
+        <div className="flex justify-between items-center text-[11px] sm:text-xs font-mono font-bold text-slate-700 dark:text-zinc-300 pt-2 px-0.5" dir="ltr">
+          <span className="flex items-center gap-1"><span>🌅 الفجر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">05:00</bdi></span>
+          <span className="flex items-center gap-1"><span>☀️ الظهر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">12:30</bdi></span>
+          <span className="flex items-center gap-1"><span>⚡ العصر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">15:30</bdi></span>
+          <span className="flex items-center gap-1"><span>🌆 المغرب</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">18:30</bdi></span>
+          <span className="flex items-center gap-1"><span>🌌 السَّحَر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">24:00</bdi></span>
         </div>
       </div>
 

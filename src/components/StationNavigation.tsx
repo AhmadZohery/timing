@@ -186,7 +186,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
                   onClick={() => handleSelect(id)}
                   aria-label={`Station ${idx + 1}`}
                   title={isAr ? stations[idx]?.titleAr : stations[idx]?.titleEn}
-                  className={`relative h-1.5 rounded-full transition-all cursor-pointer before:absolute before:-inset-3 before:content-[''] ${
+                  className={`relative h-1.5 rounded-full transition-all cursor-pointer before:absolute before:-inset-y-4 before:-inset-x-2.5 before:content-[''] ${
                     isAct
                       ? 'w-7 bg-emerald-600 dark:bg-emerald-400 shadow-2xs'
                       : isComp

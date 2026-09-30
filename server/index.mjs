@@ -1,6 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 import webpush from 'web-push';
@@ -17,9 +18,12 @@ import {
   pgGetUserSyncData,
   pgSavePushSubscription,
   pgGetAllPushSubscriptions,
+  pgDeletePushSubscription,
   pgSaveScheduledAlarm,
   pgGetPendingAlarms,
   pgMarkAlarmSent,
+  pgCancelScheduledAlarm,
+  pgClearProfileUnsentAlarms,
 } from './postgres.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -103,49 +107,78 @@ function saveScheduledAlarms(alarms) {
 
 // Autonomous Background Push Dispatcher (Runs every 15s to deliver alarms even if app is closed)
 setInterval(async () => {
-  const alarms = getScheduledAlarms();
-  if (!alarms || alarms.length === 0) return;
-
   const now = Date.now();
-  const subsMap = getSubscriptions();
-  let changed = false;
+  let alarms = [];
+  let subsMap = {};
 
-  for (const alarm of alarms) {
-    // If alarm is due and not sent yet (window: up to 60 mins past)
-    if (!alarm.sent && now >= alarm.timestampMs && now - alarm.timestampMs <= 60 * 60 * 1000) {
-      const userSubs = subsMap[alarm.profileId] || subsMap['default'] || [];
-      const payload = JSON.stringify({
-        title: alarm.title,
-        body: alarm.body,
-        tag: alarm.tag,
-        url: alarm.url || '/',
-        icon: '/favicon.svg',
-      });
-
-      for (const sub of userSubs) {
-        try {
-          await webpush.sendNotification(sub, payload);
-          console.log(`📡 [Push Dispatched] Sent: "${alarm.title}" to ${sub.endpoint.slice(0, 30)}...`);
-        } catch (err) {
-          if (err.statusCode === 410 || err.statusCode === 404) {
-            // Subscription expired: cleanup
-            subsMap[alarm.profileId] = userSubs.filter((s) => s.endpoint !== sub.endpoint);
-            saveSubscriptions(subsMap);
-          } else {
-            console.warn('[Push Send Error]', err.message);
-          }
-        }
-      }
-
-      alarm.sent = true;
-      alarm.sentAt = new Date().toISOString();
-      changed = true;
+  if (isPgConnected()) {
+    try {
+      alarms = await pgGetPendingAlarms(now);
+      subsMap = await pgGetAllPushSubscriptions();
+    } catch (e) {
+      console.warn('[PostgreSQL Dispatcher Read Error]', e.message);
     }
   }
 
-  // Purge alarms older than 24 hours
-  const filteredAlarms = alarms.filter((a) => !a.sent || now - a.timestampMs < 24 * 60 * 60 * 1000);
-  if (changed || filteredAlarms.length !== alarms.length) {
+  // If not using PG or PG returned no pending alarms, fallback to disk store
+  const diskAlarms = getScheduledAlarms();
+  const diskSubs = getSubscriptions();
+  if (!isPgConnected() || alarms.length === 0) {
+    alarms = diskAlarms.filter((a) => !a.sent && now >= a.timestampMs && now - a.timestampMs <= 60 * 60 * 1000);
+    subsMap = isPgConnected() && Object.keys(subsMap).length > 0 ? subsMap : diskSubs;
+  }
+
+  if (!alarms || alarms.length === 0) return;
+
+  let changedDisk = false;
+
+  for (const alarm of alarms) {
+    const userSubs = subsMap[alarm.profileId] || subsMap['default'] || [];
+    const payload = JSON.stringify({
+      title: alarm.title,
+      body: alarm.body,
+      tag: alarm.tag,
+      url: alarm.url || '/',
+      icon: '/favicon.svg',
+    });
+
+    for (const sub of userSubs) {
+      try {
+        await webpush.sendNotification(sub, payload);
+        console.log(`📡 [Push Dispatched] Sent: "${alarm.title}" to ${sub.endpoint.slice(0, 30)}...`);
+      } catch (err) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          // Subscription expired: cleanup
+          if (isPgConnected()) {
+            await pgDeletePushSubscription(sub.endpoint).catch(() => {});
+          }
+          subsMap[alarm.profileId] = userSubs.filter((s) => s.endpoint !== sub.endpoint);
+          saveSubscriptions(subsMap);
+        } else {
+          console.warn('[Push Send Error]', err.message);
+        }
+      }
+    }
+
+    if (isPgConnected()) {
+      await pgMarkAlarmSent(alarm.id).catch(() => {});
+    }
+
+    const diskItem = diskAlarms.find((a) => a.id === alarm.id);
+    if (diskItem) {
+      diskItem.sent = true;
+      diskItem.sentAt = new Date().toISOString();
+      changedDisk = true;
+    }
+  }
+
+  if (changedDisk) {
+    saveScheduledAlarms(diskAlarms);
+  }
+
+  // Purge disk alarms older than 24 hours
+  const filteredAlarms = diskAlarms.filter((a) => !a.sent || now - a.timestampMs < 24 * 60 * 60 * 1000);
+  if (filteredAlarms.length !== diskAlarms.length) {
     saveScheduledAlarms(filteredAlarms);
   }
 }, 15000);
@@ -215,6 +248,58 @@ function sendJson(res, statusCode, data) {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   });
   res.end(json);
+}
+
+// ----------------------------------------------------------------------------
+// Authentication & Security Guards for Protected Endpoints
+// ----------------------------------------------------------------------------
+const SERVER_API_SECRET = (process.env.SERVER_API_SECRET || process.env.MIDMAR_AUTH_SECRET || '').trim();
+
+// Sliding window IP rate limiter
+const rateLimitMap = new Map();
+function checkRateLimit(ip, limit = 60, windowMs = 60000) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip) || { count: 0, resetAt: now + windowMs };
+  if (now > entry.resetAt) {
+    entry.count = 1;
+    entry.resetAt = now + windowMs;
+  } else {
+    entry.count++;
+  }
+  rateLimitMap.set(ip, entry);
+  return entry.count <= limit;
+}
+
+// Memory leak safeguard: periodic cleanup of expired rate limit entries
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap.entries()) {
+    if (now > entry.resetAt) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 60000);
+
+export function constantTimeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const hashA = crypto.createHash('sha256').update(a).digest();
+  const hashB = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(hashA, hashB);
+}
+
+function verifyRequestAuth(req) {
+  if (SERVER_API_SECRET) {
+    const authHeader = req.headers['authorization'] || '';
+    if (!authHeader.startsWith('Bearer ')) {
+      return { authorized: false, status: 401, error: 'Unauthorized: Missing Bearer token' };
+    }
+    const token = authHeader.slice(7).trim();
+    if (!constantTimeCompare(token, SERVER_API_SECRET)) {
+      return { authorized: false, status: 403, error: 'Forbidden: Invalid authorization token' };
+    }
+    return { authorized: true };
+  }
+  return { authorized: true };
 }
 
 // Native Node HTTP Server
@@ -337,6 +422,10 @@ const server = http.createServer(async (req, res) => {
 
   // 1.2 Login with Username/Email & Password
   if (pathname === '/api/auth/login' && req.method === 'POST') {
+    const clientIp = req.socket?.remoteAddress || 'unknown';
+    if (!checkRateLimit(`login_${clientIp}`, 10, 60000)) {
+      return sendJson(res, 429, { ok: false, error: 'تم تجاوز الحد الأقصى لمحاولات تسجيل الدخول، يرجى الانتظار دقيقة' });
+    }
     try {
       const payload = await parseJsonBody(req);
       const { usernameOrEmail, passwordHash, requestSaltOnly } = payload;
@@ -365,7 +454,11 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { ok: true, salt: user.salt });
       }
 
-      if (passwordHash && user.passwordHash !== passwordHash) {
+      if (!passwordHash || typeof passwordHash !== 'string' || !passwordHash.trim()) {
+        return sendJson(res, 400, { ok: false, error: 'كلمة المرور مطلوبة' });
+      }
+
+      if (!constantTimeCompare(user.passwordHash, passwordHash)) {
         return sendJson(res, 401, { ok: false, error: 'كلمة المرور غير صحيحة' });
       }
 
@@ -382,6 +475,10 @@ const server = http.createServer(async (req, res) => {
 
   // 1.3 Verify PIN for Scoped Account
   if (pathname === '/api/auth/verify-pin' && req.method === 'POST') {
+    const clientIp = req.socket?.remoteAddress || 'unknown';
+    if (!checkRateLimit(`pin_${clientIp}`, 10, 60000)) {
+      return sendJson(res, 429, { ok: false, error: 'تم تجاوز الحد الأقصى لمحاولات إدخال الـ PIN، يرجى الانتظار دقيقة' });
+    }
     try {
       const payload = await parseJsonBody(req);
       const { accountIdOrUsername, pinHash } = payload;
@@ -410,7 +507,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { ok: false, error: 'لم يتم تفعيل رمز الـ PIN لهذا الحساب' });
       }
 
-      if (user.pinHash !== pinHash) {
+      if (!constantTimeCompare(user.pinHash, pinHash)) {
         return sendJson(res, 401, { ok: false, error: 'رمز الـ PIN غير صحيح' });
       }
 
@@ -472,6 +569,14 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { ok: false, error: 'Valid subscription required' });
       }
 
+      if (isPgConnected()) {
+        try {
+          await pgSavePushSubscription(profileId, subscription);
+        } catch (dbErr) {
+          console.warn('[PostgreSQL Push Sub Save Error]:', dbErr.message);
+        }
+      }
+
       const subsMap = getSubscriptions();
       const list = subsMap[profileId] || [];
       // Deduplicate by endpoint
@@ -499,6 +604,14 @@ const server = http.createServer(async (req, res) => {
       const profileId = payload.profileId || 'default';
       const incomingAlarms = Array.isArray(payload.alarms) ? payload.alarms : [];
 
+      if (isPgConnected()) {
+        try {
+          await pgClearProfileUnsentAlarms(profileId);
+        } catch (dbErr) {
+          console.warn('[PostgreSQL Clear Alarms Error]:', dbErr.message);
+        }
+      }
+
       const currentAlarms = getScheduledAlarms();
       // Remove unsent alarms for this profile and re-schedule new ones
       const now = Date.now();
@@ -506,7 +619,7 @@ const server = http.createServer(async (req, res) => {
 
       for (const a of incomingAlarms) {
         if (a.timestampMs > now) {
-          kept.push({
+          const alarmObj = {
             id: a.id,
             profileId,
             title: a.title,
@@ -516,7 +629,16 @@ const server = http.createServer(async (req, res) => {
             url: a.url || '/',
             sent: false,
             scheduledAt: new Date().toISOString(),
-          });
+          };
+          kept.push(alarmObj);
+
+          if (isPgConnected()) {
+            try {
+              await pgSaveScheduledAlarm(alarmObj);
+            } catch (dbErr) {
+              console.warn('[PostgreSQL Scheduled Alarm Save Error]:', dbErr.message);
+            }
+          }
         }
       }
 
@@ -539,6 +661,14 @@ const server = http.createServer(async (req, res) => {
       const profileId = payload.profileId;
 
       if (!tag) return sendJson(res, 400, { ok: false, error: 'Tag required' });
+
+      if (isPgConnected()) {
+        try {
+          await pgCancelScheduledAlarm(profileId, tag);
+        } catch (dbErr) {
+          console.warn('[PostgreSQL Cancel Alarm Error]:', dbErr.message);
+        }
+      }
 
       const currentAlarms = getScheduledAlarms();
       const filtered = currentAlarms.filter((a) => {
@@ -598,6 +728,10 @@ const server = http.createServer(async (req, res) => {
 
   // 7. Sync Push: Save client state to PostgreSQL / disk
   if (pathname === '/api/sync/push' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const profileId = payload.profileId || payload.userId || 'default';
@@ -641,6 +775,10 @@ const server = http.createServer(async (req, res) => {
 
   // 8. Sync Pull: Retrieve saved state from PostgreSQL / disk
   if (pathname === '/api/sync/pull' && req.method === 'GET') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const profileId = url.searchParams.get('profileId') || url.searchParams.get('userId') || 'default';
       const cleanProfileId = profileId.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -681,6 +819,10 @@ const server = http.createServer(async (req, res) => {
 
   // 9. Create Timestamped Backup Snapshot
   if (pathname === '/api/sync/backup' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -701,6 +843,10 @@ const server = http.createServer(async (req, res) => {
 
   // 10. List Stored Backups
   if (pathname === '/api/sync/backups' && req.method === 'GET') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const files = fs.readdirSync(BACKUPS_DIR)
         .filter((f) => f.endsWith('.json'))
@@ -720,8 +866,106 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // 10.1 Retrieve / Restore Stored Backup (Path Traversal Protected)
+  if (pathname.startsWith('/api/sync/backup/') && req.method === 'GET') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
+    try {
+      const rawFilename = pathname.slice('/api/sync/backup/'.length);
+      const safeFilename = path.basename(decodeURIComponent(rawFilename));
+      if (!safeFilename.endsWith('.json')) {
+        return sendJson(res, 400, { ok: false, error: 'نوع الملف غير صالح' });
+      }
+      const targetFile = path.resolve(BACKUPS_DIR, safeFilename);
+      if (!fs.existsSync(targetFile)) {
+        return sendJson(res, 404, { ok: false, error: 'ملف النسخة الاحتياطية غير موجود' });
+      }
+      const content = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
+      return sendJson(res, 200, { ok: true, filename: safeFilename, data: content });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
+  // 10.2 Lightweight Last-Write-Wins (LWW) Delta Sync (OPP-0101 / RFC-0001)
+  if (pathname === '/api/sync/delta' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
+    try {
+      const payload = await parseJsonBody(req);
+      const { clientDeviceId = 'unknown_client', userId = 'default_user', lastSyncTimestamp = 0, changes = {} } = payload;
+      const deltaFile = path.resolve(DATA_DIR, `delta_${userId}.json`);
+
+      let deltaStore = {};
+      if (fs.existsSync(deltaFile)) {
+        try {
+          deltaStore = JSON.parse(fs.readFileSync(deltaFile, 'utf-8'));
+        } catch (_) {
+          deltaStore = {};
+        }
+      }
+
+      const now = Date.now();
+      const serverChanges = {};
+
+      // 1. Process and merge incoming changes (Last-Write-Wins based on updatedAt)
+      for (const [collection, items] of Object.entries(changes)) {
+        if (!Array.isArray(items)) continue;
+        if (!deltaStore[collection]) deltaStore[collection] = {};
+
+        for (const item of items) {
+          if (!item || !item.id) continue;
+          const existing = deltaStore[collection][item.id];
+          const incomingUpdated = Number(item.updatedAt) || now;
+
+          if (!existing || incomingUpdated >= (Number(existing.updatedAt) || 0)) {
+            deltaStore[collection][item.id] = {
+              ...item,
+              updatedAt: incomingUpdated,
+              clientDeviceId,
+            };
+          }
+        }
+      }
+
+      // 2. Identify updates on the server since lastSyncTimestamp that did not originate from this client
+      for (const [collection, itemsMap] of Object.entries(deltaStore)) {
+        const newerItems = Object.values(itemsMap).filter((item) => {
+          const itemUpdated = Number(item.updatedAt) || 0;
+          return itemUpdated > lastSyncTimestamp && item.clientDeviceId !== clientDeviceId;
+        });
+
+        if (newerItems.length > 0) {
+          serverChanges[collection] = newerItems;
+        }
+      }
+
+      fs.writeFileSync(deltaFile, JSON.stringify(deltaStore, null, 2), 'utf-8');
+
+      return sendJson(res, 200, {
+        ok: true,
+        serverSyncTimestamp: now,
+        serverChanges,
+      });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
   // 11. Token-Saving AI Proxy (with server-side LRU Cache & prompt compression)
   if (pathname === '/api/ai/proxy' && req.method === 'POST') {
+    const clientIp = req.socket?.remoteAddress || 'unknown';
+    if (!checkRateLimit(clientIp, 30, 60000)) {
+      return sendJson(res, 429, { ok: false, error: 'تم تجاوز حد الطلبات المسموح به للذكاء الاصطناعي (Rate limit exceeded)' });
+    }
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const userPrompt = (payload.prompt || '').trim();

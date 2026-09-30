@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Opportunity Development Pack Schema",
+  "description": "Standardized schema for Midmar LifeOS PM-07 Opportunity Development Packs (ODPs)",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "status",
+    "horizon",
+    "category",
+    "risk_tier",
+    "authority_level",
+    "problem_statement",
+    "evidence_base",
+    "evidence_against",
+    "alternatives_considered",
+    "impact_scoring",
+    "why_now_rationale"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^OPP-[0-9]{4}$",
+      "description": "Unique opportunity identifier, e.g., OPP-0101"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Descriptive, high-signal title of the opportunity"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DISCOVERY",
+        "PROPOSED",
+        "IN_SHAPING",
+        "REVIEW",
+        "APPROVED",
+        "SCHEDULED",
+        "DEFERRED",
+        "REJECTED",
+        "IMPLEMENTED"
+      ]
+    },
+    "horizon": {
+      "type": "string",
+      "enum": [
+        "H1_CORE",
+        "H2_GROWTH",
+        "H3_EXPLORATORY"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "PRODUCTIVITY",
+        "SPIRITUAL",
+        "LANGUAGE",
+        "ARCHITECTURE",
+        "FOUNDATION"
+      ]
+    },
+    "risk_tier": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "authority_level": {
+      "type": "string",
+      "enum": ["L1", "L2", "L3", "L4", "L5"]
+    },
+    "problem_statement": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Specific articulation of user friction, market void, or architectural limitation"
+    },
+    "target_persona": {
+      "type": "string",
+      "description": "Target user segment or role benefiting directly from this opportunity"
+    },
+    "evidence_base": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Empirical data, user feedback, or benchmarks justifying the initiative"
+    },
+    "evidence_against": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Mandatory counter-evidence, risks, trade-offs, and reasons not to proceed"
+    },
+    "alternatives_considered": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "rationale", "reason_rejected"],
+        "properties": {
+          "name": { "type": "string" },
+          "rationale": { "type": "string" },
+          "reason_rejected": { "type": "string" }
+        }
+      }
+    },
+    "impact_scoring": {
+      "type": "object",
+      "required": [
+        "strategic_value",
+        "user_reach",
+        "implementation_effort",
+        "technical_risk",
+        "score"
+      ],
+      "properties": {
+        "strategic_value": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "user_reach": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "implementation_effort": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "technical_risk": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "score": { "type": "number", "minimum": 0 }
+      }
+    },
+    "why_now_rationale": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Mandatory defense of temporal urgency. Why build this now rather than later?"
+    },
+    "art_director_assessment": {
+      "type": "object",
+      "properties": {
+        "approved": { "type": "boolean" },
+        "reviewer": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "security_assessment": {
+      "type": "object",
+      "properties": {
+        "approved": { "type": "boolean" },
+        "reviewer": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "system_architect_assessment": {
+      "type": "object",
+      "properties": {
+        "approved": { "type": "boolean" },
+        "reviewer": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "owner_decision": {
+      "type": "object",
+      "required": ["decision"],
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["APPROVED", "DEFERRED", "REJECTED", "PENDING"]
+        },
+        "decided_by": { "type": "string" },
+        "decided_at": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

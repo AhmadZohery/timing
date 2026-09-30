@@ -13,6 +13,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
   if (!isOpen) return null;
 
   const shortcuts = [
+    { keys: ['Ctrl', '+', 'K'], label: isRTL ? 'لوحة الأوامر والبحث السريع' : 'Quick Command Palette' },
     { keys: ['1', '–', '6'], label: t('shortcut_station_1_6') },
     { keys: ['P'], label: t('shortcut_panic') },
     { keys: ['B'], label: t('shortcut_buffer') },
@@ -24,7 +25,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in transition-colors" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-title">
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm cursor-pointer"
@@ -44,7 +45,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ 
             <Command className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
+            <h3 id="shortcuts-modal-title" className="text-base font-bold text-slate-900 dark:text-zinc-100">
               {t('shortcuts_modal_title')}
             </h3>
             <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">

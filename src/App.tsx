@@ -19,6 +19,7 @@ import { GymAnchorView } from './components/stations/GymAnchorView';
 import { EveningSprintView } from './components/stations/EveningSprintView';
 import { RetrospectiveCheckinView } from './components/stations/RetrospectiveCheckinView';
 import { GrandRewardView } from './components/stations/GrandRewardView';
+import { PositiveFrictionView } from './components/stations/PositiveFrictionView';
 
 // Non-modal core components
 import { TwoMinuteRuleCard } from './components/common/TwoMinuteRuleCard';
@@ -74,6 +75,8 @@ const DailyTadabburModal = lazy(() => import('./components/modals/DailyTadabburM
 const FaithAudioSanctuaryModal = lazy(() => import('./components/spiritual/FaithAudioSanctuaryModal').then((m) => ({ default: m.FaithAudioSanctuaryModal })));
 const NiyyahSanctuaryModal = lazy(() => import('./components/spiritual/NiyyahSanctuaryModal').then((m) => ({ default: m.NiyyahSanctuaryModal })));
 const QuickReminderModal = lazy(() => import('./components/modals/QuickReminderModal').then((m) => ({ default: m.QuickReminderModal })));
+const CustomDeckModal = lazy(() => import('./components/modals/CustomDeckModal').then((m) => ({ default: m.CustomDeckModal })));
+const CalendarPrayerShieldModal = lazy(() => import('./components/modals/CalendarPrayerShieldModal').then((m) => ({ default: m.CalendarPrayerShieldModal })));
 
 // Active Station Persistence across page refreshes
 const ALL_STATIONS: StationId[] = [
@@ -237,6 +240,8 @@ export function App() {
     }
     return false;
   });
+  const [isCustomDeckModalOpen, setIsCustomDeckModalOpen] = useState(false);
+  const [isCalendarShieldModalOpen, setIsCalendarShieldModalOpen] = useState(false);
 
   const handleOpenNiyyah = (pillar: NiyyahPillar = 'livelihood') => {
     setNiyyahInitialPillar(pillar);
@@ -317,6 +322,13 @@ export function App() {
       setIsSmartTasbihOpen(false);
       setIsDailyPrideTicketOpen(false);
       setIsTadabburModalOpen(false);
+      setIsFaithAudioModalOpen(false);
+      setIsArabicPoetryOpen(false);
+      setIsLifeWisdomOpen(false);
+      setIsNiyyahModalOpen(false);
+      setIsQuickReminderOpen(false);
+      setIsCustomDeckModalOpen(false);
+      setIsCalendarShieldModalOpen(false);
     },
   });
 
@@ -484,13 +496,15 @@ export function App() {
       'HOME',
       'COMMUTE_MORNING',
       'WORK_MICRO_SPRINT',
+      'ONE_SEC_FRICTION',
+      'SOCIAL_MEDIA_BREAK',
       'GYM_ANCHOR',
       'EVENING_SPRINT',
       'RETROSPECTIVE_CHECKIN',
       'GRAND_REWARD_STATE',
     ];
     const currentIndex = order.indexOf(current);
-    if (currentIndex < order.length - 1) {
+    if (currentIndex >= 0 && currentIndex < order.length - 1) {
       const next = order[currentIndex + 1];
       setActiveStation(next);
       if (userState) {
@@ -504,6 +518,8 @@ export function App() {
       'HOME',
       'COMMUTE_MORNING',
       'WORK_MICRO_SPRINT',
+      'ONE_SEC_FRICTION',
+      'SOCIAL_MEDIA_BREAK',
       'GYM_ANCHOR',
       'EVENING_SPRINT',
       'RETROSPECTIVE_CHECKIN',
@@ -654,7 +670,7 @@ export function App() {
       )}
 
       {/* Main Content Area: Full-Width Responsive Workspace */}
-      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} ${hasAudioTrack ? 'pb-36 lg:pb-10' : 'pb-24 lg:pb-8'} transition-all duration-300 space-y-4`}>
+      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} ${hasAudioTrack ? 'pb-52 lg:pb-10' : 'pb-24 lg:pb-8'} transition-all duration-300 space-y-4`}>
         {activeStation === 'HOME' ? (
           <>
             {/* Interactive User-Gesture Notification Permission Banner (Home Dashboard Only) */}
@@ -685,6 +701,8 @@ export function App() {
               onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
               onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
               onOpenPanic={() => setIsPanicModalOpen(true)}
+              onOpenCustomDeck={() => setIsCustomDeckModalOpen(true)}
+              onOpenCalendarShield={() => setIsCalendarShieldModalOpen(true)}
             />
         </>
       ) : (
@@ -750,6 +768,20 @@ export function App() {
                     setTimeout(() => setRewardToast(null), 3500);
                   }}
                   onOpenNiyyahModal={handleOpenNiyyah}
+                />
+              )}
+
+              {(activeStation === 'ONE_SEC_FRICTION' || activeStation === 'SOCIAL_MEDIA_BREAK') && (
+                <PositiveFrictionView
+                  stationId={activeStation}
+                  onNextStation={() => handleNextStationFrom(activeStation)}
+                  onReturnHome={() => setActiveStation('HOME')}
+                  onOpenZeroInertia={() => setIsPanicModalOpen(true)}
+                  userState={userState}
+                  onRewardToast={(msg) => {
+                    setRewardToast(msg);
+                    setTimeout(() => setRewardToast(null), 3500);
+                  }}
                 />
               )}
 
@@ -1211,6 +1243,26 @@ export function App() {
         initialPillar={niyyahInitialPillar}
         onRewardToast={(msg) => {
           setRewardToast(msg);
+          setTimeout(() => setRewardToast(null), 3500);
+        }}
+      />
+
+      {/* Dynamic CEFR Custom Deck & Anki/CSV/JSON Importer Modal (OPP-0103) */}
+      <CustomDeckModal
+        isOpen={isCustomDeckModalOpen}
+        onClose={() => setIsCustomDeckModalOpen(false)}
+        onImportComplete={(count) => {
+          setRewardToast(`تم استيراد ${count} بطاقة بنجاح إلى بنك المفردات! ✨`);
+          setTimeout(() => setRewardToast(null), 3500);
+        }}
+      />
+
+      {/* Zero-Cloud Calendar Prayer Shield & Meeting Conflict Guard (OPP-0104) */}
+      <CalendarPrayerShieldModal
+        isOpen={isCalendarShieldModalOpen}
+        onClose={() => setIsCalendarShieldModalOpen(false)}
+        onEventsImported={(count) => {
+          setRewardToast(`تمت حماية مواعيدك ومزامنة ${count} موعد في درع الصلوات 🛡️`);
           setTimeout(() => setRewardToast(null), 3500);
         }}
       />

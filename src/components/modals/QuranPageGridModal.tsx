@@ -1,8 +1,9 @@
-import React from 'react';
-import { X, BookOpen, CheckCircle, Plus } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, BookOpen, CheckCircle, Plus, Mic, MicOff, Volume2 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
+import { RecitationCadenceDetector, type VadState } from '../../utils/audioVAD';
 
 interface QuranPageGridModalProps {
   isOpen: boolean;
@@ -23,6 +24,69 @@ export const QuranPageGridModal: React.FC<QuranPageGridModalProps> = ({
 }) => {
   const { language, isRTL } = useTranslation();
   const isAr = language === 'ar';
+
+  const [isCadenceListening, setIsCadenceListening] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [vadState, setVadState] = useState<VadState>('idle');
+  const [cadenceStatusMsg, setCadenceStatusMsg] = useState('');
+  const detectorRef = useRef<RecitationCadenceDetector | null>(null);
+
+  // Stop detector on unmount or modal close
+  useEffect(() => {
+    return () => {
+      if (detectorRef.current) {
+        detectorRef.current.stop();
+        detectorRef.current = null;
+      }
+    };
+  }, [isOpen]);
+
+  const toggleCadenceDetection = async () => {
+    if (isCadenceListening) {
+      if (detectorRef.current) {
+        detectorRef.current.stop();
+        detectorRef.current = null;
+      }
+      setIsCadenceListening(false);
+      setAudioLevel(0);
+      setVadState('idle');
+      setCadenceStatusMsg('');
+      return;
+    }
+
+    if (!RecitationCadenceDetector.isSupported()) {
+      alert(isAr ? 'المتصفح لا يدعم الوصول للميكروفون أو Web Audio' : 'Microphone or Web Audio not supported in this browser.');
+      return;
+    }
+
+    const detector = new RecitationCadenceDetector({
+      pauseDurationMs: 1400,
+      speechThreshold: 0.035,
+    });
+    detectorRef.current = detector;
+
+    const started = await detector.start({
+      onBreathPause: () => {
+        soundSynth.playCompletionChime();
+        haptic.vibrateLight();
+        setCadenceStatusMsg(isAr ? '✨ رصد سكتة ترتيل/نفس - انتقال تلقائي' : '✨ Breath pause detected - Auto page bump');
+        onSelectPage(Math.min(totalPages, currentPage + 1));
+        setTimeout(() => setCadenceStatusMsg(''), 2500);
+      },
+      onAudioLevel: (lvl, st) => {
+        setAudioLevel(lvl);
+        setVadState(st);
+      },
+    });
+
+    if (started) {
+      setIsCadenceListening(true);
+      soundSynth.playTactileClick();
+      haptic.vibrateLight();
+    } else {
+      detectorRef.current = null;
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -81,6 +145,80 @@ export const QuranPageGridModal: React.FC<QuranPageGridModalProps> = ({
             <Plus className="w-3.5 h-3.5" />
             <span>{isAr ? '+1 صفحة تالية' : '+1 Next Page'}</span>
           </button>
+        </div>
+
+        {/* OPP-0102: Smart Recitation Breath & Cadence Tracker */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className={`p-1.5 rounded-lg ${isCadenceListening ? 'bg-emerald-500/20 text-emerald-600 animate-pulse' : 'bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400'}`}>
+                {isCadenceListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+              </span>
+              <div>
+                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                  <span>{isAr ? 'المساعد الصوتي لترتيل الورد' : 'Voice Recitation Cadence Helper'}</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-mono">
+                    OPP-0102
+                  </span>
+                </span>
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 block">
+                  {isAr
+                    ? 'تقليب الصفحات تلقائياً عند السكتات والتنفس (معالجة لحظية بالذاكرة دون حفظ أي صوت)'
+                    : 'Auto-advances page upon breath pauses (100% in-memory / zero audio persisted)'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={toggleCadenceDetection}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs ${
+                isCadenceListening
+                  ? 'bg-rose-600 hover:bg-rose-500 text-white'
+                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              }`}
+            >
+              {isCadenceListening ? (
+                <>
+                  <MicOff className="w-3.5 h-3.5" />
+                  <span>{isAr ? 'إيقاف الميكروفون' : 'Stop'}</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-3.5 h-3.5" />
+                  <span>{isAr ? 'تفعيل المساعد 🎙️' : 'Start Mic 🎙️'}</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Real-time Visualizer Meter */}
+          {isCadenceListening && (
+            <div className="pt-1.5 border-t border-slate-200 dark:border-zinc-800/80 space-y-1.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-slate-600 dark:text-zinc-400 flex items-center gap-1">
+                  <Volume2 className="w-3 h-3 text-emerald-500" />
+                  <span>
+                    {vadState === 'speaking'
+                      ? (isAr ? 'ترتيل نشط... 📖' : 'Reciting active...')
+                      : vadState === 'paused'
+                      ? (isAr ? 'سكتة تنفس / رصد الوقف... ⏳' : 'Breath pause...')
+                      : (isAr ? 'في انتظار البدء بالتلاوة...' : 'Listening for recitation...')}
+                  </span>
+                </span>
+                {cadenceStatusMsg && (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold animate-bounce">
+                    {cadenceStatusMsg}
+                  </span>
+                )}
+              </div>
+              <div className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-75 rounded-full"
+                  style={{ width: `${Math.min(100, Math.max(8, audioLevel * 100))}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 48-Page Grid */}

@@ -229,6 +229,15 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
       const newCount = surfedCount + 1;
       setSurfedCount(newCount);
       localStorage.setItem('midmar_urge_count', String(newCount));
+      try {
+        db.daily_logs.get(effectiveToday).then((log) => {
+          if (log) {
+            db.daily_logs.update(effectiveToday, {
+              urgeSurfsCount: (log.urgeSurfsCount || 0) + 1,
+            });
+          }
+        });
+      } catch (_) {}
     }
     return () => clearTimeout(timer);
   }, [isUrgeSurfing, urgeSeconds, surfedCount]);

@@ -267,7 +267,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
                       : 'bg-slate-800/40 border-slate-700/40 hover:border-indigo-500/50 hover:bg-slate-800/70'
                   }`}
                 >
-                  <p className="flex-1 select-text leading-relaxed">
+                  <p className="flex-1 select-text font-quran leading-[2.4] text-base md:text-lg">
                     {v.text}
                   </p>
                   <div className="shrink-0 flex items-center gap-1.5 mt-1">

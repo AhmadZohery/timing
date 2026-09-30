@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
-import { useTranslation } from '../../i18n/LanguageContext';
 
 interface SwipeableStationContainerProps {
   activeStation: StationId;
@@ -18,7 +17,6 @@ export const SwipeableStationContainer: React.FC<SwipeableStationContainerProps>
   onPrevStation,
   children,
 }) => {
-  const { isRTL } = useTranslation();
   const [isTouchDevice, setIsTouchDevice] = React.useState(false);
 
   React.useEffect(() => {
@@ -51,12 +49,11 @@ export const SwipeableStationContainer: React.FC<SwipeableStationContainerProps>
     const x = info.offset.x;
     const vx = info.velocity.x;
 
-    // In RTL:
-    // Dragging left (negative x) means moving forward -> Next Station
-    // Dragging right (positive x) means moving backward -> Prev Station
-    // In LTR: reverse
-    const isForward = isRTL ? (x < -swipeThreshold || vx < -velocityThreshold) : (x > swipeThreshold || vx > velocityThreshold);
-    const isBackward = isRTL ? (x > swipeThreshold || vx > velocityThreshold) : (x < -swipeThreshold || vx < -velocityThreshold);
+    // In horizontal carousel swiping:
+    // Swiping left (negative x / velocity) moves forward to next station
+    // Swiping right (positive x / velocity) moves backward to previous station
+    const isForward = x < -swipeThreshold || vx < -velocityThreshold;
+    const isBackward = x > swipeThreshold || vx > velocityThreshold;
 
     if (isForward) {
       soundSynth.playTactileClick();
@@ -70,7 +67,7 @@ export const SwipeableStationContainer: React.FC<SwipeableStationContainerProps>
   };
 
   return (
-    <div className="relative w-full overflow-hidden touch-pan-y" data-no-swipe="true">
+    <div className="relative w-full overflow-hidden touch-pan-y">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={activeStation}

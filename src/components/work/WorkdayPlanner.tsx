@@ -36,6 +36,9 @@ import { getTodayWorkRhythm, DOMAIN_PRESETS, DEFAULT_WORK_RHYTHM_CONFIG } from '
 import { recordDailyCourseProgress } from '../../utils/courseStudyEngine';
 import { calculatePrayerTimes, getNextPrayer } from '../../utils/prayerCalculator';
 import { autonomousNotificationScheduler } from '../../services/autonomousNotificationScheduler';
+function generatePresetTaskId(): string {
+  return `wt_preset_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+}
 
 interface WorkdayPlannerProps {
   todayDate: string;
@@ -143,7 +146,16 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
   // Worker Timer for drift-free precision
   const timer = useWorkerTimer();
-  const [isBreakPhase, setIsBreakPhase] = useState(false);
+  const [isBreakPhase, setIsBreakPhase] = useState<boolean>(() => {
+    try {
+      const savedRaw = localStorage.getItem('midmar_active_focus_target');
+      if (savedRaw && savedRaw.startsWith('{')) {
+        const parsed = JSON.parse(savedRaw);
+        return !!parsed.isBreak;
+      }
+    } catch {}
+    return false;
+  });
 
   // Dopamine Sanctuary (محراب الاحتجاب) & 5-Second Friction Vault
   const [isSanctuaryOpen, setIsSanctuaryOpen] = useState(false);
@@ -250,7 +262,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     await db.workday_tasks.add({
-      id: `wt_preset_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      id: generatePresetTaskId(),
       title,
       estimatedMinutes: durationMin,
       actualMinutes: 0,
@@ -291,18 +303,26 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
   // Urge wave countdown
   useEffect(() => {
-    let interval: any;
-    if (isUrgeOpen && urgeSeconds > 0) {
-      interval = setInterval(() => {
-        setUrgeSeconds((prev) => prev - 1);
-      }, 1000);
-    } else if (isUrgeOpen && urgeSeconds === 0) {
-      soundSynth.playCompletionChime();
-      haptic.vibrateSprintCelebration();
-      const next = surfedCount + 1;
-      setSurfedCount(next);
-      localStorage.setItem('midmar_urge_count', String(next));
-    }
+    if (!isUrgeOpen || urgeSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setUrgeSeconds((prev) => {
+        if (prev <= 1) {
+          soundSynth.playCompletionChime();
+          haptic.vibrateSprintCelebration();
+          setSurfedCount((sc) => {
+            const next = sc + 1;
+            try {
+              localStorage.setItem('midmar_urge_count', String(next));
+            } catch {
+              // ignore
+            }
+            return next;
+          });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
     return () => clearInterval(interval);
   }, [isUrgeOpen, urgeSeconds]);
 
@@ -323,7 +343,6 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
         const remainingSec = Math.round((targetMs - Date.now()) / 1000);
         if (remainingSec > 5) {
-          setIsBreakPhase(isBreak);
           timer.startTimer(remainingSec, () => {
             if (isBreak) {
               soundSynth.playGymRestChime();
@@ -340,7 +359,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
           localStorage.removeItem('midmar_active_focus_target');
         }
       }
-    } catch (_) {}
+    } catch {}
   }, []);
 
   const handleStartWork = () => {

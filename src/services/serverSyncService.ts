@@ -11,6 +11,18 @@ export interface ServerSyncStatus {
 }
 
 const LAST_SYNC_KEY = 'midmar_server_last_synced_at';
+const LAST_DELTA_SYNC_KEY = 'midmar_server_last_delta_sync_ts';
+const DEVICE_ID_KEY = 'midmar_client_device_id';
+
+export function getOrCreateDeviceId(): string {
+  if (typeof localStorage === 'undefined') return 'device_ephemeral';
+  let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+  if (!deviceId) {
+    deviceId = `dev_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`;
+    localStorage.setItem(DEVICE_ID_KEY, deviceId);
+  }
+  return deviceId;
+}
 
 export class ServerSyncService {
   private isOnline = false;
@@ -18,12 +30,14 @@ export class ServerSyncService {
   private syncInProgress = false;
   private listeners: Set<(status: ServerSyncStatus) => void> = new Set();
   private checkInterval: any = null;
+  private onlineHandler: (() => void) | null = null;
 
   constructor() {
     this.checkServerAvailability();
     // Check every 60s
     if (typeof window !== 'undefined') {
-      window.addEventListener('online', () => this.checkServerAvailability());
+      this.onlineHandler = () => this.checkServerAvailability();
+      window.addEventListener('online', this.onlineHandler);
       this.checkInterval = setInterval(() => this.checkServerAvailability(), 60000);
     }
   }
@@ -32,6 +46,10 @@ export class ServerSyncService {
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
       this.checkInterval = null;
+    }
+    if (typeof window !== 'undefined' && this.onlineHandler) {
+      window.removeEventListener('online', this.onlineHandler);
+      this.onlineHandler = null;
     }
   }
 
@@ -89,6 +107,17 @@ export class ServerSyncService {
     return false;
   }
 
+  private getAuthHeaders(): Record<string, string> {
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('midmar_server_sync_token') : null;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token.trim()}`;
+    }
+    return headers;
+  }
+
   /**
    * Push all key client data (Courses, Logs, Tasks, Goals) to server storage.
    */
@@ -123,6 +152,17 @@ export class ServerSyncService {
         tasbihCounters,
         customReminders,
         bufferQueue,
+        quranProgress,
+        bookProgress,
+        leads,
+        templates,
+        customRewards,
+        redeemedRewards,
+        matchLogs,
+        authAccounts,
+        externalCalendarEvents,
+        customDecks,
+        customVocabularyWords,
       ] = await Promise.all([
         db.study_courses.toArray(),
         db.daily_logs.toArray(),
@@ -135,6 +175,17 @@ export class ServerSyncService {
         db.tasbih_counters.toArray(),
         db.custom_reminders.toArray(),
         db.buffer_queue.toArray(),
+        db.quran_progress.toArray(),
+        db.book_progress.toArray(),
+        db.leads.toArray(),
+        db.templates.toArray(),
+        db.custom_rewards.toArray(),
+        db.redeemed_rewards.toArray(),
+        db.match_logs.toArray(),
+        db.auth_accounts.toArray(),
+        db.external_calendar_events.toArray(),
+        db.custom_decks.toArray(),
+        db.custom_vocabulary_words.toArray(),
       ]);
 
       const payload = {
@@ -152,13 +203,25 @@ export class ServerSyncService {
           tasbihCounters,
           customReminders,
           bufferQueue,
+          quranProgress,
+          bookProgress,
+          leads,
+          templates,
+          customRewards,
+          redeemedRewards,
+          matchLogs,
+          authAccounts,
+          externalCalendarEvents,
+          customDecks,
+          customVocabularyWords,
           userSettings: userState?.settings,
+          fullUserState: userState,
         },
       };
 
       const res = await fetch('/api/sync/push', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(payload),
       });
 
@@ -172,12 +235,158 @@ export class ServerSyncService {
 
       return {
         success: true,
-        message: 'تمت مزامنة وحفظ جميع الجداول والبيانات بنجاح في قاعدة بيانات بوستجري المركزية ☁️',
+        message: 'تمت مزامنة وحفظ جميع الجداول الـ 23 والبيانات بنجاح في قاعدة بيانات بوستجري المركزية ☁️',
         syncedAt,
       };
     } catch (err: any) {
       console.warn('Sync push to server failed:', err);
       return { success: false, message: `تعذرت المزامنة: ${err.message || 'خطأ في الاتصال'}` };
+    } finally {
+      this.syncInProgress = false;
+      this.notify();
+    }
+  }
+
+  /**
+   * Lightweight Last-Write-Wins (LWW) Delta Sync (OPP-0101 / RFC-0001)
+   * Only transmits modified items since lastSyncTimestamp.
+   */
+  async syncDelta(): Promise<{
+    success: boolean;
+    message: string;
+    countPushed?: number;
+    countPulled?: number;
+    serverSyncTimestamp?: number;
+  }> {
+    if (!this.isOnline) {
+      const isReachable = await this.checkServerAvailability();
+      if (!isReachable) {
+        return { success: false, message: 'السيرفر غير متصل حالياً' };
+      }
+    }
+
+    if (this.syncInProgress) {
+      return { success: false, message: 'مزامنة أخرى جارية حالياً...' };
+    }
+
+    this.syncInProgress = true;
+    this.notify();
+
+    try {
+      const deviceId = getOrCreateDeviceId();
+      const userState = await db.user_state.get('current_user');
+      const profileId = userState?.activeProfileId || 'profile_default';
+      const lastSyncTimestamp = Number(localStorage.getItem(LAST_DELTA_SYNC_KEY)) || 0;
+
+      // Query only records updated after lastSyncTimestamp
+      const [
+        allTasks,
+        allHabits,
+        allCalendarEvents,
+        allDecks,
+        allWords,
+        allCourses,
+        allGoals,
+      ] = await Promise.all([
+        db.workday_tasks.toArray(),
+        db.custom_habits.toArray(),
+        db.external_calendar_events.toArray(),
+        db.custom_decks.toArray(),
+        db.custom_vocabulary_words.toArray(),
+        db.study_courses.toArray(),
+        db.goals.toArray(),
+      ]);
+
+      const changedTasks = allTasks.filter((t: any) => (t.updatedAt || 0) > lastSyncTimestamp);
+      const changedHabits = allHabits.filter((h: any) => (h.updatedAt || 0) > lastSyncTimestamp);
+      const changedEvents = allCalendarEvents.filter((e: any) => (e.updatedAt || 0) > lastSyncTimestamp);
+      const changedDecks = allDecks.filter((d: any) => (d.updatedAt || 0) > lastSyncTimestamp);
+      const changedWords = allWords.filter((w: any) => (w.updatedAt || 0) > lastSyncTimestamp);
+      const changedCourses = allCourses.filter((c: any) => (c.updatedAt || 0) > lastSyncTimestamp);
+      const changedGoals = allGoals.filter((g: any) => (g.updatedAt || 0) > lastSyncTimestamp);
+
+      const countPushed =
+        changedTasks.length +
+        changedHabits.length +
+        changedEvents.length +
+        changedDecks.length +
+        changedWords.length +
+        changedCourses.length +
+        changedGoals.length;
+
+      const payload = {
+        clientDeviceId: deviceId,
+        userId: profileId,
+        lastSyncTimestamp,
+        changes: {
+          workday_tasks: changedTasks,
+          custom_habits: changedHabits,
+          external_calendar_events: changedEvents,
+          custom_decks: changedDecks,
+          custom_vocabulary_words: changedWords,
+          study_courses: changedCourses,
+          goals: changedGoals,
+        },
+      };
+
+      const res = await fetch('/api/sync/delta', {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server returned HTTP ${res.status}`);
+      }
+
+      const resData = await res.json();
+      const serverChanges = resData.serverChanges || {};
+      let countPulled = 0;
+
+      // Apply server updates with Last-Write-Wins (LWW)
+      if (Array.isArray(serverChanges.workday_tasks) && serverChanges.workday_tasks.length > 0) {
+        await db.workday_tasks.bulkPut(serverChanges.workday_tasks);
+        countPulled += serverChanges.workday_tasks.length;
+      }
+      if (Array.isArray(serverChanges.custom_habits) && serverChanges.custom_habits.length > 0) {
+        await db.custom_habits.bulkPut(serverChanges.custom_habits);
+        countPulled += serverChanges.custom_habits.length;
+      }
+      if (Array.isArray(serverChanges.external_calendar_events) && serverChanges.external_calendar_events.length > 0) {
+        await db.external_calendar_events.bulkPut(serverChanges.external_calendar_events);
+        countPulled += serverChanges.external_calendar_events.length;
+      }
+      if (Array.isArray(serverChanges.custom_decks) && serverChanges.custom_decks.length > 0) {
+        await db.custom_decks.bulkPut(serverChanges.custom_decks);
+        countPulled += serverChanges.custom_decks.length;
+      }
+      if (Array.isArray(serverChanges.custom_vocabulary_words) && serverChanges.custom_vocabulary_words.length > 0) {
+        await db.custom_vocabulary_words.bulkPut(serverChanges.custom_vocabulary_words);
+        countPulled += serverChanges.custom_vocabulary_words.length;
+      }
+      if (Array.isArray(serverChanges.study_courses) && serverChanges.study_courses.length > 0) {
+        await db.study_courses.bulkPut(serverChanges.study_courses);
+        countPulled += serverChanges.study_courses.length;
+      }
+      if (Array.isArray(serverChanges.goals) && serverChanges.goals.length > 0) {
+        await db.goals.bulkPut(serverChanges.goals);
+        countPulled += serverChanges.goals.length;
+      }
+
+      const newSyncTimestamp = resData.serverSyncTimestamp || Date.now();
+      localStorage.setItem(LAST_DELTA_SYNC_KEY, String(newSyncTimestamp));
+      localStorage.setItem(LAST_SYNC_KEY, new Date(newSyncTimestamp).toISOString());
+
+      return {
+        success: true,
+        message: `تمت المزامنة الفورية بنجاح (تم إرسال ${countPushed}، واستقبال ${countPulled}) ✨`,
+        countPushed,
+        countPulled,
+        serverSyncTimestamp: newSyncTimestamp,
+      };
+    } catch (err: any) {
+      console.warn('Delta sync failed:', err);
+      return { success: false, message: `تعذرت المزامنة الفورية: ${err.message || 'خطأ'}` };
     } finally {
       this.syncInProgress = false;
       this.notify();
@@ -199,7 +408,9 @@ export class ServerSyncService {
       const userState = await db.user_state.get('current_user');
       const profileId = userState?.activeProfileId || 'profile_default';
 
-      const res = await fetch(`/api/sync/pull?profileId=${encodeURIComponent(profileId)}`);
+      const res = await fetch(`/api/sync/pull?profileId=${encodeURIComponent(profileId)}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!res.ok) {
         if (res.status === 404) {
           return { success: false, message: 'لا توجد بيانات محفوظة مسبقاً لهذا الحساب على السيرفر.' };
@@ -280,6 +491,71 @@ export class ServerSyncService {
         count += data.bufferQueue.length;
       }
 
+      // Restore quran progress
+      if (Array.isArray(data.quranProgress) && data.quranProgress.length > 0) {
+        await db.quran_progress.bulkPut(data.quranProgress);
+        count += data.quranProgress.length;
+      }
+
+      // Restore book progress
+      if (Array.isArray(data.bookProgress) && data.bookProgress.length > 0) {
+        await db.book_progress.bulkPut(data.bookProgress);
+        count += data.bookProgress.length;
+      }
+
+      // Restore CRM leads
+      if (Array.isArray(data.leads) && data.leads.length > 0) {
+        await db.leads.bulkPut(data.leads);
+        count += data.leads.length;
+      }
+
+      // Restore templates
+      if (Array.isArray(data.templates) && data.templates.length > 0) {
+        await db.templates.bulkPut(data.templates);
+        count += data.templates.length;
+      }
+
+      // Restore custom rewards
+      if (Array.isArray(data.customRewards) && data.customRewards.length > 0) {
+        await db.custom_rewards.bulkPut(data.customRewards);
+        count += data.customRewards.length;
+      }
+
+      // Restore redeemed rewards
+      if (Array.isArray(data.redeemedRewards) && data.redeemedRewards.length > 0) {
+        await db.redeemed_rewards.bulkPut(data.redeemedRewards);
+        count += data.redeemedRewards.length;
+      }
+
+      // Restore match logs
+      if (Array.isArray(data.matchLogs) && data.matchLogs.length > 0) {
+        await db.match_logs.bulkPut(data.matchLogs);
+        count += data.matchLogs.length;
+      }
+
+      // Restore external calendar events
+      if (Array.isArray(data.externalCalendarEvents) && data.externalCalendarEvents.length > 0) {
+        await db.external_calendar_events.bulkPut(data.externalCalendarEvents);
+        count += data.externalCalendarEvents.length;
+      }
+
+      // Restore custom decks
+      if (Array.isArray(data.customDecks) && data.customDecks.length > 0) {
+        await db.custom_decks.bulkPut(data.customDecks);
+        count += data.customDecks.length;
+      }
+
+      // Restore custom vocabulary words
+      if (Array.isArray(data.customVocabularyWords) && data.customVocabularyWords.length > 0) {
+        await db.custom_vocabulary_words.bulkPut(data.customVocabularyWords);
+        count += data.customVocabularyWords.length;
+      }
+
+      // Restore full user state
+      if (data.fullUserState && typeof data.fullUserState === 'object') {
+        await db.user_state.put(data.fullUserState);
+      }
+
       const syncedAt = record.syncedAt || new Date().toISOString();
       localStorage.setItem(LAST_SYNC_KEY, syncedAt);
       this.notify();
@@ -308,7 +584,7 @@ export class ServerSyncService {
     try {
       const res = await fetch('/api/ai/proxy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.getAuthHeaders(),
         body: JSON.stringify({ prompt, systemPrompt, maxTokens }),
       });
 

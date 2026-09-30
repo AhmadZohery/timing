@@ -6,6 +6,7 @@ import type {
   AiOnboardingBlueprint,
 } from '../types';
 import { db } from '../db/db';
+import { serverSync } from './serverSyncService';
 
 export interface CoachingContext {
   profileName?: string;
@@ -242,6 +243,18 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
       }
     }
 
+    // Try companion server token-saving AI proxy (Zero-Secret Client architecture)
+    try {
+      const serverProxyRes = await serverSync.callServerAiProxy(
+        userMessage,
+        this.buildSystemPrompt(context),
+        600
+      );
+      if (serverProxyRes?.text) {
+        return serverProxyRes.text.trim();
+      }
+    } catch (_) {}
+
     // Fallback: Smart Offline Rule-Based Cognitive Heuristic Engine
     return this.getOfflineHeuristicResponse(userMessage, context);
   }
@@ -251,10 +264,7 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
    */
   async deconstructTask(taskTitle: string, context: CoachingContext): Promise<DeconstructedStep[]> {
     const config = await this.getConfig();
-
-    if (config?.enabled && config.apiKey) {
-      try {
-        const prompt = `المستخدم يجد صعوبة ومقاومة نفسية في بدء هذه المهمة: "${taskTitle}".
+    const taskPrompt = `المستخدم يجد صعوبة ومقاومة نفسية في بدء هذه المهمة: "${taskTitle}".
 مستوى طاقة المستخدم حالياً: ${context.energyLevel || 'متوسط'}.
 قم بتفكيك هذه المهمة فوراً إلى 3 خطوات مجهرية ذرية متسلسلة (Micro-steps)، كل خطوة تستغرق من 3 إلى 10 دقائق فقط وتكون واضحة ومحددة للغاية وتناسب طاقته الحالية دون أي إرهاق ذهني.
 أرجع النتيجة بصيغة JSON حصراً بهذا التنسيق وبدون أي نص خارجي:
@@ -264,6 +274,8 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
   {"title": "اسم الخطوة الثالثة لإنهاء المسودة", "durationMin": 5}
 ]`;
 
+    if (config?.enabled && config.apiKey) {
+      try {
         if (config.provider === 'gemini') {
           const model = config.model || 'gemini-2.0-flash';
           const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${config.apiKey.trim()}`;
@@ -312,7 +324,7 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
               model,
               messages: [
                 { role: 'system', content: 'You are an agile micro-sprint task planner. Respond with a valid JSON array only.' },
-                { role: 'user', content: prompt }
+                { role: 'user', content: taskPrompt }
               ],
               temperature: 0.2,
             }),
@@ -336,6 +348,26 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
         console.warn('Failed to deconstruct via AI API, using heuristic breakdown', err);
       }
     }
+
+    // Try companion server token-saving AI proxy
+    try {
+      const serverProxyRes = await serverSync.callServerAiProxy(
+        taskPrompt,
+        'You are an agile micro-sprint task planner. Respond with a valid JSON array only, with objects containing "title" (string) and "durationMin" (number). No markdown or extra text.',
+        300
+      );
+      if (serverProxyRes?.text) {
+        const rawText = serverProxyRes.text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(rawText);
+        if (Array.isArray(parsed) && parsed.length >= 2) {
+          return parsed.map((item: any) => ({
+            title: String(item.title || ''),
+            durationMin: Number(item.durationMin) || 5,
+            completed: false,
+          }));
+        }
+      }
+    } catch (_) {}
 
     // Heuristic Fallback Breakdown
     return [
