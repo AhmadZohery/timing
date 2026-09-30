@@ -26,6 +26,7 @@ import {
   pgClearProfileUnsentAlarms,
   pgUpdateUserPin,
   pgUpdateUserProfile,
+  pgSetUserOnboardingCompleted,
 } from './postgres.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -365,7 +366,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/auth/register' && req.method === 'POST') {
     try {
       const payload = await parseJsonBody(req);
-      const { id, username, email, displayName, passwordHash, salt, pinHash, role } = payload;
+      const { id, username, email, displayName, passwordHash, salt, pinHash, role, onboardingCompleted } = payload;
 
       if (!username || !passwordHash || !salt) {
         return sendJson(res, 400, { ok: false, error: 'بيانات التسجيل غير مكتملة' });
@@ -391,6 +392,7 @@ const server = http.createServer(async (req, res) => {
           salt,
           pinHash: pinHash || null,
           role: role || 'user',
+          onboardingCompleted: Boolean(onboardingCompleted),
         });
         return sendJson(res, 201, { ok: true, user, storage: 'postgresql' });
       } else {
@@ -411,6 +413,7 @@ const server = http.createServer(async (req, res) => {
           salt,
           pinHash: pinHash || null,
           role: role || 'user',
+          onboardingCompleted: Boolean(onboardingCompleted),
           createdAt: new Date().toISOString(),
         };
         users.push(user);
@@ -469,6 +472,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       const { passwordHash: _, ...safeUser } = user;
+      safeUser.onboardingCompleted = Boolean(user.onboardingCompleted ?? user.onboarding_completed);
       return sendJson(res, 200, { ok: true, user: safeUser, storage: isPgConnected() ? 'postgresql' : 'file' });
     } catch (err) {
       return sendJson(res, 500, { ok: false, error: err.message });
@@ -582,17 +586,21 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  // 1.6 Update User Profile (DisplayName, Username, Email)
+  // 1.6 Update User Profile (DisplayName, Username, Email, OnboardingCompleted)
   if (pathname === '/api/auth/update-profile' && req.method === 'POST') {
     try {
       const payload = await parseBody(req);
-      const { accountId, displayName, username, email } = payload;
-      if (!accountId || !username) {
-        return sendJson(res, 400, { ok: false, error: 'البيانات غير مكتملة' });
+      const { accountId, displayName, username, email, onboardingCompleted } = payload;
+      if (!accountId) {
+        return sendJson(res, 400, { ok: false, error: 'معرف الحساب مطلوب' });
       }
 
       if (isPgConnected()) {
-        await pgUpdateUserProfile(accountId, displayName || username, username, email || '');
+        if (onboardingCompleted !== undefined && !username) {
+          await pgSetUserOnboardingCompleted(accountId, onboardingCompleted);
+        } else {
+          await pgUpdateUserProfile(accountId, displayName || username || '', username || '', email || '', onboardingCompleted);
+        }
       } else {
         const usersFile = path.resolve(DATA_DIR, 'users.json');
         if (fs.existsSync(usersFile)) {
@@ -600,9 +608,10 @@ const server = http.createServer(async (req, res) => {
             const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
             const user = users.find((u) => u.id === accountId);
             if (user) {
-              user.displayName = displayName || username;
-              user.username = username.toLowerCase().trim();
+              if (displayName) user.displayName = displayName;
+              if (username) user.username = username.toLowerCase().trim();
               if (email) user.email = email.toLowerCase().trim();
+              if (onboardingCompleted !== undefined) user.onboardingCompleted = Boolean(onboardingCompleted);
               fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
             }
           } catch (_) {}

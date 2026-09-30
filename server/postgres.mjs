@@ -63,6 +63,9 @@ export async function initPostgres() {
           last_login_at TIMESTAMP WITH TIME ZONE
         );
 
+        -- Add onboarding_completed column if not exists
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE;
+
         -- Index for fast lookup by username or email
         CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -135,14 +138,14 @@ export function isPgConnected() {
 // User Operations
 // ----------------------------------------------------------------------------
 
-export async function pgCreateUser({ id, username, email, displayName, passwordHash, salt, pinHash, role = 'user' }) {
+export async function pgCreateUser({ id, username, email, displayName, passwordHash, salt, pinHash, role = 'user', onboardingCompleted = false }) {
   if (!isPostgresAvailable) return null;
   const query = `
-    INSERT INTO users (id, username, email, display_name, password_hash, salt, pin_hash, role)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    RETURNING id, username, email, display_name AS "displayName", pin_hash AS "pinHash", role, created_at AS "createdAt";
+    INSERT INTO users (id, username, email, display_name, password_hash, salt, pin_hash, role, onboarding_completed)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    RETURNING id, username, email, display_name AS "displayName", pin_hash AS "pinHash", role, created_at AS "createdAt", onboarding_completed AS "onboardingCompleted";
   `;
-  const res = await pool.query(query, [id, username.toLowerCase(), email.toLowerCase(), displayName, passwordHash, salt, pinHash, role]);
+  const res = await pool.query(query, [id, username.toLowerCase(), email.toLowerCase(), displayName, passwordHash, salt, pinHash, role, Boolean(onboardingCompleted)]);
   return res.rows[0];
 }
 
@@ -151,7 +154,8 @@ export async function pgFindUserByIdentifier(identifier) {
   const clean = identifier.toLowerCase().trim();
   const query = `
     SELECT id, username, email, display_name AS "displayName", password_hash AS "passwordHash",
-           salt, pin_hash AS "pinHash", role, created_at AS "createdAt", last_login_at AS "lastLoginAt"
+           salt, pin_hash AS "pinHash", role, created_at AS "createdAt", last_login_at AS "lastLoginAt",
+           COALESCE(onboarding_completed, FALSE) AS "onboardingCompleted"
     FROM users
     WHERE username = $1 OR email = $1
     LIMIT 1;
@@ -164,7 +168,8 @@ export async function pgFindUserById(id) {
   if (!isPostgresAvailable) return null;
   const query = `
     SELECT id, username, email, display_name AS "displayName", password_hash AS "passwordHash",
-           salt, pin_hash AS "pinHash", role, created_at AS "createdAt", last_login_at AS "lastLoginAt"
+           salt, pin_hash AS "pinHash", role, created_at AS "createdAt", last_login_at AS "lastLoginAt",
+           COALESCE(onboarding_completed, FALSE) AS "onboardingCompleted"
     FROM users
     WHERE id = $1
     LIMIT 1;
@@ -178,7 +183,8 @@ export async function pgListUsers() {
   const query = `
     SELECT id, username, email, display_name AS "displayName", role, 
            (pin_hash IS NOT NULL) AS "hasPin",
-           last_login_at AS "lastLoginAt"
+           last_login_at AS "lastLoginAt",
+           COALESCE(onboarding_completed, FALSE) AS "onboardingCompleted"
     FROM users
     ORDER BY created_at ASC;
   `;
@@ -196,12 +202,24 @@ export async function pgUpdateUserPin(id, pinHash) {
   await pool.query('UPDATE users SET pin_hash = $1, updated_at = NOW() WHERE id = $2', [pinHash, id]);
 }
 
-export async function pgUpdateUserProfile(id, displayName, username, email) {
+export async function pgUpdateUserProfile(id, displayName, username, email, onboardingCompleted) {
   if (!isPostgresAvailable) return;
-  await pool.query(
-    'UPDATE users SET display_name = $1, username = $2, email = $3, updated_at = NOW() WHERE id = $4',
-    [displayName, username.toLowerCase(), email ? email.toLowerCase() : '', id]
-  );
+  if (onboardingCompleted !== undefined) {
+    await pool.query(
+      'UPDATE users SET display_name = $1, username = $2, email = $3, onboarding_completed = $4, updated_at = NOW() WHERE id = $5',
+      [displayName, username.toLowerCase(), email ? email.toLowerCase() : '', Boolean(onboardingCompleted), id]
+    );
+  } else {
+    await pool.query(
+      'UPDATE users SET display_name = $1, username = $2, email = $3, updated_at = NOW() WHERE id = $4',
+      [displayName, username.toLowerCase(), email ? email.toLowerCase() : '', id]
+    );
+  }
+}
+
+export async function pgSetUserOnboardingCompleted(id, completed = true) {
+  if (!isPostgresAvailable) return;
+  await pool.query('UPDATE users SET onboarding_completed = $1, updated_at = NOW() WHERE id = $2', [Boolean(completed), id]);
 }
 
 export async function pgCountUsers() {

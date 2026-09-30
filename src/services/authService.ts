@@ -334,6 +334,40 @@ class AuthService {
       await db.auth_accounts.add(account);
       this.setLastActiveAccountId(account.id);
 
+      // Create matching user profile & update user state
+      const profileId = `profile_${account.id}`;
+      try {
+        await db.profiles.put({
+          id: profileId,
+          name: cleanName,
+          roleTemplate: 'software_engineer',
+          email: cleanEmail,
+          isDefault: true,
+          onboardingCompleted: false,
+          createdAt: new Date().toISOString(),
+          avatarEmoji: '⚡',
+        });
+        // Also update default profile if present for fallback resilience
+        const defProfile = await db.profiles.get('profile_default');
+        if (defProfile) {
+          await db.profiles.update('profile_default', {
+            name: cleanName,
+            email: cleanEmail || defProfile.email,
+            onboardingCompleted: false,
+          });
+        }
+        const userState = await db.user_state.get('current_user');
+        if (userState) {
+          await db.user_state.update('current_user', { activeProfileId: profileId });
+        }
+      } catch {}
+
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem('midmar_onboarding_wizard_seen');
+        }
+      } catch {}
+
       // Create initial active session
       this.createSession(account, true);
       return { success: true };
@@ -405,17 +439,29 @@ class AuthService {
       await db.auth_accounts.add(account);
       this.setLastActiveAccountId(account.id);
 
-      // Create matching user profile
+      // Create matching user profile & update user state
       const newProfileId = `profile_${account.id}`;
       try {
-        await db.profiles.add({
+        await db.profiles.put({
           id: newProfileId,
           name: cleanName,
           roleTemplate: 'software_engineer',
           email: cleanEmail,
           isDefault: isFirst,
+          onboardingCompleted: false,
           createdAt: new Date().toISOString(),
+          avatarEmoji: '⚡',
         });
+        const userState = await db.user_state.get('current_user');
+        if (userState) {
+          await db.user_state.update('current_user', { activeProfileId: newProfileId });
+        }
+      } catch {}
+
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem('midmar_onboarding_wizard_seen');
+        }
       } catch {}
 
       // Create active session
@@ -480,6 +526,29 @@ class AuthService {
               };
               await db.auth_accounts.put(account);
               this.setLastActiveAccountId(account.id);
+
+              // Ensure matching profile is stored in local IndexedDB
+              const profileId = `profile_${account.id}`;
+              const isCompleted = Boolean(remoteUser.onboardingCompleted);
+              await db.profiles.put({
+                id: profileId,
+                name: remoteUser.displayName,
+                email: remoteUser.email || '',
+                roleTemplate: 'software_engineer',
+                isDefault: remoteUser.role === 'owner',
+                onboardingCompleted: isCompleted,
+                createdAt: remoteUser.createdAt || new Date().toISOString(),
+                avatarEmoji: '⚡',
+              });
+
+              const userState = await db.user_state.get('current_user');
+              if (userState) {
+                await db.user_state.update('current_user', { activeProfileId: profileId });
+              }
+
+              if (isCompleted && typeof localStorage !== 'undefined') {
+                localStorage.setItem('midmar_onboarding_wizard_seen', 'true');
+              }
             } else if (!loginRes.ok) {
               return { success: false, error: loginData.error || 'اسم المستخدم أو كلمة المرور غير صحيحة' };
             }
@@ -502,6 +571,25 @@ class AuthService {
       });
       this.resetPinAttempts(account.id);
       this.setLastActiveAccountId(account.id);
+
+      // Ensure active profile exists and user_state points to it
+      const profileId = `profile_${account.id}`;
+      const existingProfile = await db.profiles.get(profileId);
+      if (!existingProfile) {
+        await db.profiles.put({
+          id: profileId,
+          name: account.displayName,
+          email: account.email || '',
+          roleTemplate: 'software_engineer',
+          isDefault: Boolean(account.isOwner),
+          createdAt: account.createdAt,
+          avatarEmoji: '⚡',
+        });
+      }
+      const userState = await db.user_state.get('current_user');
+      if (userState && userState.activeProfileId !== profileId) {
+        await db.user_state.update('current_user', { activeProfileId: profileId });
+      }
 
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem(EXPLICIT_LOCKED_KEY);
@@ -620,6 +708,25 @@ class AuthService {
         lastLoginAt: new Date().toISOString(),
       });
       this.setLastActiveAccountId(targetAccount.id);
+
+      // Ensure active profile exists and user_state points to it
+      const profileId = `profile_${targetAccount.id}`;
+      const existingProfile = await db.profiles.get(profileId);
+      if (!existingProfile) {
+        await db.profiles.put({
+          id: profileId,
+          name: targetAccount.displayName,
+          email: targetAccount.email || '',
+          roleTemplate: 'software_engineer',
+          isDefault: Boolean(targetAccount.isOwner),
+          createdAt: targetAccount.createdAt,
+          avatarEmoji: '⚡',
+        });
+      }
+      const userState = await db.user_state.get('current_user');
+      if (userState && userState.activeProfileId !== profileId) {
+        await db.user_state.update('current_user', { activeProfileId: profileId });
+      }
 
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem(EXPLICIT_LOCKED_KEY);
@@ -978,6 +1085,7 @@ class AuthService {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            accountId: session.userId,
             userId: session.userId,
             displayName: cleanName,
             username: cleanUser || session.username,
@@ -990,6 +1098,24 @@ class AuthService {
     } catch (err: any) {
       return { success: false, error: err?.message || 'فشل تحديث البيانات' };
     }
+  }
+
+  /**
+   * Synchronize onboarding wizard completion to the central server
+   */
+  public async syncOnboardingCompleted(accountId: string, completed = true): Promise<void> {
+    if (typeof window === 'undefined') return;
+    try {
+      await fetch('/api/auth/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountId,
+          userId: accountId,
+          onboardingCompleted: completed,
+        }),
+      });
+    } catch {}
   }
 }
 

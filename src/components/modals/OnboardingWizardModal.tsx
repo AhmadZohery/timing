@@ -36,6 +36,7 @@ import {
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { aiCoach } from '../../services/aiCoachService';
+import { authService } from '../../services/authService';
 
 interface OnboardingWizardModalProps {
   isOpen: boolean;
@@ -65,8 +66,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
 }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
-  // Step 1: Identity & Domain
-  const [name, setName] = useState(activeProfile?.name || 'أحمد');
+  // Step 1: Identity & Domain (No hardcoded fallback name)
+  const [name, setName] = useState(activeProfile?.name || '');
   const [avatarEmoji, setAvatarEmoji] = useState(activeProfile?.avatarEmoji || '⚡');
   const [domain, setDomain] = useState<ProfessionDomain>(
     activeProfile?.professionDomain || 'software_dev'
@@ -77,6 +78,22 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
       ? activeProfile.coreInterests
       : ['برمجة وتطوير', 'تلاوة وتدبر القرآن', 'المحافظة على صلاة الفجر', 'العمل العميق (Deep Work)']
   );
+
+  // Synchronize state if activeProfile loads asynchronously
+  useEffect(() => {
+    if (activeProfile?.name && !name) {
+      setName(activeProfile.name);
+    }
+    if (activeProfile?.avatarEmoji) {
+      setAvatarEmoji(activeProfile.avatarEmoji);
+    }
+    if (activeProfile?.professionDomain) {
+      setDomain(activeProfile.professionDomain);
+    }
+    if (activeProfile?.customRoleTitle) {
+      setCustomRoleTitle(activeProfile.customRoleTitle);
+    }
+  }, [activeProfile]);
 
   // Step 2: Lifestyle & Core Struggle
   const [wakePattern, setWakePattern] = useState<'early_bird' | 'night_owl' | 'flexible'>('early_bird');
@@ -222,24 +239,35 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   const handleFinish = async () => {
     try {
       const profileId = activeProfile?.id || 'profile_default';
-      await db.profiles.update(profileId, {
+      await db.profiles.put({
+        id: profileId,
         name: name.trim() || 'صاحب الهمة',
         avatarEmoji,
+        roleTemplate: activeProfile?.roleTemplate || 'software_engineer',
         professionDomain: domain,
         customRoleTitle: customRoleTitle.trim() || undefined,
         coreInterests: interests,
         onboardingCompleted: true,
+        isDefault: activeProfile?.isDefault ?? true,
+        createdAt: activeProfile?.createdAt || new Date().toISOString(),
       });
+
+      // Synchronize onboarding completion to remote server if authenticated
+      const currentSession = authService.getSession();
+      if (currentSession?.userId) {
+        authService.syncOnboardingCompleted(currentSession.userId, true);
+      }
 
       // Apply blueprint settings if generated
       if (generatedBlueprint) {
         await aiCoach.applyAiBlueprint(generatedBlueprint);
       }
 
-      // Save work rhythm config to user state
+      // Save work rhythm config & activeProfileId to user state
       const user = await db.user_state.get('current_user');
       if (user) {
         await db.user_state.update('current_user', {
+          activeProfileId: profileId,
           settings: {
             ...user.settings,
             workRhythmConfig: {
@@ -314,7 +342,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 animate-fade-in">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/75 backdrop-blur-sm cursor-pointer"
@@ -325,16 +353,16 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         }}
       />
       <div
-        className="relative z-10 w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[94vh] text-slate-900 dark:text-white"
+        className="relative z-10 w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[96dvh] sm:h-auto sm:max-h-[90vh] text-slate-900 dark:text-white"
         dir="rtl"
       >
         {/* Mobile Pull Handle */}
-        <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
+        <div className="w-full flex justify-center pt-2.5 pb-1 sm:hidden">
           <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full" />
         </div>
 
         {/* Header & Steps Progress Bar */}
-        <div className="px-6 pt-4 pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div className="px-4 sm:px-6 pt-3 sm:pt-4 pb-2.5 sm:pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="p-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
@@ -357,8 +385,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
           </div>
         </div>
 
-        {/* Step Contents */}
-        <div className="px-6 py-5 overflow-y-auto space-y-6 flex-1 scrollbar-thin">
+        {/* Step Contents - scrollable with min-h-0 constraint for mobile */}
+        <div className="px-3.5 sm:px-6 py-3.5 sm:py-5 overflow-y-auto min-h-0 space-y-5 sm:space-y-6 flex-1 scrollbar-thin">
           {/* STEP 1: Name, Avatar & Domain */}
           {step === 1 && (
             <div className="space-y-5 animate-fade-in">
@@ -508,47 +536,53 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   ١. نمط استيقاظك ونومك المعتاد:
                 </label>
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                   <button
                     type="button"
                     onClick={() => setWakePattern('early_bird')}
-                    className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer flex sm:flex-col items-center gap-2.5 sm:gap-1 text-right sm:text-center ${
                       wakePattern === 'early_bird'
                         ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 ring-2 ring-amber-400'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
-                    <Sun className="w-5 h-5 mx-auto mb-1 text-amber-500" />
-                    <span className="font-black block">طائر مبكر 🌅</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">أفضل طاقتي فجراً وصباحاً</span>
+                    <Sun className="w-5 h-5 shrink-0 text-amber-500" />
+                    <div>
+                      <span className="font-black block text-xs">طائر مبكر 🌅</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">أفضل طاقتي فجراً وصباحاً</span>
+                    </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setWakePattern('night_owl')}
-                    className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer flex sm:flex-col items-center gap-2.5 sm:gap-1 text-right sm:text-center ${
                       wakePattern === 'night_owl'
                         ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200 ring-2 ring-indigo-400'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
-                    <Moon className="w-5 h-5 mx-auto mb-1 text-indigo-500" />
-                    <span className="font-black block">مسائي / ليلي 🌙</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">يزداد تركيزي في هدوء الليل</span>
+                    <Moon className="w-5 h-5 shrink-0 text-indigo-500" />
+                    <div>
+                      <span className="font-black block text-xs">مسائي / ليلي 🌙</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">يزداد تركيزي في هدوء الليل</span>
+                    </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setWakePattern('flexible')}
-                    className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-2xl border transition-all cursor-pointer flex sm:flex-col items-center gap-2.5 sm:gap-1 text-right sm:text-center ${
                       wakePattern === 'flexible'
                         ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-400'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800'
+                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}
                   >
-                    <Zap className="w-5 h-5 mx-auto mb-1 text-emerald-500" />
-                    <span className="font-black block">مرن / متقلب ⚡</span>
-                    <span className="text-[10px] text-slate-500 block mt-0.5">حسب ظروف العمل والدراسة</span>
+                    <Zap className="w-5 h-5 shrink-0 text-emerald-500" />
+                    <div>
+                      <span className="font-black block text-xs">مرن / متقلب ⚡</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">حسب ظروف العمل والدراسة</span>
+                    </div>
                   </button>
                 </div>
               </div>
@@ -953,7 +987,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         </div>
 
         {/* Footer Navigation Buttons */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-3.5 sm:px-6 py-3 sm:py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 sm:gap-3 shrink-0">
           {step > 1 ? (
             <button
               type="button"
@@ -961,7 +995,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                 soundSynth.playTactileClick();
                 setStep((s) => (s - 1) as any);
               }}
-              className="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <ArrowRight className="w-4 h-4" />
               <span>السابق</span>
@@ -978,7 +1012,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                 haptic.vibrateLight();
                 setStep((s) => (s + 1) as any);
               }}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
             >
               <span>التالي</span>
               <ArrowLeft className="w-4 h-4" />
@@ -987,9 +1021,9 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
             <button
               type="button"
               onClick={handleFinish}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition-all cursor-pointer active:scale-95"
+              className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-emerald-600/30 transition-all cursor-pointer active:scale-95 text-center"
             >
-              <Check className="w-4 h-4" />
+              <Check className="w-4 h-4 shrink-0" />
               <span>اعتماد وتفعيل النظام الذكي الآن 🚀</span>
             </button>
           )}

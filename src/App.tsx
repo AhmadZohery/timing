@@ -22,6 +22,7 @@ import { GrandRewardView } from './components/stations/GrandRewardView';
 import { PositiveFrictionView } from './components/stations/PositiveFrictionView';
 
 // Non-modal core components
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { TwoMinuteRuleCard } from './components/common/TwoMinuteRuleCard';
 import { systemHeartbeat } from './services/systemHeartbeatCoordinator';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -684,30 +685,37 @@ export function App() {
                 setTimeout(() => setRewardToast(null), 3500);
               }}
             />
-            <HomeDashboardView
-              userState={userState}
-              todayLog={todayLog}
-              allDailyLogs={allDailyLogs}
-              activeProfile={activeProfile}
-              onSelectStation={(st) => setActiveStation(st)}
-              onOpenSmartTasbih={handleOpenSmartTasbih}
-              onOpenSleepRest={() => setIsSleepRestModalOpen(true)}
-              onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
-              onOpenLocationModal={() => setIsPrayerLocationModalOpen(true)}
-              onRewardToast={(msg) => {
-                setRewardToast(msg);
-                setTimeout(() => setRewardToast(null), 3500);
+            <ErrorBoundary
+              fallbackTitle={language === 'ar' ? 'تنبيه مؤقت في لوحة المؤشرات الرئيسية' : 'Temporary alert in Home Dashboard'}
+              onReset={() => {
+                if (typeof window !== 'undefined') window.location.reload();
               }}
-              onOpenTadabburModal={handleOpenTadabburModal}
-              completedStations={completedStations}
-              onOpenLifestyleModal={() => setIsLifestyleModalOpen(true)}
-              onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
-              onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
-              onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
-              onOpenPanic={() => setIsPanicModalOpen(true)}
-              onOpenCustomDeck={() => setIsCustomDeckModalOpen(true)}
-              onOpenCalendarShield={() => setIsCalendarShieldModalOpen(true)}
-            />
+            >
+              <HomeDashboardView
+                userState={userState}
+                todayLog={todayLog}
+                allDailyLogs={allDailyLogs}
+                activeProfile={activeProfile}
+                onSelectStation={(st) => setActiveStation(st)}
+                onOpenSmartTasbih={handleOpenSmartTasbih}
+                onOpenSleepRest={() => setIsSleepRestModalOpen(true)}
+                onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
+                onOpenLocationModal={() => setIsPrayerLocationModalOpen(true)}
+                onRewardToast={(msg) => {
+                  setRewardToast(msg);
+                  setTimeout(() => setRewardToast(null), 3500);
+                }}
+                onOpenTadabburModal={handleOpenTadabburModal}
+                completedStations={completedStations}
+                onOpenLifestyleModal={() => setIsLifestyleModalOpen(true)}
+                onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
+                onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
+                onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
+                onOpenPanic={() => setIsPanicModalOpen(true)}
+                onOpenCustomDeck={() => setIsCustomDeckModalOpen(true)}
+                onOpenCalendarShield={() => setIsCalendarShieldModalOpen(true)}
+              />
+            </ErrorBoundary>
         </>
       ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -737,117 +745,122 @@ export function App() {
                 </div>
               </div>
 
-              <SwipeableStationContainer
-                activeStation={activeStation}
-                onNextStation={() => handleNextStationFrom(activeStation)}
-                onPrevStation={() => handlePrevStationFrom(activeStation)}
+              <ErrorBoundary
+                fallbackTitle={language === 'ar' ? 'تنبيه مؤقت في محطة العمل الحالية' : 'Temporary alert in current station'}
+                onReset={() => setActiveStation('HOME')}
               >
-              {activeStation === 'COMMUTE_MORNING' && (
-                <CommuteMorningView
-                  quranProgress={quranProgress}
-                  bookProgress={bookProgress}
-                  isSurvivalMode={isSurvival}
-                  isCompleted={completedStations.includes('COMMUTE_MORNING')}
-                  onCompleteStation={() => handleCompleteStation('COMMUTE_MORNING', 10)}
-                  onNextStation={() => handleNextStationFrom('COMMUTE_MORNING')}
-                  energyLevel={currentEnergyLevel}
-                  onSelectEnergyLevel={handleSelectEnergyLevel}
-                  userState={userState}
-                  onOpenSmartTasbih={handleOpenSmartTasbih}
-                  onOpenTadabburModal={handleOpenTadabburModal}
-                />
-              )}
-
-              {activeStation === 'WORK_MICRO_SPRINT' && (
-                <WorkMicroSprintView
-                  isCompleted={completedStations.includes('WORK_MICRO_SPRINT')}
-                  onCompleteStation={() => handleCompleteStation('WORK_MICRO_SPRINT', 15)}
-                  onNextStation={() => handleNextStationFrom('WORK_MICRO_SPRINT')}
-                  onDeferToBuffer={handleDeferToBuffer}
-                  bufferAvailableCount={2 - weeklyBufferCount}
-                  todayDate={today}
-                  onOpenTwoMinuteRule={() => setIsTwoMinuteModalOpen(true)}
-                  onRewardToast={(msg) => {
-                    setRewardToast(msg);
-                    setTimeout(() => setRewardToast(null), 3500);
-                  }}
-                  onOpenNiyyahModal={handleOpenNiyyah}
-                />
-              )}
-
-              {(activeStation === 'ONE_SEC_FRICTION' || activeStation === 'SOCIAL_MEDIA_BREAK') && (
-                <PositiveFrictionView
-                  stationId={activeStation}
+                <SwipeableStationContainer
+                  activeStation={activeStation}
                   onNextStation={() => handleNextStationFrom(activeStation)}
-                  onReturnHome={() => setActiveStation('HOME')}
-                  onOpenZeroInertia={() => setIsPanicModalOpen(true)}
-                  userState={userState}
-                  onRewardToast={(msg) => {
-                    setRewardToast(msg);
-                    setTimeout(() => setRewardToast(null), 3500);
-                  }}
-                />
-              )}
+                  onPrevStation={() => handlePrevStationFrom(activeStation)}
+                >
+                {activeStation === 'COMMUTE_MORNING' && (
+                  <CommuteMorningView
+                    quranProgress={quranProgress}
+                    bookProgress={bookProgress}
+                    isSurvivalMode={isSurvival}
+                    isCompleted={completedStations.includes('COMMUTE_MORNING')}
+                    onCompleteStation={() => handleCompleteStation('COMMUTE_MORNING', 10)}
+                    onNextStation={() => handleNextStationFrom('COMMUTE_MORNING')}
+                    energyLevel={currentEnergyLevel}
+                    onSelectEnergyLevel={handleSelectEnergyLevel}
+                    userState={userState}
+                    onOpenSmartTasbih={handleOpenSmartTasbih}
+                    onOpenTadabburModal={handleOpenTadabburModal}
+                  />
+                )}
 
-              {activeStation === 'GYM_ANCHOR' && (
-                <GymAnchorView
-                  isSurvivalMode={isSurvival}
-                  isCompleted={completedStations.includes('GYM_ANCHOR')}
-                  onCompleteStation={() => handleCompleteStation('GYM_ANCHOR', 15)}
-                  onNextStation={() => handleNextStationFrom('GYM_ANCHOR')}
-                  userState={userState}
-                  onRewardToast={(msg) => {
-                    setRewardToast(msg);
-                    setTimeout(() => setRewardToast(null), 3500);
-                  }}
-                  onOpenNiyyahModal={handleOpenNiyyah}
-                />
-              )}
+                {activeStation === 'WORK_MICRO_SPRINT' && (
+                  <WorkMicroSprintView
+                    isCompleted={completedStations.includes('WORK_MICRO_SPRINT')}
+                    onCompleteStation={() => handleCompleteStation('WORK_MICRO_SPRINT', 15)}
+                    onNextStation={() => handleNextStationFrom('WORK_MICRO_SPRINT')}
+                    onDeferToBuffer={handleDeferToBuffer}
+                    bufferAvailableCount={2 - weeklyBufferCount}
+                    todayDate={today}
+                    onOpenTwoMinuteRule={() => setIsTwoMinuteModalOpen(true)}
+                    onRewardToast={(msg) => {
+                      setRewardToast(msg);
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                    onOpenNiyyahModal={handleOpenNiyyah}
+                  />
+                )}
 
-              {activeStation === 'EVENING_SPRINT' && (
-                <EveningSprintView
-                  isCompleted={completedStations.includes('EVENING_SPRINT')}
-                  onCompleteStation={() => handleCompleteStation('EVENING_SPRINT', 20)}
-                  onNextStation={() => handleNextStationFrom('EVENING_SPRINT')}
-                  onOpenCrmDrawer={() => setIsCrmDrawerOpen(true)}
-                  onApplyPenalty={handleApplyPenalty}
-                  energyLevel={currentEnergyLevel}
-                  userState={userState}
-                  onRewardToast={(msg) => {
-                    setRewardToast(msg);
-                    setTimeout(() => setRewardToast(null), 3500);
-                  }}
-                />
-              )}
+                {(activeStation === 'ONE_SEC_FRICTION' || activeStation === 'SOCIAL_MEDIA_BREAK') && (
+                  <PositiveFrictionView
+                    stationId={activeStation}
+                    onNextStation={() => handleNextStationFrom(activeStation)}
+                    onReturnHome={() => setActiveStation('HOME')}
+                    onOpenZeroInertia={() => setIsPanicModalOpen(true)}
+                    userState={userState}
+                    onRewardToast={(msg) => {
+                      setRewardToast(msg);
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                  />
+                )}
 
-              {activeStation === 'RETROSPECTIVE_CHECKIN' && (
-                <RetrospectiveCheckinView
-                  isCompleted={completedStations.includes('RETROSPECTIVE_CHECKIN')}
-                  onCompleteStation={() => handleCompleteStation('RETROSPECTIVE_CHECKIN', 10)}
-                  onNextStation={() => handleNextStationFrom('RETROSPECTIVE_CHECKIN')}
-                  voiceNotes={todayLog?.voiceNotes || ''}
-                  goldenNugget={todayLog?.goldenNugget || ''}
-                  onSaveRetrospective={handleSaveRetrospective}
-                  onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
-                  onRewardToast={(msg) => {
-                    setRewardToast(msg);
-                    setTimeout(() => setRewardToast(null), 3500);
-                  }}
-                />
-              )}
+                {activeStation === 'GYM_ANCHOR' && (
+                  <GymAnchorView
+                    isSurvivalMode={isSurvival}
+                    isCompleted={completedStations.includes('GYM_ANCHOR')}
+                    onCompleteStation={() => handleCompleteStation('GYM_ANCHOR', 15)}
+                    onNextStation={() => handleNextStationFrom('GYM_ANCHOR')}
+                    userState={userState}
+                    onRewardToast={(msg) => {
+                      setRewardToast(msg);
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                    onOpenNiyyahModal={handleOpenNiyyah}
+                  />
+                )}
 
-              {activeStation === 'GRAND_REWARD_STATE' && (
-                <GrandRewardView
-                  totalPoints={userState?.totalPoints || 0}
-                  streakDays={userState?.streakDays || 0}
-                  onRestartNewDay={() => setActiveStation('COMMUTE_MORNING')}
-                  onOpenRewardsModal={() => setIsRewardsModalOpen(true)}
-                  onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
-                  onOpenPrideTicket={() => setIsDailyPrideTicketOpen(true)}
-                  spentPoints={userState?.spentPoints || 0}
-                />
-              )}
-            </SwipeableStationContainer>
+                {activeStation === 'EVENING_SPRINT' && (
+                  <EveningSprintView
+                    isCompleted={completedStations.includes('EVENING_SPRINT')}
+                    onCompleteStation={() => handleCompleteStation('EVENING_SPRINT', 20)}
+                    onNextStation={() => handleNextStationFrom('EVENING_SPRINT')}
+                    onOpenCrmDrawer={() => setIsCrmDrawerOpen(true)}
+                    onApplyPenalty={handleApplyPenalty}
+                    energyLevel={currentEnergyLevel}
+                    userState={userState}
+                    onRewardToast={(msg) => {
+                      setRewardToast(msg);
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                  />
+                )}
+
+                {activeStation === 'RETROSPECTIVE_CHECKIN' && (
+                  <RetrospectiveCheckinView
+                    isCompleted={completedStations.includes('RETROSPECTIVE_CHECKIN')}
+                    onCompleteStation={() => handleCompleteStation('RETROSPECTIVE_CHECKIN', 10)}
+                    onNextStation={() => handleNextStationFrom('RETROSPECTIVE_CHECKIN')}
+                    voiceNotes={todayLog?.voiceNotes || ''}
+                    goldenNugget={todayLog?.goldenNugget || ''}
+                    onSaveRetrospective={handleSaveRetrospective}
+                    onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
+                    onRewardToast={(msg) => {
+                      setRewardToast(msg);
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                  />
+                )}
+
+                {activeStation === 'GRAND_REWARD_STATE' && (
+                  <GrandRewardView
+                    totalPoints={userState?.totalPoints || 0}
+                    streakDays={userState?.streakDays || 0}
+                    onRestartNewDay={() => setActiveStation('COMMUTE_MORNING')}
+                    onOpenRewardsModal={() => setIsRewardsModalOpen(true)}
+                    onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
+                    onOpenPrideTicket={() => setIsDailyPrideTicketOpen(true)}
+                    spentPoints={userState?.spentPoints || 0}
+                  />
+                )}
+              </SwipeableStationContainer>
+            </ErrorBoundary>
           </section>
 
           {/* Persistent Companion Command Hub (Desktop: visible only when not full width) */}
