@@ -15,12 +15,15 @@ if (isLocalDev) {
   });
 }
 
-const CACHE_NAME = 'midmar-lifeos-v2';
+const CACHE_NAME = 'midmar-lifeos-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
   '/favicon.svg',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  '/icons/apple-touch-icon.png',
   '/icons.svg',
 ];
 
@@ -134,12 +137,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Cache first, then network fallback
+// Smart caching strategy:
+// 1. Navigation requests (HTML) -> Network-First with cache fallback, ensuring new deployments update immediately
+// 2. API requests (/api/) -> Network only (never cached by SW)
+// 3. Static assets (images, icons, fonts, hashed JS/CSS) -> Cache-First with network fallback
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
-  // Never intercept localhost development, Vite HMR, or dynamic modules to ensure instant load
+
+  // Never intercept localhost development, Vite HMR, or server API routes
   if (
     url.hostname === 'localhost' ||
     url.hostname === '127.0.0.1' ||
@@ -147,11 +154,39 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/@') ||
     url.pathname.includes('/node_modules/') ||
     url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/api/') ||
     url.search.includes('t=')
   ) {
     return;
   }
 
+  const isNavigation =
+    event.request.mode === 'navigate' ||
+    (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
+
+  if (isNavigation) {
+    // Network-First for HTML navigation: always fetch the latest HTML so new deployments & chunk hashes are loaded immediately
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          // Offline fallback
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          const fallback = await caches.match('/index.html');
+          return fallback || Response.error();
+        })
+    );
+    return;
+  }
+
+  // Cache-First for static assets (icons, fonts, scripts, styles)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -169,9 +204,10 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
+          return new Response('Asset fetch error', {
+            status: 408,
+            headers: { 'Content-Type': 'text/plain' },
+          });
         });
     })
   );

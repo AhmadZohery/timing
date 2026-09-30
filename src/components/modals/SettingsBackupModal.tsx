@@ -31,8 +31,10 @@ import {
 import QRCode from 'qrcode';
 import type { UserState, AppSettings, WeekendPreset, DayWorkRhythm } from '../../types';
 import { db } from '../../db/db';
-const NotificationSoundsModal = React.lazy(() =>
-  import('./NotificationSoundsModal').then((m) => ({ default: m.NotificationSoundsModal }))
+import { lazyWithRetry } from '../../utils/lazyWithRetry';
+const NotificationSoundsModal = lazyWithRetry(
+  () => import('./NotificationSoundsModal').then((m) => ({ default: m.NotificationSoundsModal })),
+  'NotificationSoundsModal'
 );
 import {
   exportDatabaseToJson,

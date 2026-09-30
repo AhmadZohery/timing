@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db/db';
 import type { StationId, EnergyLevel } from './types';
@@ -46,39 +46,41 @@ import type { NiyyahPillar } from './components/spiritual/NiyyahSanctuaryModal';
 import { AuthGateView } from './components/auth/AuthGateView';
 import { authService } from './services/authService';
 
-// Lazy Loaded Modals for Fast Initial Load & Sub-400kB Core Bundle
-const ArabicPoetryModal = lazy(() => import('./components/modals/ArabicPoetryModal').then((m) => ({ default: m.ArabicPoetryModal })));
-const LifeWisdomModal = lazy(() => import('./components/modals/LifeWisdomModal').then((m) => ({ default: m.LifeWisdomModal })));
-const ZeroInertiaModal = lazy(() => import('./components/modals/ZeroInertiaModal').then((m) => ({ default: m.ZeroInertiaModal })));
-const BufferQueueModal = lazy(() => import('./components/modals/BufferQueueModal').then((m) => ({ default: m.BufferQueueModal })));
-const GoalVelocityModal = lazy(() => import('./components/modals/GoalVelocityModal').then((m) => ({ default: m.GoalVelocityModal })));
-const MiniCrmDrawer = lazy(() => import('./components/modals/MiniCrmDrawer').then((m) => ({ default: m.MiniCrmDrawer })));
-const BatteryGuideModal = lazy(() => import('./components/modals/BatteryGuideModal').then((m) => ({ default: m.BatteryGuideModal })));
-const SettingsBackupModal = lazy(() => import('./components/modals/SettingsBackupModal').then((m) => ({ default: m.SettingsBackupModal })));
-const KeyboardShortcutsModal = lazy(() => import('./components/modals/KeyboardShortcutsModal').then((m) => ({ default: m.KeyboardShortcutsModal })));
-const HistoryArchiveModal = lazy(() => import('./components/modals/HistoryArchiveModal').then((m) => ({ default: m.HistoryArchiveModal })));
-const ProfileSwitcherModal = lazy(() => import('./components/modals/ProfileSwitcherModal').then((m) => ({ default: m.ProfileSwitcherModal })));
-const AiCoachModal = lazy(() => import('./components/modals/AiCoachModal').then((m) => ({ default: m.AiCoachModal })));
-const HabitRecurrenceModal = lazy(() => import('./components/modals/HabitRecurrenceModal').then((m) => ({ default: m.HabitRecurrenceModal })));
-const EvaluationReportModal = lazy(() => import('./components/modals/EvaluationReportModal').then((m) => ({ default: m.EvaluationReportModal })));
-const AddToHomeScreenModal = lazy(() => import('./components/modals/AddToHomeScreenModal').then((m) => ({ default: m.AddToHomeScreenModal })));
-const OnboardingWizardModal = lazy(() => import('./components/modals/OnboardingWizardModal').then((m) => ({ default: m.OnboardingWizardModal })));
-const SleepRestModal = lazy(() => import('./components/modals/SleepRestModal').then((m) => ({ default: m.SleepRestModal })));
-const PrayerLocationModal = lazy(() => import('./components/modals/PrayerLocationModal').then((m) => ({ default: m.PrayerLocationModal })));
-const RealLifeRewardsModal = lazy(() => import('./components/modals/RealLifeRewardsModal').then((m) => ({ default: m.RealLifeRewardsModal })));
-const QuickCommandPaletteModal = lazy(() => import('./components/modals/QuickCommandPaletteModal').then((m) => ({ default: m.QuickCommandPaletteModal })));
-const LifestyleStationCustomizerModal = lazy(() => import('./components/modals/LifestyleStationCustomizerModal').then((m) => ({ default: m.LifestyleStationCustomizerModal })));
-const WirdCustomizerModal = lazy(() => import('./components/spiritual/WirdCustomizerModal').then((m) => ({ default: m.WirdCustomizerModal })));
-const ThemePaletteModal = lazy(() => import('./components/modals/ThemePaletteModal').then((m) => ({ default: m.ThemePaletteModal })));
-const SmartTasbihModal = lazy(() => import('./components/modals/SmartTasbihModal').then((m) => ({ default: m.SmartTasbihModal })));
-const DailyPrideTicketModal = lazy(() => import('./components/modals/DailyPrideTicketModal').then((m) => ({ default: m.DailyPrideTicketModal })));
-const DailyTadabburModal = lazy(() => import('./components/modals/DailyTadabburModal').then((m) => ({ default: m.DailyTadabburModal })));
-const FaithAudioSanctuaryModal = lazy(() => import('./components/spiritual/FaithAudioSanctuaryModal').then((m) => ({ default: m.FaithAudioSanctuaryModal })));
-const NiyyahSanctuaryModal = lazy(() => import('./components/spiritual/NiyyahSanctuaryModal').then((m) => ({ default: m.NiyyahSanctuaryModal })));
-const QuickReminderModal = lazy(() => import('./components/modals/QuickReminderModal').then((m) => ({ default: m.QuickReminderModal })));
-const CustomDeckModal = lazy(() => import('./components/modals/CustomDeckModal').then((m) => ({ default: m.CustomDeckModal })));
-const CalendarPrayerShieldModal = lazy(() => import('./components/modals/CalendarPrayerShieldModal').then((m) => ({ default: m.CalendarPrayerShieldModal })));
-const QuickPinModal = lazy(() => import('./components/modals/QuickPinModal').then((m) => ({ default: m.QuickPinModal })));
+import { lazyWithRetry } from './utils/lazyWithRetry';
+
+// Lazy Loaded Modals for Fast Initial Load & Sub-400kB Core Bundle (wrapped with lazyWithRetry for zero crash on chunk rotation)
+const ArabicPoetryModal = lazyWithRetry(() => import('./components/modals/ArabicPoetryModal').then((m) => ({ default: m.ArabicPoetryModal })), 'ArabicPoetryModal');
+const LifeWisdomModal = lazyWithRetry(() => import('./components/modals/LifeWisdomModal').then((m) => ({ default: m.LifeWisdomModal })), 'LifeWisdomModal');
+const ZeroInertiaModal = lazyWithRetry(() => import('./components/modals/ZeroInertiaModal').then((m) => ({ default: m.ZeroInertiaModal })), 'ZeroInertiaModal');
+const BufferQueueModal = lazyWithRetry(() => import('./components/modals/BufferQueueModal').then((m) => ({ default: m.BufferQueueModal })), 'BufferQueueModal');
+const GoalVelocityModal = lazyWithRetry(() => import('./components/modals/GoalVelocityModal').then((m) => ({ default: m.GoalVelocityModal })), 'GoalVelocityModal');
+const MiniCrmDrawer = lazyWithRetry(() => import('./components/modals/MiniCrmDrawer').then((m) => ({ default: m.MiniCrmDrawer })), 'MiniCrmDrawer');
+const BatteryGuideModal = lazyWithRetry(() => import('./components/modals/BatteryGuideModal').then((m) => ({ default: m.BatteryGuideModal })), 'BatteryGuideModal');
+const SettingsBackupModal = lazyWithRetry(() => import('./components/modals/SettingsBackupModal').then((m) => ({ default: m.SettingsBackupModal })), 'SettingsBackupModal');
+const KeyboardShortcutsModal = lazyWithRetry(() => import('./components/modals/KeyboardShortcutsModal').then((m) => ({ default: m.KeyboardShortcutsModal })), 'KeyboardShortcutsModal');
+const HistoryArchiveModal = lazyWithRetry(() => import('./components/modals/HistoryArchiveModal').then((m) => ({ default: m.HistoryArchiveModal })), 'HistoryArchiveModal');
+const ProfileSwitcherModal = lazyWithRetry(() => import('./components/modals/ProfileSwitcherModal').then((m) => ({ default: m.ProfileSwitcherModal })), 'ProfileSwitcherModal');
+const AiCoachModal = lazyWithRetry(() => import('./components/modals/AiCoachModal').then((m) => ({ default: m.AiCoachModal })), 'AiCoachModal');
+const HabitRecurrenceModal = lazyWithRetry(() => import('./components/modals/HabitRecurrenceModal').then((m) => ({ default: m.HabitRecurrenceModal })), 'HabitRecurrenceModal');
+const EvaluationReportModal = lazyWithRetry(() => import('./components/modals/EvaluationReportModal').then((m) => ({ default: m.EvaluationReportModal })), 'EvaluationReportModal');
+const AddToHomeScreenModal = lazyWithRetry(() => import('./components/modals/AddToHomeScreenModal').then((m) => ({ default: m.AddToHomeScreenModal })), 'AddToHomeScreenModal');
+const OnboardingWizardModal = lazyWithRetry(() => import('./components/modals/OnboardingWizardModal').then((m) => ({ default: m.OnboardingWizardModal })), 'OnboardingWizardModal');
+const SleepRestModal = lazyWithRetry(() => import('./components/modals/SleepRestModal').then((m) => ({ default: m.SleepRestModal })), 'SleepRestModal');
+const PrayerLocationModal = lazyWithRetry(() => import('./components/modals/PrayerLocationModal').then((m) => ({ default: m.PrayerLocationModal })), 'PrayerLocationModal');
+const RealLifeRewardsModal = lazyWithRetry(() => import('./components/modals/RealLifeRewardsModal').then((m) => ({ default: m.RealLifeRewardsModal })), 'RealLifeRewardsModal');
+const QuickCommandPaletteModal = lazyWithRetry(() => import('./components/modals/QuickCommandPaletteModal').then((m) => ({ default: m.QuickCommandPaletteModal })), 'QuickCommandPaletteModal');
+const LifestyleStationCustomizerModal = lazyWithRetry(() => import('./components/modals/LifestyleStationCustomizerModal').then((m) => ({ default: m.LifestyleStationCustomizerModal })), 'LifestyleStationCustomizerModal');
+const WirdCustomizerModal = lazyWithRetry(() => import('./components/spiritual/WirdCustomizerModal').then((m) => ({ default: m.WirdCustomizerModal })), 'WirdCustomizerModal');
+const ThemePaletteModal = lazyWithRetry(() => import('./components/modals/ThemePaletteModal').then((m) => ({ default: m.ThemePaletteModal })), 'ThemePaletteModal');
+const SmartTasbihModal = lazyWithRetry(() => import('./components/modals/SmartTasbihModal').then((m) => ({ default: m.SmartTasbihModal })), 'SmartTasbihModal');
+const DailyPrideTicketModal = lazyWithRetry(() => import('./components/modals/DailyPrideTicketModal').then((m) => ({ default: m.DailyPrideTicketModal })), 'DailyPrideTicketModal');
+const DailyTadabburModal = lazyWithRetry(() => import('./components/modals/DailyTadabburModal').then((m) => ({ default: m.DailyTadabburModal })), 'DailyTadabburModal');
+const FaithAudioSanctuaryModal = lazyWithRetry(() => import('./components/spiritual/FaithAudioSanctuaryModal').then((m) => ({ default: m.FaithAudioSanctuaryModal })), 'FaithAudioSanctuaryModal');
+const NiyyahSanctuaryModal = lazyWithRetry(() => import('./components/spiritual/NiyyahSanctuaryModal').then((m) => ({ default: m.NiyyahSanctuaryModal })), 'NiyyahSanctuaryModal');
+const QuickReminderModal = lazyWithRetry(() => import('./components/modals/QuickReminderModal').then((m) => ({ default: m.QuickReminderModal })), 'QuickReminderModal');
+const CustomDeckModal = lazyWithRetry(() => import('./components/modals/CustomDeckModal').then((m) => ({ default: m.CustomDeckModal })), 'CustomDeckModal');
+const CalendarPrayerShieldModal = lazyWithRetry(() => import('./components/modals/CalendarPrayerShieldModal').then((m) => ({ default: m.CalendarPrayerShieldModal })), 'CalendarPrayerShieldModal');
+const QuickPinModal = lazyWithRetry(() => import('./components/modals/QuickPinModal').then((m) => ({ default: m.QuickPinModal })), 'QuickPinModal');
 
 // Active Station Persistence across page refreshes
 const ALL_STATIONS: StationId[] = [

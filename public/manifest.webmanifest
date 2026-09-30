@@ -3,18 +3,37 @@
   "short_name": "مِضمار",
   "description": "النظام التشغيلي للحياة ومحاربة التسويف - يعمل محلياً بنسبة 100% دون إنترنت",
   "start_url": "/",
+  "id": "midmar-lifeos-app",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#f8fafc",
+  "background_color": "#042018",
+  "theme_color": "#042018",
   "orientation": "portrait",
   "dir": "rtl",
   "lang": "ar",
   "icons": [
     {
       "src": "/favicon.svg",
-      "sizes": "192x192 512x512",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["productivity", "lifestyle", "utilities"],
@@ -24,21 +43,21 @@
       "short_name": "الصلوات",
       "description": "تسجيل الصلوات والسنن والنوافل اليومية",
       "url": "/?station=COMMUTE_MORNING",
-      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "محراب المذاكرة والكورسات",
       "short_name": "المذاكرة",
       "description": "متابعة خطة الكورسات والتعلم الذاتي بالذكاء الاصطناعي",
       "url": "/?station=WORK_MICRO_SPRINT",
-      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "تذكير ومنبه سريع",
       "short_name": "تذكير",
       "description": "إضافة منبه أو تذكير ذكي سريع",
       "url": "/?action=quick_reminder",
-      "icons": [{ "src": "/favicon.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

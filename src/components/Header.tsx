@@ -834,9 +834,11 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-2.5 shrink-0 text-start cursor-pointer group active:scale-95 transition-transform select-none tap-spring"
           title={language === 'ar' ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home'}
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-500/20 group-hover:scale-105 group-hover:shadow-emerald-500/40 transition-all">
-            {language === 'ar' ? 'مِ' : 'M'}
-          </div>
+          <img
+            src="/favicon.svg"
+            alt="Midmar Logo"
+            className="w-9 h-9 rounded-xl shadow-md shadow-emerald-950/30 group-hover:scale-105 group-hover:shadow-emerald-500/30 transition-all object-cover"
+          />
           <div className="hidden sm:block">
             <h1 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
               {t('app_name')}

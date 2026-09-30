@@ -30,6 +30,14 @@ if ('serviceWorker' in navigator) {
         .register('/sw.js')
         .then((reg) => {
           console.log('Service Worker registered successfully:', reg.scope);
+          // Check for newer version on load
+          reg.update().catch(() => {});
+          // Re-check for updates whenever user returns to the tab or app
+          window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              reg.update().catch(() => {});
+            }
+          });
         })
         .catch((err) => {
           console.warn('Service Worker registration failed:', err);
