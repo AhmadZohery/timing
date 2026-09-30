@@ -34,6 +34,6 @@ dist-ssr
 new.env
 
 # Local server persistent data
-data/
+/data/
 server/data/
 

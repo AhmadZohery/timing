@@ -27,6 +27,7 @@ import type {
   WeekendPreset,
   UserOnboardingAnswers,
   AiOnboardingBlueprint,
+  PrimaryStruggleId,
 } from '../../types';
 import {
   WEEKEND_PRESETS_INFO,
@@ -37,6 +38,7 @@ import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { aiCoach } from '../../services/aiCoachService';
 import { authService } from '../../services/authService';
+import { ALL_CHALLENGES_METADATA, getCurrentMonthKey } from '../../data/challengesData';
 
 interface OnboardingWizardModalProps {
   isOpen: boolean;
@@ -95,16 +97,31 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
     }
   }, [activeProfile]);
 
-  // Step 2: Lifestyle & Core Struggle
+  // Step 2: Lifestyle & Multi-Challenge Selection
   const [wakePattern, setWakePattern] = useState<'early_bird' | 'night_owl' | 'flexible'>('early_bird');
-  const [primaryStruggle, setPrimaryStruggle] = useState<
-    'fajr_prayer' | 'procrastination' | 'distraction' | 'afternoon_crash' | 'consistency'
-  >('procrastination');
+  const [selectedStruggles, setSelectedStruggles] = useState<PrimaryStruggleId[]>(() => {
+    if (activeProfile?.primaryStruggles && activeProfile.primaryStruggles.length > 0) {
+      return activeProfile.primaryStruggles;
+    }
+    return ['procrastination'];
+  });
   const [spiritualPriority, setSpiritualPriority] = useState<
     'fajr_and_sunan' | 'quran_wird' | 'qiyam_and_witr' | 'all_around'
   >('fajr_and_sunan');
   const [focusPreference, setFocusPreference] = useState<'short_bursts' | 'deep_flow'>('short_bursts');
   const [freeTextBio, setFreeTextBio] = useState('');
+
+  const handleToggleStruggle = (id: PrimaryStruggleId) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setSelectedStruggles((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((item) => item !== id);
+      }
+      return [...prev, id];
+    });
+  };
 
   // Step 3: AI Personalization & API Key
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -191,7 +208,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         professionDomain: domain,
         customRoleTitle: customRoleTitle.trim() || undefined,
         wakePattern,
-        primaryStruggle,
+        primaryStruggle: selectedStruggles[0] || 'procrastination',
+        primaryStruggles: selectedStruggles,
         spiritualPriority,
         focusPreference,
         freeTextBio: freeTextBio.trim() || undefined,
@@ -250,6 +268,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         onboardingCompleted: true,
         isDefault: activeProfile?.isDefault ?? true,
         createdAt: activeProfile?.createdAt || new Date().toISOString(),
+        primaryStruggles: selectedStruggles,
       });
 
       // Synchronize onboarding completion to remote server if authenticated
@@ -263,13 +282,18 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
         await aiCoach.applyAiBlueprint(generatedBlueprint);
       }
 
-      // Save work rhythm config & activeProfileId to user state
+      // Save work rhythm config, monthly challenges & activeProfileId to user state
       const user = await db.user_state.get('current_user');
       if (user) {
         await db.user_state.update('current_user', {
           activeProfileId: profileId,
           settings: {
             ...user.settings,
+            monthlyChallenges: {
+              monthKey: getCurrentMonthKey(),
+              selectedChallenges: selectedStruggles,
+              updatedAt: new Date().toISOString(),
+            },
             workRhythmConfig: {
               preset: weekendPreset,
               dayTypes: customDayTypes,
@@ -587,33 +611,54 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                 </div>
               </div>
 
-              {/* Primary Struggle */}
+              {/* Challenges Multi-Select */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                  ٢. ما هو أكبر تحدٍ أو معاناة تود التغلب عليها في مِضمار؟
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    ٢. ما هي التحديات أو المعاناة التي تود التغلب عليها في مِضمار؟
+                  </label>
+                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
+                    تم تحديد {selectedStruggles.length} تحديات
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  💡 يمكنك اختيار أكثر من تحدٍ لمعالجتها في خطتك اليومية والشهرية
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  {[
-                    { id: 'fajr_prayer', label: 'المحافظة على صلاة الفجر في وقتها 🕌', desc: 'صعوبة الاستيقاظ وتذبذب النوم' },
-                    { id: 'procrastination', label: 'التسويف وصعوبة بدء المهام ⏳', desc: 'المقاومة النفسية وتأجيل العمل المهم' },
-                    { id: 'distraction', label: 'التشتت الرقمي وتصفح الهاتف 📱', desc: 'ضياع ساعات في وسائل التواصل والتنقل' },
-                    { id: 'afternoon_crash', label: 'هبوط الطاقة الشديد بعد الظهر 🔋', desc: 'الخمول وضياع النصف الثاني من اليوم' },
-                    { id: 'consistency', label: 'تذبذب الالتزام (الحماس ثم الانقطاع) 📉', desc: 'أبدأ بقوة ثم أتوقف بعد أيام قليلة' },
-                  ].map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => setPrimaryStruggle(s.id as any)}
-                      className={`p-2.5 rounded-2xl border text-right transition-all cursor-pointer ${
-                        primaryStruggle === s.id
-                          ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 font-bold ring-1 ring-emerald-500'
-                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                      }`}
-                    >
-                      <div className="text-xs font-black">{s.label}</div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{s.desc}</div>
-                    </button>
-                  ))}
+                  {ALL_CHALLENGES_METADATA.map((s) => {
+                    const isSelected = selectedStruggles.includes(s.id);
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => handleToggleStruggle(s.id)}
+                        className={`p-3 rounded-2xl border text-right transition-all cursor-pointer flex items-start gap-2.5 ${
+                          isSelected
+                            ? 'border-emerald-600 bg-emerald-50/90 dark:bg-emerald-950/50 font-bold ring-2 ring-emerald-500/50 shadow-xs'
+                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 hover:border-slate-300 text-slate-700 dark:text-slate-300'
+                        }`}
+                      >
+                        <div
+                          className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white'
+                              : 'border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700'
+                          }`}
+                        >
+                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-black flex items-center gap-1 text-slate-900 dark:text-white">
+                            <span>{s.titleAr}</span>
+                            <span>{s.emoji}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                            {s.descAr}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -791,7 +836,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                           النمط المقترح: {generatedBlueprint.circadianArchetype}
                         </div>
                         <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold">
-                          تم تحليله بناءً على معاناتك مع ({primaryStruggle === 'fajr_prayer' ? 'الفجر' : 'التسويف'})
+                          تم تحليله بناءً على تحدياتك: {selectedStruggles.map((id) => ALL_CHALLENGES_METADATA.find((c) => c.id === id)?.titleAr).filter(Boolean).join('، ')}
                         </span>
                       </div>
                     </div>

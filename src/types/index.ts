@@ -390,6 +390,7 @@ export interface UserProfile {
   customRoleTitle?: string;
   coreInterests?: string[];
   onboardingCompleted?: boolean;
+  primaryStruggles?: PrimaryStruggleId[];
 }
 
 export interface BufferItem {
@@ -443,12 +444,26 @@ export interface DeconstructedStep {
   completed: boolean;
 }
 
+export type PrimaryStruggleId =
+  | 'fajr_prayer'
+  | 'procrastination'
+  | 'distraction'
+  | 'afternoon_crash'
+  | 'consistency';
+
+export interface MonthlyChallengeConfig {
+  monthKey: string; // e.g. "2026-10"
+  selectedChallenges: PrimaryStruggleId[];
+  updatedAt: string;
+}
+
 export interface UserOnboardingAnswers {
   name: string;
   professionDomain: ProfessionDomain;
   customRoleTitle?: string;
   wakePattern: 'early_bird' | 'night_owl' | 'flexible';
-  primaryStruggle: 'fajr_prayer' | 'procrastination' | 'distraction' | 'afternoon_crash' | 'consistency';
+  primaryStruggle: PrimaryStruggleId;
+  primaryStruggles?: PrimaryStruggleId[];
   spiritualPriority: 'fajr_and_sunan' | 'quran_wird' | 'qiyam_and_witr' | 'all_around';
   focusPreference: 'short_bursts' | 'deep_flow';
   freeTextBio?: string;
@@ -681,6 +696,7 @@ export interface AppSettings {
   themePalette?: ThemePaletteId;
   dailyRoutineAnswers?: DailyRoutineAnswers;
   sprintDurationMinutes?: number;
+  monthlyChallenges?: MonthlyChallengeConfig;
 }
 
 export interface UserBehavioralDNA {

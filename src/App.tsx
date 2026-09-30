@@ -214,6 +214,12 @@ export function App() {
   const [isAiCoachOpen, setIsAiCoachOpen] = useState(false);
   const [isTwoMinuteModalOpen, setIsTwoMinuteModalOpen] = useState(false);
   const [isEvaluationModalOpen, setIsEvaluationModalOpen] = useState(false);
+  const [evaluationInitialTab, setEvaluationInitialTab] = useState<'daily' | 'weekly' | 'monthly' | 'motivation'>('daily');
+
+  const handleOpenEvaluation = (tab: 'daily' | 'weekly' | 'monthly' | 'motivation' = 'daily') => {
+    setEvaluationInitialTab(tab);
+    setIsEvaluationModalOpen(true);
+  };
   const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
   const [isA2hsModalOpen, setIsA2hsModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
@@ -699,7 +705,8 @@ export function App() {
                 onSelectStation={(st) => setActiveStation(st)}
                 onOpenSmartTasbih={handleOpenSmartTasbih}
                 onOpenSleepRest={() => setIsSleepRestModalOpen(true)}
-                onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
+                onOpenEvaluation={() => handleOpenEvaluation('daily')}
+                onOpenMonthlyEvaluation={() => handleOpenEvaluation('monthly')}
                 onOpenLocationModal={() => setIsPrayerLocationModalOpen(true)}
                 onRewardToast={(msg) => {
                   setRewardToast(msg);
@@ -1044,6 +1051,12 @@ export function App() {
         userState={userState}
         todayLog={todayLog}
         dailyLogs={allDailyLogs || []}
+        activeProfile={activeProfile}
+        initialTab={evaluationInitialTab}
+        onRewardToast={(msg) => {
+          setRewardToast(msg);
+          setTimeout(() => setRewardToast(null), 3500);
+        }}
       />
 
       {/* Habit Recurrence & Deed Adder Modal */}

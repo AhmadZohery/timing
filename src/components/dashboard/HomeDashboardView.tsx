@@ -59,6 +59,7 @@ import { QuickActionDock } from './QuickActionDock';
 import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
 import { FridayKahfModal } from '../spiritual/FridayKahfModal';
 import { checkIsFridaySalawatWindow } from '../../utils/tasbihEngine';
+import { getCurrentMonthKey, getMonthDisplayName } from '../../data/challengesData';
 
 interface HomeDashboardViewProps {
   userState?: UserState;
@@ -69,6 +70,7 @@ interface HomeDashboardViewProps {
   onOpenSmartTasbih: (mode?: any) => void;
   onOpenSleepRest: () => void;
   onOpenEvaluation: () => void;
+  onOpenMonthlyEvaluation?: () => void;
   onOpenLocationModal: () => void;
   onRewardToast: (msg: string) => void;
   onOpenTadabburModal?: (item?: DailyTadabburItem, tab?: 'quran' | 'hadith') => void;
@@ -91,6 +93,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   onOpenSmartTasbih,
   onOpenSleepRest,
   onOpenEvaluation,
+  onOpenMonthlyEvaluation,
   onOpenLocationModal,
   onRewardToast,
   onOpenTadabburModal,
@@ -484,8 +487,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </span>
             </div>
 
-            {/* Streak, Shield & Points Badges */}
-            <div className="flex items-center gap-1.5 text-xs font-mono font-bold">
+            {/* Streak, Shield, Points & Monthly Challenge Badges */}
+            <div className="flex flex-wrap items-center gap-1.5 text-xs font-mono font-bold">
               <button
                 type="button"
                 onClick={onOpenEvaluation}
@@ -503,6 +506,15 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <Award className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>{totalPoints} {isAr ? 'ن' : 'pts'}</span>
               </div>
+              <button
+                type="button"
+                onClick={onOpenMonthlyEvaluation || onOpenEvaluation}
+                className="flex items-center gap-1 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-950/50 text-purple-800 dark:text-purple-300 border border-purple-300/80 dark:border-purple-700/60 shadow-2xs hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors cursor-pointer"
+                title={isAr ? 'عرض وتعديل تحديات وتقييم الشهر' : 'Monthly Challenges & Evaluation'}
+              >
+                <span>🎯</span>
+                <span>{isAr ? 'تحديات الشهر' : 'Monthly Focus'}</span>
+              </button>
             </div>
           </div>
 
@@ -515,6 +527,38 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               {motivationalMessage}
             </p>
           </div>
+
+          {/* New Month Renewal Invitation Banner */}
+          {userState?.settings?.monthlyChallenges?.monthKey !== getCurrentMonthKey() && (
+            <div
+              onClick={onOpenMonthlyEvaluation || onOpenEvaluation}
+              className="mt-2 p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-emerald-500/10 to-teal-500/10 border border-purple-300/80 dark:border-purple-800/60 shadow-xs flex items-center justify-between gap-3 cursor-pointer hover:border-purple-400 transition-all select-none group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+                  🎯
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-black text-slate-900 dark:text-white truncate">
+                    {isAr
+                      ? `تحديات شهر ${getMonthDisplayName(getCurrentMonthKey(), isAr)} الجديد`
+                      : `${getMonthDisplayName(getCurrentMonthKey(), isAr)} Challenges`}
+                  </div>
+                  <div className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-1 mt-0.5">
+                    {isAr
+                      ? 'مرحباً بك في شهر جديد! انقر هنا لتحديد ومراجعة التحديات التي ترغب في التركيز عليها.'
+                      : 'Welcome to a new month! Set your priorities and focus challenges.'}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shrink-0 shadow-xs transition-colors cursor-pointer"
+              >
+                {isAr ? 'تحديد التحديات 🚀' : 'Set Focus 🚀'}
+              </button>
+            </div>
+          )}
 
         </div>
       </div>

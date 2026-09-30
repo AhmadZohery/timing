@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   X,
   Trophy,
@@ -10,12 +10,22 @@ import {
   Activity,
   Heart,
   Briefcase,
+  Check,
+  Edit3,
+  Target,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
-import type { DailyLog, UserState } from '../../types';
+import type { DailyLog, UserState, UserProfile, PrimaryStruggleId } from '../../types';
+import { db } from '../../db/db';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { aiCoach } from '../../services/aiCoachService';
+import {
+  ALL_CHALLENGES_METADATA,
+  getCurrentMonthKey,
+  getMonthDisplayName,
+  calculateChallengeMonthlyStats,
+} from '../../data/challengesData';
 
 interface EvaluationReportModalProps {
   isOpen: boolean;
@@ -23,6 +33,9 @@ interface EvaluationReportModalProps {
   userState: UserState | undefined;
   todayLog: DailyLog | undefined;
   dailyLogs: DailyLog[];
+  activeProfile?: UserProfile;
+  initialTab?: TabType;
+  onRewardToast?: (msg: string) => void;
 }
 
 type TabType = 'daily' | 'weekly' | 'monthly' | 'motivation';
@@ -80,13 +93,93 @@ const EvaluationReportModalContent: React.FC<EvaluationReportModalProps> = ({
   userState,
   todayLog,
   dailyLogs,
+  activeProfile,
+  initialTab,
+  onRewardToast,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
 
-  const [activeTab, setActiveTab] = useState<TabType>('daily');
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'daily');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
+
+  // Current Month & Challenges State
+  const currentMonthKey = getCurrentMonthKey();
+  const monthDisplayName = getMonthDisplayName(currentMonthKey, isAr);
+
+  const activeMonthlyConfig = userState?.settings?.monthlyChallenges;
+  const activeChallenges: PrimaryStruggleId[] = useMemo(() => {
+    if (activeMonthlyConfig?.selectedChallenges && activeMonthlyConfig.selectedChallenges.length > 0) {
+      return activeMonthlyConfig.selectedChallenges;
+    }
+    if (activeProfile?.primaryStruggles && activeProfile.primaryStruggles.length > 0) {
+      return activeProfile.primaryStruggles;
+    }
+    return ['fajr_prayer', 'procrastination'];
+  }, [activeMonthlyConfig, activeProfile?.primaryStruggles]);
+
+  const [isEditingChallenges, setIsEditingChallenges] = useState(false);
+  const [editingSelection, setEditingSelection] = useState<PrimaryStruggleId[]>(activeChallenges);
+
+  useEffect(() => {
+    if (!isEditingChallenges) {
+      setEditingSelection(activeChallenges);
+    }
+  }, [activeChallenges, isEditingChallenges]);
+
+  const isNewMonthUnset = activeMonthlyConfig?.monthKey !== currentMonthKey;
+
+  const handleToggleEditingChallenge = (id: PrimaryStruggleId) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setEditingSelection((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((c) => c !== id);
+      }
+      return [...prev, id];
+    });
+  };
+
+  const handleSaveMonthlyChallenges = async () => {
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+    try {
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          settings: {
+            ...user.settings,
+            monthlyChallenges: {
+              monthKey: currentMonthKey,
+              selectedChallenges: editingSelection,
+              updatedAt: new Date().toISOString(),
+            },
+          },
+        });
+      }
+      if (activeProfile?.id) {
+        await db.profiles.update(activeProfile.id, {
+          primaryStruggles: editingSelection,
+        });
+      }
+      setIsEditingChallenges(false);
+      onRewardToast?.(
+        isAr
+          ? `🎯 تم اعتماد تحديات شهر ${monthDisplayName} بنجاح!`
+          : `🎯 ${monthDisplayName} challenges updated successfully!`
+      );
+    } catch (err) {
+      console.error('Failed to save monthly challenges:', err);
+    }
+  };
 
   // 1. Sort logs descending by date to evaluate true recent timeline
   const sortedLogs = useMemo(() => {
@@ -730,9 +823,207 @@ ${actionText}`;
             </div>
           )}
 
-          {/* TAB 3: MONTHLY EVALUATION */}
+          {/* TAB 3: MONTHLY EVALUATION & CHALLENGES */}
           {activeTab === 'monthly' && (
             <div className="space-y-4 animate-fade-in">
+              {/* Month Header & Challenge Controls Bar */}
+              <div className="p-4 rounded-3xl bg-gradient-to-l from-emerald-50 via-white to-teal-50 dark:from-emerald-950/40 dark:via-zinc-900 dark:to-teal-950/30 border border-emerald-200 dark:border-emerald-800/50 shadow-xs space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">🗓️</span>
+                      <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+                        {isAr ? `تحديات وتقييم شهر ${monthDisplayName}` : `${monthDisplayName} Challenges & Evaluation`}
+                      </h3>
+                    </div>
+                    <p className="text-[11px] text-slate-600 dark:text-zinc-400">
+                      {isAr
+                        ? `التحديات المركزة لهذا الشهر: ${activeChallenges.length} تحديات محددة`
+                        : `Active Monthly Focus: ${activeChallenges.length} challenges selected`}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setIsEditingChallenges((prev) => !prev);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95"
+                  >
+                    {isEditingChallenges ? (
+                      <>
+                        <X className="w-3.5 h-3.5" />
+                        <span>{isAr ? 'إلغاء التعديل' : 'Cancel Edit'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>{isAr ? 'تعديل تحديات الشهر ✏️' : 'Edit Monthly Challenges ✏️'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* New Month Welcome Announcement (if current month was not explicitly set yet) */}
+                {isNewMonthUnset && !isEditingChallenges && (
+                  <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 flex flex-wrap items-center justify-between gap-2.5 text-xs text-amber-950 dark:text-amber-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">✨</span>
+                      <span className="font-semibold leading-relaxed">
+                        {isAr
+                          ? `أهلاً بك في مستهل شهر ${monthDisplayName}! يمكنك مراجعة وتجديد تحدياتك لهذا الشهر الآن.`
+                          : `Welcome to ${monthDisplayName}! Review or refresh your monthly focus challenges now.`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingChallenges(true)}
+                      className="px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-xs cursor-pointer transition-transform active:scale-95"
+                    >
+                      {isAr ? 'تحديد تحديات الشهر 🚀' : 'Set Challenges 🚀'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Challenge Editor Box (Available whenever user wants to modify challenges) */}
+              {isEditingChallenges ? (
+                <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-zinc-900 border-2 border-emerald-500/50 shadow-md space-y-4 animate-fade-in">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
+                        <Target className="w-4 h-4 text-emerald-600" />
+                        <span>{isAr ? `تحديد تحديات شهر ${monthDisplayName}:` : `Select ${monthDisplayName} Challenges:`}</span>
+                      </h4>
+                      <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
+                        {isAr ? `تم تحديد ${editingSelection.length}` : `${editingSelection.length} selected`}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                      {isAr
+                        ? '💡 يمكنك اختيار أكثر من تحدٍ، ويمكنك تعديلها في أي وقت خلال الشهر بحسب متطلبات حياتك.'
+                        : '💡 Select multiple challenges. You can adjust them anytime during the month.'}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {ALL_CHALLENGES_METADATA.map((c) => {
+                      const isSelected = editingSelection.includes(c.id);
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => handleToggleEditingChallenge(c.id)}
+                          className={`p-3 rounded-2xl border text-right transition-all cursor-pointer flex items-start gap-2.5 ${
+                            isSelected
+                              ? 'border-emerald-600 bg-emerald-50/90 dark:bg-emerald-950/50 font-bold ring-2 ring-emerald-500/50 shadow-xs'
+                              : 'border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-800/60 hover:border-slate-300 text-slate-700 dark:text-zinc-300'
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                              isSelected
+                                ? 'bg-emerald-600 text-white'
+                                : 'border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-black flex items-center gap-1.5 text-slate-900 dark:text-white">
+                              <span>{isAr ? c.titleAr : c.titleEn}</span>
+                              <span>{c.emoji}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-relaxed">
+                              {isAr ? c.descAr : c.descEn}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-zinc-800">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingChallenges(false)}
+                      className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-xs transition-colors cursor-pointer"
+                    >
+                      {isAr ? 'إلغاء' : 'Cancel'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveMonthlyChallenges}
+                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                    >
+                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <span>{isAr ? 'حفظ واعتماد التحديات ✔' : 'Save Challenges ✔'}</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Active Challenge Performance Scorecards */
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs px-1">
+                    <span className="font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
+                      <span>🎯</span>
+                      <span>{isAr ? 'مؤشرات أداء التحديات المختارة لهذا الشهر:' : 'Active Monthly Challenge Trackers:'}</span>
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono">
+                      {isAr ? 'آخر 30 يوماً' : '30-Day Window'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {activeChallenges.map((chId) => {
+                      const meta = ALL_CHALLENGES_METADATA.find((c) => c.id === chId);
+                      if (!meta) return null;
+                      const stats = calculateChallengeMonthlyStats(chId, dailyLogs, userState, isAr);
+                      return (
+                        <div
+                          key={chId}
+                          className="p-3.5 rounded-2xl bg-white dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 shadow-2xs space-y-2.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className="text-base">{meta.emoji}</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-zinc-100 truncate">
+                                {isAr ? meta.titleAr : meta.titleEn}
+                              </span>
+                            </div>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${stats.statusBadgeColor}`}>
+                              {stats.statusText}
+                            </span>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-slate-600 dark:text-zinc-400 font-semibold">{stats.mainMetricText}</span>
+                              <span className="font-mono font-black text-slate-900 dark:text-zinc-100">{stats.scorePct}%</span>
+                            </div>
+                            <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-zinc-700 overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 rounded-full"
+                                style={{ width: `${stats.scorePct}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="text-[10px] text-slate-500 dark:text-zinc-400 flex items-center justify-between pt-0.5">
+                            <span>{stats.subMetricText}</span>
+                            <span className="font-bold text-emerald-700 dark:text-emerald-400">{meta.badgeAr}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Cumulative 30-Day Trajectory */}
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-zinc-100">
@@ -749,6 +1040,7 @@ ${actionText}`;
                 </p>
               </div>
 
+              {/* Monthly Top Milestone */}
               <div className="p-4 rounded-2xl bg-gradient-to-l from-amber-50 to-white dark:from-amber-950/20 dark:to-zinc-900 border border-amber-200 dark:border-amber-800/30 text-xs text-amber-900 dark:text-amber-200 space-y-1">
                 <span className="font-bold flex items-center gap-1">
                   <Star className="w-4 h-4 text-amber-600" />

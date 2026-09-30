@@ -514,6 +514,21 @@ ${JSON.stringify(logsSummary)}
   async generateOnboardingBlueprint(answers: UserOnboardingAnswers): Promise<AiOnboardingBlueprint> {
     const config = await this.getConfig();
 
+    const strugglesList =
+      answers.primaryStruggles && answers.primaryStruggles.length > 0
+        ? answers.primaryStruggles
+        : [answers.primaryStruggle];
+
+    const strugglesArabic = strugglesList
+      .map((s) => {
+        if (s === 'fajr_prayer') return 'المحافظة على صلاة الفجر في وقتها';
+        if (s === 'procrastination') return 'التسويف وصعوبة البدء والمقاومة النفسية';
+        if (s === 'distraction') return 'التشتت الرقمي ووسائل التواصل';
+        if (s === 'afternoon_crash') return 'هبوط الطاقة بعد الظهر';
+        return 'تذبذب الالتزام وتراجع الحماس';
+      })
+      .join('، و');
+
     if (config?.enabled && config.apiKey) {
       try {
         const prompt = `أنت خبير علم النفس الإدراكي وهندسة العادات الإسلامية في تطبيق "مِضمار".
@@ -522,12 +537,7 @@ ${JSON.stringify(logsSummary)}
 - الاسم: ${answers.name}
 - المجال المهني: ${answers.professionDomain} (${answers.customRoleTitle || ''})
 - نمط الاستيقاظ والنوم: ${answers.wakePattern === 'early_bird' ? 'طائر مبكر (صباحي)' : answers.wakePattern === 'night_owl' ? 'كائن ليلي (مسائي)' : 'مرن / غير ثابت'}
-- التحدي والمعاناة الكبرى: ${
-  answers.primaryStruggle === 'fajr_prayer' ? 'المحافظة على صلاة الفجر في وقتها' :
-  answers.primaryStruggle === 'procrastination' ? 'التسويف وصعوبة البدء والمقاومة النفسية' :
-  answers.primaryStruggle === 'distraction' ? 'التشتت الرقمي ووسائل التواصل' :
-  answers.primaryStruggle === 'afternoon_crash' ? 'هبوط الطاقة بعد الظهر' : 'تذبذب الالتزام'
-}
+- التحديات والمعاناة المحددة: ${strugglesArabic}
 - الأولوية الروحية: ${
   answers.spiritualPriority === 'fajr_and_sunan' ? 'المحافظة على الفجر والسنن الرواتب' :
   answers.spiritualPriority === 'quran_wird' ? 'ورد القرآن اليومي' :
@@ -646,7 +656,29 @@ ${answers.freeTextBio ? `- ما كتبه المستخدم بحرية عن روت
     // Heuristic Fallback Blueprint (Instant, deeply researched behavioral logic)
     const isEarly = answers.wakePattern === 'early_bird';
     const isShortBurst = answers.focusPreference === 'short_bursts';
-    const isFajrStruggle = answers.primaryStruggle === 'fajr_prayer';
+    const hasFajr = strugglesList.includes('fajr_prayer');
+    const hasProcrastination = strugglesList.includes('procrastination');
+    const hasDistraction = strugglesList.includes('distraction');
+    const hasEnergyCrash = strugglesList.includes('afternoon_crash');
+    const hasConsistency = strugglesList.includes('consistency');
+
+    const atomicFrictionHacks: string[] = [];
+    if (hasFajr) {
+      atomicFrictionHacks.push('ضع هاتفك/المنبه على مسافة ٣ خطوات خارج غرفة نومك واشرب نصف كوب ماء فور رنينه.');
+    }
+    if (hasProcrastination) {
+      atomicFrictionHacks.push('قاعدة الدقيقتين: لا تلتزم بالمهمة كلها، التزم بـ ١٢٠ ثانية لفتح الملف فقط.');
+    }
+    if (hasDistraction) {
+      atomicFrictionHacks.push('ركوب الموجة (Urge Surfing): عند الرغبة في فتح الهاتف، تمهل ٦٠ ثانية مع التنفس العميق.');
+    }
+    if (hasEnergyCrash) {
+      atomicFrictionHacks.push('قيلولة التعافي السريعة: ٢٠ دقيقة بعد الظهر تمنحك استعادة ٨٠٪ من طاقتك الذهنية.');
+    }
+    if (hasConsistency || atomicFrictionHacks.length < 3) {
+      atomicFrictionHacks.push('احمِ شعلتك اليومية: في أسوأ أيام التعب، أنجز خطوة مجهرية واحدة (وضع البقاء MVD) لتحتفظ بشعلة الالتزام.');
+      atomicFrictionHacks.push('اربط وردك بمواقيت الصلوات الخمس: قراءة ٤ صفحات بعد كل فريضة تنهي جزءاً كاملاً دون أن تشعر.');
+    }
 
     return {
       circadianArchetype: isEarly ? 'المبكر الإشعاعي (Fajr-Anchor)' : 'المتوازن المرن (Adaptive Circadian)',
@@ -656,17 +688,11 @@ ${answers.freeTextBio ? `- ما كتبه المستخدم بحرية عن روت
           : answers.spiritualPriority === 'qiyam_and_witr'
           ? 'surahs_mounjiyat'
           : 'surahs_mounjiyat',
-      recommendedQiyamAyatTarget: isFajrStruggle ? 10 : 100,
+      recommendedQiyamAyatTarget: hasFajr ? 10 : 100,
       recommendedSprintMinutes: isShortBurst ? 20 : 30,
       dailyStepGoal: answers.professionDomain === 'software_dev' || answers.professionDomain === 'ui_ux_design' ? 6500 : 8000,
-      psychologicalDiagnosis: `يا ${answers.name}، طبيعة عملك الإدراكي في (${answers.professionDomain}) تتطلب تركيزاً ذهنياً عالياً؛ والسبب في معاناتك السابقة مع (${answers.primaryStruggle === 'fajr_prayer' ? 'الفجر' : 'التسويف'}) ليس نقصاً في العزيمة، بل لأن الأهداف كانت تُصاغ بحجم أكبر من طاقة الانطلاق المتاحة. نظامك الآن مهندس لتقليص طاقة البدء إلى الصفر التام.`,
-      atomicFrictionHacks: [
-        isFajrStruggle
-          ? 'ضع هاتفك/المنبه على مسافة ٣ خطوات خارج غرفة نومك واشرب نصف كوب ماء فور رنينه.'
-          : 'قاعدة الدقيقتين: لا تلتزم بالمهمة كلها، التزم بـ ١٢٠ ثانية لفتح الملف فقط.',
-        'اربط وردك بمواقيت الصلوات الخمس: قراءة ٤ صفحات بعد كل فريضة تنهي جزءاً كاملاً دون أن تشعر.',
-        'احمِ شعلتك اليومية: في أسوأ أيام التعب، أنجز خطوة مجهرية واحدة (وضع البقاء MVD) لتحتفظ بشعلة الالتزام.',
-      ],
+      psychologicalDiagnosis: `يا ${answers.name}، طبيعة عملك الإدراكي في (${answers.professionDomain}) تتطلب تركيزاً ذهنياً عالياً؛ والسبب في معاناتك السابقة مع (${strugglesArabic}) ليس نقصاً في العزيمة، بل لأن الأهداف كانت تُصاغ بحجم أكبر من طاقة الانطلاق المتاحة. نظامك الآن مهندس لتقليص طاقة البدء إلى الصفر التام عبر خطوات مجهرية دقيقة.`,
+      atomicFrictionHacks: atomicFrictionHacks.slice(0, 3),
       recommendedScheduleSummary: isEarly
         ? 'الاستيقاظ قبل الفجر بـ ٢٠ دقيقة (ركعتي قيام ووتر) ➔ صلاة الفجر والسنن ➔ جلسة الإشراق وقراءة الورد ➔ جلسات العمل المركز صباحاً ➔ راحة ومشي بعد العصر ➔ النوم المبكر بعد العشاء.'
         : 'صلاة الفجر في وقتها ➔ نوم الاستشفاء أو جلسة تركيز صباحية ➔ ذروة العمل في منتصف النهار ➔ السنن الرواتب مع كل أذان ➔ الشفع والوتر بـ ١٠ آيات لختام الليل بنور.',
