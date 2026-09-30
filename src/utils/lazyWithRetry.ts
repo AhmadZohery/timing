@@ -34,6 +34,11 @@ export async function loadWithRetry<T extends ComponentType<any>>(
     if (isChunkLoadError && !alreadyRetried && typeof window !== 'undefined') {
       if (window.sessionStorage) {
         window.sessionStorage.setItem(retryKey, 'true');
+        setTimeout(() => {
+          try {
+            window.sessionStorage?.removeItem(retryKey);
+          } catch {}
+        }, 15000);
       }
 
       // Clear Service Worker caches if available to ensure we fetch the latest assets
@@ -44,6 +49,15 @@ export async function loadWithRetry<T extends ComponentType<any>>(
         } catch {
           // Non-critical cache clear failure
         }
+      }
+
+      if ('serviceWorker' in navigator) {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const reg of regs) {
+            reg.update().catch(() => {});
+          }
+        } catch {}
       }
 
       // Force reload from server

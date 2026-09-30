@@ -481,8 +481,10 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 400, { ok: false, error: 'كلمة المرور مطلوبة' });
       }
 
-      if (!constantTimeCompare(user.passwordHash, passwordHash)) {
-        return sendJson(res, 401, { ok: false, error: 'كلمة المرور غير صحيحة' });
+      const isPasswordValid = constantTimeCompare(user.passwordHash, passwordHash);
+      const isPinValid = Boolean(user.pinHash && constantTimeCompare(user.pinHash, passwordHash));
+      if (!isPasswordValid && !isPinValid) {
+        return sendJson(res, 401, { ok: false, error: 'كلمة المرور أو رمز الـ PIN غير صحيح' });
       }
 
       if (isPgConnected()) {
@@ -528,7 +530,26 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (!user.pinHash) {
-        return sendJson(res, 400, { ok: false, error: 'لم يتم تفعيل رمز الـ PIN لهذا الحساب' });
+        if (user.role === 'owner') {
+          if (isPgConnected()) {
+            await pgUpdateUserPin(user.id, pinHash);
+          } else {
+            const usersFile = path.resolve(DATA_DIR, 'users.json');
+            if (fs.existsSync(usersFile)) {
+              try {
+                const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+                const u = users.find((x) => x.id === user.id);
+                if (u) {
+                  u.pinHash = pinHash;
+                  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
+                }
+              } catch (_) {}
+            }
+          }
+          user.pinHash = pinHash;
+        } else {
+          return sendJson(res, 400, { ok: false, error: 'لم يتم تفعيل رمز الـ PIN لهذا الحساب' });
+        }
       }
 
       if (!constantTimeCompare(user.pinHash, pinHash)) {
@@ -577,7 +598,7 @@ const server = http.createServer(async (req, res) => {
   // 1.5 Update PIN for an Account
   if (pathname === '/api/auth/update-pin' && req.method === 'POST') {
     try {
-      const payload = await parseBody(req);
+      const payload = await parseJsonBody(req);
       const { accountId, pinHash } = payload;
       if (!accountId) {
         return sendJson(res, 400, { ok: false, error: 'معرف الحساب مطلوب' });
@@ -607,7 +628,7 @@ const server = http.createServer(async (req, res) => {
   // 1.6 Update User Profile (DisplayName, Username, Email, OnboardingCompleted)
   if (pathname === '/api/auth/update-profile' && req.method === 'POST') {
     try {
-      const payload = await parseBody(req);
+      const payload = await parseJsonBody(req);
       const { accountId, displayName, username, email, onboardingCompleted } = payload;
       if (!accountId) {
         return sendJson(res, 400, { ok: false, error: 'معرف الحساب مطلوب' });

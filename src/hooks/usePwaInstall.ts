@@ -18,11 +18,15 @@ export interface PwaInstallState {
 
 function checkStandalone(): boolean {
   if (typeof window === 'undefined') return false;
-  const isStandaloneMedia = window.matchMedia('(display-mode: standalone)').matches;
-  const isIosStandalone = (window.navigator as any).standalone === true;
-  const isAndroidReferrer = document.referrer.includes('android-app://');
-  const isMarkedInstalled = localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true';
-  return isStandaloneMedia || isIosStandalone || isAndroidReferrer || isMarkedInstalled;
+  try {
+    const isStandaloneMedia = Boolean(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    const isIosStandalone = Boolean((window.navigator as any)?.standalone === true);
+    const isAndroidReferrer = Boolean(typeof document !== 'undefined' && document?.referrer && typeof document.referrer === 'string' && document.referrer.includes('android-app://'));
+    const isMarkedInstalled = typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true';
+    return isStandaloneMedia || isIosStandalone || isAndroidReferrer || isMarkedInstalled;
+  } catch {
+    return false;
+  }
 }
 
 function checkHasDismissed(): boolean {

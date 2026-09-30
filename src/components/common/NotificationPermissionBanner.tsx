@@ -16,8 +16,8 @@ export const NotificationPermissionBanner: React.FC<NotificationPermissionBanner
   useEffect(() => {
     if (typeof window === 'undefined' || !('Notification' in window)) return;
 
-    const dismissed = localStorage.getItem('midmar_notif_banner_dismissed') === 'true';
-    if (Notification.permission === 'default' && !dismissed) {
+    const dismissed = typeof localStorage !== 'undefined' && localStorage.getItem('midmar_notif_banner_dismissed') === 'true';
+    if (window.Notification && window.Notification.permission === 'default' && !dismissed) {
       // Gentle delay so it doesn't slam the user upon initial render
       const timer = setTimeout(() => setShowBanner(true), 1500);
       return () => clearTimeout(timer);
