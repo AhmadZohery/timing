@@ -95,7 +95,7 @@ class GymFaithAudioService {
           }
         }
       }
-    } catch (_) {}
+    } catch {}
 
     const currentTitle =
       (resumePoint
@@ -232,7 +232,7 @@ class GymFaithAudioService {
           },
         ],
       });
-    } catch (_) {}
+    } catch {}
   }
 
   private setupMediaSessionHandlers() {
@@ -266,7 +266,7 @@ class GymFaithAudioService {
           this.seekTo(details.seekTime);
         }
       });
-    } catch (_) {}
+    } catch {}
   }
 
   private saveResumePoint() {
@@ -310,7 +310,7 @@ class GymFaithAudioService {
     try {
       localStorage.setItem(STORAGE_RESUME_KEY, JSON.stringify(resume));
       this.updateState({ resumePoint: resume });
-    } catch (_) {}
+    } catch {}
   }
 
   public getState(): GymFaithAudioState {
@@ -321,7 +321,7 @@ class GymFaithAudioService {
     try {
       const raw = localStorage.getItem(STORAGE_CUSTOM_SERIES_KEY);
       if (raw) return JSON.parse(raw);
-    } catch (_) {}
+    } catch {}
     return [];
   }
 
@@ -368,7 +368,7 @@ class GymFaithAudioService {
       const current = this.getCustomSeries();
       const updated = [newSeries, ...current];
       localStorage.setItem(STORAGE_CUSTOM_SERIES_KEY, JSON.stringify(updated));
-    } catch (_) {}
+    } catch {}
 
     return newSeries;
   }
@@ -378,14 +378,14 @@ class GymFaithAudioService {
       const current = this.getCustomSeries();
       const updated = current.filter((s) => s.id !== seriesId);
       localStorage.setItem(STORAGE_CUSTOM_SERIES_KEY, JSON.stringify(updated));
-    } catch (_) {}
+    } catch {}
   }
 
   public getFavorites(): string[] {
     try {
       const raw = localStorage.getItem(STORAGE_FAVORITES_KEY);
       if (raw) return JSON.parse(raw);
-    } catch (_) {}
+    } catch {}
     return [];
   }
 
@@ -401,7 +401,7 @@ class GymFaithAudioService {
     }
     try {
       localStorage.setItem(STORAGE_FAVORITES_KEY, JSON.stringify(Array.from(favs)));
-    } catch (_) {}
+    } catch {}
     return isNowFav;
   }
 
@@ -610,7 +610,7 @@ class GymFaithAudioService {
           try {
             targetAudio.pause();
             targetAudio.volume = originalVol;
-          } catch (_) {}
+          } catch {}
           this.saveResumePoint();
           this.updateState({ isPlaying: false, isLoading: false });
         }
@@ -686,7 +686,7 @@ class GymFaithAudioService {
     try {
       this.audio.currentTime = Math.max(0, this.audio.currentTime + seconds);
       this.updateState({ currentTime: Math.floor(this.audio.currentTime) });
-    } catch (_) {}
+    } catch {}
   }
 
   public seekTo(seconds: number) {
@@ -694,7 +694,7 @@ class GymFaithAudioService {
     try {
       this.audio.currentTime = Math.max(0, seconds);
       this.updateState({ currentTime: Math.floor(this.audio.currentTime) });
-    } catch (_) {}
+    } catch {}
   }
 
   public duckVolume(durationMs = 2500, duckFactor = 0.25) {

@@ -145,7 +145,7 @@ export function App() {
       if (userState?.id) {
         db.user_state.update(userState.id, { activeStation: st }).catch(() => {});
       }
-    } catch (_) {}
+    } catch {}
   };
 
   const [hasAudioTrack, setHasAudioTrack] = useState(() => {

@@ -605,7 +605,7 @@ export function getCustomDhikrs(): CustomDhikrItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_CUSTOM_DHIKRS);
     if (raw) return JSON.parse(raw);
-  } catch (_) {}
+  } catch {}
   return [];
 }
 
@@ -640,7 +640,7 @@ export function saveCustomDhikr(data: {
         JSON.stringify([newItem, ...pending.filter((p) => p.id !== newItem.id)])
       );
     }
-  } catch (_) {}
+  } catch {}
 
   return newItem;
 }
@@ -650,7 +650,7 @@ export function deleteCustomDhikr(id: string): void {
   const updated = existing.filter((d) => d.id !== id);
   try {
     localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updated));
-  } catch (_) {}
+  } catch {}
 }
 
 export function getCommunityPendingDhikrs(): CustomDhikrItem[] {
@@ -658,7 +658,7 @@ export function getCommunityPendingDhikrs(): CustomDhikrItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_COMMUNITY_PENDING);
     if (raw) return JSON.parse(raw);
-  } catch (_) {}
+  } catch {}
   return [];
 }
 
@@ -677,7 +677,7 @@ export function approveCommunityDhikr(id: string): void {
   try {
     localStorage.setItem(STORAGE_COMMUNITY_PENDING, JSON.stringify(updatedPending));
     localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updatedCustom));
-  } catch (_) {}
+  } catch {}
 }
 
 export function rejectCommunityDhikr(id: string): void {
@@ -690,7 +690,7 @@ export function rejectCommunityDhikr(id: string): void {
   try {
     localStorage.setItem(STORAGE_COMMUNITY_PENDING, JSON.stringify(updatedPending));
     localStorage.setItem(STORAGE_CUSTOM_DHIKRS, JSON.stringify(updatedCustom));
-  } catch (_) {}
+  } catch {}
 }
 
 /**

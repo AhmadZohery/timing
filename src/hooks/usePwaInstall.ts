@@ -16,47 +16,42 @@ export interface PwaInstallState {
   suppressForever: () => void;
 }
 
+function checkStandalone(): boolean {
+  if (typeof window === 'undefined') return false;
+  const isStandaloneMedia = window.matchMedia('(display-mode: standalone)').matches;
+  const isIosStandalone = (window.navigator as any).standalone === true;
+  const isAndroidReferrer = document.referrer.includes('android-app://');
+  const isMarkedInstalled = localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true';
+  return isStandaloneMedia || isIosStandalone || isAndroidReferrer || isMarkedInstalled;
+}
+
+function checkHasDismissed(): boolean {
+  if (typeof window === 'undefined') return false;
+  const dismissedUntil = localStorage.getItem(STORAGE_KEY_DISMISSED);
+  return Boolean(dismissedUntil && Date.now() < parseInt(dismissedUntil, 10));
+}
+
+function getPlatformInfo() {
+  if (typeof window === 'undefined') return { isIos: false, isAndroid: false, isMobile: false };
+  const ua = window.navigator.userAgent || '';
+  const isIosDevice = /iPhone|iPad|iPod/i.test(ua) && !(window as any).MSStream;
+  const isAndroidDevice = /Android/i.test(ua);
+  const isMobileViewport = window.innerWidth <= 820 || isIosDevice || isAndroidDevice;
+  return { isIos: isIosDevice, isAndroid: isAndroidDevice, isMobile: isMobileViewport };
+}
+
 export function usePwaInstall(): PwaInstallState {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
-  const [isIos, setIsIos] = useState(false);
-  const [isAndroid, setIsAndroid] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [hasDismissed, setHasDismissed] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(checkStandalone);
+  const [hasDismissed, setHasDismissed] = useState(checkHasDismissed);
+  const [platform] = useState(getPlatformInfo);
+  const { isIos, isAndroid, isMobile } = platform;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // 1. Detect standalone / already installed
-    const checkStandalone = (): boolean => {
-      const isStandaloneMedia = window.matchMedia('(display-mode: standalone)').matches;
-      const isIosStandalone = (window.navigator as any).standalone === true;
-      const isAndroidReferrer = document.referrer.includes('android-app://');
-      const isMarkedInstalled = localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true';
-      return isStandaloneMedia || isIosStandalone || isAndroidReferrer || isMarkedInstalled;
-    };
-
-    const standaloneStatus = checkStandalone();
-    setIsStandalone(standaloneStatus);
-
-    // 2. Check temporary dismissal
-    const dismissedUntil = localStorage.getItem(STORAGE_KEY_DISMISSED);
-    if (dismissedUntil && Date.now() < parseInt(dismissedUntil, 10)) {
-      setHasDismissed(true);
-    }
-
-    // 3. Platform detection
-    const ua = window.navigator.userAgent || '';
-    const isIosDevice = /iPhone|iPad|iPod/i.test(ua) && !(window as any).MSStream;
-    const isAndroidDevice = /Android/i.test(ua);
-    const isMobileViewport = window.innerWidth <= 820 || isIosDevice || isAndroidDevice;
-
-    setIsIos(isIosDevice);
-    setIsAndroid(isAndroidDevice);
-    setIsMobile(isMobileViewport);
-
-    // 4. Listen for Chrome/Android beforeinstallprompt
+    // Listen for Chrome/Android beforeinstallprompt
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);

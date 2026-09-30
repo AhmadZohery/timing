@@ -49,7 +49,7 @@ export const AgileStandupModal: React.FC<AgileStandupModalProps> = ({
         setTodayText(parsed.today || '');
         setBlockersText(parsed.blockers || '');
       }
-    } catch (_) {}
+    } catch {}
   }, [storageKey]);
 
   // Save to local storage on change
@@ -59,7 +59,7 @@ export const AgileStandupModal: React.FC<AgileStandupModalProps> = ({
         storageKey,
         JSON.stringify({ yesterday: y, today: t, blockers: b, date: todayStr })
       );
-    } catch (_) {}
+    } catch {}
   };
 
   // Filter PM & Agile vocabulary from english.ts

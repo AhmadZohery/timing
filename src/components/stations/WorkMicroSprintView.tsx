@@ -237,7 +237,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
             });
           }
         });
-      } catch (_) {}
+      } catch {}
     }
     return () => clearTimeout(timer);
   }, [isUrgeSurfing, urgeSeconds, surfedCount]);

@@ -100,7 +100,7 @@ export const FridayKahfModal: React.FC<FridayKahfModalProps> = ({
             : '✨ Accepted! You completed Surah Al-Kahf (+30 XP) • Light between Fridays'
         );
       }
-    } catch (_) {}
+    } catch {}
   };
 
   if (!isOpen) return null;

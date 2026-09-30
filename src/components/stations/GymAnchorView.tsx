@@ -128,7 +128,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (_) {}
+      } catch {}
     }
     return [
       {

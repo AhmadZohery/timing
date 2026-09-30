@@ -32,7 +32,7 @@ const safeGetItem = (key: string): string | null => {
     if (typeof localStorage !== 'undefined') {
       return localStorage.getItem(key);
     }
-  } catch (_) {}
+  } catch {}
   return null;
 };
 
@@ -41,7 +41,7 @@ const safeSetItem = (key: string, value: string): void => {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(key, value);
     }
-  } catch (_) {}
+  } catch {}
 };
 
 const DEFAULT_TRACKS: LearningTrackItem[] = [

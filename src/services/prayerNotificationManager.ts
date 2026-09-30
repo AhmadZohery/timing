@@ -95,7 +95,7 @@ class PrayerNotificationManager {
           };
         }
       }
-    } catch (_) {}
+    } catch {}
 
     return { isActive: false };
   }

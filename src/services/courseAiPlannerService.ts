@@ -57,7 +57,7 @@ export class CourseAiPlannerService {
         try {
           const cleaned = serverProxy.text.replace(/```json/g, '').replace(/```/g, '').trim();
           parsed = JSON.parse(cleaned);
-        } catch (_) {}
+        } catch {}
       }
 
       // 3. Fallback to client configured LLM

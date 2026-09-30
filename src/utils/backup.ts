@@ -41,7 +41,7 @@ export async function exportDatabaseToJson(): Promise<string> {
       if (val !== null) {
         legacyLocalData[key] = val;
       }
-    } catch (_) {}
+    } catch {}
   }
 
   const backupData: UniversalBackupData = {
@@ -112,7 +112,7 @@ export async function importDatabaseFromJson(jsonString: string): Promise<boolea
         if (typeof v === 'string') {
           try {
             localStorage.setItem(k, v);
-          } catch (_) {}
+          } catch {}
         }
       }
     }

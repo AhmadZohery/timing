@@ -90,7 +90,7 @@ export class SpeechService {
     if (this.recognition && this.isListening) {
       try {
         this.recognition.stop();
-      } catch (_) {}
+      } catch {}
       this.isListening = false;
     }
   }

@@ -25,7 +25,9 @@ const STATION_MAP: Record<string, StationId> = {
 export function useKeyboardShortcuts(handlers: ShortcutHandlers) {
   // Use a ref to prevent unnecessary event listener re-binding churn on every render
   const handlersRef = useRef(handlers);
-  handlersRef.current = handlers;
+  useEffect(() => {
+    handlersRef.current = handlers;
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

@@ -73,7 +73,7 @@ class OfflineAudioService {
     this.listeners.forEach((l) => {
       try {
         l();
-      } catch (_) {}
+      } catch {}
     });
   }
 

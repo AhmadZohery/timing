@@ -114,7 +114,7 @@ export const TeamSportsModule: React.FC<TeamSportsModuleProps> = ({
     setMatches(updated);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (_) {}
+    } catch {}
 
     try {
       if (db.match_logs) {

@@ -220,7 +220,7 @@ class ScheduleService {
     try {
       const raw = localStorage.getItem(ANOMALIES_LOG_KEY);
       if (raw) return JSON.parse(raw);
-    } catch (_) {}
+    } catch {}
     return [];
   }
 

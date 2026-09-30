@@ -213,7 +213,7 @@ class AuthService {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(LAST_ACTIVE_ACCOUNT_KEY, accountId);
       }
-    } catch (_) {}
+    } catch {}
   }
 
   /**
@@ -225,7 +225,7 @@ class AuthService {
         const raw = sessionStorage.getItem(PIN_ATTEMPTS_STORAGE_KEY);
         if (raw) return JSON.parse(raw);
       }
-    } catch (_) {}
+    } catch {}
     return {};
   }
 
@@ -234,7 +234,7 @@ class AuthService {
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.setItem(PIN_ATTEMPTS_STORAGE_KEY, JSON.stringify(map));
       }
-    } catch (_) {}
+    } catch {}
   }
 
   public getPinLockoutInfo(accountId: string): PinLockoutInfo {
@@ -318,7 +318,7 @@ class AuthService {
         }
       }
       return { success: true };
-    } catch (_) {
+    } catch {
       // Offline fallback: allow local-first creation
       return { success: true };
     }
@@ -466,7 +466,7 @@ class AuthService {
           isDefault: isFirst,
           createdAt: new Date().toISOString(),
         });
-      } catch (_) {}
+      } catch {}
 
       // Create active session
       this.createSession(account, true);
@@ -535,7 +535,7 @@ class AuthService {
               return { success: false, error: loginData.error || 'اسم المستخدم أو كلمة المرور غير صحيحة' };
             }
           }
-        } catch (_) {}
+        } catch {}
       }
 
       if (!account) {
@@ -708,7 +708,7 @@ class AuthService {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(PERSISTENT_STORAGE_KEY, JSON.stringify(session));
       }
-    } catch (_) {}
+    } catch {}
     return session;
   }
 
@@ -741,7 +741,7 @@ class AuthService {
       } else {
         localStorage.removeItem(PERSISTENT_STORAGE_KEY);
       }
-    } catch (_) {}
+    } catch {}
   }
 
   /**
@@ -804,7 +804,7 @@ class AuthService {
           return true;
         }
       }
-    } catch (_) {}
+    } catch {}
 
     return false;
   }
@@ -833,7 +833,7 @@ class AuthService {
         localStorage.removeItem(PERSISTENT_STORAGE_KEY);
         localStorage.removeItem(LAST_ACTIVITY_KEY);
       }
-    } catch (_) {}
+    } catch {}
   }
 
   /**
@@ -842,7 +842,7 @@ class AuthService {
   public recordActivity() {
     try {
       localStorage.setItem(LAST_ACTIVITY_KEY, String(Date.now()));
-    } catch (_) {}
+    } catch {}
   }
 
   public getAutoLockMinutes(): number {
@@ -857,7 +857,7 @@ class AuthService {
   public setAutoLockMinutes(minutes: number) {
     try {
       localStorage.setItem(AUTOLOCK_MINUTES_KEY, String(minutes));
-    } catch (_) {}
+    } catch {}
   }
 
   private isAutoLocked(): boolean {

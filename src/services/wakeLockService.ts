@@ -43,7 +43,7 @@ class WakeLockService {
       try {
         await this.wakeLock.release();
         this.wakeLock = null;
-      } catch (_) {}
+      } catch {}
     }
   }
 }

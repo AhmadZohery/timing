@@ -48,7 +48,7 @@ class BlobUrlVaultService {
     this.activeUrls.forEach((url) => {
       try {
         URL.revokeObjectURL(url);
-      } catch (_) {}
+      } catch {}
     });
     this.activeUrls.clear();
     this.currentTrackUrl = null;

@@ -64,7 +64,7 @@ export class ServerSyncService {
     this.listeners.forEach((fn) => {
       try {
         fn(status);
-      } catch (_) {}
+      } catch {}
     });
   }
 
@@ -98,7 +98,7 @@ export class ServerSyncService {
         this.notify();
         return true;
       }
-    } catch (_) {
+    } catch {
       // Server not reachable (e.g. running purely on GitHub Pages or offline)
     }
     this.isOnline = false;
@@ -628,7 +628,7 @@ export class ServerSyncService {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
       return !!sub;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
@@ -709,7 +709,7 @@ export class ServerSyncService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tag, profileId }),
       });
-    } catch (_) {}
+    } catch {}
   }
 
   /**

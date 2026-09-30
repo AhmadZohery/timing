@@ -300,7 +300,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           setIsOnlineLive(true);
           sessionStorage.setItem(sessionKey, 'true');
         }
-      } catch (_) {}
+      } catch {}
     }, 1200);
 
     return () => {

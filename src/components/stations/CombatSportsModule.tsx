@@ -82,7 +82,7 @@ export const CombatSportsModule: React.FC<CombatSportsModuleProps> = ({
       if ('wakeLock' in navigator && isRunning && document.visibilityState === 'visible') {
         try {
           wakeLockSentinel = await (navigator as any).wakeLock.request('screen');
-        } catch (_) {}
+        } catch {}
       }
     };
 
@@ -92,7 +92,7 @@ export const CombatSportsModule: React.FC<CombatSportsModuleProps> = ({
       } else if (document.visibilityState !== 'visible' && wakeLockSentinel) {
         try {
           wakeLockSentinel.release();
-        } catch (_) {}
+        } catch {}
         wakeLockSentinel = null;
       }
     };

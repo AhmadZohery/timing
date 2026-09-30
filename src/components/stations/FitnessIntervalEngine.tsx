@@ -77,7 +77,7 @@ export const FitnessIntervalEngine: React.FC<FitnessIntervalEngineProps> = ({
       if ('wakeLock' in navigator && isRunning) {
         try {
           wakeLockSentinel = await (navigator as any).wakeLock.request('screen');
-        } catch (_) {}
+        } catch {}
       }
     };
     if (isRunning) {

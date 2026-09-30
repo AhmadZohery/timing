@@ -13,7 +13,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([100, 60, 100]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -22,7 +22,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([180, 80, 180, 80, 350]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -31,7 +31,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([350]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -40,7 +40,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate(60);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -49,7 +49,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([70, 50, 70]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -58,7 +58,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate(25);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -67,7 +67,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate(12);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -76,7 +76,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate(8);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -85,7 +85,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([40, 30, 80]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -94,7 +94,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([50, 100, 30]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -103,7 +103,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate([10, 20, 8]);
-      } catch (_) {}
+      } catch {}
     }
   }
 
@@ -112,7 +112,7 @@ class VibrationService {
     if (this.hasVibration()) {
       try {
         navigator.vibrate(12);
-      } catch (_) {}
+      } catch {}
     }
   }
 }

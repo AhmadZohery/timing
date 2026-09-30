@@ -49,7 +49,7 @@ export class LocalIntelligenceEngine {
     try {
       const val = localStorage.getItem(TOKENS_SAVED_KEY);
       return val ? parseInt(val, 10) : 0;
-    } catch (_) {
+    } catch {
       return 0;
     }
   }
@@ -61,7 +61,7 @@ export class LocalIntelligenceEngine {
     try {
       const current = this.getTokensSaved();
       localStorage.setItem(TOKENS_SAVED_KEY, String(current + approxTokens));
-    } catch (_) {}
+    } catch {}
   }
 
   /**
@@ -74,7 +74,7 @@ export class LocalIntelligenceEngine {
       const cache = JSON.parse(cacheStr);
       const key = prompt.trim().toLowerCase();
       return cache[key] || null;
-    } catch (_) {
+    } catch {
       return null;
     }
   }
@@ -94,7 +94,7 @@ export class LocalIntelligenceEngine {
       }
       cache[key] = result;
       localStorage.setItem(PARSE_CACHE_KEY, JSON.stringify(cache));
-    } catch (_) {}
+    } catch {}
   }
 
   /**

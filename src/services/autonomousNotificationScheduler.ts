@@ -532,7 +532,7 @@ class AutonomousNotificationScheduler {
               minInterval: 15 * 60 * 1000,
             });
           }
-        } catch (_) {}
+        } catch {}
       }
 
       this.lastScheduledDate = todayDateStr;
@@ -578,7 +578,7 @@ class AutonomousNotificationScheduler {
             showTrigger: new TimestampTrigger(targetTimeMs),
             data: { url: '/' },
           } as any);
-        } catch (_) {}
+        } catch {}
       }
 
       // 3. Send message to Service Worker for background setTimeout
@@ -622,7 +622,7 @@ class AutonomousNotificationScheduler {
       notifs.forEach((n) => {
         if (n.tag.includes(prayerName)) n.close();
       });
-    } catch (_) {}
+    } catch {}
   }
 }
 

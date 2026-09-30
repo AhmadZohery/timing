@@ -226,7 +226,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     }
     try {
       localStorage.setItem('midmar_pre_adhan_alert_armed', String(nextVal));
-    } catch (_) {}
+    } catch {}
     if (onRewardToast) {
       onRewardToast(
         nextVal
@@ -257,7 +257,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     setIslandTasbihCount(nextCount);
     try {
       localStorage.setItem('midmar_island_quick_tasbih', String(nextCount));
-    } catch (_) {}
+    } catch {}
   };
 
   // Local state to track quick prayer confirmation

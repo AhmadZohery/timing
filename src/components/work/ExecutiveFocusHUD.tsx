@@ -49,7 +49,7 @@ export const ExecutiveFocusHUD: React.FC<ExecutiveFocusHUDProps> = ({
     try {
       const saved = localStorage.getItem('midmar_hud_parking_lot');
       return saved ? JSON.parse(saved) : [];
-    } catch (_) {
+    } catch {
       return [];
     }
   });

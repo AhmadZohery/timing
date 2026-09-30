@@ -360,7 +360,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
         }
       }
     } catch {}
-  }, []);
+  }, [timer]);
 
   const handleStartWork = () => {
     soundSynth.playTactileClick();

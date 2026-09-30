@@ -250,7 +250,9 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
   const clozeOptions = useMemo(() => {
     if (!currentWord) return [];
     const others = words.filter((w) => w.id !== currentWord.id).map((w) => w.word).slice(0, 2);
-    return [currentWord.word, ...others].sort(() => 0.5 - Math.random());
+    const pool = [currentWord.word, ...others];
+    const seed = currentWord.word.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    return pool.sort((a, b) => ((seed + a.length) % 3) - ((seed + b.length) % 3));
   }, [currentWord, words]);
 
   // Move 4 Cloze Keyboard Controls: 1-3 for options, Enter for Submit / Next

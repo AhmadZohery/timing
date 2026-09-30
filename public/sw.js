@@ -73,7 +73,7 @@ async function removeAlarmFromDB(alarmId) {
     const db = await openAlarmsDB();
     const tx = db.transaction('alarms', 'readwrite');
     tx.objectStore('alarms').delete(alarmId);
-  } catch (_) {}
+  } catch {}
 }
 
 // Check and trigger any alarms whose time has arrived
@@ -237,7 +237,7 @@ self.addEventListener('message', (event) => {
               data: { url: '/' },
             });
             triggerRegistered = true;
-          } catch (_) {}
+          } catch {}
         }
 
         // Fallback setTimeout inside Service Worker
@@ -307,7 +307,7 @@ self.addEventListener('notificationclick', (event) => {
               data: notifData,
             });
             return;
-          } catch (_) {}
+          } catch {}
         }
         setTimeout(async () => {
           await self.registration.showNotification(event.notification.title + ' (تذكير مؤجل)', {
@@ -350,7 +350,7 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       data = event.data.json();
-    } catch (_) {
+    } catch {
       data.body = event.data.text();
     }
   }

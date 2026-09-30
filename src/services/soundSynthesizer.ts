@@ -47,7 +47,7 @@ class SoundSynthesizer {
     this.ambientListeners.forEach((fn) => {
       try {
         fn(this.isAmbientPlaying, this.currentAmbientType);
-      } catch (_) {}
+      } catch {}
     });
   }
 
@@ -55,7 +55,7 @@ class SoundSynthesizer {
     this.isMuted = muted;
     try {
       localStorage.setItem('midmar_sound_muted', String(muted));
-    } catch (_) {}
+    } catch {}
     if (muted) {
       this.stopAmbient();
     }
@@ -267,14 +267,14 @@ class SoundSynthesizer {
         try {
           this.ambientSource?.stop();
           this.ambientSource?.disconnect();
-        } catch (_) {}
+        } catch {}
         this.ambientSource = null;
         this.ambientGain = null;
         this.isAmbientPlaying = false;
         this.currentAmbientType = 'none';
         this.notifyAmbient();
       }, 500);
-    } catch (_) {
+    } catch {
       this.ambientSource = null;
       this.ambientGain = null;
       this.isAmbientPlaying = false;
@@ -326,7 +326,7 @@ class SoundSynthesizer {
             gain1.disconnect();
             osc2.disconnect();
             gain2.disconnect();
-          } catch (_) {}
+          } catch {}
         };
 
         osc1.start(startTime);
@@ -363,12 +363,12 @@ class SoundSynthesizer {
         try {
           osc.disconnect();
           gain.disconnect();
-        } catch (_) {}
+        } catch {}
       };
 
       osc.start(now);
       osc.stop(now + 1.9);
-    } catch (_) {}
+    } catch {}
   }
 
   // Major triumphant streak fanfare (Ascending harmonic arpeggio F4 -> A4 -> C5 -> E5 -> F5 -> A5)
@@ -392,12 +392,12 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
         osc.start(now + idx * 0.09);
         osc.stop(now + idx * 0.09 + 1.5);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // Loss Aversion Penalty / Warning sound (Dignified minor tone)
@@ -423,11 +423,11 @@ class SoundSynthesizer {
         try {
           osc.disconnect();
           gain.disconnect();
-        } catch (_) {}
+        } catch {}
       };
       osc.start(now);
       osc.stop(now + 0.36);
-    } catch (_) {}
+    } catch {}
   }
 
   // Tactile UI click sound (Pristine zero-crossing exponential decay with 0 DC-offset)
@@ -452,12 +452,12 @@ class SoundSynthesizer {
         try {
           osc.disconnect();
           gain.disconnect();
-        } catch (_) {}
+        } catch {}
       };
 
       osc.start(now);
       osc.stop(now + 0.05);
-    } catch (_) {}
+    } catch {}
   }
 
   // VisionOS Dynamic Island Velvet Acoustic Expansion (Soft marimba/glass bloom)
@@ -498,7 +498,7 @@ class SoundSynthesizer {
       gain2.connect(ctx.destination);
       osc2.start(now + 0.015);
       osc2.stop(now + 0.13);
-    } catch (_) {}
+    } catch {}
   }
 
   // VisionOS Magnetic Precision Aperture Latch Snap (Soft discrete mechanical lock)
@@ -540,7 +540,7 @@ class SoundSynthesizer {
       subGain.connect(ctx.destination);
       subOsc.start(now + 0.002);
       subOsc.stop(now + 0.045);
-    } catch (_) {}
+    } catch {}
   }
 
   // 10-Second Combat Sports Clapper Warning (Double wooden block strike for final round flurry)
@@ -565,12 +565,12 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
         osc.start(now + delay);
         osc.stop(now + delay + 0.07);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // Gym Rest Timer Bell (Tibetan singing bowl / gong harmonic)
@@ -592,12 +592,12 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
         osc.start(now);
         osc.stop(now + 1.9);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // Boxing Ring Bell: Authentic Double Brass Ding ("Ding! ... Ding!") with high-frequency metallic harmonics
@@ -629,7 +629,7 @@ class SoundSynthesizer {
             try {
               osc.disconnect();
               gain.disconnect();
-            } catch (_) {}
+            } catch {}
           };
           osc.start(startTime);
           osc.stop(startTime + p.decay + 0.05);
@@ -639,7 +639,7 @@ class SoundSynthesizer {
       const now = ctx.currentTime;
       strike(now); // First strike: "Ding!"
       strike(now + 0.22); // Second strike: "Ding!"
-    } catch (_) {}
+    } catch {}
   }
 
   // Authentic 10-Second Combat Warning Clapper ("Clack! ... Clack! ... Clack!")
@@ -665,7 +665,7 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
 
         osc.start(time);
@@ -676,7 +676,7 @@ class SoundSynthesizer {
       playClack(now);
       playClack(now + 0.15);
       playClack(now + 0.30);
-    } catch (_) {}
+    } catch {}
   }
 
   // Interval Beep for HIIT / Tabata / EMOM countdown (Low: 750Hz, High: 1650Hz)
@@ -705,12 +705,12 @@ class SoundSynthesizer {
         try {
           osc.disconnect();
           gain.disconnect();
-        } catch (_) {}
+        } catch {}
       };
 
       osc.start(now);
       osc.stop(now + duration + 0.02);
-    } catch (_) {}
+    } catch {}
   }
 
   // 10 Hz Binaural Alpha Waves for Deep Work Focus (Left: 200Hz, Right: 210Hz)
@@ -759,7 +759,7 @@ class SoundSynthesizer {
       this.binauralLeftOsc = leftOsc;
       this.binauralRightOsc = rightOsc;
       this.binauralGain = masterGain;
-    } catch (_) {}
+    } catch {}
   }
 
   public stopBinauralAlpha() {
@@ -776,11 +776,11 @@ class SoundSynthesizer {
           this.binauralRightOsc?.stop();
           this.binauralRightOsc?.disconnect();
           this.binauralGain?.disconnect();
-        } catch (_) {}
+        } catch {}
         this.binauralLeftOsc = null;
         this.binauralRightOsc = null;
         }, 650);
-    } catch (_) {
+    } catch {
       this.binauralLeftOsc = null;
       this.binauralRightOsc = null;
       this.binauralGain = null;
@@ -837,7 +837,7 @@ class SoundSynthesizer {
             gain1.disconnect();
             osc2.disconnect();
             gain2.disconnect();
-          } catch (_) {}
+          } catch {}
         };
 
         osc1.start(startTime);
@@ -845,7 +845,7 @@ class SoundSynthesizer {
         osc2.start(startTime);
         osc2.stop(startTime + 1.6);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // 2. Sprint / Work Session Completion (Triumphant Ascending Arpeggio)
@@ -879,13 +879,13 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
 
         osc.start(startTime);
         osc.stop(startTime + 1.35);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // 3. Break Over / Refocus Tone (Tibetan Singing Bowl Gong)
@@ -915,12 +915,12 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
         osc.start(now);
         osc.stop(now + 2.1);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // 4. Quick Alarms & Reminders (Rhythmic Marimba Pulse)
@@ -951,13 +951,13 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
 
         osc.start(startTime);
         osc.stop(startTime + 0.18);
       });
-    } catch (_) {}
+    } catch {}
   }
 
   // 5. Hydration & Physical Movement (Crystal Water Droplet Chime)
@@ -985,7 +985,7 @@ class SoundSynthesizer {
           try {
             osc.disconnect();
             gain.disconnect();
-          } catch (_) {}
+          } catch {}
         };
         osc.start(time);
         osc.stop(time + 0.2);
@@ -1003,7 +1003,7 @@ class SoundSynthesizer {
         playDrop(0, 1350, 2150);
         playDrop(0.11, 1550, 2400);
       }
-    } catch (_) {}
+    } catch {}
   }
 
   // 6. Quran Wird & Adhkar (528 Hz Solfeggio Tranquility Chime)
@@ -1046,13 +1046,13 @@ class SoundSynthesizer {
           gain1.disconnect();
           osc2.disconnect();
           gain2.disconnect();
-        } catch (_) {}
+        } catch {}
       };
       osc1.start(now);
       osc1.stop(now + 2.3);
       osc2.start(now);
       osc2.stop(now + 1.7);
-    } catch (_) {}
+    } catch {}
   }
 
   // 7. Streak Milestones & Shields (Major Triumphant Fanfare)
@@ -1077,7 +1077,7 @@ class SoundSynthesizer {
             try {
               osc.disconnect();
               gain.disconnect();
-            } catch (_) {}
+            } catch {}
           };
           osc.start(now);
           osc.stop(now + 1.3);
@@ -1101,7 +1101,7 @@ class SoundSynthesizer {
             try {
               osc.disconnect();
               gain.disconnect();
-            } catch (_) {}
+            } catch {}
           };
           osc.start(startTime);
           osc.stop(startTime + 1.25);
@@ -1110,7 +1110,7 @@ class SoundSynthesizer {
       }
 
       this.playStreakMilestoneChime();
-    } catch (_) {
+    } catch {
       this.playStreakMilestoneChime();
     }
   }
@@ -1138,7 +1138,7 @@ class SoundSynthesizer {
             try {
               osc.disconnect();
               gain.disconnect();
-            } catch (_) {}
+            } catch {}
           };
           osc.start(now + delay);
           osc.stop(now + delay + 0.15);
@@ -1162,7 +1162,7 @@ class SoundSynthesizer {
             try {
               osc.disconnect();
               gain.disconnect();
-            } catch (_) {}
+            } catch {}
           };
           osc.start(startTime);
           osc.stop(startTime + 0.25);
@@ -1171,7 +1171,7 @@ class SoundSynthesizer {
       }
 
       this.playWarningSound();
-    } catch (_) {
+    } catch {
       this.playWarningSound();
     }
   }
@@ -1216,7 +1216,7 @@ class SoundSynthesizer {
       try {
         this.athanAudio.pause();
         this.athanAudio.currentTime = 0;
-      } catch (_) {}
+      } catch {}
       this.athanAudio = null;
     }
     this.isAthanPlaying = false;
@@ -1233,7 +1233,7 @@ class SoundSynthesizer {
     try {
       const raw = localStorage.getItem('midmar_notification_tones');
       if (raw) return JSON.parse(raw);
-    } catch (_) {}
+    } catch {}
     return {
       prayerTone: 'makkah', // Default: Athan of Al-Haram Al-Makki
       prayerChimeAlternative: 'rast_minaret',
@@ -1250,7 +1250,7 @@ class SoundSynthesizer {
   public saveNotificationTonesConfig(cfg: NotificationTonesConfig): void {
     try {
       localStorage.setItem('midmar_notification_tones', JSON.stringify(cfg));
-    } catch (_) {}
+    } catch {}
   }
 
   public playNotificationSound(category: NotificationSoundCategory, specificToneId?: string) {

@@ -342,7 +342,7 @@ export const Header: React.FC<HeaderProps> = ({
           if (valid.length > 0) return valid as HeaderPinActionId[];
         }
       }
-    } catch (_) {}
+    } catch {}
     return DEFAULT_PINNED_ACTIONS;
   });
 
@@ -364,7 +364,7 @@ export const Header: React.FC<HeaderProps> = ({
       }
       try {
         localStorage.setItem('midmar_header_pins', JSON.stringify(next));
-      } catch (_) {}
+      } catch {}
       return next;
     });
   };
@@ -375,7 +375,7 @@ export const Header: React.FC<HeaderProps> = ({
     setPinnedActions(DEFAULT_PINNED_ACTIONS);
     try {
       localStorage.setItem('midmar_header_pins', JSON.stringify(DEFAULT_PINNED_ACTIONS));
-    } catch (_) {}
+    } catch {}
   };
 
   const controlCenterRef = React.useRef<HTMLDivElement>(null);

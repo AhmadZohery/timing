@@ -253,7 +253,7 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
       if (serverProxyRes?.text) {
         return serverProxyRes.text.trim();
       }
-    } catch (_) {}
+    } catch {}
 
     // Fallback: Smart Offline Rule-Based Cognitive Heuristic Engine
     return this.getOfflineHeuristicResponse(userMessage, context);
@@ -367,7 +367,7 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
           }));
         }
       }
-    } catch (_) {}
+    } catch {}
 
     // Heuristic Fallback Breakdown
     return [

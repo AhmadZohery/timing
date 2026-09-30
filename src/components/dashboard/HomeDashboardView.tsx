@@ -106,7 +106,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const { language } = useTranslation();
   const isAr = language === 'ar';
 
-  const now = useMemo(() => new Date(), [todayLog?.date]);
+  const dateKey = todayLog?.date || '';
+  const now = useMemo(() => (dateKey ? new Date(dateKey + 'T12:00:00') : new Date()), [dateKey]);
   const currentHour = now.getHours();
 
   const personaId = userState?.settings?.lifestylePersona || 'builder_exec';

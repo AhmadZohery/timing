@@ -148,7 +148,7 @@ export const ScopeDecisionMatrixModal: React.FC<ScopeDecisionMatrixModalProps> =
         );
       }
       onClose();
-    } catch (_) {}
+    } catch {}
   };
 
   const handleDeferToBufferQueue = () => {

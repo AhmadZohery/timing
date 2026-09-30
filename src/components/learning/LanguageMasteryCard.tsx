@@ -1545,7 +1545,7 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
           try {
             const raw = localStorage.getItem('midmar_english_persona');
             if (raw) setUserPersona(JSON.parse(raw));
-          } catch (_) {}
+          } catch {}
           const words = spacedRepetition.getWordsByLevel(lvl, activeLang);
           setTodayWords(words.length > 0 ? words : spacedRepetition.getTodayWords(dailyQuota));
           setStats(spacedRepetition.getStats());

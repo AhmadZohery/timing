@@ -67,7 +67,7 @@ const safeGetItem = (key: string): string | null => {
     if (typeof localStorage !== 'undefined') {
       return localStorage.getItem(key);
     }
-  } catch (_) {}
+  } catch {}
   return null;
 };
 
@@ -76,7 +76,7 @@ const safeSetItem = (key: string, value: string): void => {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(key, value);
     }
-  } catch (_) {}
+  } catch {}
 };
 
 export class SpacedRepetitionService {
@@ -92,12 +92,12 @@ export class SpacedRepetitionService {
     try {
       const savedProgress = safeGetItem(STORAGE_PROGRESS_KEY);
       if (savedProgress) this.progress = JSON.parse(savedProgress);
-    } catch (_) {}
+    } catch {}
 
     try {
       const savedCustom = safeGetItem(STORAGE_CUSTOM_KEY);
       if (savedCustom) this.customWords = JSON.parse(savedCustom);
-    } catch (_) {}
+    } catch {}
 
     // Hydrate from Dexie if local memory was empty
     this.syncFromDexie();

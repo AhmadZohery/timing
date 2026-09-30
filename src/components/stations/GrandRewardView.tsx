@@ -45,7 +45,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
     try {
       const saved = localStorage.getItem('midmar_sleep_hygiene_checks');
       if (saved) return JSON.parse(saved);
-    } catch (_) {}
+    } catch {}
     return [true, true, true];
   });
 
@@ -57,7 +57,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
       updated[index] = !updated[index];
       try {
         localStorage.setItem('midmar_sleep_hygiene_checks', JSON.stringify(updated));
-      } catch (_) {}
+      } catch {}
       return updated;
     });
   };
@@ -66,7 +66,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
   const [gratitudeNote, setGratitudeNote] = useState(() => {
     try {
       return localStorage.getItem('midmar_gratitude_note') || '';
-    } catch (_) {
+    } catch {
       return '';
     }
   });
@@ -78,7 +78,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
       localStorage.setItem('midmar_gratitude_note', val);
       setIsGratitudeSaved(true);
       setTimeout(() => setIsGratitudeSaved(false), 2000);
-    } catch (_) {}
+    } catch {}
   };
 
   useEffect(() => {
