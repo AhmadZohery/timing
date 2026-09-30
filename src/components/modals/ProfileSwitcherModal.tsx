@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Briefcase,
   Sliders,
+  KeyRound,
 } from 'lucide-react';
 import type { UserProfile, LifeRoleTemplate, UserState } from '../../types';
 import { db } from '../../db/db';
@@ -26,12 +27,14 @@ interface ProfileSwitcherModalProps {
   isOpen: boolean;
   onClose: () => void;
   userState: UserState | undefined;
+  onOpenPinModal?: () => void;
 }
 
 export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
   isOpen,
   onClose,
   userState,
+  onOpenPinModal,
 }) => {
   const { t, language } = useTranslation();
   const isAr = language === 'ar';
@@ -183,6 +186,25 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {onOpenPinModal && (
+          <div className="p-3 px-4 sm:px-6 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs text-amber-800 dark:text-amber-300">
+              <KeyRound className="w-4 h-4 text-amber-500 shrink-0" />
+              <span className="font-bold">{isAr ? 'تغيير رمز PIN السريع أو تعديل اسم المستخدم واللقب:' : 'Change Quick PIN or account identity:'}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenPinModal();
+              }}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-black transition-all cursor-pointer shadow-xs shrink-0"
+            >
+              {isAr ? 'تعديل الـ PIN والاسم 🔑' : 'Change PIN & Name 🔑'}
+            </button>
+          </div>
+        )}
 
         {/* Body Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">

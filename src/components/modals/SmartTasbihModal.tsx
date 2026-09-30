@@ -86,7 +86,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     getCommunityPendingDhikrs()
   );
   const session = authService.getSession();
-  const isAdmin = session?.username?.toLowerCase() === 'ahmad' || session?.userId === 'account_owner_ahmad';
+  const isAdmin = Boolean(session?.isOwner);
 
   // In-progress session continuation prompt & Yesterday achievements banner
   const [inProgressPrompt, setInProgressPrompt] = useState<{ count: number; stageIndex: number } | null>(null);

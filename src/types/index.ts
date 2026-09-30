@@ -782,6 +782,7 @@ export interface AuthSession {
   email?: string;
   expiresAt: number;
   rememberMe: boolean;
+  isOwner?: boolean;
 }
 
 // External Calendar & Prayer Shield (OPP-0104 / SPEC-0104)

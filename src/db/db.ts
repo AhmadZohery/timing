@@ -467,23 +467,16 @@ export async function initializeDatabaseSeed() {
   // Ensure Default Profile exists
   const profileCount = await db.profiles.count();
   if (profileCount === 0) {
+    const firstAccount = await db.auth_accounts.toCollection().first();
     await db.profiles.add({
       id: 'profile_default',
-      name: 'أحمد',
-      email: 'AhmadZohery@gmail.com',
+      name: firstAccount?.displayName || 'الملف الشخصي الأساسي',
+      email: firstAccount?.email || '',
       roleTemplate: 'software_engineer',
       createdAt: new Date().toISOString(),
       isDefault: true,
       avatarEmoji: '⚡',
     });
-  } else {
-    const existing = await db.profiles.get('profile_default');
-    if (existing && (existing.name === 'الملف الشخصي الأساسي' || !existing.name)) {
-      await db.profiles.update('profile_default', {
-        name: 'أحمد',
-        email: 'AhmadZohery@gmail.com',
-      });
-    }
   }
 
   // Ensure Sample Workday Tasks exist for today

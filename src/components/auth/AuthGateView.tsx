@@ -11,15 +11,12 @@ import {
   AlertCircle,
   Globe,
   Fingerprint,
-  Sparkles,
   Users,
   CheckCircle2,
   Plus,
 } from 'lucide-react';
 import {
   authService,
-  isLocalEnvironment,
-  DEFAULT_MASTER_ACCOUNT,
   type LocalAccountSummary,
 } from '../../services/authService';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -33,7 +30,6 @@ interface AuthGateViewProps {
 export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) => {
   const { language, isRTL, toggleLanguage } = useTranslation();
   const isAr = language === 'ar';
-  const isLocal = isLocalEnvironment();
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccount, setHasAccount] = useState(false);
@@ -47,14 +43,14 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   const [lockoutCooldown, setLockoutCooldown] = useState<number>(0);
 
   // Setup / Register Form State
-  const [setupName, setSetupName] = useState(DEFAULT_MASTER_ACCOUNT.displayName);
+  const [setupName, setSetupName] = useState('');
   const [setupUsername, setSetupUsername] = useState('');
   const [setupPassword, setSetupPassword] = useState('');
   const [setupConfirmPass, setSetupConfirmPass] = useState('');
   const [setupPin, setSetupPin] = useState('');
 
   // Login Form State
-  const [loginUsername, setLoginUsername] = useState(DEFAULT_MASTER_ACCOUNT.username);
+  const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginPin, setLoginPin] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
@@ -140,13 +136,6 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
     } else {
       setIsPinMode(false);
     }
-  };
-
-  const handleLocalBypass = () => {
-    soundSynth.playCompletionChime();
-    haptic.vibrateSprintCelebration();
-    authService.bypassLoginLocalOwner();
-    onAuthenticated();
   };
 
   const handleRegisterOwner = async (e: React.FormEvent) => {
@@ -336,29 +325,6 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
             </div>
           )}
 
-          {/* Local Dev Environment One-Click Bypass */}
-          {isLocal && (
-            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 space-y-2.5 text-center animate-fade-in shadow-inner">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>{isAr ? 'البيئة المحلية (Localhost) - مفتوح بدون باسوورد' : 'Localhost Dev Mode - Password Free'}</span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                {isAr
-                  ? 'حسابك "أحمد" مهيأ ومحمي. يمكنك الدخول فوراً بلمسة واحدة بدون باسوورد، أو تجربة تسجيل الدخول.'
-                  : 'Your account "Ahmad" is configured. You can enter instantly with one tap without password.'}
-              </p>
-              <button
-                type="button"
-                onClick={handleLocalBypass}
-                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 transition-transform active:scale-98 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>{isAr ? '⚡ الدخول الفوري كـ أحمد (مفتوح لوكال)' : '⚡ Instant Access as Ahmad'}</span>
-              </button>
-            </div>
-          )}
-
           {/* Dual Tabs: Login vs Register */}
           <div className="flex items-center p-1 rounded-2xl bg-white/[0.04] border border-white/[0.08]">
             <button
@@ -409,7 +375,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                     required
                     value={setupName}
                     onChange={(e) => setSetupName(e.target.value)}
-                    placeholder={isAr ? 'مثال: أحمد' : 'e.g. Ahmad'}
+                    placeholder={isAr ? 'الاسم الكريم أو اللقب' : 'Full Name or Title'}
                     className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                   />
                 </div>
@@ -677,7 +643,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                         required
                         value={loginUsername}
                         onChange={(e) => setLoginUsername(e.target.value)}
-                        placeholder={isAr ? 'مثال: Ahmad أو البريد' : 'e.g. Ahmad or email'}
+                        placeholder={isAr ? 'اسم المستخدم أو البريد الإلكتروني' : 'Username or email'}
                         className="w-full ps-9 pe-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                       />
                     </div>

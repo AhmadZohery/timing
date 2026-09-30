@@ -42,16 +42,16 @@ export function isLocalEnvironment(): boolean {
 }
 
 /**
- * Master Owner Configuration for Ahmad (أحمد)
+ * Default Master Configuration Template (Generic, non-binding)
  */
 export const DEFAULT_MASTER_ACCOUNT = {
-  id: 'account_owner_ahmad',
-  username: 'Ahmad',
-  cleanUsername: 'ahmad',
-  displayName: 'أحمد',
-  email: 'AhmadZohery@gmail.com',
-  defaultPassword: 'Ahmad@2026',
-  defaultPin: '2026',
+  id: 'account_owner_default',
+  username: '',
+  cleanUsername: '',
+  displayName: '',
+  email: '',
+  defaultPassword: '',
+  defaultPin: '',
 };
 
 class AuthService {
@@ -80,67 +80,17 @@ class AuthService {
   }
 
   /**
-   * Ensure the master account for Ahmad exists in IndexedDB
+   * Retrieve the primary owner account from IndexedDB without modifying user details
    */
-  public async ensureDefaultOwnerAccount(): Promise<AuthAccount> {
+  public async ensureDefaultOwnerAccount(): Promise<AuthAccount | null> {
     try {
       const all = await db.auth_accounts.toArray();
-      const existing = all.find(
-        (a) =>
-          a.username.toLowerCase() === DEFAULT_MASTER_ACCOUNT.cleanUsername ||
-          a.email?.toLowerCase() === DEFAULT_MASTER_ACCOUNT.email.toLowerCase() ||
-          a.isOwner
-      );
-
-      const salt = existing?.salt || this.generateSalt();
-      const passwordHash =
-        existing?.passwordHash || (await this.hashSecret(DEFAULT_MASTER_ACCOUNT.defaultPassword, salt));
-      const pinHash =
-        existing?.pinHash || (await this.hashSecret(DEFAULT_MASTER_ACCOUNT.defaultPin, salt));
-
-      if (existing) {
-        await db.auth_accounts.update(existing.id, {
-          username: DEFAULT_MASTER_ACCOUNT.username,
-          displayName: DEFAULT_MASTER_ACCOUNT.displayName,
-          email: DEFAULT_MASTER_ACCOUNT.email,
-          isOwner: true,
-        });
-        return {
-          ...existing,
-          username: DEFAULT_MASTER_ACCOUNT.username,
-          displayName: DEFAULT_MASTER_ACCOUNT.displayName,
-          email: DEFAULT_MASTER_ACCOUNT.email,
-          isOwner: true,
-        };
+      if (all.length > 0) {
+        return all.find((a) => a.isOwner) || all[0];
       }
-
-      const account: AuthAccount = {
-        id: DEFAULT_MASTER_ACCOUNT.id,
-        username: DEFAULT_MASTER_ACCOUNT.username,
-        displayName: DEFAULT_MASTER_ACCOUNT.displayName,
-        email: DEFAULT_MASTER_ACCOUNT.email,
-        passwordHash,
-        salt,
-        pinHash,
-        isOwner: true,
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-      };
-
-      await db.auth_accounts.add(account);
-      return account;
+      return null;
     } catch {
-      return {
-        id: DEFAULT_MASTER_ACCOUNT.id,
-        username: DEFAULT_MASTER_ACCOUNT.username,
-        displayName: DEFAULT_MASTER_ACCOUNT.displayName,
-        email: DEFAULT_MASTER_ACCOUNT.email,
-        passwordHash: '',
-        salt: '',
-        isOwner: true,
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-      };
+      return null;
     }
   }
 
@@ -335,8 +285,8 @@ class AuthService {
     email?: string
   ): Promise<{ success: boolean; error?: string }> {
     const cleanUsername = username.trim();
-    const cleanName = displayName.trim() || DEFAULT_MASTER_ACCOUNT.displayName;
-    const cleanEmail = email?.trim() || DEFAULT_MASTER_ACCOUNT.email;
+    const cleanName = displayName.trim() || cleanUsername;
+    const cleanEmail = email?.trim() || undefined;
 
     if (!cleanUsername) {
       return { success: false, error: 'يرجى إدخال اسم المستخدم' };
@@ -494,8 +444,7 @@ class AuthService {
       let account = all.find(
         (a) =>
           a.username.toLowerCase() === cleanInput ||
-          a.email?.toLowerCase() === cleanInput ||
-          (all.length === 1 && (cleanInput === 'admin' || cleanInput === 'ahmad' || cleanInput === 'owner'))
+          a.email?.toLowerCase() === cleanInput
       );
 
       // If account not found in local IndexedDB, attempt to authenticate with PostgreSQL server
@@ -729,6 +678,7 @@ class AuthService {
       email: account.email,
       expiresAt,
       rememberMe,
+      isOwner: Boolean(account.isOwner),
     };
 
     this.cachedSession = session;
@@ -748,31 +698,6 @@ class AuthService {
    * Check if current session is authenticated and not expired
    */
   public isAuthenticated(): boolean {
-    // If running in local environment (localhost / 127.0.0.1)
-    // User requested: "بس عموما خليه مفتوح لوكال عادي بدون باسوورد"
-    if (isLocalEnvironment()) {
-      const explicitLocked =
-        typeof sessionStorage !== 'undefined'
-          ? sessionStorage.getItem(EXPLICIT_LOCKED_KEY) === 'true'
-          : false;
-
-      // If user did not explicitly press "Lock" in this session, keep open locally without password
-      if (!explicitLocked) {
-        if (!this.cachedSession) {
-          this.cachedSession = {
-            token: 'session_local_ahmad',
-            userId: DEFAULT_MASTER_ACCOUNT.id,
-            username: DEFAULT_MASTER_ACCOUNT.username,
-            displayName: DEFAULT_MASTER_ACCOUNT.displayName,
-            email: DEFAULT_MASTER_ACCOUNT.email,
-            expiresAt: Date.now() + 365 * 24 * 60 * 60 * 1000,
-            rememberMe: true,
-          };
-        }
-        return true;
-      }
-    }
-
     if (this.cachedSession && this.cachedSession.expiresAt > Date.now()) {
       if (this.isAutoLocked()) {
         return false;
@@ -919,7 +844,16 @@ class AuthService {
   }
 
   /**
-   * Set or update numeric PIN
+   * Retrieve current authenticated user account
+   */
+  public async getCurrentAccount(): Promise<AuthAccount | null> {
+    const session = this.getSession();
+    if (!session) return null;
+    return (await db.auth_accounts.get(session.userId)) || null;
+  }
+
+  /**
+   * Set or update numeric PIN (4-6 digits)
    */
   public async setPin(pin: string): Promise<{ success: boolean; error?: string }> {
     const session = this.getSession();
@@ -930,12 +864,22 @@ class AuthService {
       if (!account) return { success: false, error: 'الحساب غير موجود' };
 
       const cleanPin = pin.trim();
-      if (cleanPin.length < 4) {
-        return { success: false, error: 'رمز الـ PIN يجب أن يكون 4 أرقام على الأقل' };
+      if (cleanPin.length < 4 || cleanPin.length > 6) {
+        return { success: false, error: 'رمز الـ PIN يجب أن يتكون من 4 إلى 6 أرقام' };
       }
 
       const pinHash = await this.hashSecret(cleanPin, account.salt);
       await db.auth_accounts.update(account.id, { pinHash });
+
+      // Sync with server in background if available
+      if (typeof window !== 'undefined') {
+        fetch('/api/auth/update-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: account.id, pinHash }),
+        }).catch(() => {});
+      }
+
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err?.message || 'فشل حفظ رمز PIN' };
@@ -951,9 +895,100 @@ class AuthService {
 
     try {
       await db.auth_accounts.update(session.userId, { pinHash: undefined });
+
+      // Sync with server in background if available
+      if (typeof window !== 'undefined') {
+        fetch('/api/auth/update-pin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: session.userId, removePin: true }),
+        }).catch(() => {});
+      }
+
       return { success: true };
     } catch (err: any) {
       return { success: false, error: err?.message || 'فشل إزالة رمز PIN' };
+    }
+  }
+
+  /**
+   * Update Account Profile (Display Name, Username, Email)
+   */
+  public async updateAccountProfile(
+    displayName: string,
+    username?: string,
+    email?: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const session = this.getSession();
+    if (!session) return { success: false, error: 'غير مسجل دخول' };
+
+    try {
+      const cleanName = displayName.trim();
+      const cleanUser = username?.trim().toLowerCase();
+      const cleanEmail = email?.trim().toLowerCase();
+
+      if (!cleanName) {
+        return { success: false, error: 'الاسم لا يمكن أن يكون فارغاً' };
+      }
+
+      // Check username collision if changing username
+      if (cleanUser && cleanUser !== session.username.toLowerCase()) {
+        const all = await db.auth_accounts.toArray();
+        const exists = all.find((a) => a.id !== session.userId && a.username.toLowerCase() === cleanUser);
+        if (exists) {
+          return { success: false, error: 'اسم المستخدم هذا محجوز لحساب آخر' };
+        }
+      }
+
+      const updates: Partial<AuthAccount> = { displayName: cleanName };
+      if (cleanUser) updates.username = cleanUser;
+      if (cleanEmail !== undefined) updates.email = cleanEmail;
+
+      await db.auth_accounts.update(session.userId, updates);
+
+      // Update matching user profile in db.profiles
+      const profileId = `profile_${session.userId}`;
+      const existingProfile = await db.profiles.get(profileId);
+      if (existingProfile) {
+        await db.profiles.update(profileId, { name: cleanName, email: cleanEmail || existingProfile.email });
+      } else {
+        const firstProfile = await db.profiles.toCollection().first();
+        if (firstProfile) {
+          await db.profiles.update(firstProfile.id, { name: cleanName, email: cleanEmail || firstProfile.email });
+        }
+      }
+
+      // Update session in memory and storage
+      if (this.cachedSession) {
+        this.cachedSession.displayName = cleanName;
+        if (cleanUser) this.cachedSession.username = cleanUser;
+        if (cleanEmail !== undefined) this.cachedSession.email = cleanEmail;
+
+        try {
+          sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.cachedSession));
+          if (this.cachedSession.rememberMe) {
+            localStorage.setItem(PERSISTENT_STORAGE_KEY, JSON.stringify(this.cachedSession));
+          }
+        } catch {}
+      }
+
+      // Sync with server if online
+      if (typeof window !== 'undefined') {
+        fetch('/api/auth/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: session.userId,
+            displayName: cleanName,
+            username: cleanUser || session.username,
+            email: cleanEmail,
+          }),
+        }).catch(() => {});
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err?.message || 'فشل تحديث البيانات' };
     }
   }
 }

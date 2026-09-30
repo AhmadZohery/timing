@@ -41,6 +41,7 @@ import {
   Check,
   X,
   RotateCcw,
+  KeyRound,
 } from 'lucide-react';
 import type { UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
@@ -283,6 +284,7 @@ interface HeaderProps {
   onOpenNiyyahModal?: () => void;
   onOpenQuickReminder?: () => void;
   onOpenCourses?: () => void;
+  onOpenPinModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -317,6 +319,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenNiyyahModal,
   onOpenQuickReminder,
   onOpenCourses,
+  onOpenPinModal,
   isPwaStandalone,
   activeProfileName,
   activeProfileEmoji,
@@ -1350,6 +1353,21 @@ export const Header: React.FC<HeaderProps> = ({
                         >
                           <Command className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{t('shortcuts_modal_title')}</span>
+                        </button>
+                      )}
+
+                      {onOpenPinModal && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowControlCenter(false);
+                            soundSynth.playTactileClick();
+                            onOpenPinModal();
+                          }}
+                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-500/30 shadow-xs"
+                        >
+                          <KeyRound className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          <span className="truncate">{language === 'ar' ? 'تغيير الـ PIN والبيانات 🔑' : 'Change PIN & Identity 🔑'}</span>
                         </button>
                       )}
 

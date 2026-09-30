@@ -77,6 +77,7 @@ const NiyyahSanctuaryModal = lazy(() => import('./components/spiritual/NiyyahSan
 const QuickReminderModal = lazy(() => import('./components/modals/QuickReminderModal').then((m) => ({ default: m.QuickReminderModal })));
 const CustomDeckModal = lazy(() => import('./components/modals/CustomDeckModal').then((m) => ({ default: m.CustomDeckModal })));
 const CalendarPrayerShieldModal = lazy(() => import('./components/modals/CalendarPrayerShieldModal').then((m) => ({ default: m.CalendarPrayerShieldModal })));
+const QuickPinModal = lazy(() => import('./components/modals/QuickPinModal').then((m) => ({ default: m.QuickPinModal })));
 
 // Active Station Persistence across page refreshes
 const ALL_STATIONS: StationId[] = [
@@ -242,6 +243,7 @@ export function App() {
   });
   const [isCustomDeckModalOpen, setIsCustomDeckModalOpen] = useState(false);
   const [isCalendarShieldModalOpen, setIsCalendarShieldModalOpen] = useState(false);
+  const [isQuickPinModalOpen, setIsQuickPinModalOpen] = useState(false);
 
   const handleOpenNiyyah = (pillar: NiyyahPillar = 'livelihood') => {
     setNiyyahInitialPillar(pillar);
@@ -329,6 +331,7 @@ export function App() {
       setIsQuickReminderOpen(false);
       setIsCustomDeckModalOpen(false);
       setIsCalendarShieldModalOpen(false);
+      setIsQuickPinModalOpen(false);
     },
   });
 
@@ -603,6 +606,7 @@ export function App() {
         onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
         onOpenNiyyahModal={() => handleOpenNiyyah('livelihood')}
         onOpenQuickReminder={() => setIsQuickReminderOpen(true)}
+        onOpenPinModal={() => setIsQuickPinModalOpen(true)}
         onOpenCourses={() => {
           localStorage.setItem('midmar_work_view_mode', 'learning_tracker');
           localStorage.setItem('midmar_learning_subtab', 'courses');
@@ -1017,6 +1021,7 @@ export function App() {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         userState={userState}
+        onOpenPinModal={() => setIsQuickPinModalOpen(true)}
       />
 
       {/* Periodic Evaluation & Motivation Report Modal */}
@@ -1266,6 +1271,18 @@ export function App() {
           setTimeout(() => setRewardToast(null), 3500);
         }}
       />
+
+      {/* Quick Numeric PIN & Profile Customizer Modal */}
+      {isQuickPinModalOpen && (
+        <QuickPinModal
+          isOpen={isQuickPinModalOpen}
+          onClose={() => setIsQuickPinModalOpen(false)}
+          onProfileUpdated={() => {
+            setRewardToast('✨ تم حفظ وتحديث بيانات الحساب بنجاح');
+            setTimeout(() => setRewardToast(null), 3500);
+          }}
+        />
+      )}
       </Suspense>
 
       {/* Living Ambient Generative Soundscape Floating Player */}

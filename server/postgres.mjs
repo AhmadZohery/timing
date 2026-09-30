@@ -191,6 +191,19 @@ export async function pgUpdateUserLogin(id) {
   await pool.query('UPDATE users SET last_login_at = NOW(), updated_at = NOW() WHERE id = $1', [id]);
 }
 
+export async function pgUpdateUserPin(id, pinHash) {
+  if (!isPostgresAvailable) return;
+  await pool.query('UPDATE users SET pin_hash = $1, updated_at = NOW() WHERE id = $2', [pinHash, id]);
+}
+
+export async function pgUpdateUserProfile(id, displayName, username, email) {
+  if (!isPostgresAvailable) return;
+  await pool.query(
+    'UPDATE users SET display_name = $1, username = $2, email = $3, updated_at = NOW() WHERE id = $4',
+    [displayName, username.toLowerCase(), email ? email.toLowerCase() : '', id]
+  );
+}
+
 export async function pgCountUsers() {
   if (!isPostgresAvailable) return 0;
   const res = await pool.query('SELECT COUNT(*)::int AS count FROM users');

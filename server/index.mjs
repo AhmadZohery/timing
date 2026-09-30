@@ -24,6 +24,8 @@ import {
   pgMarkAlarmSent,
   pgCancelScheduledAlarm,
   pgClearProfileUnsentAlarms,
+  pgUpdateUserPin,
+  pgUpdateUserProfile,
 } from './postgres.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -545,6 +547,68 @@ const server = http.createServer(async (req, res) => {
         }
         return sendJson(res, 200, { ok: true, users, source: 'file' });
       }
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
+  // 1.5 Update PIN for an Account
+  if (pathname === '/api/auth/update-pin' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const { accountId, pinHash } = payload;
+      if (!accountId) {
+        return sendJson(res, 400, { ok: false, error: 'معرف الحساب مطلوب' });
+      }
+
+      if (isPgConnected()) {
+        await pgUpdateUserPin(accountId, pinHash || null);
+      } else {
+        const usersFile = path.resolve(DATA_DIR, 'users.json');
+        if (fs.existsSync(usersFile)) {
+          try {
+            const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+            const user = users.find((u) => u.id === accountId);
+            if (user) {
+              user.pinHash = pinHash || null;
+              fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
+            }
+          } catch (_) {}
+        }
+      }
+      return sendJson(res, 200, { ok: true, message: 'تم تحديث رمز PIN بنجاح على السيرفر' });
+    } catch (err) {
+      return sendJson(res, 500, { ok: false, error: err.message });
+    }
+  }
+
+  // 1.6 Update User Profile (DisplayName, Username, Email)
+  if (pathname === '/api/auth/update-profile' && req.method === 'POST') {
+    try {
+      const payload = await parseBody(req);
+      const { accountId, displayName, username, email } = payload;
+      if (!accountId || !username) {
+        return sendJson(res, 400, { ok: false, error: 'البيانات غير مكتملة' });
+      }
+
+      if (isPgConnected()) {
+        await pgUpdateUserProfile(accountId, displayName || username, username, email || '');
+      } else {
+        const usersFile = path.resolve(DATA_DIR, 'users.json');
+        if (fs.existsSync(usersFile)) {
+          try {
+            const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
+            const user = users.find((u) => u.id === accountId);
+            if (user) {
+              user.displayName = displayName || username;
+              user.username = username.toLowerCase().trim();
+              if (email) user.email = email.toLowerCase().trim();
+              fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
+            }
+          } catch (_) {}
+        }
+      }
+      return sendJson(res, 200, { ok: true, message: 'تم تحديث الملف الشخصي بنجاح' });
     } catch (err) {
       return sendJson(res, 500, { ok: false, error: err.message });
     }
