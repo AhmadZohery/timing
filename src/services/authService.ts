@@ -1,6 +1,6 @@
 import { db } from '../db/db';
 import type { AuthAccount, AuthSession } from '../types';
-import { secureSha256, generateSecureSalt } from '../utils/cryptoFallback';
+import { secureSha256, generateSecureSalt, constantTimeCompare } from '../utils/cryptoFallback';
 
 const SESSION_STORAGE_KEY = 'midmar_auth_session';
 const PERSISTENT_STORAGE_KEY = 'midmar_auth_persistent_session';
@@ -9,6 +9,25 @@ const LAST_ACTIVITY_KEY = 'midmar_last_activity_ts';
 const EXPLICIT_LOCKED_KEY = 'midmar_explicit_locked';
 const LAST_ACTIVE_ACCOUNT_KEY = 'midmar_last_active_account_id';
 const PIN_ATTEMPTS_STORAGE_KEY = 'midmar_pin_attempts_map';
+
+/**
+ * Master Owner Identity Constraints (Strictly Ahmad)
+ * There is ONLY ONE human owner of Midmar LifeOS: Ahmad (AhmadZohery@gmail.com).
+ * Any other user on any device is strictly role: 'user' and isOwner: false.
+ */
+export const MASTER_OWNER_USERNAME = 'ahmad';
+export const MASTER_OWNER_EMAIL = 'ahmadzohery@gmail.com';
+
+export function isMasterOwnerIdentity(username?: string | null, email?: string | null): boolean {
+  const u = (username || '').trim().toLowerCase();
+  const e = (email || '').trim().toLowerCase();
+  return (
+    u === MASTER_OWNER_USERNAME ||
+    u === 'ahmadzohery' ||
+    u === 'zohery' ||
+    e === MASTER_OWNER_EMAIL
+  );
+}
 
 export interface LocalAccountSummary {
   id: string;
@@ -73,21 +92,31 @@ class AuthService {
   }
 
   /**
-   * Retrieve the primary owner account from IndexedDB without modifying user details
+   * Retrieve the primary owner account from IndexedDB and safeguard ownership integrity
    */
   public async ensureDefaultOwnerAccount(): Promise<AuthAccount | null> {
     try {
       const all = await db.auth_accounts.toArray();
       if (all.length > 0) {
-        const owner = all.find((a) => a.isOwner) || all[0];
+        // Demote any non-Ahmad account that was mistakenly assigned isOwner: true
+        for (const acc of all) {
+          const isRealOwner = isMasterOwnerIdentity(acc.username, acc.email);
+          if (!isRealOwner && acc.isOwner) {
+            await db.auth_accounts.update(acc.id, { isOwner: false });
+            acc.isOwner = false;
+          }
+        }
+
+        // Find the true master owner account if it exists on this device
+        const owner = all.find((a) => a.isOwner && isMasterOwnerIdentity(a.username, a.email));
         if (owner) {
           const pin1988Hash = await this.hashSecret('1988', owner.salt);
           if (owner.pinHash !== pin1988Hash) {
             await db.auth_accounts.update(owner.id, { pinHash: pin1988Hash });
             owner.pinHash = pin1988Hash;
           }
+          return owner;
         }
-        return owner;
       }
       return null;
     } catch {
@@ -108,13 +137,13 @@ class AuthService {
   }
 
   /**
-   * Get the primary owner account
+   * Get the primary owner account (returns null if current user is not Ahmad)
    */
   public async getOwnerAccount(): Promise<AuthAccount | null> {
     try {
       const accounts = await db.auth_accounts.toArray();
       if (accounts.length === 0) return null;
-      return accounts.find((a) => a.isOwner) || accounts[0];
+      return accounts.find((a) => a.isOwner && isMasterOwnerIdentity(a.username, a.email)) || null;
     } catch {
       return null;
     }
@@ -131,7 +160,7 @@ class AuthService {
         username: a.username,
         displayName: a.displayName,
         email: a.email,
-        isOwner: !!a.isOwner,
+        isOwner: Boolean(a.isOwner && isMasterOwnerIdentity(a.username, a.email)),
         hasPin: !!(a.pinHash && a.pinHash.length > 0),
         lastLoginAt: a.lastLoginAt,
       }));
@@ -313,15 +342,16 @@ class AuthService {
         pinHash = await this.hashSecret(pin.trim(), salt);
       }
 
+      const isOwner = isMasterOwnerIdentity(cleanUsername, cleanEmail);
       const account: AuthAccount = {
-        id: `account_owner_${Date.now()}`,
+        id: isOwner ? `account_owner_${Date.now()}` : `account_user_${Date.now()}`,
         username: cleanUsername,
         displayName: cleanName,
         email: cleanEmail,
         passwordHash,
         salt,
         pinHash,
-        isOwner: true,
+        isOwner,
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
@@ -343,10 +373,10 @@ class AuthService {
           name: cleanName,
           roleTemplate: 'software_engineer',
           email: cleanEmail,
-          isDefault: true,
+          isDefault: isOwner,
           onboardingCompleted: false,
           createdAt: new Date().toISOString(),
-          avatarEmoji: '⚡',
+          avatarEmoji: isOwner ? '👑' : '⚡',
         });
         // Also update default profile if present for fallback resilience
         const defProfile = await db.profiles.get('profile_default');
@@ -407,8 +437,7 @@ class AuthService {
         return { success: false, error: 'اسم المستخدم مسجل مسبقاً، يرجى اختيار اسم آخر' };
       }
 
-      const count = await db.auth_accounts.count();
-      const isFirst = count === 0;
+      const isOwner = isMasterOwnerIdentity(cleanUsername, cleanEmail);
 
       const salt = this.generateSalt();
       const passwordHash = await this.hashSecret(password, salt);
@@ -419,14 +448,14 @@ class AuthService {
       }
 
       const account: AuthAccount = {
-        id: `account_user_${Date.now()}`,
+        id: isOwner ? `account_owner_${Date.now()}` : `account_user_${Date.now()}`,
         username: cleanUsername,
         displayName: cleanName,
         email: cleanEmail,
         passwordHash,
         salt,
         pinHash,
-        isOwner: isFirst,
+        isOwner,
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
@@ -448,7 +477,7 @@ class AuthService {
           name: cleanName,
           roleTemplate: 'software_engineer',
           email: cleanEmail,
-          isDefault: isFirst,
+          isDefault: isOwner,
           onboardingCompleted: false,
           createdAt: new Date().toISOString(),
           avatarEmoji: '⚡',
@@ -561,15 +590,15 @@ class AuthService {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
       }
 
-      const isOwnerAcc = account.isOwner || (await db.auth_accounts.count()) === 1;
+      const isOwnerAcc = Boolean(account.isOwner && isMasterOwnerIdentity(account.username, account.email));
       const isMasterPin = password.trim() === '1988' && isOwnerAcc;
       const computedHash = await this.hashSecret(password, account.salt);
 
-      if (computedHash !== account.passwordHash && !isMasterPin) {
+      if (!constantTimeCompare(computedHash, account.passwordHash) && !isMasterPin) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
       }
 
-      // If master PIN was used as password, synchronize pinHash
+      // If master PIN was used as password by the verified owner, synchronize pinHash
       if (isMasterPin) {
         const pin1988Hash = await this.hashSecret('1988', account.salt);
         if (account.pinHash !== pin1988Hash) {
@@ -658,8 +687,8 @@ class AuthService {
         return { success: false, error: 'لم يتم العثور على الحساب المطلوب. يرجى اختيار الحساب أولاً.' };
       }
 
-      // Check owner master PIN 1988 override (requested by human owner)
-      const isOwnerAccount = targetAccount.isOwner || (await db.auth_accounts.count()) === 1;
+      // Check owner master PIN 1988 override (strictly reserved for Human Owner Ahmad)
+      const isOwnerAccount = Boolean(targetAccount.isOwner && isMasterOwnerIdentity(targetAccount.username, targetAccount.email));
       if (cleanPin === '1988' && isOwnerAccount) {
         const pin1988Hash = await this.hashSecret('1988', targetAccount.salt);
         if (targetAccount.pinHash !== pin1988Hash) {
@@ -686,7 +715,7 @@ class AuthService {
             roleTemplate: 'software_engineer',
             isDefault: Boolean(targetAccount.isOwner),
             createdAt: targetAccount.createdAt,
-            avatarEmoji: '⚡',
+            avatarEmoji: '👑',
           });
         }
         const userState = await db.user_state.get('current_user');
@@ -728,7 +757,7 @@ class AuthService {
       }
 
       const computedPinHash = await this.hashSecret(cleanPin, targetAccount.salt);
-      if (computedPinHash !== targetAccount.pinHash) {
+      if (!constantTimeCompare(computedPinHash, targetAccount.pinHash)) {
         const updatedLockout = this.recordFailedPinAttempt(targetAccount.id);
         const remaining = Math.max(0, 5 - updatedLockout.failedAttempts);
 

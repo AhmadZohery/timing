@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import {
   authService,
+  isMasterOwnerIdentity,
   type LocalAccountSummary,
 } from '../../services/authService';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -32,7 +33,6 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   const isAr = language === 'ar';
 
   const [isLoading, setIsLoading] = useState(true);
-  const [hasAccount, setHasAccount] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [isPinMode, setIsPinMode] = useState(false);
 
@@ -64,7 +64,6 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   useEffect(() => {
     const initAuth = async () => {
       const exists = await authService.hasRegisteredAccount();
-      setHasAccount(exists);
       if (!exists) {
         setAuthMode('register');
       } else {
@@ -164,9 +163,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
       const cleanUser = setupUsername.trim();
       const pinVal = setupPin.trim() || undefined;
 
-      const res = !hasAccount
-        ? await authService.registerOwner(cleanDisplayName, cleanUser, setupPassword, pinVal)
-        : await authService.registerNewUser(cleanDisplayName, cleanUser, setupPassword, pinVal);
+      const res = await authService.registerNewUser(cleanDisplayName, cleanUser, setupPassword, pinVal);
 
       if (res.success) {
         soundSynth.playCompletionChime();
@@ -297,22 +294,22 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
             </div>
 
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              {!hasAccount
+              {authMode === 'register'
                 ? isAr
-                  ? 'تأسيس حساب المالك الرئيسي'
-                  : 'Setup Master Owner Account'
+                  ? 'إنشاء حساب مستخدم جديد'
+                  : 'Create New Account'
                 : isAr
                 ? 'تسجيل الدخول الآمن'
                 : 'Secure Access Gateway'}
             </h2>
 
             <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-              {!hasAccount
+              {authMode === 'register'
                 ? isAr
-                  ? 'قم بتعيين اسم المستخدم وكلمة المرور لتأمين منظومتك بالكامل عند رفعها على الويب'
-                  : 'Create your master credentials to safeguard your LifeOS when deployed online'
+                  ? 'سجّل حسابك لتأمين بياناتك والبدء في إدارة يومك ومحطاتك الإنتاجية'
+                  : 'Register your account to manage your day and productivity stations'
                 : isAr
-                ? 'المنظومة محمية ومقفرة. أدخل بيانات المرور الخاصة بك لفك القفل والوصول للمحطات'
+                ? 'المنظومة محمية ومقفلة. أدخل بيانات المرور الخاصة بك لفك القفل والوصول للمحطات'
                 : 'System is encrypted and locked. Enter your credentials to unlock your workspace'}
             </p>
           </div>
@@ -494,7 +491,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                     <div className="overflow-hidden">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-bold text-white text-xs truncate">{selectedAccount.displayName}</span>
-                        {selectedAccount.isOwner && (
+                        {selectedAccount.isOwner && isMasterOwnerIdentity(selectedAccount.username, selectedAccount.email) && (
                           <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
                             {isAr ? 'المالك 👑' : 'Owner 👑'}
                           </span>
@@ -557,7 +554,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                             <div>
                               <div className="flex items-center gap-1.5">
                                 <span className="font-bold text-xs">{acc.displayName}</span>
-                                {acc.isOwner && <span className="text-[9px] text-amber-400 font-mono">👑</span>}
+                                {acc.isOwner && isMasterOwnerIdentity(acc.username, acc.email) && <span className="text-[9px] text-amber-400 font-mono">👑</span>}
                               </div>
                               <span className="text-[10px] font-mono text-slate-400">@{acc.username}</span>
                             </div>
@@ -682,8 +679,8 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                         : `Enter Quick PIN for (${selectedAccount?.displayName || loginUsername}):`}
                     </label>
                     <p className="text-[10px] text-amber-400 font-mono">
-                      {selectedAccount?.isOwner || localAccounts.length <= 1
-                        ? (isAr ? '🔑 رمز الدخول السريع المخصص لحسابك هو: 1988' : '🔑 Your Quick Access PIN is: 1988')
+                      {selectedAccount?.isOwner && isMasterOwnerIdentity(selectedAccount.username, selectedAccount.email)
+                        ? (isAr ? '🔑 رمز الدخول السريع للمالك: 1988' : '🔑 Master Owner Quick PIN: 1988')
                         : (isAr ? '🔒 مشفر بـ Salt مستقل ومحمي ضد التخمين' : '🔒 Scoped cryptographic PIN')}
                     </p>
                   </div>

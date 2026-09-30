@@ -114,7 +114,7 @@ export const translations = {
     // Stage 5: Retrospective & Journaling
     station_5_title: 'المراجعة والتقييم',
     station_5_time: '10:15 م',
-    station_5_badge: 'المرحلة الخامسة • 10:15 م',
+    station_5_badge: 'محور المراجعة الواعية • 10:15 م',
     station_5_heading: 'محور المراجعة الواعية والتقييم اليومي',
     voice_question: 'كيف كان يومك وماذا أنجزت في أهدافك؟',
     voice_subtext: '(تسجيل صوتي فوري بالعربية 🎙️)',
@@ -130,7 +130,7 @@ export const translations = {
     // Stage 6: Grand Reward
     station_6_title: 'راحة الاستحقاق',
     station_6_time: 'استرخاء ونوم',
-    station_6_badge: 'المرحلة السادسة • راحة الاستحقاق والنوم الهادئ',
+    station_6_badge: 'المكافأة الكبرى • راحة الاستحقاق والنوم الهادئ',
     grand_reward_heading: 'أنت حر تماماً الآن! راحة 100% دون أي تأنيب ضمير',
     grand_reward_desc: 'لقد أتممت كافة التزاماتك العظمى اليوم: القرآن والتعلم والتمرين والعمل المسائي. كل دقيقة تقضيها من الآن وحتى النوم هي استحقاق خالص للراحة أو الترفيه دون أدنى لوم.',
     current_streak: 'الشعلة الحالية',
@@ -526,7 +526,7 @@ export const translations = {
     // Station 5: Retrospective
     station_5_title: 'Evening Check-in',
     station_5_time: '10:15 PM',
-    station_5_badge: 'Station 5 • 10:15 PM',
+    station_5_badge: 'Evening Check-in • 10:15 PM',
     station_5_heading: 'Mindful Evening Retrospective & Check-in',
     voice_question: 'What did you accomplish toward your goals today?',
     voice_subtext: '(Zero-Friction Voice Transcription 🎙️)',
@@ -542,7 +542,7 @@ export const translations = {
     // Station 6: Grand Reward
     station_6_title: 'Grand Reward',
     station_6_time: 'Guilt-Free',
-    station_6_badge: 'Station 6 • Absolute Entitlement & Rest',
+    station_6_badge: 'Grand Reward • Absolute Entitlement & Rest',
     grand_reward_heading: 'You Are 100% Free! Complete Guilt-Free Leisure',
     grand_reward_desc: 'You have conquered every major commitment today: Quran, deep learning, workout, and evening sprint. Every minute between now and sleep is unconditionally yours to relax, play, or browse without an ounce of guilt.',
     current_streak: 'Active Streak',

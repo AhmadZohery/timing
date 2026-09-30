@@ -517,76 +517,19 @@ export async function initializeDatabaseSeed() {
     ]);
   }
 
-  // Ensure rich historical daily logs exist for archive demonstration
-  const logsCount = await db.daily_logs.count();
-  if (logsCount <= 1) {
-    const base = new Date();
-    const d1 = new Date(base); d1.setDate(base.getDate() - 1); const d1Str = d1.toISOString().split('T')[0];
-    const d2 = new Date(base); d2.setDate(base.getDate() - 2); const d2Str = d2.toISOString().split('T')[0];
-    const d3 = new Date(base); d3.setDate(base.getDate() - 3); const d3Str = d3.toISOString().split('T')[0];
-    const d4 = new Date(base); d4.setDate(base.getDate() - 5); const d4Str = d4.toISOString().split('T')[0];
-
-    const pastLogs: DailyLog[] = [
-      {
-        date: d1Str,
-        completedStations: ['COMMUTE_MORNING', 'WORK_MICRO_SPRINT', 'GYM_ANCHOR', 'EVENING_SPRINT', 'RETROSPECTIVE_CHECKIN'],
-        pointsEarned: 85,
-        survivalModeActive: false,
-        voiceNotes: 'يوم استثنائي في التركيز العميق، أتممت الـ API المعقد وذهبت للجيم في الموعد.',
-        goldenNugget: 'البداية هي نصف كل شيء؛ مجرد الجلوس على المكتب يحسم المعركة.',
-        wins: ['إنهاء كود معمارية PWA', 'تمرين Push مكثف مع زيادة أوزان', 'قراءة 20 صفحة من كتاب العادات'],
-        totalFocusMinutes: 145,
-        focusSessionsCount: 3,
-        workoutRoutine: 'Push (صدر وتراي وأكتاف)',
-        endorphinRating: 9,
-        mvdTasksDone: [],
-      },
-      {
-        date: d2Str,
-        completedStations: ['COMMUTE_MORNING', 'WORK_MICRO_SPRINT', 'EVENING_SPRINT'],
-        pointsEarned: 55,
-        survivalModeActive: false,
-        voiceNotes: 'كان هناك بعض التشتت بعد الظهيرة، لكن تم تدارك الأمر بشوط تركيز مسائي متقن.',
-        goldenNugget: 'لا تكسر السلسلة ليومين متتاليين أبداً.',
-        wins: ['مراسلة عميلين على لينكد إن', 'حل مشكلة في قاعدة البيانات المحلية'],
-        totalFocusMinutes: 95,
-        focusSessionsCount: 2,
-        mvdTasksDone: [],
-      },
-      {
-        date: d3Str,
-        completedStations: ['COMMUTE_MORNING', 'WORK_MICRO_SPRINT', 'GYM_ANCHOR', 'RETROSPECTIVE_CHECKIN'],
-        pointsEarned: 70,
-        survivalModeActive: false,
-        voiceNotes: 'طاقة عالية اليوم، استمعت لموجات Alpha وكان التركيز سلساً للغاية.',
-        goldenNugget: 'البيئة الهادئة تصنع معجزات الإنتاجية.',
-        wins: ['تمرين أرجل قوي', 'قراءة ورد سورة البقرة بالكامل'],
-        totalFocusMinutes: 120,
-        focusSessionsCount: 3,
-        workoutRoutine: 'Legs & Core (أرجل وبطن)',
-        endorphinRating: 8,
-        mvdTasksDone: [],
-      },
-      {
-        date: d4Str,
-        completedStations: ['COMMUTE_MORNING', 'WORK_MICRO_SPRINT'],
-        pointsEarned: 35,
-        survivalModeActive: true,
-        voiceNotes: 'تفعيل وضع البقاء MVD بعد يوم عمل شاق لحماية الشعلة.',
-        goldenNugget: 'الإنجاز الأصغر أفضل من الصفر الكامل بنسبة 100%.',
-        wins: ['حماية الشعلة من الانقطاع'],
-        totalFocusMinutes: 50,
-        focusSessionsCount: 1,
-        mvdTasksDone: ['مهمة البقاء الأساسية'],
-      },
-    ];
-
-    for (const pl of pastLogs) {
-      const exists = await db.daily_logs.get(pl.date);
-      if (!exists) {
-        await db.daily_logs.add(pl);
-      }
-    }
+  // Ensure today's daily log exists if needed
+  const todayLogExists = await db.daily_logs.get(todayStr);
+  if (!todayLogExists) {
+    await db.daily_logs.add({
+      date: todayStr,
+      completedStations: [],
+      pointsEarned: 0,
+      survivalModeActive: false,
+      voiceNotes: '',
+      goldenNugget: '',
+      wins: [],
+      mvdTasksDone: [],
+    });
   }
 
   // Seed Default Real-Life Rewards if not yet populated

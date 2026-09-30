@@ -1004,7 +1004,7 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                         key={dayIdx}
                         type="button"
                         onClick={() => handleCycleDayType(dayIdx)}
-                        className={`p-2 rounded-xl border flex flex-col items-center gap-1 transition-all cursor-pointer select-none active:scale-95 ${
+                        className={`px-0.5 py-1.5 sm:p-2 rounded-xl border flex flex-col items-center gap-1 transition-all cursor-pointer select-none active:scale-95 ${
                           isRest
                             ? 'bg-emerald-100 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
                             : isHalf
@@ -1015,8 +1015,8 @@ export const OnboardingWizardModal: React.FC<OnboardingWizardModalProps> = ({
                         }`}
                         title="انقر للتبديل بين (عمل كامل / نصف يوم / عطلة)"
                       >
-                        <span className="text-[11px] font-bold">{DAYS_AR[dayIdx]}</span>
-                        <span className="text-[10px] font-mono leading-none">
+                        <span className="text-[10px] sm:text-[11px] font-bold">{DAYS_AR[dayIdx]}</span>
+                        <span className="text-[9px] sm:text-[10px] font-mono leading-none truncate max-w-full">
                           {isRest ? '🌴 عطلة' : isHalf ? '⚡ نصف' : isFri ? '🕌 سنن' : '🎯 عمل'}
                         </span>
                       </button>

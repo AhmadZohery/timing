@@ -79,6 +79,7 @@ export const PositiveFrictionView: React.FC<PositiveFrictionViewProps> = ({
   };
 
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
+  const StationIcon = meta.icon;
   const title = isAr ? meta.titleAr : meta.titleEn;
   const description = isAr ? meta.descriptionAr : meta.descriptionEn;
 
@@ -86,8 +87,8 @@ export const PositiveFrictionView: React.FC<PositiveFrictionViewProps> = ({
     <div className="space-y-5 animate-fade-in max-w-3xl mx-auto py-2" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Hero Header Card */}
       <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-white dark:via-zinc-900 to-emerald-500/10 border border-amber-500/25 shadow-xs text-center space-y-3">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-2xl shadow-inner">
-          {meta.icon}
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-500 shadow-inner">
+          <StationIcon className="w-7 h-7" />
         </div>
 
         <div className="space-y-1">

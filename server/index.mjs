@@ -401,6 +401,11 @@ const server = http.createServer(async (req, res) => {
             return sendJson(res, 409, { ok: false, error: 'البريد الإلكتروني مسجل مسبقاً' });
           }
         }
+        const isTargetOwner = 
+          (username && (username.toLowerCase().trim() === 'ahmad' || username.toLowerCase().trim() === 'ahmadzohery' || username.toLowerCase().trim() === 'zohery')) ||
+          (email && email.toLowerCase().trim() === 'ahmadzohery@gmail.com');
+        const assignedRole = isTargetOwner ? 'owner' : 'user';
+
         const user = await pgCreateUser({
           id: id || `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
           username,
@@ -409,7 +414,7 @@ const server = http.createServer(async (req, res) => {
           passwordHash,
           salt,
           pinHash: pinHash || null,
-          role: role || 'user',
+          role: assignedRole,
           onboardingCompleted: Boolean(onboardingCompleted),
         });
         return sendJson(res, 201, { ok: true, user, storage: 'postgresql' });
@@ -422,6 +427,11 @@ const server = http.createServer(async (req, res) => {
         if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
           return sendJson(res, 409, { ok: false, error: 'اسم المستخدم مسجل مسبقاً' });
         }
+        const isTargetOwner = 
+          (username && (username.toLowerCase().trim() === 'ahmad' || username.toLowerCase().trim() === 'ahmadzohery' || username.toLowerCase().trim() === 'zohery')) ||
+          (email && email.toLowerCase().trim() === 'ahmadzohery@gmail.com');
+        const assignedRole = isTargetOwner ? 'owner' : 'user';
+
         const user = {
           id: id || `user_${Date.now()}`,
           username,
@@ -430,7 +440,7 @@ const server = http.createServer(async (req, res) => {
           passwordHash,
           salt,
           pinHash: pinHash || null,
-          role: role || 'user',
+          role: assignedRole,
           onboardingCompleted: Boolean(onboardingCompleted),
           createdAt: new Date().toISOString(),
         };
@@ -482,9 +492,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       const isPasswordValid = constantTimeCompare(user.passwordHash, passwordHash);
-      const isPinValid = Boolean(user.pinHash && constantTimeCompare(user.pinHash, passwordHash));
-      if (!isPasswordValid && !isPinValid) {
-        return sendJson(res, 401, { ok: false, error: 'كلمة المرور أو رمز الـ PIN غير صحيح' });
+      if (!isPasswordValid) {
+        return sendJson(res, 401, { ok: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
       }
 
       if (isPgConnected()) {

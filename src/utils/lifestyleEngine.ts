@@ -989,17 +989,17 @@ export function resolveStationMetadata(
   const base = persona.stations[stationId] || LIFESTYLE_PERSONAS.builder_exec.stations[stationId];
   const override = overrides?.[stationId];
 
-  // Map step numbers
+  // Map step numbers across all 8 sequential daily stations
   const stepNums: Record<StationId, number> = {
     HOME: 0,
     COMMUTE_MORNING: 1,
     WORK_MICRO_SPRINT: 2,
-    ONE_SEC_FRICTION: 0,
-    SOCIAL_MEDIA_BREAK: 0,
-    GYM_ANCHOR: 3,
-    EVENING_SPRINT: 4,
-    RETROSPECTIVE_CHECKIN: 5,
-    GRAND_REWARD_STATE: 6,
+    ONE_SEC_FRICTION: 3,
+    SOCIAL_MEDIA_BREAK: 4,
+    GYM_ANCHOR: 5,
+    EVENING_SPRINT: 6,
+    RETROSPECTIVE_CHECKIN: 7,
+    GRAND_REWARD_STATE: 8,
   };
 
   return {

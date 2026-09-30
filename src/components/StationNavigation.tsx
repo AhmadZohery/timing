@@ -36,6 +36,8 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
   const stationIds: StationId[] = [
     'COMMUTE_MORNING',
     'WORK_MICRO_SPRINT',
+    'ONE_SEC_FRICTION',
+    'SOCIAL_MEDIA_BREAK',
     'GYM_ANCHOR',
     'EVENING_SPRINT',
     'RETROSPECTIVE_CHECKIN',
