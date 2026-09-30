@@ -58,6 +58,7 @@ import { awardSpiritualHabitPoints } from '../../utils/gamification';
 import { QuickActionDock } from './QuickActionDock';
 import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
 import { FridayKahfModal } from '../spiritual/FridayKahfModal';
+import { FlexibleQuranTrackerModal } from '../spiritual/FlexibleQuranTrackerModal';
 import { checkIsFridaySalawatWindow } from '../../utils/tasbihEngine';
 import { getCurrentMonthKey, getMonthDisplayName } from '../../data/challengesData';
 
@@ -199,6 +200,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const quranProgress = quranList?.[0];
   const currentWirdPages = quranProgress?.currentPage ?? 0;
   const totalWirdPages = quranProgress?.totalPages ?? 604;
+  const [isFlexibleQuranOpen, setIsFlexibleQuranOpen] = useState(false);
 
   const handleQuickIncrementQuran = async () => {
     soundSynth.playCompletionChime();
@@ -570,6 +572,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       <QuickActionDock
         onStartSprint={() => onSelectStation('WORK_MICRO_SPRINT')}
         onIncrementQuran={handleQuickIncrementQuran}
+        onOpenQuranCustomizer={() => setIsFlexibleQuranOpen(true)}
         onOpenPanic={onOpenPanic ? onOpenPanic : () => {}}
         onOpenSmartTasbih={() => onOpenSmartTasbih('tasbih')}
         onOpenWeeklyReport={() => setIsWeeklyReportOpen(true)}
@@ -1892,6 +1895,15 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         languageName={currentLangObj.nameAr}
         initialMove="flashcards"
         initialLevel={selectedBentoLevel}
+      />
+
+      {/* Flexible Quran Tracker & Surah Selection Modal */}
+      <FlexibleQuranTrackerModal
+        isOpen={isFlexibleQuranOpen}
+        onClose={() => setIsFlexibleQuranOpen(false)}
+        quranProgress={quranProgress}
+        onRewardToast={onRewardToast}
+        todayLog={todayLog}
       />
     </div>
   );

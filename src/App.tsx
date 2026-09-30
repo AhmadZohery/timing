@@ -774,6 +774,11 @@ export function App() {
                     userState={userState}
                     onOpenSmartTasbih={handleOpenSmartTasbih}
                     onOpenTadabburModal={handleOpenTadabburModal}
+                    onRewardToast={(msg) => {
+                      setRewardToast(msg);
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                    todayLog={todayLog}
                   />
                 )}
 

@@ -2,21 +2,23 @@ import React, { useState } from 'react';
 import {
   BookOpen,
   Plus,
-  Lock,
   CheckCircle,
   ArrowLeft,
   ArrowRight,
   Bookmark,
   Grid,
   Heart,
+  Shield,
+  Sliders,
 } from 'lucide-react';
-import type { QuranProgress, BookProgress, EnergyLevel, UserState } from '../../types';
+import type { QuranProgress, BookProgress, EnergyLevel, UserState, DailyLog } from '../../types';
 import type { TasbihPresetId } from '../../utils/tasbihEngine';
 import { db } from '../../db/db';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { CognitiveEnergyBarometer } from '../CognitiveEnergyBarometer';
 import { QuranPageGridModal } from '../modals/QuranPageGridModal';
+import { FlexibleQuranTrackerModal } from '../spiritual/FlexibleQuranTrackerModal';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { ZeroTypingChips, ZERO_TYPING_PRESETS } from '../common/ZeroTypingChips';
 import { resolveStationMetadata, PERSONA_CONFIGS } from '../../utils/lifestyleEngine';
@@ -35,6 +37,8 @@ interface CommuteMorningViewProps {
   userState?: UserState;
   onOpenSmartTasbih?: (mode?: TasbihPresetId) => void;
   onOpenTadabburModal?: (item: DailyTadabburItem, tab: 'quran' | 'hadith') => void;
+  onRewardToast?: (msg: string) => void;
+  todayLog?: DailyLog;
 }
 
 export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
@@ -49,10 +53,13 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
   userState,
   onOpenSmartTasbih,
   onOpenTadabburModal,
+  onRewardToast,
+  todayLog,
 }) => {
   const { t, language } = useTranslation();
   const isAr = language === 'ar';
   const [showGridModal, setShowGridModal] = useState(false);
+  const [showFlexibleTrackerModal, setShowFlexibleTrackerModal] = useState(false);
   const [isQuoteSaved, setIsQuoteSaved] = useState(false);
 
   // Dynamic persona & station metadata
@@ -147,13 +154,16 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             <BookOpen className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                {persona.badge} • <bdi dir="ltr" className="font-mono">{stationMeta.shortTime}</bdi>
+                {persona.badge} • <span className="opacity-75 font-normal">{isAr ? 'الوقت المقترح:' : 'Suggested:'}</span> <bdi dir="ltr" className="font-mono">{stationMeta.shortTime}</bdi>
               </span>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 text-[10px] font-bold border border-rose-200 dark:border-rose-900/40">
-                <Lock className="w-2.5 h-2.5" />
-                <span>{t('social_locked')}</span>
+              <span
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold border border-emerald-200 dark:border-emerald-800/40"
+                title={isAr ? 'المحطة مفتوحة ومتاحة دائماً، والمقصود حظر مشتتات السوشيال ميديا أثناء الورد' : 'Focus protected from distractions'}
+              >
+                <Shield className="w-2.5 h-2.5" />
+                <span>{isAr ? 'درع التركيز وحظر المشتتات 🛡️' : 'Focus Shield 🛡️'}</span>
               </span>
             </div>
             <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 truncate">
@@ -186,16 +196,63 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
               </div>
             </div>
 
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setShowFlexibleTrackerModal(true);
+                }}
+                className="tap-spring px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors active:scale-95 shadow-xs"
+                title={isAr ? 'تخصيص السورة والآيات والصفحات' : 'Customize Surah and range'}
+              >
+                <Sliders className="w-3 h-3" />
+                <span>{isAr ? 'تخصيص الورد' : 'Customize'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setShowGridModal(true);
+                }}
+                className="tap-spring px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+              >
+                <Grid className="w-3 h-3" />
+                <span>{isAr ? `الخريطة` : `Grid`}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Surah & Ayah / Bookmark Range Indicator */}
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 flex items-center justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-black text-slate-900 dark:text-zinc-100 truncate">
+                  📖 {quranProgress?.surah ? (quranProgress.surah.startsWith('سورة') ? quranProgress.surah : `سورة ${quranProgress.surah}`) : (isAr ? 'سورة البقرة' : 'Surah Al-Baqarah')}
+                </span>
+                {quranProgress?.startAyah && quranProgress?.endAyah && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
+                    {isAr ? `آية ${quranProgress.startAyah} - ${quranProgress.endAyah}` : `Ayah ${quranProgress.startAyah}-${quranProgress.endAyah}`}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-slate-500 dark:text-zinc-400 block mt-0.5 truncate">
+                {isAr
+                  ? `📌 موضع التوقف: صفحة ${quranProgress?.currentPage || quranProgress?.startPage || 1} من 604`
+                  : `📌 Position: Page ${quranProgress?.currentPage || 1} of 604`}
+              </span>
+            </div>
             <button
+              type="button"
               onClick={() => {
                 soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                setShowGridModal(true);
+                setShowFlexibleTrackerModal(true);
               }}
-              className="tap-spring px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+              className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer shrink-0 ps-2"
             >
-              <Grid className="w-3 h-3" />
-              <span>{isAr ? `خريطة الصفحات (${totalWirdPages} ص)` : `${totalWirdPages}-Page Grid`}</span>
+              {isAr ? 'تعديل النطاق ✏️' : 'Edit Range ✏️'}
             </button>
           </div>
 
@@ -237,14 +294,28 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             </span>
           </div>
 
-          {/* Quick Increment Button */}
-          <button
-            onClick={handleIncrementQuranPage}
-            className="tap-spring w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-md shadow-emerald-600/25 border border-emerald-500/30"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>{isAr ? `+1 صفحة من ${activeWirdTitle}` : `+1 Page from ${activeWirdTitle}`}</span>
-          </button>
+          {/* Action Buttons: Quick Increment & Open Modal */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={handleIncrementQuranPage}
+              className="tap-spring py-3 px-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md shadow-emerald-600/25 border border-emerald-500/30"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>{isAr ? '+1 صفحة تالية' : '+1 Next Page'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setShowFlexibleTrackerModal(true);
+              }}
+              className="tap-spring py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer border border-slate-200 dark:border-zinc-700"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{isAr ? 'تحديد السورة والآيات' : 'Select Surah/Ayahs'}</span>
+            </button>
+          </div>
 
           {/* Quick Morning 100x Shield Tasbih Button */}
           {onOpenSmartTasbih && (
@@ -430,6 +501,15 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
         totalPages={totalWirdPages}
         title={isAr ? `خريطة صفحات ${activeWirdTitle} (${totalWirdPages} صفحة)` : `${activeWirdTitle} Grid (${totalWirdPages} Pages)`}
         onSelectPage={handleSelectSpecificPage}
+      />
+
+      {/* Flexible Quran Tracker & Surah Selection Modal */}
+      <FlexibleQuranTrackerModal
+        isOpen={showFlexibleTrackerModal}
+        onClose={() => setShowFlexibleTrackerModal(false)}
+        quranProgress={quranProgress}
+        onRewardToast={onRewardToast}
+        todayLog={todayLog}
       />
     </div>
   );

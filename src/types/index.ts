@@ -42,11 +42,18 @@ export interface Goal {
 export interface QuranProgress {
   id?: number;
   surah: string;
+  surahNumber?: number;
   totalPages: number;
   currentPage: number;
   currentAyah: number;
+  startAyah?: number;
+  endAyah?: number;
+  startPage?: number;
+  endPage?: number;
+  mode?: 'pages' | 'surah_ayah' | 'juz' | 'preset';
+  dailyTargetPages?: number;
   lastUpdated: string;
-  history: Array<{ date: string; page: number; ayah: number }>;
+  history: Array<{ date: string; page: number; ayah: number; surah?: string }>;
 }
 
 export interface TasbihCounterRecord {

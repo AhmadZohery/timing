@@ -256,8 +256,9 @@ export const QuranPageGridModal: React.FC<QuranPageGridModalProps> = ({
           })}
         </div>
 
-        <div className="pt-2 text-center text-[11px] text-slate-400 dark:text-zinc-500">
-          {isAr ? 'سورة البقرة: الجزء الأول (ص 1-21) والجزء الثاني (ص 22-48)' : 'Surah Al-Baqarah: Juz 1 (pp 1-21) & Juz 2 (pp 22-48)'}
+        <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 dark:text-zinc-500 border-t border-slate-100 dark:border-zinc-800/80 mt-2">
+          <span>{isAr ? '۩ رمز سجدات التلاوة المسنونة في المصحف' : '۩ Quranic Sajdah verses'}</span>
+          <span className="font-mono">{isAr ? `إجمالي الصفحات: ${totalPages} صفحة` : `Total: ${totalPages} pages`}</span>
         </div>
       </div>
     </div>
