@@ -1,4 +1,5 @@
 import { db } from '../db/db';
+import { isWebCryptoAvailable } from './cryptoFallback';
 
 export interface UniversalBackupData {
   version: number;
@@ -167,6 +168,9 @@ export interface EncryptedBackupContainer {
  * 100% Client-side sovereign privacy
  */
 export async function encryptBackupPayload(plainText: string, pass: string): Promise<string> {
+  if (!isWebCryptoAvailable()) {
+    throw new Error('تشفير النسخ الاحتياطية يتطلب متصفحاً حديثاً يدعم Web Crypto API بالكامل. يرجى فتح الموقع في متصفح خارجي (Chrome أو Safari).');
+  }
   const enc = new TextEncoder();
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -210,6 +214,9 @@ export async function encryptBackupPayload(plainText: string, pass: string): Pro
 export async function decryptBackupPayload(payloadJson: string, pass: string): Promise<string> {
   const data = JSON.parse(payloadJson);
   if (!data.encrypted) return payloadJson;
+  if (!isWebCryptoAvailable()) {
+    throw new Error('فك تشفير النسخ الاحتياطية يتطلب متصفحاً حديثاً يدعم Web Crypto API بالكامل. يرجى فتح الموقع في متصفح خارجي (Chrome أو Safari).');
+  }
   const dec = new TextDecoder();
   const enc = new TextEncoder();
   const salt = new Uint8Array(data.salt);

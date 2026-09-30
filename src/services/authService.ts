@@ -1,5 +1,6 @@
 import { db } from '../db/db';
 import type { AuthAccount, AuthSession } from '../types';
+import { secureSha256, generateSecureSalt } from '../utils/cryptoFallback';
 
 const SESSION_STORAGE_KEY = 'midmar_auth_session';
 const PERSISTENT_STORAGE_KEY = 'midmar_auth_persistent_session';
@@ -58,25 +59,17 @@ class AuthService {
   private cachedSession: AuthSession | null = null;
 
   /**
-   * Securely hash password using browser-native Web Crypto API (SHA-256 + Salt)
+   * Securely hash password using SHA-256 + Salt (with pure-JS fallback for restricted WebViews)
    */
   public async hashSecret(secret: string, salt: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(`${salt}:${secret}:${salt}`);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    return secureSha256(`${salt}:${secret}:${salt}`);
   }
 
   /**
    * Generate a cryptographically secure random salt
    */
   public generateSalt(): string {
-    const array = new Uint8Array(16);
-    crypto.getRandomValues(array);
-    return Array.from(array)
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+    return generateSecureSalt();
   }
 
   /**
