@@ -62,28 +62,28 @@ export const CircadianAuroraBackground: React.FC = () => {
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden transition-colors duration-1000"
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden transition-colors duration-1000 select-none contain-strict transform-gpu"
     >
-      {/* Top Left / Right Breathing Aurora Orbs */}
+      {/* Top Left / Right Breathing Aurora Orbs (GPU optimized, gentle blur on mobile) */}
       <div
-        className="absolute -top-32 -start-32 w-96 sm:w-[32rem] h-96 sm:h-[32rem] rounded-full blur-3xl opacity-70 transition-all duration-1000 animate-pulse"
+        className="absolute -top-32 -start-32 w-80 sm:w-[32rem] h-80 sm:h-[32rem] rounded-full blur-2xl sm:blur-3xl opacity-60 sm:opacity-70 transition-all duration-1000 transform-gpu will-change-transform motion-safe:animate-pulse"
         style={{
           background: `radial-gradient(circle, ${auroraTheme.glow1} 0%, transparent 70%)`,
-          animationDuration: '8s',
-        }}
-      />
-      <div
-        className="absolute top-1/4 -end-32 w-80 sm:w-[28rem] h-80 sm:h-[28rem] rounded-full blur-3xl opacity-60 transition-all duration-1000 animate-pulse"
-        style={{
-          background: `radial-gradient(circle, ${auroraTheme.glow2} 0%, transparent 70%)`,
           animationDuration: '10s',
         }}
       />
       <div
-        className="absolute bottom-10 start-1/3 w-80 sm:w-[30rem] h-80 sm:h-[30rem] rounded-full blur-3xl opacity-50 transition-all duration-1000 animate-pulse"
+        className="absolute top-1/4 -end-32 w-72 sm:w-[28rem] h-72 sm:h-[28rem] rounded-full blur-2xl sm:blur-3xl opacity-50 sm:opacity-60 transition-all duration-1000 transform-gpu will-change-transform motion-safe:animate-pulse"
+        style={{
+          background: `radial-gradient(circle, ${auroraTheme.glow2} 0%, transparent 70%)`,
+          animationDuration: '12s',
+        }}
+      />
+      <div
+        className="absolute bottom-10 start-1/3 w-72 sm:w-[30rem] h-72 sm:h-[30rem] rounded-full blur-2xl sm:blur-3xl opacity-40 sm:opacity-50 transition-all duration-1000 transform-gpu will-change-transform motion-safe:animate-pulse"
         style={{
           background: `radial-gradient(circle, ${auroraTheme.glow3} 0%, transparent 70%)`,
-          animationDuration: '12s',
+          animationDuration: '14s',
         }}
       />
     </div>

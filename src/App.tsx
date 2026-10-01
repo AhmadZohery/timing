@@ -70,7 +70,8 @@ const PrayerLocationModal = lazyWithRetry(() => import('./components/modals/Pray
 const RealLifeRewardsModal = lazyWithRetry(() => import('./components/modals/RealLifeRewardsModal').then((m) => ({ default: m.RealLifeRewardsModal })), 'RealLifeRewardsModal');
 const QuickCommandPaletteModal = lazyWithRetry(() => import('./components/modals/QuickCommandPaletteModal').then((m) => ({ default: m.QuickCommandPaletteModal })), 'QuickCommandPaletteModal');
 const LifestyleStationCustomizerModal = lazyWithRetry(() => import('./components/modals/LifestyleStationCustomizerModal').then((m) => ({ default: m.LifestyleStationCustomizerModal })), 'LifestyleStationCustomizerModal');
-const WirdCustomizerModal = lazyWithRetry(() => import('./components/spiritual/WirdCustomizerModal').then((m) => ({ default: m.WirdCustomizerModal })), 'WirdCustomizerModal');
+const FlexibleQuranTrackerModal = lazyWithRetry(() => import('./components/spiritual/FlexibleQuranTrackerModal').then((m) => ({ default: m.FlexibleQuranTrackerModal })), 'FlexibleQuranTrackerModal');
+const MorningEveningAdhkarModal = lazyWithRetry(() => import('./components/spiritual/MorningEveningAdhkarModal').then((m) => ({ default: m.MorningEveningAdhkarModal })), 'MorningEveningAdhkarModal');
 const ThemePaletteModal = lazyWithRetry(() => import('./components/modals/ThemePaletteModal').then((m) => ({ default: m.ThemePaletteModal })), 'ThemePaletteModal');
 const SmartTasbihModal = lazyWithRetry(() => import('./components/modals/SmartTasbihModal').then((m) => ({ default: m.SmartTasbihModal })), 'SmartTasbihModal');
 const DailyPrideTicketModal = lazyWithRetry(() => import('./components/modals/DailyPrideTicketModal').then((m) => ({ default: m.DailyPrideTicketModal })), 'DailyPrideTicketModal');
@@ -234,6 +235,8 @@ export function App() {
   const [isPaletteModalOpen, setIsPaletteModalOpen] = useState(false);
   const [isSmartTasbihOpen, setIsSmartTasbihOpen] = useState(false);
   const [smartTasbihMode, setSmartTasbihMode] = useState<TasbihPresetId>('tahlil_100');
+  const [isAdhkarModalOpen, setIsAdhkarModalOpen] = useState(false);
+  const [adhkarMode, setAdhkarMode] = useState<'morning' | 'evening'>('morning');
   const [isDailyPrideTicketOpen, setIsDailyPrideTicketOpen] = useState(false);
   const [isTadabburModalOpen, setIsTadabburModalOpen] = useState(false);
   const [tadabburInitialItem, setTadabburInitialItem] = useState<DailyTadabburItem | undefined>(undefined);
@@ -253,6 +256,13 @@ export function App() {
   const [isCustomDeckModalOpen, setIsCustomDeckModalOpen] = useState(false);
   const [isCalendarShieldModalOpen, setIsCalendarShieldModalOpen] = useState(false);
   const [isQuickPinModalOpen, setIsQuickPinModalOpen] = useState(false);
+
+  const handleOpenAdhkarModal = (mode?: 'morning' | 'evening') => {
+    const currentHour = new Date().getHours();
+    const defaultMode = mode || (currentHour >= 3 && currentHour < 16 ? 'morning' : 'evening');
+    setAdhkarMode(defaultMode);
+    setIsAdhkarModalOpen(true);
+  };
 
   const handleOpenNiyyah = (pillar: NiyyahPillar = 'livelihood') => {
     setNiyyahInitialPillar(pillar);
@@ -915,6 +925,7 @@ export function App() {
         onOpenEvaluationModal={() => setIsEvaluationModalOpen(true)}
         onOpenCompanionHub={() => setIsMobileCompanionOpen(true)}
         onOpenWirdModal={() => setIsWirdModalOpen(true)}
+        onOpenAdhkarModal={() => handleOpenAdhkarModal()}
         onOpenTadabburModal={() => handleOpenTadabburModal()}
         onOpenSmartTasbih={() => handleOpenSmartTasbih()}
         onOpenPrayerLocation={() => setIsPrayerLocationModalOpen(true)}
@@ -1188,11 +1199,24 @@ export function App() {
         }}
       />
 
-      {/* Custom Spiritual & Quran Wird Modal (Al-Zahrawayn, Baqarah, Custom) */}
-      <WirdCustomizerModal
+      {/* Flexible Custom Quran Tracker Modal (Surah, Ayah, Pages, Bookmark) */}
+      <FlexibleQuranTrackerModal
         isOpen={isWirdModalOpen}
         onClose={() => setIsWirdModalOpen(false)}
-        userState={userState}
+        quranProgress={quranProgress}
+        todayLog={todayLog}
+        onRewardToast={(msg) => {
+          setRewardToast(msg);
+          setTimeout(() => setRewardToast(null), 3500);
+        }}
+      />
+
+      {/* Morning & Evening Adhkar Modal (Sacred Core & Global) */}
+      <MorningEveningAdhkarModal
+        isOpen={isAdhkarModalOpen}
+        onClose={() => setIsAdhkarModalOpen(false)}
+        initialMode={adhkarMode}
+        isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
         onRewardToast={(msg) => {
           setRewardToast(msg);
           setTimeout(() => setRewardToast(null), 3500);

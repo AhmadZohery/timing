@@ -203,6 +203,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const currentWirdPages = quranProgress?.currentPage ?? 0;
   const totalWirdPages = quranProgress?.totalPages ?? 604;
   const [isFlexibleQuranOpen, setIsFlexibleQuranOpen] = useState(false);
+  const [activeQuickSection, setActiveQuickSection] = useState<string>('all');
 
   const handleQuickIncrementQuran = async () => {
     soundSynth.playCompletionChime();
@@ -470,7 +471,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const shields = userState?.streakShields || 0;
 
   return (
-    <div className="space-y-5 animate-fade-in">
+    <div id="section-top" className="space-y-5 animate-fade-in">
       {/* ============================================================ */}
       {/* 1. HERO BENTO LIVING STAGE: GREETING + ACTIVE STATION CTA    */}
       {/* ============================================================ */}
@@ -568,6 +569,52 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       </div>
 
       {/* ============================================================ */}
+      {/* 🧭 MOBILE QUICK-JUMP CATEGORY NAV BAR                        */}
+      {/* Ultra-practical sticky navigation to eliminate endless scroll */}
+      {/* ============================================================ */}
+      <div className="sticky top-2 z-30 -mx-1 px-1 py-1.5 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md rounded-2xl border border-slate-200/90 dark:border-white/[0.08] shadow-sm">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth">
+          {[
+            { id: 'all', labelAr: '🌟 الكل', labelEn: 'All', targetId: 'section-top' },
+            { id: 'spiritual', labelAr: '🕌 الورد والأذكار', labelEn: 'Spiritual & Wird', targetId: 'section-spiritual' },
+            { id: 'roadmap', labelAr: '🧭 محطات اليوم', labelEn: 'Stations Roadmap', targetId: 'section-roadmap' },
+            { id: 'languages', labelAr: '📚 اللغات والحصيلة', labelEn: 'Languages & CEFR', targetId: 'section-languages' },
+            { id: 'sports', labelAr: '🏋️ الرياضة والعادات', labelEn: 'Sports & Habits', targetId: 'section-sports' },
+            { id: 'wisdom', labelAr: '📜 الحكمة والأدب', labelEn: 'Wisdom & Poetry', targetId: 'section-wisdom' },
+            { id: 'circadian', labelAr: '☀️ الإيقاع الحيوي', labelEn: 'Circadian Rhythm', targetId: 'section-circadian' },
+          ].map((tab) => {
+            const isActive = activeQuickSection === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setActiveQuickSection(tab.id);
+                  if (tab.id === 'all') {
+                    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    const el = document.getElementById(tab.targetId);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 tap-spring active:scale-95 ${
+                  isActive
+                    ? 'bg-emerald-600 text-white shadow-xs font-black'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300'
+                }`}
+              >
+                <span>{isAr ? tab.labelAr : tab.labelEn}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ============================================================ */}
       {/* 1.5 INSTANT 1-TAP ACTION DOCK: رصيف الإجراءات اللحظية الخاطف     */}
       {/* High-velocity micro-actions for busy executives & creators    */}
       {/* ============================================================ */}
@@ -587,17 +634,24 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* 2. DAILY STATIONS ROADMAP: خريطة مسار اليوم التفاعلية           */}
       {/* Ultra-compact 1-row milestone metro line & dynamic launcher   */}
       {/* ============================================================ */}
-      <DailyStationsRoadmap
-        allStationIds={allStationIds}
-        completedStations={completedStations}
-        currentSuggestedStation={currentSuggestedStation}
-        personaId={personaId}
-        personaConfig={personaConfig}
-        overrides={overrides}
-        isAr={isAr}
-        onSelectStation={onSelectStation}
-        onOpenLifestyleModal={onOpenLifestyleModal}
-      />
+      <div id="section-roadmap" className="scroll-mt-20">
+        <DailyStationsRoadmap
+          allStationIds={allStationIds}
+          completedStations={completedStations}
+          currentSuggestedStation={currentSuggestedStation}
+          personaId={personaId}
+          personaConfig={personaConfig}
+          overrides={overrides}
+          isAr={isAr}
+          onSelectStation={onSelectStation}
+          onOpenLifestyleModal={onOpenLifestyleModal}
+        />
+      </div>
+
+      {/* ============================================================ */}
+      {/* 3. SPIRITUAL DEVOTIONS, WIRD & SUNNAH BLOCK                  */}
+      {/* ============================================================ */}
+      <div id="section-spiritual" className="scroll-mt-20 space-y-4">
 
 
 
@@ -1118,11 +1172,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         onRewardToast={onRewardToast}
         onOpenFullModal={onOpenFaithAudio}
       />
+      </div>
 
       {/* ============================================================ */}
       {/* 4.3. INTELLECTUAL & CULTURAL WISDOM BENTO                    */}
       {/* ديوان الشعر العربي القديم المشروح & خزانة النماذج الفكرية     */}
       {/* ============================================================ */}
+      <div id="section-wisdom" className="scroll-mt-20">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Arabic Classical Poetry Card */}
         <div className="rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 dark:from-[#17130b] dark:via-[#11131c] dark:to-[#1a1208] border border-amber-400/35 dark:border-amber-500/25 p-5 sm:p-6 shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between space-y-4">
@@ -1259,11 +1315,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         </div>
       </div>
+      </div>
 
       {/* ============================================================ */}
       {/* 4.5. ADAPTIVE SPORTS & HABIT LEARNING BENTO                  */}
       {/* "مع الوقت تتعلم وتفهم أني عملت كذا.. وخليني أحدد اليوم ايه"   */}
       {/* ============================================================ */}
+      <div id="section-sports" className="scroll-mt-20">
       <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
@@ -1349,10 +1407,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         </div>
       </div>
+      </div>
 
       {/* ============================================================ */}
       {/* 5. DAILY VOCABULARY MASTERY BENTO (الحصيلة اللغوية اليومية) */}
       {/* ============================================================ */}
+      <div id="section-languages" className="scroll-mt-20">
       <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
         {/* Header: Title, Language Switcher & Stats */}
         <div className="flex items-center justify-between flex-wrap gap-2.5">
@@ -1628,10 +1688,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         )}
       </div>
+      </div>
 
       {/* ============================================================ */}
       {/* 6. 24-HOUR CIRCADIAN TIMELINE & GUIDANCE                     */}
       {/* ============================================================ */}
+      <div id="section-circadian" className="scroll-mt-20">
       <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
@@ -1673,6 +1735,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             onRewardToast={onRewardToast}
           />
         </div>
+      </div>
       </div>
 
       {/* Exquisite Cockpit End Footer */}

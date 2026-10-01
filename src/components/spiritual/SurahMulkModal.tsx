@@ -148,29 +148,29 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/75 dark:bg-black/85 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl max-h-[92vh] rounded-3xl bg-slate-900 border border-indigo-900/60 shadow-2xl flex flex-col overflow-hidden text-right cursor-default animate-scale-in"
+        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-indigo-900/60 shadow-2xl flex flex-col overflow-hidden text-right cursor-default animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-indigo-950/80 bg-gradient-to-r from-indigo-950/60 via-purple-950/40 to-slate-900 flex items-center justify-between gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-indigo-950/80 bg-gradient-to-r from-indigo-50/80 via-white to-purple-50/60 dark:from-indigo-950/60 dark:via-purple-950/40 dark:to-slate-900 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 text-indigo-500 dark:text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0">
               👑
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-black text-white">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
                   سُورَةُ الْمُلْكِ (الْمُنْجِيَة)
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300">
                   30 آية كاملة
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 «مَانِعَةٌ مِنْ عَذَابِ الْقَبْرِ، تَشْفَعُ لِصَاحِبِهَا حَتَّى يُغْفَرَ لَهُ»
               </p>
             </div>
@@ -186,7 +186,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
                   prev === 'normal' ? 'large' : prev === 'large' ? 'huge' : 'normal'
                 );
               }}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
               title="تغيير حجم الخط"
             >
               <Type className="w-4 h-4" />
@@ -199,12 +199,12 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
               className={`p-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
                 isPlayingAudio
                   ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20 animate-pulse'
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
               }`}
               title="تلاوة خاشعة (مشاري العفاسي)"
             >
               {isAudioLoading ? (
-                <span className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin inline-block" />
+                <span className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin inline-block" />
               ) : isPlayingAudio ? (
                 <Pause className="w-4 h-4 fill-current" />
               ) : (
@@ -219,7 +219,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -227,27 +227,27 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
         </div>
 
         {/* Hadith Benefit Banner */}
-        <div className="px-4 py-2 bg-indigo-950/40 border-b border-indigo-900/40 flex items-center justify-between text-[11px] text-indigo-300">
+        <div className="px-4 py-2 bg-indigo-50/80 dark:bg-indigo-950/40 border-b border-indigo-100 dark:border-indigo-900/40 flex items-center justify-between text-[11px] text-indigo-900 dark:text-indigo-300">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+            <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span>سنة نبوية مؤكدة: كان النبي ﷺ لا ينام حتى يقرأ ﴿تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ﴾.</span>
           </span>
-          <span className="font-mono text-[10px] text-slate-400">
+          <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
             {readVerses.size}/30 آية
           </span>
         </div>
 
-        {/* Verses Scroll Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin">
+        {/* Verses Scroll Container (with min-h-0 to avoid flexbox collapse) */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin">
           {/* Basmalah */}
           <div className="text-center py-2">
-            <span className="font-serif text-xl sm:text-2xl text-amber-200/90 tracking-wide">
+            <span className="font-serif text-xl sm:text-2xl text-amber-700 dark:text-amber-200/90 tracking-wide">
               بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </span>
           </div>
 
           <div
-            className={`leading-[2.4] font-serif text-slate-100 space-y-3 ${
+            className={`leading-[2.4] font-serif text-slate-900 dark:text-slate-100 space-y-3 ${
               fontSizeLevel === 'normal'
                 ? 'text-base sm:text-lg'
                 : fontSizeLevel === 'large'
@@ -263,8 +263,8 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
                   onClick={() => handleToggleVerse(v.number)}
                   className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
                     isChecked
-                      ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-100'
-                      : 'bg-slate-800/40 border-slate-700/40 hover:border-indigo-500/50 hover:bg-slate-800/70'
+                      ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/30 text-emerald-950 dark:text-emerald-100'
+                      : 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/40 hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:bg-slate-100 dark:hover:bg-slate-800/70'
                   }`}
                 >
                   <p className="flex-1 select-text font-quran leading-[2.4] text-base md:text-lg">
@@ -275,7 +275,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
                       className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold border transition-colors ${
                         isChecked
                           ? 'bg-emerald-500 text-slate-950 border-emerald-400'
-                          : 'bg-slate-800 text-indigo-300 border-indigo-500/30'
+                          : 'bg-slate-200 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-500/30'
                       }`}
                     >
                       {v.number}
@@ -288,10 +288,10 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 bg-slate-950 border-t border-indigo-950 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2 text-xs text-slate-400 w-full sm:w-auto justify-between sm:justify-start">
-            <span className="flex items-center gap-1.5 text-amber-400 font-bold">
-              <Sparkles className="w-4 h-4" />
+        <div className="p-4 sm:p-5 pb-[max(1rem,env(safe-area-inset-bottom))] bg-slate-50/90 dark:bg-zinc-950 border-t border-slate-100 dark:border-indigo-950 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 w-full sm:w-auto justify-between sm:justify-start">
+            <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold">
+              <Sparkles className="w-4 h-4 shrink-0" />
               <span>مكافأة الليلة: +15 نقطة همة وإيمان</span>
             </span>
           </div>
@@ -300,7 +300,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
             <button
               type="button"
               onClick={handleCompleteAll}
-              className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial min-h-[44px] px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer ${
                 done
                   ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'
                   : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30 active:scale-95'
@@ -313,7 +313,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+              className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
             >
               إغلاق
             </button>

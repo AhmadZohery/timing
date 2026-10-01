@@ -304,9 +304,9 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/75 dark:bg-black/85 backdrop-blur-md animate-fade-in">
       <div
-        className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 flex flex-col max-h-[92dvh] overflow-hidden"
+        className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 flex flex-col h-[90dvh] sm:h-auto sm:max-h-[92dvh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}
@@ -388,7 +388,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         </div>
 
         {/* Modal Body (Scrollable) */}
-        <div className="p-4 sm:p-5 space-y-5 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-5 space-y-5 flex-1 min-h-0 overflow-y-auto">
           {/* TAB 1: SURAH & AYAH */}
           {activeTab === 'surah_ayah' && (
             <div className="space-y-4">

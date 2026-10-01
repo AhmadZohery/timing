@@ -13,6 +13,7 @@ import {
   MapPin,
   Award,
   Activity,
+  Shield,
 } from 'lucide-react';
 import type { DailyLog, StationId, UserState } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -31,6 +32,7 @@ interface MobileBottomTabBarProps {
   onOpenEvaluationModal?: () => void;
   onOpenCompanionHub?: () => void;
   onOpenWirdModal?: () => void;
+  onOpenAdhkarModal?: () => void;
   onOpenTadabburModal?: () => void;
   onOpenSmartTasbih?: () => void;
   onOpenPrayerLocation?: () => void;
@@ -47,6 +49,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
   onOpenEvaluationModal,
   onOpenCompanionHub,
   onOpenWirdModal,
+  onOpenAdhkarModal,
   onOpenTadabburModal,
   onOpenSmartTasbih,
   onOpenPrayerLocation,
@@ -559,6 +562,35 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                   </div>
                   <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
                     {(todayLog?.baqarahProgress?.completed || (todayLog?.baqarahProgress?.pagesRead ?? 0) > 0 || todayLog?.customWirdProgress) ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'فتح' : 'Open')} {isAr ? '←' : '→'}
+                  </span>
+                </button>
+
+                {/* 1.5. Morning & Evening Adhkar (Hisn Al-Muslim) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setIsSpiritualSheetOpen(false);
+                    onOpenAdhkarModal?.();
+                  }}
+                  className="flex items-center justify-between p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/35 border border-amber-200/90 dark:border-amber-800/60 text-start tap-spring active:scale-98 transition-all cursor-pointer hover:bg-amber-100/70"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-xs">
+                      <Shield className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-amber-950 dark:text-amber-200">
+                        {isAr ? 'أذكار الصباح والمساء وحصن المسلم' : 'Morning & Evening Adhkar'}
+                      </h4>
+                      <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 mt-0.5 leading-snug">
+                        {isAr ? 'الأذكار الموثقة بالأحاديث مع عداد التكرار الذكي' : 'Fortress of remembrance with smart counter'}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-amber-700 dark:text-amber-300 shrink-0">
+                    {(todayLog?.adhkarMorningDone || todayLog?.adhkarEveningDone) ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'قراءة' : 'Read')} {isAr ? '←' : '→'}
                   </span>
                 </button>
 

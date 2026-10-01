@@ -126,9 +126,11 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     }
   }, [isOpen, defaultMode]);
 
+  const fallbackStage = { id: 'default', text: 'سبحان الله وبحمده', target: 33, virtueAr: '' };
   const currentPreset = allPresets[activeMode] || allPresets.tahlil_100 || TASBIH_PRESETS.tahlil_100;
-  const currentStage = currentPreset.stages[stageIndex] || currentPreset.stages[0];
-  const target = customTarget !== null ? customTarget : currentStage.target;
+  const stages = Array.isArray(currentPreset?.stages) && currentPreset.stages.length > 0 ? currentPreset.stages : [fallbackStage];
+  const currentStage = stages[stageIndex] || stages[0] || fallbackStage;
+  const target = customTarget !== null ? customTarget : (currentStage.target ?? 33);
   const isTargetMode = target > 0;
   const progressPercent = isTargetMode ? Math.min(100, Math.round((count / target) * 100)) : 100;
 
@@ -151,20 +153,20 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
     }
 
     const nextCount = count + 1;
-    const isMultiStage = currentPreset.stages.length > 1;
+    const isMultiStage = stages.length > 1;
 
     // 1. Multi-stage Presets (e.g. Khitam Salah: 33 SubhanAllah -> 33 Alhamdulillah -> 33 Allahu Akbar)
     if (isMultiStage) {
       // If current stage was already completed (e.g. count >= target) and user taps again:
       if (count >= target) {
-        if (stageIndex < currentPreset.stages.length - 1) {
+        if (stageIndex < stages.length - 1) {
           // Advance to next stage smoothly with 1
           const nextStage = stageIndex + 1;
           setStageIndex(nextStage);
           setCount(1);
           soundSynth.playStreakMilestoneChime();
           haptic.vibrateLight();
-          recordTasbihTap(activeMode, nextStage, 1, currentPreset.stages[nextStage]?.target || 33);
+          recordTasbihTap(activeMode, nextStage, 1, stages[nextStage]?.target || 33);
         } else {
           // Completed all stages in multi-stage preset!
           soundSynth.playCompletionChime();
@@ -172,7 +174,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
           const nextCycles = totalCompletedCycles + 1;
           setTotalCompletedCycles(nextCycles);
           localStorage.setItem('midmar_tasbih_cycles', String(nextCycles));
-          const res = await updateDailyTasbihProgress(activeMode, target * currentPreset.stages.length, target);
+          const res = await updateDailyTasbihProgress(activeMode, target * stages.length, target);
           if (onRewardToast) {
             onRewardToast(
               res.message ||
@@ -391,11 +393,11 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
                   {currentPreset.badgeAr}
                 </span>
               </div>
-              {currentPreset.stages.length > 1 && (
+              {stages.length > 1 && (
                 <p className="text-[11px] font-mono text-emerald-400 font-medium">
                   {isAr
-                    ? `المرحلة ${stageIndex + 1} من ${currentPreset.stages.length}`
-                    : `Stage ${stageIndex + 1} of ${currentPreset.stages.length}`}
+                    ? `المرحلة ${stageIndex + 1} من ${stages.length}`
+                    : `Stage ${stageIndex + 1} of ${stages.length}`}
                 </p>
               )}
             </div>
@@ -722,7 +724,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             )}
 
             {/* Dynamic Target Picker Pills (Single Stage or Free Dhikr) */}
-            {(currentPreset.stages.length === 1 || activeMode === 'free') && (
+            {(stages.length === 1 || activeMode === 'free') && (
               <div className="flex items-center justify-center gap-1.5 pt-1.5 border-t border-zinc-800/80 flex-wrap">
                 <span className="text-[10px] text-zinc-400 font-medium">
                   {isAr ? 'الهدف:' : 'Goal:'}
@@ -845,9 +847,9 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             </span>
           </div>
 
-          {currentPreset.stages.length > 1 && (
+          {stages.length > 1 && (
             <div className="flex items-center gap-1">
-              {currentPreset.stages.map((_, idx) => (
+              {stages.map((_, idx) => (
                 <div
                   key={idx}
                   className={`w-2 h-2 rounded-full transition-all ${
