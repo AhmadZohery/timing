@@ -297,20 +297,22 @@ export async function initializeDatabaseSeed() {
   if (userStateCount === 0) {
     const today = new Date().toISOString().split('T')[0];
 
-    // Seed User State
+    // Seed User State (Clean authentic zero-point initial state)
     await db.user_state.add({
       id: 'current_user',
-      streakDays: 7,
-      streakShields: 2,
-      totalPoints: 340,
-      activeStation: 'COMMUTE_MORNING',
+      streakDays: 0,
+      streakShields: 1,
+      totalPoints: 0,
+      spentPoints: 0,
+      activeStation: 'HOME',
       survivalMode: false,
       lastActiveDate: today,
       weeklyBufferCount: 0,
-      resilienceBadges: 1,
-      criticalBonusesWon: 3,
+      resilienceBadges: 0,
+      criticalBonusesWon: 0,
       energyLevel: 'high',
       energyDate: today,
+      activeProfileId: 'profile_default',
       settings: {
         soundEnabled: true,
         vibrationEnabled: true,
@@ -322,17 +324,21 @@ export async function initializeDatabaseSeed() {
       },
     });
 
-    // Seed Quran Progress (Surah Al-Baqarah 48 pages)
+    // Seed Quran Progress (Surah Al-Baqarah clean starting point)
     await db.quran_progress.add({
       surah: 'سورة البقرة',
-      totalPages: 48,
-      currentPage: 14,
-      currentAyah: 91,
+      surahNumber: 2,
+      totalPages: 604,
+      currentPage: 2,
+      currentAyah: 1,
+      startAyah: 1,
+      endAyah: 25,
+      startPage: 2,
+      endPage: 5,
+      mode: 'surah_ayah',
+      dailyTargetPages: 4,
       lastUpdated: today,
-      history: [
-        { date: '2026-09-17', page: 12, ayah: 76 },
-        { date: '2026-09-18', page: 14, ayah: 91 },
-      ],
+      history: [],
     });
 
     // Seed Book Progress

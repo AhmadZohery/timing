@@ -306,7 +306,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in">
       <div
-        className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 flex flex-col max-h-[92vh] overflow-hidden"
+        className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 flex flex-col max-h-[92dvh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}
@@ -340,7 +340,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         </div>
 
         {/* Tab Navigation (3 Flexible Modes) */}
-        <div className="px-4 sm:px-5 pt-3 border-b border-slate-100 dark:border-zinc-800 flex gap-2">
+        <div className="px-4 sm:px-5 pt-3 border-b border-slate-100 dark:border-zinc-800 flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
           <button
             type="button"
             onClick={() => {
@@ -727,11 +727,11 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         </div>
 
         {/* Modal Footer / Actions */}
-        <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/70 flex flex-col sm:flex-row items-center gap-2.5">
+        <div className="p-4 sm:p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/70 flex flex-col sm:flex-row items-center gap-2.5">
           <button
             type="button"
             onClick={() => handleSaveProgress(false)}
-            className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all active:scale-98 cursor-pointer"
+            className="w-full sm:flex-1 min-h-[44px] py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all active:scale-98 cursor-pointer"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>{isAr ? 'حفظ الورد وتسجيل قراءة اليوم 🌿' : 'Save Wird & Log Today\'s Reading 🌿'}</span>
@@ -740,7 +740,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
           <button
             type="button"
             onClick={() => handleSaveProgress(true)}
-            className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            className="w-full sm:w-auto min-h-[44px] py-3 px-4 rounded-xl bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             title={isAr ? 'حفظ موضع التوقف دون إضافة نقاط لليوم' : 'Save current bookmark position'}
           >
             <Bookmark className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />

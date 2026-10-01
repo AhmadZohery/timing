@@ -139,7 +139,7 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-3xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-3xl max-h-[92dvh] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 shrink-0 bg-gradient-to-r from-sky-50/50 via-transparent to-indigo-50/30 dark:from-sky-950/20 dark:to-indigo-950/10">
           <div className="flex items-center gap-3">
@@ -412,24 +412,24 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-zinc-800 shrink-0 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50">
+        <div className="p-4 sm:p-5 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-slate-100 dark:border-zinc-800 shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-2 bg-slate-50/50 dark:bg-zinc-900/50">
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
-            <Sparkles className="w-4 h-4 text-sky-500" />
-            <span>{isAr ? 'تنعكس التسميات فوراً على كامل التطبيق' : 'Instantly updates your navigation'}</span>
+            <Sparkles className="w-4 h-4 text-sky-500 shrink-0" />
+            <span className="text-[11px] sm:text-xs">{isAr ? 'تنعكس التسميات فوراً على كامل التطبيق' : 'Instantly updates your navigation'}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold hover:bg-slate-300 transition-colors cursor-pointer"
+              className="flex-1 sm:flex-initial min-h-[44px] px-4 py-2 rounded-xl bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold hover:bg-slate-300 transition-colors cursor-pointer"
             >
               {isAr ? 'إلغاء' : 'Cancel'}
             </button>
             <button
               type="button"
               onClick={handleSaveAll}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-sky-600/30 transition-all active:scale-95 cursor-pointer"
+              className="flex-1 sm:flex-initial min-h-[44px] flex items-center justify-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-sky-600/30 transition-all active:scale-95 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>{isAr ? 'اعتماد وحفظ النمط' : 'Apply Persona'}</span>

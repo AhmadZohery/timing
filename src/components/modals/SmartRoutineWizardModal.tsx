@@ -90,7 +90,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[92dvh] overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50 shrink-0">
           <div className="flex items-center gap-2.5">
@@ -589,7 +589,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
         </div>
 
         {/* Wizard Footer Controls */}
-        <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50 shrink-0">
+        <div className="p-4 sm:p-5 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50 shrink-0">
           {step > 1 ? (
             <button
               type="button"
@@ -597,7 +597,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
                 soundSynth.playTactileClick();
                 setStep(step - 1);
               }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-600 dark:text-zinc-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-zinc-800 cursor-pointer"
+              className="min-h-[44px] flex items-center gap-1.5 px-4 py-2 rounded-xl text-slate-600 dark:text-zinc-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-zinc-800 cursor-pointer"
             >
               <ArrowRight className="w-4 h-4" />
               <span>السابق</span>
@@ -613,7 +613,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
                 soundSynth.playTactileClick();
                 setStep(step + 1);
               }}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 text-xs font-black shadow-md shadow-amber-500/20 cursor-pointer"
+              className="min-h-[44px] flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 text-xs font-black shadow-md shadow-amber-500/20 cursor-pointer"
             >
               <span>التالي</span>
               <ArrowLeft className="w-4 h-4" />
@@ -622,7 +622,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
             <button
               type="button"
               onClick={handleApplySchedule}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black shadow-lg shadow-emerald-600/30 cursor-pointer"
+              className="min-h-[44px] flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black shadow-lg shadow-emerald-600/30 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>اعتماد وتطبيق هذا الروتين فوراً ✅</span>

@@ -109,7 +109,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
       {/* Supreme Floating Dynamic VisionOS Capsule Dock (< lg screens only) */}
       <nav
         aria-label={isAr ? 'منصة التحكم التنفيذية العائمة' : 'Floating Command Dock'}
-        className="lg:hidden fixed bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-8 max-w-md mx-auto z-40 transition-all duration-300"
+        className="lg:hidden fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-8 max-w-md mx-auto z-40 transition-all duration-300"
       >
         <div className="relative rounded-[30px] bg-white/94 dark:bg-[#0c0e17]/94 backdrop-blur-2xl border border-slate-200/90 dark:border-white/[0.14] p-1.5 shadow-[0_12px_45px_rgba(0,0,0,0.12)] dark:shadow-[0_24px_65px_rgba(0,0,0,0.85)] flex items-center justify-between select-none">
           {/* Luminous Ambient Prismatic Rim Top Light */}
@@ -167,7 +167,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
             <div className="relative">
               <Compass className={`w-5 h-5 transition-transform stroke-[1.9] ${isStationActive ? 'scale-110 text-sky-600 dark:text-sky-400' : ''}`} />
               <span className="absolute -top-1.5 -end-2.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-[8px] font-black text-white font-mono leading-none shadow-xs border border-white/20">
-                <bdi dir="ltr">{completedStations.length}/6</bdi>
+                <bdi dir="ltr">{completedStations.length}/{allStationIds.length}</bdi>
               </span>
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight relative z-10 font-bold">
@@ -377,7 +377,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     {isAr ? 'إنجاز محطات اليوم' : 'Stations Completed'}
                   </span>
                   <span className="font-mono text-emerald-600 dark:text-emerald-400 font-black">
-                    <bdi dir="ltr">{completedStations.length} / 6 ({progressPercent}%)</bdi>
+                    <bdi dir="ltr">{completedStations.length} / {allStationIds.length} ({progressPercent}%)</bdi>
                   </span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-200 dark:bg-zinc-700 overflow-hidden">
@@ -388,7 +388,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                 </div>
               </div>
 
-              {/* All 6 Stations List */}
+              {/* All Stations List */}
               <div className="space-y-2 pt-1 overflow-y-auto max-h-[50vh] pr-0.5">
                 {allStationIds.map((stationId, idx) => {
                   const meta = resolveStationMetadata(stationId, personaId, overrides, isAr);
@@ -558,7 +558,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     </div>
                   </div>
                   <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
-                    {(todayLog?.baqarahProgress?.completed || (todayLog?.baqarahProgress?.pagesRead ?? 0) > 0 || todayLog?.customWirdProgress) ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'فتح' : 'Open')} →
+                    {(todayLog?.baqarahProgress?.completed || (todayLog?.baqarahProgress?.pagesRead ?? 0) > 0 || todayLog?.customWirdProgress) ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'فتح' : 'Open')} {isAr ? '←' : '→'}
                   </span>
                 </button>
 
@@ -587,7 +587,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     </div>
                   </div>
                   <span className="text-xs font-bold text-amber-700 dark:text-amber-300 shrink-0">
-                    {(todayLog?.goldenNugget || todayLog?.quoteOfTheDay) ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'تدبر' : 'Reflect')} →
+                    {(todayLog?.goldenNugget || todayLog?.quoteOfTheDay) ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'تدبر' : 'Reflect')} {isAr ? '←' : '→'}
                   </span>
                 </button>
 
@@ -616,7 +616,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     </div>
                   </div>
                   <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 shrink-0">
-                    {(todayLog?.tasbihDailyProgress && Object.keys(todayLog.tasbihDailyProgress).length > 0) || todayLog?.adhkarMorningDone ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'تسبيح' : 'Tasbih')} →
+                    {(todayLog?.tasbihDailyProgress && Object.keys(todayLog.tasbihDailyProgress).length > 0) || todayLog?.adhkarMorningDone ? (isAr ? 'مكتمل ✔' : 'Done ✔') : (isAr ? 'تسبيح' : 'Tasbih')} {isAr ? '←' : '→'}
                   </span>
                 </button>
 
@@ -648,7 +648,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     </div>
                   </div>
                   <span className="text-xs font-bold text-amber-700 dark:text-amber-300 shrink-0">
-                    {isAr ? 'استماع' : 'Listen'} →
+                    {isAr ? 'استماع ←' : 'Listen →'}
                   </span>
                 </button>
 
@@ -677,7 +677,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     </div>
                   </div>
                   <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 shrink-0">
-                    {isAr ? 'ضبط' : 'Configure'} →
+                    {isAr ? 'ضبط ←' : 'Configure →'}
                   </span>
                 </button>
               </div>

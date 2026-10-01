@@ -485,7 +485,7 @@ export const DailyTadabburCard: React.FC<DailyTadabburCardProps> = ({
           className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-slate-200/80 dark:border-white/[0.08] text-slate-800 dark:text-zinc-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
         >
           <span>{isAr ? 'فتح قارئ التدبر والمصحف الكامل' : 'Open Immersive Tadabbur Reader'}</span>
-          <span>→</span>
+          <span>{isAr ? '←' : '→'}</span>
         </button>
       )}
     </div>

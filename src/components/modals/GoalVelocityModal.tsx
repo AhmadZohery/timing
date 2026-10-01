@@ -174,7 +174,7 @@ export const GoalVelocityModal: React.FC<GoalVelocityModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in transition-colors duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in transition-colors duration-200">
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm cursor-pointer"
@@ -184,7 +184,7 @@ export const GoalVelocityModal: React.FC<GoalVelocityModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-4xl xl:max-w-5xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full max-w-4xl xl:max-w-5xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-4 sm:p-6 md:p-8 space-y-6 shadow-2xl max-h-[92dvh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         {/* Close Button */}
         <button
           onClick={onClose}

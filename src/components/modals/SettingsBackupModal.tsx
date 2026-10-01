@@ -548,7 +548,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in transition-colors duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-fade-in transition-colors duration-200">
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm cursor-pointer"
@@ -558,7 +558,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-4 sm:p-6 md:p-8 space-y-6 shadow-2xl max-h-[92dvh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <button
           onClick={onClose}
           className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer`}
@@ -1463,7 +1463,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
           {/* 1. Change Password Form */}
           <form onSubmit={handleChangePassword} className="p-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2.5 text-xs">
             <span className="font-bold text-slate-700 dark:text-zinc-200 block">
-              {language === 'ar' ? 'تغيير كلمة المرور الرئيسية:' : 'Change Master Password:'}
+              {language === 'ar' ? 'تغيير كلمة مرور الحساب:' : 'Change Account Password:'}
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input

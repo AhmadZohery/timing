@@ -484,7 +484,19 @@ class AuthService {
         });
         const userState = await db.user_state.get('current_user');
         if (userState) {
-          await db.user_state.update('current_user', { activeProfileId: newProfileId });
+          await db.user_state.update('current_user', {
+            activeProfileId: newProfileId,
+            streakDays: 0,
+            totalPoints: 0,
+            spentPoints: 0,
+            activeStation: 'HOME',
+            survivalMode: false,
+            resilienceBadges: 0,
+            criticalBonusesWon: 0,
+            weeklyBufferCount: 0,
+            streakShields: 1,
+            lastActiveDate: new Date().toISOString().split('T')[0],
+          });
         }
       } catch {}
 
