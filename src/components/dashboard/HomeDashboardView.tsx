@@ -59,6 +59,7 @@ import { QuickActionDock } from './QuickActionDock';
 import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
 import { FridayKahfModal } from '../spiritual/FridayKahfModal';
 import { FlexibleQuranTrackerModal } from '../spiritual/FlexibleQuranTrackerModal';
+import { calculateEstimatedHasanat } from '../../data/quranSurahsData';
 import { checkIsFridaySalawatWindow } from '../../utils/tasbihEngine';
 import { getCurrentMonthKey, getMonthDisplayName } from '../../data/challengesData';
 
@@ -83,6 +84,8 @@ interface HomeDashboardViewProps {
   onOpenPanic?: () => void;
   onOpenCustomDeck?: () => void;
   onOpenCalendarShield?: () => void;
+  onOpenAdhkarModal?: (mode?: 'morning' | 'evening') => void;
+  onOpenQuranTracker?: () => void;
 }
 
 export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
@@ -106,6 +109,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   onOpenPanic,
   onOpenCustomDeck,
   onOpenCalendarShield,
+  onOpenAdhkarModal,
+  onOpenQuranTracker,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
@@ -139,6 +144,27 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   // Spiritual Modals & Smart Time-Based Nudges (Adhkar, Mulk, Fasting, Nawafil)
   const [isAdhkarModalOpen, setIsAdhkarModalOpen] = useState(false);
   const [adhkarMode, setAdhkarMode] = useState<'morning' | 'evening'>('morning');
+
+  const handleOpenAdhkar = (mode: 'morning' | 'evening') => {
+    soundSynth.playTactileClick();
+    setAdhkarMode(mode);
+    if (onOpenAdhkarModal) {
+      onOpenAdhkarModal(mode);
+    } else {
+      setIsAdhkarModalOpen(true);
+    }
+  };
+
+  const handleOpenQuranTracker = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (onOpenQuranTracker) {
+      onOpenQuranTracker();
+    } else {
+      setIsFlexibleQuranOpen(true);
+    }
+  };
+
   const [isHomeSurahMulkOpen, setIsHomeSurahMulkOpen] = useState(false);
   const [isFastingModalOpen, setIsFastingModalOpen] = useState(false);
   const [isNawafilModalOpen, setIsNawafilModalOpen] = useState(false);
@@ -576,11 +602,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth">
           {[
             { id: 'all', labelAr: '🌟 الكل', labelEn: 'All', targetId: 'section-top' },
-            { id: 'spiritual', labelAr: '🕌 الورد والأذكار', labelEn: 'Spiritual & Wird', targetId: 'section-spiritual' },
             { id: 'roadmap', labelAr: '🧭 محطات اليوم', labelEn: 'Stations Roadmap', targetId: 'section-roadmap' },
-            { id: 'languages', labelAr: '📚 اللغات والحصيلة', labelEn: 'Languages & CEFR', targetId: 'section-languages' },
-            { id: 'sports', labelAr: '🏋️ الرياضة والعادات', labelEn: 'Sports & Habits', targetId: 'section-sports' },
+            { id: 'spiritual', labelAr: '🕌 الورد والصلوات', labelEn: 'Spiritual & Prayers', targetId: 'section-spiritual' },
             { id: 'wisdom', labelAr: '📜 الحكمة والأدب', labelEn: 'Wisdom & Poetry', targetId: 'section-wisdom' },
+            { id: 'sports', labelAr: '🏋️ الرياضة والعادات', labelEn: 'Sports & Habits', targetId: 'section-sports' },
+            { id: 'languages', labelAr: '📚 اللغات والحصيلة', labelEn: 'Languages & CEFR', targetId: 'section-languages' },
             { id: 'circadian', labelAr: '☀️ الإيقاع الحيوي', labelEn: 'Circadian Rhythm', targetId: 'section-circadian' },
           ].map((tab) => {
             const isActive = activeQuickSection === tab.id;
@@ -621,7 +647,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       <QuickActionDock
         onStartSprint={() => onSelectStation('WORK_MICRO_SPRINT')}
         onIncrementQuran={handleQuickIncrementQuran}
-        onOpenQuranCustomizer={() => setIsFlexibleQuranOpen(true)}
+        onOpenQuranCustomizer={handleOpenQuranTracker}
         onOpenPanic={onOpenPanic ? onOpenPanic : () => {}}
         onOpenSmartTasbih={() => onOpenSmartTasbih('tasbih')}
         onOpenWeeklyReport={() => setIsWeeklyReportOpen(true)}
@@ -702,6 +728,91 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       )}
 
       {/* ============================================================ */}
+      {/* 1.58. DEDICATED QURAN WIRD & MEMORIZATION SUITE             */}
+      {/* 100% Flexible Surah, Ayah & Page Range Tracker               */}
+      {/* ============================================================ */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-emerald-50/80 dark:bg-[#0c1f1a] border border-emerald-300/80 dark:border-emerald-500/30 flex flex-col justify-between gap-3.5 shadow-xs transition-colors">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xl shrink-0 shadow-2xs">
+              📖
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
+                  {quranProgress?.surah
+                    ? (quranProgress.surah.startsWith('سورة') ? quranProgress.surah : `سورة ${quranProgress.surah}`)
+                    : (isAr ? 'سورة البقرة' : 'Surah Al-Baqarah')}
+                </span>
+                {quranProgress?.startAyah && quranProgress?.endAyah && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-mono font-bold border border-emerald-300/40 shrink-0">
+                    {isAr ? `آية ${quranProgress.startAyah} - ${quranProgress.endAyah}` : `Ayah ${quranProgress.startAyah}-${quranProgress.endAyah}`}
+                  </span>
+                )}
+                {todayLog?.quranWirdDone && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-400/40 shrink-0">
+                    {isAr ? 'تم ورد اليوم ✔' : 'Wird Logged ✔'}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-emerald-900/80 dark:text-emerald-200/80 mt-0.5 line-clamp-1">
+                {isAr
+                  ? `📌 موضع القراءة: صفحة ${currentWirdPages} من ${totalWirdPages} • +${calculateEstimatedHasanat(Math.max(1, currentWirdPages)).toLocaleString()} حسنة مضاعفة 🤍`
+                  : `📌 Reading: Page ${currentWirdPages} of ${totalWirdPages} • +${calculateEstimatedHasanat(Math.max(1, currentWirdPages)).toLocaleString()} Hasanat 🤍`}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleOpenQuranTracker}
+            className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer shrink-0"
+          >
+            {isAr ? 'تخصيص الورد ✏️' : 'Customize ✏️'}
+          </button>
+        </div>
+
+        {/* Quick Progress Bar */}
+        <div className="w-full bg-emerald-950/20 dark:bg-emerald-950/60 rounded-full h-2 overflow-hidden border border-emerald-500/20">
+          <div
+            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
+            style={{ width: `${Math.min(100, Math.round((currentWirdPages / Math.max(1, totalWirdPages)) * 100))}%` }}
+          />
+        </div>
+
+        <div className="flex items-center gap-2 pt-1 border-t border-emerald-500/15">
+          <button
+            type="button"
+            onClick={async () => {
+              soundSynth.playStreakMilestoneChime();
+              haptic.vibrateSprintCelebration();
+              await handleQuickIncrementQuran();
+            }}
+            className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              todayLog?.quranWirdDone
+                ? 'bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>
+              {todayLog?.quranWirdDone
+                ? (isAr ? 'تمت قراءة ورد اليوم بنجاح ✔ (+صفحة)' : 'Today\'s Wird Completed ✔ (+1p)')
+                : (isAr ? 'أتممت ورد اليوم 🤍 (+25 XP)' : 'Mark Wird Done 🤍 (+25 XP)')}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOpenQuranTracker}
+            className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer shrink-0"
+          >
+            <span>{isAr ? 'تحديد السور والصفحات ⚡' : 'Select Surah / Pages ⚡'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
       {/* 1.6. SMART TIME-BASED ADHKAR & SUNNAH FASTING SUITE          */}
       {/* ============================================================ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -741,11 +852,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
             <button
               type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                setAdhkarMode(isMorningTime ? 'morning' : 'evening');
-                setIsAdhkarModalOpen(true);
-              }}
+              onClick={() => handleOpenAdhkar(isMorningTime ? 'morning' : 'evening')}
               className="text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:underline cursor-pointer shrink-0"
             >
               {isAr ? 'فتح النافذة 📖' : 'Open 📖'}
@@ -779,11 +886,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
             <button
               type="button"
-              onClick={() => {
-                soundSynth.playTactileClick();
-                setAdhkarMode(isMorningTime ? 'morning' : 'evening');
-                setIsAdhkarModalOpen(true);
-              }}
+              onClick={() => handleOpenAdhkar(isMorningTime ? 'morning' : 'evening')}
               className="py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer shrink-0"
             >
               <span>{isAr ? 'وضع الحافظ ⚡' : 'Hafidh Mode ⚡'}</span>
@@ -1006,10 +1109,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             <button
               type="button"
               onClick={() => {
-                soundSynth.playTactileClick();
                 haptic.vibrateLight();
-                setAdhkarMode(isMorningTime ? 'morning' : 'evening');
-                setIsAdhkarModalOpen(true);
+                handleOpenAdhkar(isMorningTime ? 'morning' : 'evening');
               }}
               className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 dark:text-amber-200 font-bold text-xs border border-amber-500/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
@@ -1874,14 +1975,16 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
       )}
 
-      {/* Morning & Evening Adhkar Modal */}
-      <MorningEveningAdhkarModal
-        isOpen={isAdhkarModalOpen}
-        onClose={() => setIsAdhkarModalOpen(false)}
-        initialMode={adhkarMode}
-        isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
-        onRewardToast={onRewardToast}
-      />
+      {/* Morning & Evening Adhkar Modal (Fallback if not handled by root App) */}
+      {!onOpenAdhkarModal && (
+        <MorningEveningAdhkarModal
+          isOpen={isAdhkarModalOpen}
+          onClose={() => setIsAdhkarModalOpen(false)}
+          initialMode={adhkarMode}
+          isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
+          onRewardToast={onRewardToast}
+        />
+      )}
 
       {/* Surah Al-Mulk Interactive Reader Modal */}
       <SurahMulkModal
@@ -1962,14 +2065,16 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         initialLevel={selectedBentoLevel}
       />
 
-      {/* Flexible Quran Tracker & Surah Selection Modal */}
-      <FlexibleQuranTrackerModal
-        isOpen={isFlexibleQuranOpen}
-        onClose={() => setIsFlexibleQuranOpen(false)}
-        quranProgress={quranProgress}
-        onRewardToast={onRewardToast}
-        todayLog={todayLog}
-      />
+      {/* Flexible Quran Tracker & Surah Selection Modal (Fallback if not handled by root App) */}
+      {!onOpenQuranTracker && (
+        <FlexibleQuranTrackerModal
+          isOpen={isFlexibleQuranOpen}
+          onClose={() => setIsFlexibleQuranOpen(false)}
+          quranProgress={quranProgress}
+          onRewardToast={onRewardToast}
+          todayLog={todayLog}
+        />
+      )}
     </div>
   );
 };

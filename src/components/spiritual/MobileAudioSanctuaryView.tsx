@@ -26,6 +26,7 @@ import { useTranslation } from '../../i18n/LanguageContext';
 import {
   SCHOLARS_DIRECTORY,
   FAITH_AUDIO_SERIES,
+  GYM_FAITH_CHANNELS,
   type FaithAudioSeries,
   type FaithAudioEpisode,
 } from '../../data/gymFaithAudioData';
@@ -544,6 +545,45 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     icon: '📻',
     isLive: true,
   },
+  {
+    id: 'track_radio_shuraim',
+    titleAr: 'إذاعة أئمة الحرم المكي الشريف (سعود الشريم)',
+    titleEn: 'Makkah Imams Radio (Saud Al-Shuraim)',
+    sheikhAr: 'الشيخ د. سعود بن إبراهيم الشريم',
+    sheikhEn: 'Sheikh Saud Al-Shuraim',
+    category: 'radio',
+    audioUrl: 'https://qurango.net/radio/saud_alshuraim',
+    durationFormatted: 'بث مباشر',
+    badgeAr: '🔴 أئمة الحرم',
+    icon: '📻',
+    isLive: true,
+  },
+  {
+    id: 'track_radio_maher',
+    titleAr: 'إذاعة الحرم المكي الشريف (ماهر المعيقلي)',
+    titleEn: 'Makkah Grand Mosque Radio (Maher Al-Muaiqly)',
+    sheikhAr: 'الشيخ د. ماهر بن حمد المعيقلي',
+    sheikhEn: 'Sheikh Maher Al-Muaiqly',
+    category: 'radio',
+    audioUrl: 'https://qurango.net/radio/maher',
+    durationFormatted: 'بث مباشر',
+    badgeAr: '🔴 إمام الحرم',
+    icon: '📻',
+    isLive: true,
+  },
+  {
+    id: 'track_radio_qatami',
+    titleAr: 'إذاعة التلاوات الخاشعة والمؤثرة (ناصر القطامي)',
+    titleEn: 'Heartfelt Recitations Radio (Nasser Al-Qatami)',
+    sheikhAr: 'الشيخ ناصر بن علي القطامي',
+    sheikhEn: 'Sheikh Nasser Al-Qatami',
+    category: 'radio',
+    audioUrl: 'https://qurango.net/radio/nasser_alqatami',
+    durationFormatted: 'بث مباشر',
+    badgeAr: '🔴 تلاوة مؤثرة',
+    icon: '📻',
+    isLive: true,
+  },
 ];
 
 interface MobileAudioSanctuaryViewProps {
@@ -656,11 +696,32 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     soundSynth.playTactileClick();
     haptic.vibrateLight();
 
-    if (playingTrackId === track.id && audioState.isPlaying) {
+    // Check if track matches a canonical radio channel
+    const matchedChannel =
+      track.category === 'radio'
+        ? GYM_FAITH_CHANNELS.find(
+            (c) =>
+              c.streamUrl === track.audioUrl ||
+              track.audioUrl.includes(c.streamUrl) ||
+              c.id === track.id.replace('track_radio_', '')
+          )
+        : undefined;
+
+    const isThisTrackPlaying =
+      audioState.isPlaying &&
+      (playingTrackId === track.id ||
+        (matchedChannel && audioState.mode === 'channel' && audioState.currentChannelId === matchedChannel.id) ||
+        audioState.currentTitleAr === track.titleAr);
+
+    if (isThisTrackPlaying) {
       gymFaithAudio.pause();
     } else {
       setPlayingTrackId(track.id);
-      gymFaithAudio.playCustomUrl(track.audioUrl, track.titleAr, track.sheikhAr);
+      if (matchedChannel) {
+        gymFaithAudio.setChannel(matchedChannel.id, true);
+      } else {
+        gymFaithAudio.playCustomUrl(track.audioUrl, track.titleAr, track.sheikhAr);
+      }
       onRewardToast?.(
         isAr ? `▶️ جاري تشغيل: ${track.titleAr}` : `Playing: ${track.titleEn}`
       );
@@ -850,7 +911,14 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               </div>
             ) : (
               filteredTracks.map((track) => {
-                const isPlayingThis = playingTrackId === track.id && audioState.isPlaying;
+                const isPlayingThis =
+                  audioState.isPlaying &&
+                  (playingTrackId === track.id ||
+                    (track.category === 'radio' &&
+                      audioState.mode === 'channel' &&
+                      (audioState.currentChannelId === track.id.replace('track_radio_', '') ||
+                        audioState.currentTitleAr === track.titleAr)) ||
+                    (Boolean(audioState.currentTitleAr) && audioState.currentTitleAr.includes(track.titleAr)));
                 const isFav = favoriteIds.includes(track.id);
 
                 return (

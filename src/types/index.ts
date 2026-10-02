@@ -189,6 +189,7 @@ export interface DailyLog {
   prayers?: Partial<Record<PrayerName, PrayerRecord>>;
   baqarahProgress?: DailyBaqarahProgress;
   customWirdProgress?: Record<string, DailyWirdProgressItem>;
+  quranWirdDone?: boolean;
   surahYasinDone?: boolean;
   surahMulkDone?: boolean;
   surahKahfDone?: boolean;

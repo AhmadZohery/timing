@@ -1535,29 +1535,29 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
     "sheikhAr": "د. أحمد عبد المنعم",
     "sheikhEn": "Dr. Ahmed Abdelmonem",
     "category": "mindset",
-    "badgeAr": "يوتيوب صوتي ⚡ • حلقتان",
-    "badgeEn": "Audio Stream • 2 Episodes",
+    "badgeAr": "صوت نقي متواصل ⚡ • حلقتان",
+    "badgeEn": "Direct Audio • 2 Episodes",
     "icon": "⚡",
-    "descriptionAr": "سلسلة مركزة على يوتيوب في تحصين عقول الشباب وقلوبهم من أمواج الشبهات والشهوات.",
+    "descriptionAr": "سلسلة مركزة بالصوت النقي المباشر في تحصين عقول الشباب وقلوبهم من أمواج الشبهات والشهوات دون انقطاع.",
     "totalEpisodes": 2,
     "episodes": [
       {
         "id": "abm_yt_01",
         "episodeNumber": 1,
-        "titleAr": "المقطع 1: كيف تحافظ على قلبك في زمن الفتن العاصفة؟",
+        "titleAr": "المجلس 1: كيف تحافظ على قلبك في زمن الفتن وتستنزل السكينة؟",
         "titleEn": "Guarding Your Heart in Times of Trial",
-        "durationFormatted": "28:15",
-        "audioUrl": "https://www.youtube.com/watch?v=kYv7m54eWbU",
-        "summaryAr": "خطوات عملية لحفظ السمع والبصر والقلب، وعمارة السريرة بالذكر والاستغفار اليومي."
+        "durationFormatted": "37:40",
+        "audioUrl": "https://archive.org/download/Majales-elQuran-surat-elkahf_Ahmed-Abdelmoneem-mp3/001-%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%83%D9%87%D9%81%20(1)%20%D9%85%D9%82%D8%AF%D9%85%D8%A9%20%D9%87%D8%A7%D9%85%D8%A9%20_%20%D8%A7%D9%84%D8%AF%D9%83%D8%AA%D9%88%D8%B1%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
+        "summaryAr": "خطوات عملية لحفظ السمع والبصر والقلب، وعمارة السريرة بالذكر والاستغفار وتدبر القرآن."
       },
       {
         "id": "abm_yt_02",
         "episodeNumber": 2,
-        "titleAr": "المقطع 2: الشفاء بالقرآن وتثبيت النفس عند الشدائد",
+        "titleAr": "المجلس 2: الشفاء بالقرآن وتثبيت النفس عند الشدائد وتقلب الأحوال",
         "titleEn": "Quranic Healing & Steadfastness",
-        "durationFormatted": "26:40",
-        "audioUrl": "https://www.youtube.com/watch?v=Fj-yZ1q9vP0",
-        "summaryAr": "كيف تستنزل سكينة الوحي في صدرك عند ضيق الصدر وتقلب الأحوال الدنيوية."
+        "durationFormatted": "42:15",
+        "audioUrl": "https://archive.org/download/Majales-elQuran-surat-elkahf_Ahmed-Abdelmoneem-mp3/002-%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%83%D9%87%D9%81%20(2)%20_%20%D8%A7%D9%84%D8%AF%D9%83%D8%AA%D9%88%D8%B1%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
+        "summaryAr": "كيف تستنزل سكينة الوحي في صدرك عند ضيق الصدر وتقلب الأحوال الدنيوية والمجاهدة الإيمانية."
       }
     ]
   },

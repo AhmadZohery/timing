@@ -45,6 +45,8 @@ import type { TasbihPresetId } from './utils/tasbihEngine';
 import type { NiyyahPillar } from './components/spiritual/NiyyahSanctuaryModal';
 import { AuthGateView } from './components/auth/AuthGateView';
 import { authService } from './services/authService';
+import { MorningEveningAdhkarModal } from './components/spiritual/MorningEveningAdhkarModal';
+import { FlexibleQuranTrackerModal } from './components/spiritual/FlexibleQuranTrackerModal';
 
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
@@ -70,8 +72,6 @@ const PrayerLocationModal = lazyWithRetry(() => import('./components/modals/Pray
 const RealLifeRewardsModal = lazyWithRetry(() => import('./components/modals/RealLifeRewardsModal').then((m) => ({ default: m.RealLifeRewardsModal })), 'RealLifeRewardsModal');
 const QuickCommandPaletteModal = lazyWithRetry(() => import('./components/modals/QuickCommandPaletteModal').then((m) => ({ default: m.QuickCommandPaletteModal })), 'QuickCommandPaletteModal');
 const LifestyleStationCustomizerModal = lazyWithRetry(() => import('./components/modals/LifestyleStationCustomizerModal').then((m) => ({ default: m.LifestyleStationCustomizerModal })), 'LifestyleStationCustomizerModal');
-const FlexibleQuranTrackerModal = lazyWithRetry(() => import('./components/spiritual/FlexibleQuranTrackerModal').then((m) => ({ default: m.FlexibleQuranTrackerModal })), 'FlexibleQuranTrackerModal');
-const MorningEveningAdhkarModal = lazyWithRetry(() => import('./components/spiritual/MorningEveningAdhkarModal').then((m) => ({ default: m.MorningEveningAdhkarModal })), 'MorningEveningAdhkarModal');
 const ThemePaletteModal = lazyWithRetry(() => import('./components/modals/ThemePaletteModal').then((m) => ({ default: m.ThemePaletteModal })), 'ThemePaletteModal');
 const SmartTasbihModal = lazyWithRetry(() => import('./components/modals/SmartTasbihModal').then((m) => ({ default: m.SmartTasbihModal })), 'SmartTasbihModal');
 const DailyPrideTicketModal = lazyWithRetry(() => import('./components/modals/DailyPrideTicketModal').then((m) => ({ default: m.DailyPrideTicketModal })), 'DailyPrideTicketModal');
@@ -733,6 +733,8 @@ export function App() {
                 onOpenPanic={() => setIsPanicModalOpen(true)}
                 onOpenCustomDeck={() => setIsCustomDeckModalOpen(true)}
                 onOpenCalendarShield={() => setIsCalendarShieldModalOpen(true)}
+                onOpenAdhkarModal={(mode) => handleOpenAdhkarModal(mode)}
+                onOpenQuranTracker={() => setIsWirdModalOpen(true)}
               />
             </ErrorBoundary>
         </>

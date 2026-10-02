@@ -255,11 +255,12 @@ self.addEventListener('fetch', (event) => {
           });
           return networkResponse;
         })
-        .catch(() => {
-          return new Response('Asset fetch error', {
-            status: 408,
-            headers: { 'Content-Type': 'text/plain' },
-          });
+        .catch((err) => {
+          if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+            return caches.match('/index.html') || caches.match('/');
+          }
+          // Reject naturally so browser dynamic imports and fetch retries fail cleanly without SyntaxError
+          throw err;
         });
     })
   );

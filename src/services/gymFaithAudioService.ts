@@ -60,6 +60,13 @@ class GymFaithAudioService {
   private preDuckVolume = 0.85;
   private lastSaveTime = 0;
   private currentSessionId = 0;
+  private isUserPaused = false;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 6;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+  private watchdogTimer: ReturnType<typeof setInterval> | null = null;
+  private lastKnownPosition = 0;
+  private lastPositionUpdateTime = Date.now();
 
   constructor() {
     audioCoordinator.register('gym_faith', () => this.pause());
@@ -87,7 +94,7 @@ class GymFaithAudioService {
             localStorage.removeItem(STORAGE_RESUME_KEY);
           }
         } else if (parsed.mode === 'channel') {
-          const channelExists = GYM_FAITH_CHANNELS.some((c) => c.id === parsed.channelId);
+          const channelExists = GYM_FAITH_CHANNELS.some((c) => c.id === parsed.channelId) || Boolean(parsed.audioUrl);
           if (channelExists) {
             resumePoint = parsed;
           } else {
@@ -132,28 +139,58 @@ class GymFaithAudioService {
     if (this.audio) return;
 
     this.audio = new Audio();
-    this.audio.preload = 'metadata';
+    this.audio.preload = 'auto';
+    try {
+      (this.audio as any).playsInline = true;
+      (this.audio as any).crossOrigin = 'anonymous';
+    } catch {}
     this.audio.volume = this.state.volume;
     this.audio.playbackRate = this.state.playbackRate;
 
     this.audio.addEventListener('playing', () => {
+      this.isUserPaused = false;
+      this.reconnectAttempts = 0;
+      if (this.reconnectTimeout) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
+      this.lastPositionUpdateTime = Date.now();
+      if (this.audio) {
+        this.lastKnownPosition = this.audio.currentTime;
+      }
       this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
       this.updateMediaSession();
     });
 
     this.audio.addEventListener('waiting', () => {
-      this.updateState({ isLoading: true });
+      if (!this.isUserPaused) {
+        this.updateState({ isLoading: true });
+      }
+    });
+
+    this.audio.addEventListener('stalled', () => {
+      if (!this.isUserPaused && this.state.isPlaying) {
+        this.scheduleAutoReconnect('stalled');
+      }
     });
 
     this.audio.addEventListener('pause', () => {
-      this.updateState({ isPlaying: false, isLoading: false });
-      this.saveResumePoint();
+      if (this.isUserPaused) {
+        this.updateState({ isPlaying: false, isLoading: false });
+        this.saveResumePoint();
+        this.updateMediaSession();
+      }
     });
 
     this.audio.addEventListener('timeupdate', () => {
       if (!this.audio) return;
       const cur = Math.floor(this.audio.currentTime);
       const dur = Math.floor(this.audio.duration) || 0;
+
+      if (cur !== this.lastKnownPosition) {
+        this.lastKnownPosition = cur;
+        this.lastPositionUpdateTime = Date.now();
+      }
 
       // Smooth real-time state update
       if (cur !== this.state.currentTime || dur !== this.state.duration) {
@@ -178,26 +215,92 @@ class GymFaithAudioService {
     });
 
     this.audio.addEventListener('error', () => {
-      const mediaErr = this.audio?.error;
-      let msg = 'تعذر الاتصال بالبث الصوتي. يرجى التحقق من اتصال الإنترنت.';
-      if (mediaErr) {
-        if (mediaErr.code === 4) { // MEDIA_ERR_SRC_NOT_SUPPORTED
-          msg = 'المقطع الصوتي غير متاح حالياً أو تعذر تشغيل مصدره في المتصفح.';
-        } else if (mediaErr.code === 2) { // MEDIA_ERR_NETWORK
-          msg = 'انقطع الاتصال بالشبكة أثناء تحميل الصوت. يرجى التحقق من الإنترنت.';
-        } else if (mediaErr.code === 3) { // MEDIA_ERR_DECODE
-          msg = 'تعذر فك تشفير هذا الملف الصوتي.';
+      if (this.isUserPaused) return;
+      this.scheduleAutoReconnect('error');
+    });
+
+    this.setupMediaSessionHandlers();
+  }
+
+  private startWatchdog() {
+    if (this.watchdogTimer) return;
+    this.watchdogTimer = setInterval(() => {
+      if (!this.audio || this.isUserPaused || !this.state.isPlaying) return;
+      if (this.state.isLoading || this.reconnectTimeout) return;
+
+      const now = Date.now();
+      const currentPos = this.audio.currentTime;
+
+      // Check if audio has stalled for > 8 seconds without user pausing
+      if (Math.abs(currentPos - this.lastKnownPosition) < 0.1) {
+        if (now - this.lastPositionUpdateTime > 8000) {
+          console.warn('[GymFaithAudio] Audio stall detected by watchdog. Triggering soft reconnect.');
+          this.scheduleAutoReconnect('watchdog_stall');
         }
+      } else {
+        this.lastKnownPosition = currentPos;
+        this.lastPositionUpdateTime = now;
       }
+    }, 4000);
+  }
+
+  private stopWatchdog() {
+    if (this.watchdogTimer) {
+      clearInterval(this.watchdogTimer);
+      this.watchdogTimer = null;
+    }
+  }
+
+  private scheduleAutoReconnect(reason: string) {
+    if (this.isUserPaused || !this.state.isPlaying) return;
+    if (this.reconnectTimeout) return;
+
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.warn(`[GymFaithAudio] Reconnect limit reached (${reason}).`);
       this.updateState({
         isPlaying: false,
         isLoading: false,
         hasError: true,
-        errorMessage: msg,
+        errorMessage: 'انقطع الاتصال بالصوت. انقر على زر التشغيل لإعادة الاتصال.',
       });
+      return;
+    }
+
+    this.reconnectAttempts++;
+    const delay = Math.min(1000 * Math.pow(1.4, this.reconnectAttempts - 1), 6000);
+    this.updateState({
+      isLoading: true,
+      hasError: false,
+      errorMessage: `جاري استئناف البث تلقائياً (محاولة ${this.reconnectAttempts})...`,
     });
 
-    this.setupMediaSessionHandlers();
+    this.reconnectTimeout = setTimeout(async () => {
+      this.reconnectTimeout = null;
+      if (this.isUserPaused || !this.audio) return;
+
+      try {
+        const rawSrc = this.audio.src;
+        if (!rawSrc) return;
+
+        if (this.state.mode === 'channel') {
+          // Fresh URL query param to bypass stuck TCP socket
+          const cleanSrc = rawSrc.replace(/([?&])_t=\d+/, '');
+          this.audio.src = `${cleanSrc}${cleanSrc.includes('?') ? '&' : '?'}_t=${Date.now()}`;
+          this.audio.load();
+          await this.audio.play();
+        } else {
+          const resumeTime = this.lastKnownPosition || this.state.currentTime;
+          this.audio.load();
+          if (resumeTime > 0) {
+            this.audio.currentTime = resumeTime;
+          }
+          await this.audio.play();
+        }
+      } catch (e) {
+        console.warn('[GymFaithAudio] Auto-reconnect failed, rescheduling:', e);
+        this.scheduleAutoReconnect('retry_failed');
+      }
+    }, delay);
   }
 
   private handleTrackEnded() {
@@ -271,7 +374,7 @@ class GymFaithAudioService {
 
   private saveResumePoint() {
     if (!this.audio) return;
-    const curTime = Math.floor(this.audio.currentTime);
+    const curTime = Math.floor(this.audio.currentTime) || 0;
     const dur = Math.floor(this.audio.duration) || 0;
 
     let resume: FaithAudioResumePoint;
@@ -294,15 +397,15 @@ class GymFaithAudioService {
         timestamp: Date.now(),
       };
     } else {
-      const ch = GYM_FAITH_CHANNELS.find((c) => c.id === this.state.currentChannelId) || GYM_FAITH_CHANNELS[0];
+      const ch = GYM_FAITH_CHANNELS.find((c) => c.id === this.state.currentChannelId);
       resume = {
         mode: 'channel',
-        channelId: ch.id,
-        channelTitleAr: ch.titleAr,
-        sheikhAr: ch.sheikhAr,
+        channelId: this.state.currentChannelId,
+        channelTitleAr: ch?.titleAr || this.state.currentTitleAr,
+        sheikhAr: ch?.sheikhAr || this.state.currentSheikhAr,
         currentTime: curTime,
         duration: dur,
-        audioUrl: ch.streamUrl,
+        audioUrl: this.audio.src || ch?.streamUrl || '',
         timestamp: Date.now(),
       };
     }
@@ -410,9 +513,32 @@ class GymFaithAudioService {
   }
 
   public getCurrentChannel(): GymAudioChannel {
-    return (
-      GYM_FAITH_CHANNELS.find((c) => c.id === this.state.currentChannelId) || GYM_FAITH_CHANNELS[0]
-    );
+    const found = GYM_FAITH_CHANNELS.find((c) => c.id === this.state.currentChannelId);
+    if (found) return found;
+
+    const currentSrc = this.audio?.src;
+    if (currentSrc) {
+      const byUrl = GYM_FAITH_CHANNELS.find(
+        (c) => currentSrc.includes(c.streamUrl) || c.streamUrl.includes(currentSrc)
+      );
+      if (byUrl) return byUrl;
+    }
+
+    return {
+      id: this.state.currentChannelId || 'custom_live_audio',
+      titleAr: this.state.currentTitleAr || GYM_FAITH_CHANNELS[0].titleAr,
+      titleEn: 'Faith Sanctuary Stream',
+      category: 'live',
+      sheikhAr: this.state.currentSheikhAr || GYM_FAITH_CHANNELS[0].sheikhAr,
+      sheikhEn: 'Faith Sanctuary',
+      streamUrl: this.audio?.src || GYM_FAITH_CHANNELS[0].streamUrl,
+      descriptionAr: this.state.currentTitleAr,
+      descriptionEn: 'Live continuous stream',
+      badgeAr: 'بث مباشر 🔴',
+      badgeEn: 'Live 🔴',
+      icon: '🎙️',
+      isLiveStream: true,
+    };
   }
 
   public getSavedResumePoint(): FaithAudioResumePoint | null {
@@ -434,27 +560,58 @@ class GymFaithAudioService {
   public async play(channelId?: string) {
     this.initAudio();
     if (!this.audio) return;
+    this.isUserPaused = false;
+    this.startWatchdog();
 
-    const targetId = channelId || this.state.currentChannelId;
-    const channel = GYM_FAITH_CHANNELS.find((c) => c.id === targetId) || GYM_FAITH_CHANNELS[0];
-    const isDifferent = this.state.mode !== 'channel' || this.state.currentChannelId !== channel.id || !this.audio.src;
+    if (channelId) {
+      const channel = GYM_FAITH_CHANNELS.find((c) => c.id === channelId);
+      if (channel) {
+        const isDifferent =
+          this.state.mode !== 'channel' ||
+          this.state.currentChannelId !== channel.id ||
+          !this.audio.src ||
+          !this.audio.src.includes(channel.streamUrl.replace(/^https?:\/\//, ''));
 
-    if (isDifferent) {
-      this.audio.src = channel.streamUrl;
-      this.audio.load();
-      this.updateState({
-        mode: 'channel',
-        currentChannelId: channel.id,
-        currentSeriesId: null,
-        currentEpisodeId: null,
-        currentTitleAr: channel.titleAr,
-        currentSheikhAr: channel.sheikhAr,
-        isLoading: true,
-        hasError: false,
-      });
-      localStorage.setItem(STORAGE_CHANNEL_KEY, channel.id);
+        if (isDifferent) {
+          this.audio.src = channel.streamUrl;
+          this.audio.load();
+          this.updateState({
+            mode: 'channel',
+            currentChannelId: channel.id,
+            currentSeriesId: null,
+            currentEpisodeId: null,
+            currentTitleAr: channel.titleAr,
+            currentSheikhAr: channel.sheikhAr,
+            isLoading: true,
+            hasError: false,
+            errorMessage: null,
+          });
+          localStorage.setItem(STORAGE_CHANNEL_KEY, channel.id);
+        } else {
+          this.updateState({ isLoading: true, hasError: false, errorMessage: null });
+        }
+      }
     } else {
-      this.updateState({ isLoading: true, hasError: false });
+      // Resuming existing playback without re-assigning or changing the audio source!
+      if (!this.audio.src) {
+        const targetId = this.state.currentChannelId;
+        const channel = GYM_FAITH_CHANNELS.find((c) => c.id === targetId) || GYM_FAITH_CHANNELS[0];
+        this.audio.src = channel.streamUrl;
+        this.audio.load();
+        this.updateState({
+          mode: 'channel',
+          currentChannelId: channel.id,
+          currentSeriesId: null,
+          currentEpisodeId: null,
+          currentTitleAr: channel.titleAr,
+          currentSheikhAr: channel.sheikhAr,
+          isLoading: true,
+          hasError: false,
+          errorMessage: null,
+        });
+      } else {
+        this.updateState({ isLoading: true, hasError: false, errorMessage: null });
+      }
     }
 
     try {
@@ -463,13 +620,17 @@ class GymFaithAudioService {
       await this.audio.play();
       this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
       this.updateMediaSession();
+      this.saveResumePoint();
     } catch (e: any) {
-      console.warn('Gym faith audio play blocked:', e);
+      console.warn('Gym faith audio play error:', e);
       let userMsg = 'انقر للتشغيل أو تأكد من إعدادات الصوت.';
       if (e?.name === 'NotSupportedError') {
         userMsg = 'المتصفح لم يعثر على مصدر مدعوم لهذا الرابط حالياً.';
       } else if (e?.name === 'NotAllowedError') {
         userMsg = 'المتصفح حظر التشغيل التلقائي. انقر على زر التشغيل لبدء الصوت.';
+      } else {
+        this.scheduleAutoReconnect('play_catch');
+        return;
       }
       this.updateState({
         isPlaying: false,
@@ -484,6 +645,8 @@ class GymFaithAudioService {
   public async playEpisode(seriesId: string, episodeId: string, startSecond = 0) {
     this.initAudio();
     if (!this.audio) return;
+    this.isUserPaused = false;
+    this.startWatchdog();
 
     const series = this.getAllSeries().find((s) => s.id === seriesId);
     if (!series) return;
@@ -534,6 +697,7 @@ class GymFaithAudioService {
         currentSheikhAr: series.sheikhAr,
         isLoading: true,
         hasError: false,
+        errorMessage: null,
         currentTime: startSecond,
       });
     }
@@ -557,6 +721,9 @@ class GymFaithAudioService {
         userMsg = 'المتصفح لم يعثر على مصدر مدعوم لهذا المقطع حالياً.';
       } else if (e?.name === 'NotAllowedError') {
         userMsg = 'المتصفح حظر التشغيل التلقائي. انقر على زر التشغيل لبدء الصوت.';
+      } else {
+        this.scheduleAutoReconnect('episode_play_catch');
+        return;
       }
       this.updateState({
         isPlaying: false,
@@ -592,6 +759,12 @@ class GymFaithAudioService {
    * Fades out volume over 50ms before calling pause() to eliminate digital clicks/pops.
    */
   public pause(fadeMs = 50) {
+    this.isUserPaused = true;
+    this.stopWatchdog();
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
     if (!this.audio) return;
     const targetAudio = this.audio;
     const originalVol = this.state.volume;
@@ -616,7 +789,9 @@ class GymFaithAudioService {
         }
       }, stepDuration);
     } else {
-      targetAudio.pause();
+      try {
+        targetAudio.pause();
+      } catch {}
       this.saveResumePoint();
       this.updateState({ isPlaying: false, isLoading: false });
     }
@@ -784,40 +959,76 @@ class GymFaithAudioService {
       return;
     }
 
+    // Check if this URL matches an existing GymAudioChannel
+    const matchedChannel = GYM_FAITH_CHANNELS.find(
+      (c) => c.streamUrl === url || url.includes(c.streamUrl) || c.streamUrl.includes(url)
+    );
+
+    if (matchedChannel) {
+      this.setChannel(matchedChannel.id, true);
+      return;
+    }
+
     this.initAudio();
     if (!this.audio) return;
+    this.isUserPaused = false;
+    this.startWatchdog();
 
-    this.audio.src = url;
-    this.audio.load();
+    const isDifferent = !this.audio.src || !this.audio.src.includes(url);
+    if (isDifferent) {
+      this.audio.src = url;
+      this.audio.load();
+    }
+
+    const customId = this.state.currentChannelId?.startsWith('custom_')
+      ? this.state.currentChannelId
+      : 'custom_' + Date.now();
+
     this.updateState({
       mode: 'channel',
-      currentChannelId: 'custom_' + Date.now(),
+      currentChannelId: customId,
       currentSeriesId: null,
       currentEpisodeId: null,
       currentTitleAr: titleAr,
       currentSheikhAr: sheikhAr,
       isLoading: true,
       hasError: false,
+      errorMessage: null,
     });
 
     try {
       audioCoordinator.requestExclusive('gym_faith');
       this.audio.playbackRate = this.state.playbackRate;
+      this.audio.volume = this.state.volume;
       await this.audio.play();
       this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
       this.updateMediaSession();
+      this.saveResumePoint();
     } catch (e: any) {
       console.warn('Custom audio play failed:', e);
+      let userMsg = 'تعذر تشغيل هذا المقطع الصوتي حالياً.';
+      if (e?.name === 'NotAllowedError') {
+        userMsg = 'المتصفح منع التشغيل التلقائي. انقر على زر التشغيل لبدء الصوت.';
+      } else {
+        this.scheduleAutoReconnect('custom_play_catch');
+        return;
+      }
       this.updateState({
         isPlaying: false,
         isLoading: false,
         hasError: true,
-        errorMessage: 'تعذر تشغيل هذا المقطع الصوتي حالياً.',
+        errorMessage: userMsg,
       });
     }
   }
 
   public stop() {
+    this.isUserPaused = true;
+    this.stopWatchdog();
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
     this.pause(0);
     if (this.audio) {
       this.audio.currentTime = 0;
@@ -826,6 +1037,12 @@ class GymFaithAudioService {
   }
 
   public stopAndUnload() {
+    this.isUserPaused = true;
+    this.stopWatchdog();
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
     if (this.audio) {
       this.saveResumePoint();
       this.audio.pause();
