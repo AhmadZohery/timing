@@ -30,6 +30,7 @@ import {
   type FaithAudioSeries,
   type FaithAudioEpisode,
 } from '../../data/gymFaithAudioData';
+import { YouTubeAudioPlayer } from './YouTubeAudioPlayer';
 
 export interface MobileAudioTrack {
   id: string;
@@ -235,11 +236,11 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
   {
     id: 'track_adhkar_morning_afasy',
     titleAr: 'أذكار الصباح كاملة بصوت عذب نقي يبعث الحيوية',
-    titleEn: 'Morning Adhkar Complete - Alafasy',
-    sheikhAr: 'الشيخ مشاري راشد العفاسي',
-    sheikhEn: 'Mishary Rashid Alafasy',
+    titleEn: 'Morning Adhkar Complete',
+    sheikhAr: 'نخبة من القراء المعتمدين',
+    sheikhEn: 'Authentic Adhkar',
     category: 'adhkar',
-    audioUrl: 'https://server8.mp3quran.net/afs/114.mp3',
+    audioUrl: 'https://archive.org/download/TvQuran.com__Athkar/TvQuran.com_athkar_01.mp3',
     durationFormatted: '22:15',
     badgeAr: '☀️ شمس التوكل',
     icon: '🌸',
@@ -248,10 +249,10 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     id: 'track_adhkar_evening_afasy',
     titleAr: 'أذكار المساء وحفظ النفس من كل سوء',
     titleEn: 'Evening Adhkar Complete',
-    sheikhAr: 'الشيخ مشاري راشد العفاسي',
-    sheikhEn: 'Mishary Rashid Alafasy',
+    sheikhAr: 'نخبة من القراء المعتمدين',
+    sheikhEn: 'Authentic Adhkar',
     category: 'adhkar',
-    audioUrl: 'https://server8.mp3quran.net/afs/113.mp3',
+    audioUrl: 'https://archive.org/download/TvQuran.com__Athkar/TvQuran.com_athkar_02.mp3',
     durationFormatted: '21:40',
     badgeAr: '🌙 طمأنينة المساء',
     icon: '🌸',
@@ -260,10 +261,10 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     id: 'track_ruqyah_shariah',
     titleAr: 'الرقية الشرعية الشاملة للشفاء ودفع العين والحسد',
     titleEn: 'Comprehensive Ruqyah Shariah',
-    sheikhAr: 'الشيخ إدريس أبكر',
-    sheikhEn: 'Sheikh Idris Abkar',
+    sheikhAr: 'الرقية الشرعية المطولة',
+    sheikhEn: 'Comprehensive Ruqyah',
     category: 'adhkar',
-    audioUrl: 'https://server11.mp3quran.net/yasser/001.mp3',
+    audioUrl: 'https://archive.org/download/rqa_iiih/Rqa_iiih1.mp3',
     durationFormatted: '35:20',
     badgeAr: '💎 شفاء وسكينة',
     icon: '📿',
@@ -394,196 +395,105 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
   },
   {
     id: 'track_ayman_history_01',
-    titleAr: 'فلسفة التاريخ في المنظور القرآني وسنن صعود وسقوط الأمم',
-    titleEn: 'Quranic Philosophy of History',
+    titleAr: 'علم النفس وسيكولوجية الجماهير وبناء العقل المستقل',
+    titleEn: 'Psychology of Masses & Independent Thinking',
     sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
-    audioUrl: 'https://archive.org/download/ayman_history/01.mp3',
+    audioUrl: 'https://archive.org/download/NAFS-2017/01-NAFS.mp3',
     durationFormatted: '56:30',
-    badgeAr: '🏛️ سنن التاريخ',
+    badgeAr: '🏛️ سيكولوجية الجماهير',
     icon: '⚔️',
   },
 
-  // --- 6. نفائس الشيوخ (أحمد السيد، إياد قنيبي، حازم شومان) ---
+  // --- 6. نفائس الشيوخ (أحمد السيد، الطريفي، حازم شومان، سمير مصطفى) ---
   {
     id: 'track_ahmed_sayed_kamel_01',
-    titleAr: 'كامل الصورة: أصول تثبيت اليقين ومحاربة الشبهات والشكوك',
-    titleEn: 'Principles of Consolidating Certainty',
+    titleAr: 'دورة علوم الحديث: تثبيت أصول اليقين وحجية السنة',
+    titleEn: 'Hadith Sciences & Epistemic Certainty',
     sheikhAr: 'الشيخ أحمد بن يوسف السيد',
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'mindset',
-    audioUrl: 'https://archive.org/download/ahmed_sayed_kamel/02.mp3',
+    audioUrl: 'https://archive.org/download/hadith_/1.mp3',
     durationFormatted: '46:15',
     badgeAr: '💡 بناء اليقين',
     icon: '🌱',
   },
   {
     id: 'track_ahmed_sayed_seerah_01',
-    titleAr: 'أنوار السيرة: تربية الجيل الأول في دار الأرقم والثبات على الحق',
-    titleEn: 'Seerah: Nurturing the First Generation',
+    titleAr: 'أصول وقواعد في تدبر السنة النبوية ومنهج المحدثين',
+    titleEn: 'Principles of Hadith Comprehension',
     sheikhAr: 'الشيخ أحمد بن يوسف السيد',
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'siyra',
-    audioUrl: 'https://archive.org/download/ahmed_sayed_seerah/01.mp3',
+    audioUrl: 'https://archive.org/download/hadith_/2.mp3',
     durationFormatted: '39:40',
-    badgeAr: '🕌 السيرة النبوية',
+    badgeAr: '🕌 السنة النبوية',
     icon: '✨',
   },
   {
-    id: 'track_qunaibi_yaqeen_01',
-    titleAr: 'رحلة اليقين: براهين وجود الله وعظمة الصانع في خلق الكون',
-    titleEn: 'Journey of Certainty: Proofs of Creation',
-    sheikhAr: 'د. إياد قنيبي',
-    sheikhEn: 'Dr. Eyad Qunaibi',
+    id: 'track_tarefe_ahkam_01',
+    titleAr: 'تفسير آيات الأحكام وتدبر السنن القرآنية الكبرى',
+    titleEn: 'Tafseer Ayat Al-Ahkam',
+    sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
+    sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'mindset',
-    audioUrl: 'https://archive.org/download/qunaibi_jeel/01.mp3',
+    audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/001.mp3',
     durationFormatted: '38:20',
-    badgeAr: '🛡️ رحلة اليقين',
-    icon: '🌱',
+    badgeAr: '🛡️ آيات الأحكام',
+    icon: '📖',
   },
   {
-    id: 'track_qunaibi_tarbiyah_01',
-    titleAr: 'كيف نربي أبناءنا: غرس محبة الله والقرآن في نفوس الأبناء',
-    titleEn: 'Child Raising: Love of Allah & Quran',
-    sheikhAr: 'د. إياد قنيبي',
-    sheikhEn: 'Dr. Eyad Qunaibi',
-    category: 'zawaj',
-    audioUrl: 'https://archive.org/download/qunaibi_tarbiya/01.mp3',
+    id: 'track_tarefe_3azama_01',
+    titleAr: 'عظمة الله جل جلاله والافتقار إليه في الشدائد والفتن',
+    titleEn: 'The Greatness of Allah',
+    sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
+    sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
+    category: 'tazkiyah',
+    audioUrl: 'https://archive.org/download/3azamitAllah/10-zo-al-hoja.mp3',
     durationFormatted: '38:15',
-    badgeAr: '🌱 تربية الأبناء',
-    icon: '👨‍👩‍👧',
+    badgeAr: '👑 عظمة الله',
+    icon: '💎',
   },
   {
     id: 'track_shouman_salah_01',
-    titleAr: 'محتاج أصلي: كيف تذوق حلاوة تكبيرة الإحرام والخشوع في صلاتك',
-    titleEn: 'Secrets of Khushu in Salah',
+    titleAr: 'طريق النجاة: الخشوع في الصلاة وتطهير القلب من الغفلة',
+    titleEn: 'Path of Salvation & Khushu in Salah',
     sheikhAr: 'د. حازم شومان',
     sheikhEn: 'Dr. Hazem Shouman',
     category: 'khutbah',
-    audioUrl: 'https://archive.org/download/shouman_salah/02.mp3',
+    audioUrl: 'https://archive.org/download/Hazem_Shuman_uP_bY_mUSLEm/001_uP_bY_mUSLEm.Ettounssi.mp3',
     durationFormatted: '37:55',
     badgeAr: '🤲 أسرار الصلاة',
     icon: '🔥',
   },
   {
-    id: 'track_shouman_najah_01',
-    titleAr: 'طريق النجاة: فِرَّ إلى الله واكسر قيود الغفلة والتسويف الآن',
-    titleEn: 'Flee to Allah & Break Chains of Procrastination',
-    sheikhAr: 'د. حازم شومان',
-    sheikhEn: 'Dr. Hazem Shouman',
+    id: 'track_samir_esbero_01',
+    titleAr: 'اصبروا وصابروا: معالم علو الهمة ومجاهدة النفس والشيطان',
+    titleEn: 'Be Patient & Endure: High Zeal',
+    sheikhAr: 'الشيخ سمير مصطفى (فك الله أسره)',
+    sheikhEn: 'Sheikh Samir Mostafa',
     category: 'khutbah',
-    audioUrl: 'https://archive.org/download/shouman_najah/01.mp3',
+    audioUrl: 'https://archive.org/download/khotab_minbriah-sh_samir-mostafa/01_Smir_Mostafa_khotab_esbero(%D8%A7%D8%B5%D8%A8%D8%B1%D9%88%D8%A7%20%D9%88%D8%B5%D8%A7%D8%A8%D9%80%D8%B1%D9%88%D8%A7).mp3',
     durationFormatted: '36:45',
-    badgeAr: '🔥 موعظة نجاة',
+    badgeAr: '🔥 علو الهمة',
     icon: '⚡',
   },
 
-  // --- 7. إذاعات القرآن الكريم الحية (24/7 Live Stream) ---
-  {
-    id: 'track_radio_tarateel',
-    titleAr: 'إذاعة تلاوات قرآنية خاشعة ومختارة 24 ساعة',
-    titleEn: 'Curated Recitations Radio 24/7',
-    sheikhAr: 'نخبة من كبار القراء في العالم الإسلامي',
-    sheikhEn: 'Elite Reciters',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/tarateel',
+  // --- 7. إذاعات القرآن الكريم الحية (24/7 Live Stream) متطابقة مع قنوات مضمار ---
+  ...GYM_FAITH_CHANNELS.map((ch) => ({
+    id: `track_radio_${ch.id}`,
+    titleAr: ch.titleAr,
+    titleEn: ch.titleEn,
+    sheikhAr: ch.sheikhAr,
+    sheikhEn: ch.sheikhEn,
+    category: 'radio' as const,
+    audioUrl: ch.streamUrl,
     durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 حي متواصل',
-    icon: '📻',
+    badgeAr: ch.badgeAr,
+    icon: ch.icon || '📻',
     isLive: true,
-  },
-  {
-    id: 'track_radio_ajmy',
-    titleAr: 'إذاعة الشيخ أحمد بن علي العجمي 24 ساعة',
-    titleEn: 'Ahmad Al-Ajmy Radio',
-    sheikhAr: 'الشيخ أحمد العجمي',
-    sheikhEn: 'Ahmad Al-Ajmy',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/ahmad_alajmy',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 حي متواصل',
-    icon: '📻',
-    isLive: true,
-  },
-  {
-    id: 'track_radio_afasy',
-    titleAr: 'إذاعة الشيخ مشاري راشد العفاسي 24 ساعة',
-    titleEn: 'Mishary Alafasy Radio',
-    sheikhAr: 'الشيخ مشاري العفاسي',
-    sheikhEn: 'Mishary Alafasy',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/mishary_alafasi',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 حي متواصل',
-    icon: '📻',
-    isLive: true,
-  },
-  {
-    id: 'track_radio_dosari',
-    titleAr: 'إذاعة الشيخ ياسر الدوسري من الحرم المكي الشريف',
-    titleEn: 'Yasser Al-Dosari Radio',
-    sheikhAr: 'الشيخ ياسر الدوسري',
-    sheikhEn: 'Yasser Al-Dosari',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/yasser_aldosari',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 حي متواصل',
-    icon: '📻',
-    isLive: true,
-  },
-  {
-    id: 'track_radio_basit',
-    titleAr: 'إذاعة الشيخ عبد الباسط عبد الصمد (تلاوات مجودة)',
-    titleEn: 'Abdulbasit Mujawwad Radio',
-    sheikhAr: 'الشيخ عبد الباسط عبد الصمد',
-    sheikhEn: 'Abdulbasit Abdulsamad',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/abdulbasit_abdulsamad_mojawwad',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 حي متواصل',
-    icon: '📻',
-    isLive: true,
-  },
-  {
-    id: 'track_radio_shuraim',
-    titleAr: 'إذاعة أئمة الحرم المكي الشريف (سعود الشريم)',
-    titleEn: 'Makkah Imams Radio (Saud Al-Shuraim)',
-    sheikhAr: 'الشيخ د. سعود بن إبراهيم الشريم',
-    sheikhEn: 'Sheikh Saud Al-Shuraim',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/saud_alshuraim',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 أئمة الحرم',
-    icon: '📻',
-    isLive: true,
-  },
-  {
-    id: 'track_radio_maher',
-    titleAr: 'إذاعة الحرم المكي الشريف (ماهر المعيقلي)',
-    titleEn: 'Makkah Grand Mosque Radio (Maher Al-Muaiqly)',
-    sheikhAr: 'الشيخ د. ماهر بن حمد المعيقلي',
-    sheikhEn: 'Sheikh Maher Al-Muaiqly',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/maher',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 إمام الحرم',
-    icon: '📻',
-    isLive: true,
-  },
-  {
-    id: 'track_radio_qatami',
-    titleAr: 'إذاعة التلاوات الخاشعة والمؤثرة (ناصر القطامي)',
-    titleEn: 'Heartfelt Recitations Radio (Nasser Al-Qatami)',
-    sheikhAr: 'الشيخ ناصر بن علي القطامي',
-    sheikhEn: 'Sheikh Nasser Al-Qatami',
-    category: 'radio',
-    audioUrl: 'https://qurango.net/radio/nasser_alqatami',
-    durationFormatted: 'بث مباشر',
-    badgeAr: '🔴 تلاوة مؤثرة',
-    icon: '📻',
-    isLive: true,
-  },
+  })),
 ];
 
 interface MobileAudioSanctuaryViewProps {
@@ -697,13 +607,11 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     haptic.vibrateLight();
 
     // Check if track matches a canonical radio channel
+    const channelIdFromTrack = track.id.startsWith('track_radio_') ? track.id.replace('track_radio_', '') : null;
     const matchedChannel =
       track.category === 'radio'
         ? GYM_FAITH_CHANNELS.find(
-            (c) =>
-              c.streamUrl === track.audioUrl ||
-              track.audioUrl.includes(c.streamUrl) ||
-              c.id === track.id.replace('track_radio_', '')
+            (c) => c.id === channelIdFromTrack || c.streamUrl === track.audioUrl
           )
         : undefined;
 
@@ -711,6 +619,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       audioState.isPlaying &&
       (playingTrackId === track.id ||
         (matchedChannel && audioState.mode === 'channel' && audioState.currentChannelId === matchedChannel.id) ||
+        (matchedChannel && audioState.currentTitleAr === matchedChannel.titleAr) ||
         audioState.currentTitleAr === track.titleAr);
 
     if (isThisTrackPlaying) {
@@ -844,6 +753,13 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           <span>{isAr ? 'موسوعة الشيوخ والسلاسل 🏛️' : 'Scholars & Full Series'}</span>
         </button>
       </div>
+
+      {/* Active YouTube Audio / Video Player */}
+      {audioState.mediaType === 'youtube' && audioState.youtubeVideoId && (
+        <div className="p-3 bg-slate-950/90 border-b border-amber-500/20 shrink-0">
+          <YouTubeAudioPlayer onRewardToast={onRewardToast} />
+        </div>
+      )}
 
       {viewMode === 'tracks' ? (
         <>
@@ -1179,7 +1095,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       )}
 
       {/* 4. Sticky Floating Bottom Mini-Player Dock */}
-      {playingTrackId && (
+      {playingTrackId && audioState.mediaType !== 'youtube' && (
         <div className="absolute bottom-2.5 inset-x-2.5 sm:inset-x-4 bg-slate-900/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-2.5 sm:p-3 shadow-2xl flex flex-col gap-1.5 animate-in slide-in-from-bottom-4 duration-200">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">

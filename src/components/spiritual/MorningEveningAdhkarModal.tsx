@@ -380,7 +380,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
         <div className="w-full bg-slate-200 dark:bg-slate-800 h-1">
           <div
             className="bg-gradient-to-r from-amber-500 to-emerald-500 h-1 transition-all duration-300"
-            style={{ width: `${(completedCount / filteredAdhkar.length) * 100}%` }}
+            style={{ width: `${filteredAdhkar.length > 0 ? Math.min(100, Math.round((completedCount / filteredAdhkar.length) * 100)) : 0}%` }}
           />
         </div>
 

@@ -618,12 +618,16 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
                   setActiveQuickSection(tab.id);
-                  if (tab.id === 'all') {
-                    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else {
-                    const el = document.getElementById(tab.targetId);
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  if (typeof window !== 'undefined') {
+                    if (tab.id === 'all') {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                      setTimeout(() => {
+                        const el = document.getElementById(tab.targetId);
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 50);
                     }
                   }
                 }}
@@ -660,24 +664,27 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* 2. DAILY STATIONS ROADMAP: خريطة مسار اليوم التفاعلية           */}
       {/* Ultra-compact 1-row milestone metro line & dynamic launcher   */}
       {/* ============================================================ */}
-      <div id="section-roadmap" className="scroll-mt-20">
-        <DailyStationsRoadmap
-          allStationIds={allStationIds}
-          completedStations={completedStations}
-          currentSuggestedStation={currentSuggestedStation}
-          personaId={personaId}
-          personaConfig={personaConfig}
-          overrides={overrides}
-          isAr={isAr}
-          onSelectStation={onSelectStation}
-          onOpenLifestyleModal={onOpenLifestyleModal}
-        />
-      </div>
+      {(activeQuickSection === 'all' || activeQuickSection === 'roadmap') && (
+        <div id="section-roadmap" className="scroll-mt-20 [content-visibility:auto] [contain-intrinsic-size:1px_320px]">
+          <DailyStationsRoadmap
+            allStationIds={allStationIds}
+            completedStations={completedStations}
+            currentSuggestedStation={currentSuggestedStation}
+            personaId={personaId}
+            personaConfig={personaConfig}
+            overrides={overrides}
+            isAr={isAr}
+            onSelectStation={onSelectStation}
+            onOpenLifestyleModal={onOpenLifestyleModal}
+          />
+        </div>
+      )}
 
       {/* ============================================================ */}
       {/* 3. SPIRITUAL DEVOTIONS, WIRD & SUNNAH BLOCK                  */}
       {/* ============================================================ */}
-      <div id="section-spiritual" className="scroll-mt-20 space-y-4">
+      {(activeQuickSection === 'all' || activeQuickSection === 'spiritual') && (
+        <div id="section-spiritual" className="scroll-mt-20 space-y-4 [content-visibility:auto] [contain-intrinsic-size:1px_500px]">
 
 
 
@@ -1274,12 +1281,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         onOpenFullModal={onOpenFaithAudio}
       />
       </div>
+      )}
 
       {/* ============================================================ */}
       {/* 4.3. INTELLECTUAL & CULTURAL WISDOM BENTO                    */}
       {/* ديوان الشعر العربي القديم المشروح & خزانة النماذج الفكرية     */}
       {/* ============================================================ */}
-      <div id="section-wisdom" className="scroll-mt-20">
+      {(activeQuickSection === 'all' || activeQuickSection === 'wisdom') && (
+        <div id="section-wisdom" className="scroll-mt-20 [content-visibility:auto] [contain-intrinsic-size:1px_400px]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Arabic Classical Poetry Card */}
         <div className="rounded-3xl bg-gradient-to-br from-amber-50/80 via-white to-orange-50/50 dark:from-[#17130b] dark:via-[#11131c] dark:to-[#1a1208] border border-amber-400/35 dark:border-amber-500/25 p-5 sm:p-6 shadow-sm dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] flex flex-col justify-between space-y-4">
@@ -1417,12 +1426,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
       </div>
       </div>
+      )}
 
       {/* ============================================================ */}
       {/* 4.5. ADAPTIVE SPORTS & HABIT LEARNING BENTO                  */}
       {/* "مع الوقت تتعلم وتفهم أني عملت كذا.. وخليني أحدد اليوم ايه"   */}
       {/* ============================================================ */}
-      <div id="section-sports" className="scroll-mt-20">
+      {(activeQuickSection === 'all' || activeQuickSection === 'sports') && (
+        <div id="section-sports" className="scroll-mt-20 [content-visibility:auto] [contain-intrinsic-size:1px_350px]">
       <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
@@ -1509,11 +1520,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
       </div>
       </div>
+      )}
 
       {/* ============================================================ */}
       {/* 5. DAILY VOCABULARY MASTERY BENTO (الحصيلة اللغوية اليومية) */}
       {/* ============================================================ */}
-      <div id="section-languages" className="scroll-mt-20">
+      {(activeQuickSection === 'all' || activeQuickSection === 'languages') && (
+        <div id="section-languages" className="scroll-mt-20 [content-visibility:auto] [contain-intrinsic-size:1px_450px]">
       <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
         {/* Header: Title, Language Switcher & Stats */}
         <div className="flex items-center justify-between flex-wrap gap-2.5">
@@ -1790,11 +1803,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         )}
       </div>
       </div>
+      )}
 
       {/* ============================================================ */}
       {/* 6. 24-HOUR CIRCADIAN TIMELINE & GUIDANCE                     */}
       {/* ============================================================ */}
-      <div id="section-circadian" className="scroll-mt-20">
+      {(activeQuickSection === 'all' || activeQuickSection === 'circadian') && (
+        <div id="section-circadian" className="scroll-mt-20 [content-visibility:auto] [contain-intrinsic-size:1px_400px]">
       <div className="rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200/90 dark:border-white/[0.08] p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-base">
@@ -1838,6 +1853,26 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
       </div>
       </div>
+      )}
+
+      {/* 🧭 Quick return button when single-category mode is active */}
+      {activeQuickSection !== 'all' && (
+        <div className="py-4 flex justify-center animate-fade-in">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setActiveQuickSection('all');
+              if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="px-5 py-2.5 rounded-2xl bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-2 cursor-pointer transition-all active:scale-98 shadow-sm"
+          >
+            <span>🌟</span>
+            <span>{isAr ? 'عرض جميع أقسام لوحة التحكم (الوضع الشامل)' : 'Show All Dashboard Sections (Full View)'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Exquisite Cockpit End Footer */}
       <footer className="pt-4 pb-1 text-center space-y-2 border-t border-slate-200/60 dark:border-white/[0.06] select-none">

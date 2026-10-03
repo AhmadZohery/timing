@@ -24,10 +24,52 @@ export interface FaithAudioResumePoint {
   timestamp: number;
 }
 
+export interface YouTubePlayerBridge {
+  play: () => void;
+  pause: () => void;
+  seekTo: (seconds: number) => void;
+  setPlaybackRate: (rate: number) => void;
+  setVolume: (volume: number) => void;
+}
+
+export const isYouTubeUrl = (url?: string): boolean => {
+  if (!url) return false;
+  return /(?:youtube\.com\/(?:watch\?v=|embed\/|playlist\?list=)|youtu\.be\/)/i.test(url);
+};
+
+export const extractYouTubeId = (url: string): { videoId?: string; playlistId?: string } => {
+  try {
+    if (url.includes('playlist?list=')) {
+      const match = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+      return { playlistId: match ? match[1] : undefined };
+    }
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
+    return { videoId: match ? match[1] : undefined };
+  } catch {
+    return {};
+  }
+};
+
+export const getYouTubeEmbedUrl = (url: string, autoPlay = true): string => {
+  const { videoId, playlistId } = extractYouTubeId(url);
+  if (playlistId) {
+    return `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=${autoPlay ? 1 : 0}&playsinline=1&modestbranding=1&rel=0`;
+  }
+  if (videoId) {
+    return `https://www.youtube.com/embed/${videoId}?autoplay=${autoPlay ? 1 : 0}&playsinline=1&modestbranding=1&rel=0`;
+  }
+  return url;
+};
+
 export interface GymFaithAudioState {
   isPlaying: boolean;
   isLoading: boolean;
   mode: 'channel' | 'series';
+  mediaType: 'audio' | 'youtube';
+  youtubeVideoId: string | null;
+  youtubePlaylistId: string | null;
+  youtubeUrl: string | null;
+  isAudioOnlyMode: boolean;
   currentChannelId: string;
   currentSeriesId: string | null;
   currentEpisodeId: string | null;
@@ -54,6 +96,7 @@ const STORAGE_FAVORITES_KEY = 'midmar_faith_favorites';
 
 class GymFaithAudioService {
   private audio: HTMLAudioElement | null = null;
+  private ytBridge: YouTubePlayerBridge | null = null;
   private state: GymFaithAudioState;
   private listeners: Set<AudioStateListener> = new Set();
   private isDucking = false;
@@ -114,11 +157,17 @@ class GymFaithAudioService {
     const currentEpisodeId = resumePoint?.episodeId || null;
     const currentPos = resumePoint?.currentTime || 0;
     const currentDur = resumePoint?.duration || 0;
+    const isYtResume = Boolean(resumePoint?.audioUrl && isYouTubeUrl(resumePoint.audioUrl));
 
     this.state = {
       isPlaying: false,
       isLoading: false,
       mode: resumePoint?.mode || 'channel',
+      mediaType: isYtResume ? 'youtube' : 'audio',
+      youtubeVideoId: isYtResume ? (extractYouTubeId(resumePoint!.audioUrl).videoId || null) : null,
+      youtubePlaylistId: isYtResume ? (extractYouTubeId(resumePoint!.audioUrl).playlistId || null) : null,
+      youtubeUrl: isYtResume ? resumePoint!.audioUrl : null,
+      isAudioOnlyMode: true,
       currentChannelId,
       currentSeriesId,
       currentEpisodeId,
@@ -128,11 +177,39 @@ class GymFaithAudioService {
       duration: currentDur,
       volume: Math.min(1, Math.max(0.1, savedVol)),
       isMuted: false,
-      playbackRate: [1, 1.25, 1.5].includes(savedSpeed) ? savedSpeed : 1,
+      playbackRate: [1, 1.25, 1.5, 2].includes(savedSpeed) ? savedSpeed : 1,
       hasError: false,
       errorMessage: null,
       resumePoint,
     };
+  }
+
+  public registerYouTubeBridge(bridge: YouTubePlayerBridge | null) {
+    this.ytBridge = bridge;
+  }
+
+  public updateYouTubeProgress(currentTime: number, duration?: number, isPlaying?: boolean) {
+    if (this.state.mediaType === 'youtube') {
+      const updates: Partial<GymFaithAudioState> = {
+        currentTime: Math.floor(currentTime),
+      };
+      if (typeof duration === 'number' && duration > 0) {
+        updates.duration = Math.floor(duration);
+      }
+      if (typeof isPlaying === 'boolean') {
+        updates.isPlaying = isPlaying;
+      }
+      this.updateState(updates);
+      this.saveResumePoint();
+    }
+  }
+
+  public toggleAudioOnlyMode() {
+    this.updateState({ isAudioOnlyMode: !this.state.isAudioOnlyMode });
+  }
+
+  public setAudioOnlyMode(val: boolean) {
+    this.updateState({ isAudioOnlyMode: val });
   }
 
   private initAudio() {
@@ -225,15 +302,17 @@ class GymFaithAudioService {
   private startWatchdog() {
     if (this.watchdogTimer) return;
     this.watchdogTimer = setInterval(() => {
+      // Do not monitor HTML5 audio when in YouTube mode
+      if (this.state.mediaType === 'youtube') return;
       if (!this.audio || this.isUserPaused || !this.state.isPlaying) return;
       if (this.state.isLoading || this.reconnectTimeout) return;
 
       const now = Date.now();
       const currentPos = this.audio.currentTime;
 
-      // Check if audio has stalled for > 8 seconds without user pausing
-      if (Math.abs(currentPos - this.lastKnownPosition) < 0.1) {
-        if (now - this.lastPositionUpdateTime > 8000) {
+      // Check if audio has stalled for > 10 seconds without user pausing (exclude live radio where currentTime can be static)
+      if (this.state.mode !== 'channel' && Math.abs(currentPos - this.lastKnownPosition) < 0.1) {
+        if (now - this.lastPositionUpdateTime > 10000) {
           console.warn('[GymFaithAudio] Audio stall detected by watchdog. Triggering soft reconnect.');
           this.scheduleAutoReconnect('watchdog_stall');
         }
@@ -558,6 +637,12 @@ class GymFaithAudioService {
 
   // Play Live Radio Channel
   public async play(channelId?: string) {
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.pause();
+      } catch {}
+    }
+
     this.initAudio();
     if (!this.audio) return;
     this.isUserPaused = false;
@@ -567,6 +652,7 @@ class GymFaithAudioService {
       const channel = GYM_FAITH_CHANNELS.find((c) => c.id === channelId);
       if (channel) {
         const isDifferent =
+          this.state.mediaType !== 'audio' ||
           this.state.mode !== 'channel' ||
           this.state.currentChannelId !== channel.id ||
           !this.audio.src ||
@@ -575,24 +661,33 @@ class GymFaithAudioService {
         if (isDifferent) {
           this.audio.src = channel.streamUrl;
           this.audio.load();
-          this.updateState({
-            mode: 'channel',
-            currentChannelId: channel.id,
-            currentSeriesId: null,
-            currentEpisodeId: null,
-            currentTitleAr: channel.titleAr,
-            currentSheikhAr: channel.sheikhAr,
-            isLoading: true,
-            hasError: false,
-            errorMessage: null,
-          });
-          localStorage.setItem(STORAGE_CHANNEL_KEY, channel.id);
-        } else {
-          this.updateState({ isLoading: true, hasError: false, errorMessage: null });
         }
+        this.updateState({
+          mode: 'channel',
+          mediaType: 'audio',
+          youtubeVideoId: null,
+          youtubePlaylistId: null,
+          currentChannelId: channel.id,
+          currentSeriesId: null,
+          currentEpisodeId: null,
+          currentTitleAr: channel.titleAr,
+          currentSheikhAr: channel.sheikhAr,
+          isLoading: true,
+          hasError: false,
+          errorMessage: null,
+        });
+        localStorage.setItem(STORAGE_CHANNEL_KEY, channel.id);
       }
     } else {
-      // Resuming existing playback without re-assigning or changing the audio source!
+      // Resuming existing playback
+      if (this.state.mediaType === 'youtube') {
+        try {
+          this.ytBridge?.play();
+        } catch {}
+        this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
+        return;
+      }
+
       if (!this.audio.src) {
         const targetId = this.state.currentChannelId;
         const channel = GYM_FAITH_CHANNELS.find((c) => c.id === targetId) || GYM_FAITH_CHANNELS[0];
@@ -600,6 +695,9 @@ class GymFaithAudioService {
         this.audio.load();
         this.updateState({
           mode: 'channel',
+          mediaType: 'audio',
+          youtubeVideoId: null,
+          youtubePlaylistId: null,
           currentChannelId: channel.id,
           currentSeriesId: null,
           currentEpisodeId: null,
@@ -610,7 +708,14 @@ class GymFaithAudioService {
           errorMessage: null,
         });
       } else {
-        this.updateState({ isLoading: true, hasError: false, errorMessage: null });
+        this.updateState({
+          mediaType: 'audio',
+          youtubeVideoId: null,
+          youtubePlaylistId: null,
+          isLoading: true,
+          hasError: false,
+          errorMessage: null,
+        });
       }
     }
 
@@ -663,9 +768,18 @@ class GymFaithAudioService {
       !this.audio.src;
 
     if (isYouTubeUrl(episode.audioUrl)) {
-      this.pause(0);
+      if (this.audio && !this.audio.paused) {
+        try {
+          this.audio.pause();
+        } catch {}
+      }
+      const { videoId, playlistId } = extractYouTubeId(episode.audioUrl);
       this.updateState({
         mode: 'series',
+        mediaType: 'youtube',
+        youtubeVideoId: videoId || null,
+        youtubePlaylistId: playlistId || null,
+        youtubeUrl: episode.audioUrl,
         currentSeriesId: series.id,
         currentEpisodeId: episode.id,
         currentTitleAr: `${series.titleAr} • ${episode.titleAr}`,
@@ -675,9 +789,20 @@ class GymFaithAudioService {
         hasError: false,
         errorMessage: null,
       });
+      try {
+        this.ytBridge?.play();
+      } catch {}
       this.saveResumePoint();
+      this.updateMediaSession();
       return;
     }
+
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.pause();
+      } catch {}
+    }
+    this.updateState({ mediaType: 'audio', youtubeVideoId: null, youtubePlaylistId: null });
 
     if (isDifferent) {
       const playableUrl = await offlineAudioService.getPlayableUrl(episode.id, episode.audioUrl);
@@ -765,6 +890,16 @@ class GymFaithAudioService {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
     }
+
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.pause();
+      } catch {}
+      this.saveResumePoint();
+      this.updateState({ isPlaying: false, isLoading: false });
+      return;
+    }
+
     if (!this.audio) return;
     const targetAudio = this.audio;
     const originalVol = this.state.volume;
@@ -803,6 +938,18 @@ class GymFaithAudioService {
       return;
     }
 
+    if (this.state.mediaType === 'youtube') {
+      if (this.state.isPlaying) {
+        this.pause();
+      } else {
+        try {
+          this.ytBridge?.play();
+        } catch {}
+        this.updateState({ isPlaying: true, isLoading: false });
+      }
+      return;
+    }
+
     if (this.state.isPlaying) {
       this.pause();
     } else {
@@ -827,6 +974,7 @@ class GymFaithAudioService {
       }
       this.updateState({
         mode: 'channel',
+        mediaType: 'audio',
         currentChannelId: channel.id,
         currentSeriesId: null,
         currentEpisodeId: null,
@@ -837,8 +985,13 @@ class GymFaithAudioService {
   }
 
   public setPlaybackRate(rate: number) {
-    if (![1, 1.25, 1.5].includes(rate)) return;
+    if (![1, 1.25, 1.5, 2].includes(rate)) return;
     this.state.playbackRate = rate;
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.setPlaybackRate(rate);
+      } catch {}
+    }
     if (this.audio) {
       this.audio.playbackRate = rate;
     }
@@ -849,6 +1002,11 @@ class GymFaithAudioService {
   public setVolume(vol: number) {
     const clamped = Math.max(0, Math.min(1, vol));
     this.state.volume = clamped;
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.setVolume(clamped);
+      } catch {}
+    }
     if (this.audio && !this.isDucking) {
       this.audio.volume = clamped;
     }
@@ -857,6 +1015,14 @@ class GymFaithAudioService {
   }
 
   public seekBy(seconds: number) {
+    if (this.state.mediaType === 'youtube') {
+      const newTime = Math.max(0, this.state.currentTime + seconds);
+      try {
+        this.ytBridge?.seekTo(newTime);
+      } catch {}
+      this.updateState({ currentTime: Math.floor(newTime) });
+      return;
+    }
     if (!this.audio) return;
     try {
       this.audio.currentTime = Math.max(0, this.audio.currentTime + seconds);
@@ -865,6 +1031,13 @@ class GymFaithAudioService {
   }
 
   public seekTo(seconds: number) {
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.seekTo(seconds);
+      } catch {}
+      this.updateState({ currentTime: Math.floor(seconds) });
+      return;
+    }
     if (!this.audio) return;
     try {
       this.audio.currentTime = Math.max(0, seconds);
@@ -943,9 +1116,18 @@ class GymFaithAudioService {
 
   public async playCustomUrl(url: string, titleAr: string, sheikhAr: string) {
     if (isYouTubeUrl(url)) {
-      this.pause(0);
+      if (this.audio && !this.audio.paused) {
+        try {
+          this.audio.pause();
+        } catch {}
+      }
+      const { videoId, playlistId } = extractYouTubeId(url);
       this.updateState({
         mode: 'channel',
+        mediaType: 'youtube',
+        youtubeVideoId: videoId || null,
+        youtubePlaylistId: playlistId || null,
+        youtubeUrl: url,
         currentChannelId: 'custom_' + Date.now(),
         currentSeriesId: null,
         currentEpisodeId: null,
@@ -956,12 +1138,23 @@ class GymFaithAudioService {
         hasError: false,
         errorMessage: null,
       });
+      try {
+        this.ytBridge?.play();
+      } catch {}
+      this.updateMediaSession();
       return;
     }
 
-    // Check if this URL matches an existing GymAudioChannel
+    if (this.state.mediaType === 'youtube') {
+      try {
+        this.ytBridge?.pause();
+      } catch {}
+    }
+    this.updateState({ mediaType: 'audio', youtubeVideoId: null, youtubePlaylistId: null });
+
+    // Check if this URL matches an existing GymAudioChannel strictly
     const matchedChannel = GYM_FAITH_CHANNELS.find(
-      (c) => c.streamUrl === url || url.includes(c.streamUrl) || c.streamUrl.includes(url)
+      (c) => c.streamUrl === url || c.id === url
     );
 
     if (matchedChannel) {
@@ -1064,33 +1257,6 @@ export const getSoundCloudEmbedUrl = (url: string): string => {
   )}&color=%23d97706&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`;
 };
 
-export const isYouTubeUrl = (url?: string): boolean => {
-  if (!url) return false;
-  return /(?:youtube\.com\/(?:watch\?v=|embed\/|playlist\?list=)|youtu\.be\/)/i.test(url);
-};
 
-export const extractYouTubeId = (url: string): { videoId?: string; playlistId?: string } => {
-  try {
-    if (url.includes('playlist?list=')) {
-      const match = url.match(/[?&]list=([a-zA-Z0-9_-]+)/);
-      return { playlistId: match ? match[1] : undefined };
-    }
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
-    return { videoId: match ? match[1] : undefined };
-  } catch {
-    return {};
-  }
-};
-
-export const getYouTubeEmbedUrl = (url: string, autoPlay = true): string => {
-  const { videoId, playlistId } = extractYouTubeId(url);
-  if (playlistId) {
-    return `https://www.youtube.com/embed/videoseries?list=${playlistId}&autoplay=${autoPlay ? 1 : 0}&playsinline=1&modestbranding=1&rel=0`;
-  }
-  if (videoId) {
-    return `https://www.youtube.com/embed/${videoId}?autoplay=${autoPlay ? 1 : 0}&playsinline=1&modestbranding=1&rel=0`;
-  }
-  return url;
-};
 
 export const gymFaithAudio = new GymFaithAudioService();

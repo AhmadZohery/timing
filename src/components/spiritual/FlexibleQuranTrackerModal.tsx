@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   X,
   BookOpen,
@@ -42,16 +42,21 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   const { language } = useTranslation();
   const isAr = language === 'ar';
 
+  // Fallback Surah (Al-Baqarah)
+  const defaultSurah = QURAN_SURAHS[1] || QURAN_SURAHS[0];
+
   // Determine initial state from existing progress
   const initialSurah = useMemo(() => {
     if (quranProgress?.surahNumber) {
-      return getSurahByNumber(quranProgress.surahNumber) || QURAN_SURAHS[1];
+      const found = getSurahByNumber(quranProgress.surahNumber);
+      if (found) return found;
     }
     if (quranProgress?.surah) {
-      return getSurahByName(quranProgress.surah) || QURAN_SURAHS[1];
+      const found = getSurahByName(quranProgress.surah);
+      if (found) return found;
     }
-    return QURAN_SURAHS[1]; // Surah Al-Baqarah by default
-  }, [quranProgress]);
+    return defaultSurah;
+  }, [quranProgress, defaultSurah]);
 
   const [activeTab, setActiveTab] = useState<QuranReadingMode>(
     quranProgress?.mode && quranProgress.mode !== 'juz' ? quranProgress.mode : 'surah_ayah'
@@ -59,26 +64,44 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
 
   // Tab 1: Surah & Ayah state
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSurahNumber, setSelectedSurahNumber] = useState<number>(initialSurah.number);
+  const [selectedSurahNumber, setSelectedSurahNumber] = useState<number>(initialSurah?.number || 2);
   const [startAyah, setStartAyah] = useState<number>(quranProgress?.startAyah || 1);
   const [endAyah, setEndAyah] = useState<number>(
-    quranProgress?.endAyah || Math.min(initialSurah.ayahCount, 50)
+    quranProgress?.endAyah || Math.min(initialSurah?.ayahCount || 286, 50)
   );
 
   // Tab 2: Pages & Bookmark state
   const [startPage, setStartPage] = useState<number>(
-    quranProgress?.startPage || quranProgress?.currentPage || initialSurah.startPage
+    quranProgress?.startPage || quranProgress?.currentPage || initialSurah?.startPage || 2
   );
   const [endPage, setEndPage] = useState<number>(
-    quranProgress?.endPage || Math.min(604, (quranProgress?.currentPage || initialSurah.startPage) + 4)
+    quranProgress?.endPage || Math.min(604, (quranProgress?.currentPage || initialSurah?.startPage || 2) + 4)
   );
+
+  // Sync state whenever modal opens or quranProgress updates
+  useEffect(() => {
+    if (isOpen) {
+      if (quranProgress?.surahNumber) {
+        setSelectedSurahNumber(quranProgress.surahNumber);
+      }
+      if (quranProgress?.startAyah) setStartAyah(quranProgress.startAyah);
+      if (quranProgress?.endAyah) setEndAyah(quranProgress.endAyah);
+      if (quranProgress?.startPage || quranProgress?.currentPage) {
+        setStartPage(quranProgress.startPage || quranProgress.currentPage);
+      }
+      if (quranProgress?.endPage) setEndPage(quranProgress.endPage);
+      if (quranProgress?.mode && quranProgress.mode !== 'juz') {
+        setActiveTab(quranProgress.mode);
+      }
+    }
+  }, [isOpen, quranProgress]);
 
   // Tab 3: Preset selection
   const [selectedPresetKey, setSelectedPresetKey] = useState<string>('baqarah');
 
   if (!isOpen) return null;
 
-  const currentSurah = getSurahByNumber(selectedSurahNumber) || initialSurah;
+  const currentSurah = getSurahByNumber(selectedSurahNumber) || initialSurah || defaultSurah;
 
   // Filtered surahs for search
   const filteredSurahs = QURAN_SURAHS.filter((s) => {
@@ -92,10 +115,13 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   });
 
   // Calculate stats for current Surah & Ayahs
+  const safeAyahCount = Math.max(1, currentSurah?.ayahCount || 286);
+  const safeStartPage = currentSurah?.startPage || 2;
+  const safeEndPage = currentSurah?.endPage || 49;
   const calculatedAyahsCount = Math.max(1, endAyah - startAyah + 1);
   const estimatedPagesForAyahs = Math.max(
     1,
-    Math.round((calculatedAyahsCount / Math.max(1, currentSurah.ayahCount)) * (currentSurah.endPage - currentSurah.startPage + 1))
+    Math.round((calculatedAyahsCount / safeAyahCount) * (safeEndPage - safeStartPage + 1))
   );
 
   // Calculate stats for Pages mode
@@ -304,7 +330,10 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/75 dark:bg-black/85 backdrop-blur-md animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/75 dark:bg-black/85 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 flex flex-col h-[90dvh] sm:h-auto sm:max-h-[92dvh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}

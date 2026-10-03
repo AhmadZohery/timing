@@ -427,7 +427,8 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       if (self.clients.openWindow) {
-        return self.clients.openWindow(targetUrl + (action ? '?action=' + action : ''));
+        const sep = targetUrl.includes('?') ? '&' : '?';
+        return self.clients.openWindow(targetUrl + (action ? sep + 'action=' + action : ''));
       }
     })
   );

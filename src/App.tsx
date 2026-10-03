@@ -39,6 +39,7 @@ import { MobileBottomTabBar } from './components/navigation/MobileBottomTabBar';
 import { AmbientSoundscapeBar } from './components/interactive/AmbientSoundscapeBar';
 import { HomeDashboardView } from './components/dashboard/HomeDashboardView';
 import { GlobalAudioCapsule } from './components/spiritual/GlobalAudioCapsule';
+import { PersistentYouTubeHost } from './components/spiritual/PersistentYouTubeHost';
 import { gymFaithAudio } from './services/gymFaithAudioService';
 import type { DailyTadabburItem } from './data/dailyTadabburData';
 import type { TasbihPresetId } from './utils/tasbihEngine';
@@ -989,360 +990,410 @@ export function App() {
         </div>
       )}
 
-      {/* Modals & Drawers with Lazy Suspense */}
-      <Suspense fallback={null}>
-      <ZeroInertiaModal
-        isOpen={isPanicModalOpen}
-        onClose={() => setIsPanicModalOpen(false)}
-        onCompletedInertiaBreak={() => {
-          soundSynth.playCompletionChime();
-          haptic.vibrateWorkDone();
-          setRewardToast('🚀 تم كسر الجمود بنجاح! أحسنت صنعاً.');
-          setTimeout(() => setRewardToast(null), 3000);
-        }}
-      />
+      {/* Dedicated Sacred Modals with Isolated ErrorBoundary (Always Eagerly Mounted) */}
+      <ErrorBoundary fallbackTitle="تنبيه مؤقت في نافذة متابعة الورد القرآني">
+        {isWirdModalOpen && (
+          <FlexibleQuranTrackerModal
+            isOpen={isWirdModalOpen}
+            onClose={() => setIsWirdModalOpen(false)}
+            quranProgress={quranProgress}
+            todayLog={todayLog}
+            onRewardToast={(msg) => {
+              setRewardToast(msg);
+              setTimeout(() => setRewardToast(null), 3500);
+            }}
+          />
+        )}
+      </ErrorBoundary>
 
-      <BufferQueueModal
-        isOpen={isBufferModalOpen}
-        onClose={() => setIsBufferModalOpen(false)}
-        bufferItems={bufferItems || []}
-        weeklyBufferCount={weeklyBufferCount}
-      />
+      <ErrorBoundary fallbackTitle="تنبيه مؤقت في نافذة أذكار الصباح والمساء">
+        {isAdhkarModalOpen && (
+          <MorningEveningAdhkarModal
+            isOpen={isAdhkarModalOpen}
+            onClose={() => setIsAdhkarModalOpen(false)}
+            initialMode={adhkarMode}
+            isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
+            onRewardToast={(msg) => {
+              setRewardToast(msg);
+              setTimeout(() => setRewardToast(null), 3500);
+            }}
+          />
+        )}
+      </ErrorBoundary>
 
-      <GoalVelocityModal
-        isOpen={isGoalsModalOpen}
-        onClose={() => setIsGoalsModalOpen(false)}
-        goals={goals || []}
-        selectedAnchorId={todayLog?.selectedAnchorMicroStepId}
-        onSelectTodayAnchor={handleSelectTodayAnchor}
-      />
+      {/* Lazy Modals Protected by ErrorBoundary & Conditional Mount (Zero Stalls) */}
+      <ErrorBoundary fallbackTitle="تنبيه مؤقت في النوافذ المنبثقة">
+        <Suspense fallback={null}>
+          {isPanicModalOpen && (
+            <ZeroInertiaModal
+              isOpen={isPanicModalOpen}
+              onClose={() => setIsPanicModalOpen(false)}
+              onCompletedInertiaBreak={() => {
+                soundSynth.playCompletionChime();
+                haptic.vibrateWorkDone();
+                setRewardToast('🚀 تم كسر الجمود بنجاح! أحسنت صنعاً.');
+                setTimeout(() => setRewardToast(null), 3000);
+              }}
+            />
+          )}
 
-      <MiniCrmDrawer
-        isOpen={isCrmDrawerOpen}
-        onClose={() => setIsCrmDrawerOpen(false)}
-        leads={leads || []}
-        templates={templates || []}
-      />
+          {isBufferModalOpen && (
+            <BufferQueueModal
+              isOpen={isBufferModalOpen}
+              onClose={() => setIsBufferModalOpen(false)}
+              bufferItems={bufferItems || []}
+              weeklyBufferCount={weeklyBufferCount}
+            />
+          )}
 
-      <BatteryGuideModal
-        isOpen={isBatteryGuideOpen}
-        onClose={() => setIsBatteryGuideOpen(false)}
-      />
+          {isGoalsModalOpen && (
+            <GoalVelocityModal
+              isOpen={isGoalsModalOpen}
+              onClose={() => setIsGoalsModalOpen(false)}
+              goals={goals || []}
+              selectedAnchorId={todayLog?.selectedAnchorMicroStepId}
+              onSelectTodayAnchor={handleSelectTodayAnchor}
+            />
+          )}
 
-      <SettingsBackupModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-        userState={userState}
-        onOpenBatteryGuide={() => setIsBatteryGuideOpen(true)}
-      />
+          {isCrmDrawerOpen && (
+            <MiniCrmDrawer
+              isOpen={isCrmDrawerOpen}
+              onClose={() => setIsCrmDrawerOpen(false)}
+              leads={leads || []}
+              templates={templates || []}
+            />
+          )}
 
-      <QuickReminderModal
-        isOpen={isQuickReminderOpen}
-        onClose={() => setIsQuickReminderOpen(false)}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isBatteryGuideOpen && (
+            <BatteryGuideModal
+              isOpen={isBatteryGuideOpen}
+              onClose={() => setIsBatteryGuideOpen(false)}
+            />
+          )}
 
-      <KeyboardShortcutsModal
-        isOpen={isShortcutsModalOpen}
-        onClose={() => setIsShortcutsModalOpen(false)}
-      />
+          {isSettingsModalOpen && (
+            <SettingsBackupModal
+              isOpen={isSettingsModalOpen}
+              onClose={() => setIsSettingsModalOpen(false)}
+              userState={userState}
+              onOpenBatteryGuide={() => setIsBatteryGuideOpen(true)}
+            />
+          )}
 
-      <HistoryArchiveModal
-        isOpen={isArchiveModalOpen}
-        onClose={() => setIsArchiveModalOpen(false)}
-        dailyLogs={allDailyLogs || []}
-        todayDate={today}
-      />
+          {isQuickReminderOpen && (
+            <QuickReminderModal
+              isOpen={isQuickReminderOpen}
+              onClose={() => setIsQuickReminderOpen(false)}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      <ProfileSwitcherModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        userState={userState}
-        onOpenPinModal={() => setIsQuickPinModalOpen(true)}
-      />
+          {isShortcutsModalOpen && (
+            <KeyboardShortcutsModal
+              isOpen={isShortcutsModalOpen}
+              onClose={() => setIsShortcutsModalOpen(false)}
+            />
+          )}
 
-      {/* Periodic Evaluation & Motivation Report Modal */}
-      <EvaluationReportModal
-        isOpen={isEvaluationModalOpen}
-        onClose={() => setIsEvaluationModalOpen(false)}
-        userState={userState}
-        todayLog={todayLog}
-        dailyLogs={allDailyLogs || []}
-        activeProfile={activeProfile}
-        initialTab={evaluationInitialTab}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isArchiveModalOpen && (
+            <HistoryArchiveModal
+              isOpen={isArchiveModalOpen}
+              onClose={() => setIsArchiveModalOpen(false)}
+              dailyLogs={allDailyLogs || []}
+              todayDate={today}
+            />
+          )}
 
-      {/* Habit Recurrence & Deed Adder Modal */}
-      <HabitRecurrenceModal
-        isOpen={isHabitModalOpen}
-        onClose={() => setIsHabitModalOpen(false)}
-        onHabitAdded={() => {
-          setRewardToast(language === 'ar' ? '✨ تمت إضافة العادة بنجاح!' : 'Habit added successfully!');
-          setTimeout(() => setRewardToast(null), 3000);
-        }}
-      />
+          {isProfileModalOpen && (
+            <ProfileSwitcherModal
+              isOpen={isProfileModalOpen}
+              onClose={() => setIsProfileModalOpen(false)}
+              userState={userState}
+              onOpenPinModal={() => setIsQuickPinModalOpen(true)}
+            />
+          )}
 
-      {/* AI Behavioral Accountability Coach Modal */}
-      <AiCoachModal
-        isOpen={isAiCoachOpen}
-        onClose={() => setIsAiCoachOpen(false)}
-        userState={userState}
-        todayLog={todayLog}
-        dailyLogs={allDailyLogs || []}
-        activeProfile={activeProfile}
-        onOpenSettings={() => {
-          setIsAiCoachOpen(false);
-          setIsSettingsModalOpen(true);
-        }}
-      />
+          {isEvaluationModalOpen && (
+            <EvaluationReportModal
+              isOpen={isEvaluationModalOpen}
+              onClose={() => setIsEvaluationModalOpen(false)}
+              userState={userState}
+              todayLog={todayLog}
+              dailyLogs={allDailyLogs || []}
+              activeProfile={activeProfile}
+              initialTab={evaluationInitialTab}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* 2-Minute Atomic Commitment Modal (Anti-Friction Rule) */}
-      {isTwoMinuteModalOpen && (
-        <TwoMinuteRuleCard
-          isModal
-          stationTitle={activeStation}
-          onClose={() => setIsTwoMinuteModalOpen(false)}
-          onContinueStation={() => setIsTwoMinuteModalOpen(false)}
-          onCompleteTwoMinutes={() => {
-            soundSynth.playCompletionChime();
-            haptic.vibrateSprintCelebration();
-            setRewardToast(language === 'ar' ? '🔥 أحسنت! كسرت حاجز البداية بنجاح (+5 نقاط زخم)' : 'Friction broken! (+5 Momentum pts)');
-            setTimeout(() => setRewardToast(null), 3500);
-          }}
-        />
-      )}
+          {isHabitModalOpen && (
+            <HabitRecurrenceModal
+              isOpen={isHabitModalOpen}
+              onClose={() => setIsHabitModalOpen(false)}
+              onHabitAdded={() => {
+                setRewardToast(language === 'ar' ? '✨ تمت إضافة العادة بنجاح!' : 'Habit added successfully!');
+                setTimeout(() => setRewardToast(null), 3000);
+              }}
+            />
+          )}
 
-      {/* Add To Home Screen PWA Modal */}
-      <AddToHomeScreenModal
-        pwaState={pwaState}
-        isOpen={isA2hsModalOpen}
-        onClose={() => setIsA2hsModalOpen(false)}
-      />
+          {isAiCoachOpen && (
+            <AiCoachModal
+              isOpen={isAiCoachOpen}
+              onClose={() => setIsAiCoachOpen(false)}
+              userState={userState}
+              todayLog={todayLog}
+              dailyLogs={allDailyLogs || []}
+              activeProfile={activeProfile}
+              onOpenSettings={() => {
+                setIsAiCoachOpen(false);
+                setIsSettingsModalOpen(true);
+              }}
+            />
+          )}
 
-      {/* Onboarding Wizard Modal */}
-      <OnboardingWizardModal
-        isOpen={isOnboardingModalOpen}
-        onClose={() => setIsOnboardingModalOpen(false)}
-        activeProfile={activeProfile}
-      />
+          {isTwoMinuteModalOpen && (
+            <TwoMinuteRuleCard
+              isModal
+              stationTitle={activeStation}
+              onClose={() => setIsTwoMinuteModalOpen(false)}
+              onContinueStation={() => setIsTwoMinuteModalOpen(false)}
+              onCompleteTwoMinutes={() => {
+                soundSynth.playCompletionChime();
+                haptic.vibrateSprintCelebration();
+                setRewardToast(language === 'ar' ? '🔥 أحسنت! كسرت حاجز البداية بنجاح (+5 نقاط زخم)' : 'Friction broken! (+5 Momentum pts)');
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* Sleep & Circadian Rest Recovery Modal */}
-      <SleepRestModal
-        isOpen={isSleepRestModalOpen}
-        onClose={() => setIsSleepRestModalOpen(false)}
-        userState={userState}
-        todayLog={todayLog}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isA2hsModalOpen && (
+            <AddToHomeScreenModal
+              pwaState={pwaState}
+              isOpen={isA2hsModalOpen}
+              onClose={() => setIsA2hsModalOpen(false)}
+            />
+          )}
 
-      {/* Dynamic Prayer Location & Calculation Modal */}
-      <PrayerLocationModal
-        isOpen={isPrayerLocationModalOpen}
-        onClose={() => setIsPrayerLocationModalOpen(false)}
-        userState={userState}
-        onLocationUpdated={(city) => {
-          setRewardToast(`📍 تم تحديث الموقع إلى ${city}`);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isOnboardingModalOpen && (
+            <OnboardingWizardModal
+              isOpen={isOnboardingModalOpen}
+              onClose={() => setIsOnboardingModalOpen(false)}
+              activeProfile={activeProfile}
+            />
+          )}
 
-      {/* Real-Life Rewards Marketplace ("اشتري لنفسك كذا 🎁") */}
-      <RealLifeRewardsModal
-        isOpen={isRewardsModalOpen}
-        onClose={() => setIsRewardsModalOpen(false)}
-        userState={userState}
-      />
+          {isSleepRestModalOpen && (
+            <SleepRestModal
+              isOpen={isSleepRestModalOpen}
+              onClose={() => setIsSleepRestModalOpen(false)}
+              userState={userState}
+              todayLog={todayLog}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* Flagship Command Palette Omnisearch (Ctrl+K / ⌘K) */}
-      <QuickCommandPaletteModal
-        isOpen={isCommandPaletteOpen}
-        onClose={() => setIsCommandPaletteOpen(false)}
-        onSelectStation={(st) => setActiveStation(st)}
-        onStartSuggestedSprint={(_dur) => {
-          setActiveStation('WORK_MICRO_SPRINT');
-        }}
-        onOpenSleepRest={() => setIsSleepRestModalOpen(true)}
-        onOpenAiCoach={() => setIsAiCoachOpen(true)}
-        onOpenTwoMinuteRule={() => setIsTwoMinuteModalOpen(true)}
-        onOpenArchive={() => setIsArchiveModalOpen(true)}
-        onOpenRewards={() => setIsRewardsModalOpen(true)}
-        onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
-        onOpenSettings={() => setIsSettingsModalOpen(true)}
-        onToggleSurvivalMode={handleToggleSurvivalMode}
-        onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
-        onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
-        onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
-        userState={userState}
-        todayLog={todayLog}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isPrayerLocationModalOpen && (
+            <PrayerLocationModal
+              isOpen={isPrayerLocationModalOpen}
+              onClose={() => setIsPrayerLocationModalOpen(false)}
+              userState={userState}
+              onLocationUpdated={(city) => {
+                setRewardToast(`📍 تم تحديث الموقع إلى ${city}`);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* Universal Lifestyle Flow & Station Customizer Modal */}
-      <LifestyleStationCustomizerModal
-        isOpen={isLifestyleModalOpen}
-        onClose={() => setIsLifestyleModalOpen(false)}
-        userState={userState}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isRewardsModalOpen && (
+            <RealLifeRewardsModal
+              isOpen={isRewardsModalOpen}
+              onClose={() => setIsRewardsModalOpen(false)}
+              userState={userState}
+            />
+          )}
 
-      {/* Flexible Custom Quran Tracker Modal (Surah, Ayah, Pages, Bookmark) */}
-      <FlexibleQuranTrackerModal
-        isOpen={isWirdModalOpen}
-        onClose={() => setIsWirdModalOpen(false)}
-        quranProgress={quranProgress}
-        todayLog={todayLog}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isCommandPaletteOpen && (
+            <QuickCommandPaletteModal
+              isOpen={isCommandPaletteOpen}
+              onClose={() => setIsCommandPaletteOpen(false)}
+              onSelectStation={(st) => setActiveStation(st)}
+              onStartSuggestedSprint={(_dur) => {
+                setActiveStation('WORK_MICRO_SPRINT');
+              }}
+              onOpenSleepRest={() => setIsSleepRestModalOpen(true)}
+              onOpenAiCoach={() => setIsAiCoachOpen(true)}
+              onOpenTwoMinuteRule={() => setIsTwoMinuteModalOpen(true)}
+              onOpenArchive={() => setIsArchiveModalOpen(true)}
+              onOpenRewards={() => setIsRewardsModalOpen(true)}
+              onOpenEvaluation={() => setIsEvaluationModalOpen(true)}
+              onOpenSettings={() => setIsSettingsModalOpen(true)}
+              onToggleSurvivalMode={handleToggleSurvivalMode}
+              onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
+              onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
+              onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
+              userState={userState}
+              todayLog={todayLog}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* Morning & Evening Adhkar Modal (Sacred Core & Global) */}
-      <MorningEveningAdhkarModal
-        isOpen={isAdhkarModalOpen}
-        onClose={() => setIsAdhkarModalOpen(false)}
-        initialMode={adhkarMode}
-        isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isLifestyleModalOpen && (
+            <LifestyleStationCustomizerModal
+              isOpen={isLifestyleModalOpen}
+              onClose={() => setIsLifestyleModalOpen(false)}
+              userState={userState}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* Artisanal Boutique Theme Palette Modal (De-AI Luxe) */}
-      <ThemePaletteModal
-        isOpen={isPaletteModalOpen}
-        onClose={() => setIsPaletteModalOpen(false)}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isPaletteModalOpen && (
+            <ThemePaletteModal
+              isOpen={isPaletteModalOpen}
+              onClose={() => setIsPaletteModalOpen(false)}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
 
-      {/* Smart Haptic Digital Tasbih Modal (Multi-Stage Khitam Salah & Dhikr) */}
-      <SmartTasbihModal
-        isOpen={isSmartTasbihOpen}
-        onClose={() => setIsSmartTasbihOpen(false)}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-        defaultMode={smartTasbihMode}
-        userState={userState}
-      />
+          {isSmartTasbihOpen && (
+            <SmartTasbihModal
+              isOpen={isSmartTasbihOpen}
+              onClose={() => setIsSmartTasbihOpen(false)}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+              defaultMode={smartTasbihMode}
+              userState={userState}
+            />
+          )}
 
-      {/* Luxury Boarding Pass Daily Pride Ticket Modal */}
-      <DailyPrideTicketModal
-        isOpen={isDailyPrideTicketOpen}
-        onClose={() => setIsDailyPrideTicketOpen(false)}
-        todayLog={todayLog}
-        userState={userState}
-      />
+          {isDailyPrideTicketOpen && (
+            <DailyPrideTicketModal
+              isOpen={isDailyPrideTicketOpen}
+              onClose={() => setIsDailyPrideTicketOpen(false)}
+              todayLog={todayLog}
+              userState={userState}
+            />
+          )}
 
-      {/* Flagship Daily Quran & Hadith Tadabbur Sanctuary Modal */}
-      <DailyTadabburModal
-        isOpen={isTadabburModalOpen}
-        onClose={() => setIsTadabburModalOpen(false)}
-        initialItem={tadabburInitialItem}
-        initialTab={tadabburInitialTab}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
+          {isTadabburModalOpen && (
+            <DailyTadabburModal
+              isOpen={isTadabburModalOpen}
+              onClose={() => setIsTadabburModalOpen(false)}
+              initialItem={tadabburInitialItem}
+              initialTab={tadabburInitialTab}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isFaithAudioModalOpen && (
+            <FaithAudioSanctuaryModal
+              isOpen={isFaithAudioModalOpen}
+              onClose={() => setIsFaithAudioModalOpen(false)}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isArabicPoetryOpen && (
+            <ArabicPoetryModal
+              isOpen={isArabicPoetryOpen}
+              onClose={() => setIsArabicPoetryOpen(false)}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isLifeWisdomOpen && (
+            <LifeWisdomModal
+              isOpen={isLifeWisdomOpen}
+              onClose={() => setIsLifeWisdomOpen(false)}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isNiyyahModalOpen && (
+            <NiyyahSanctuaryModal
+              isOpen={isNiyyahModalOpen}
+              onClose={() => setIsNiyyahModalOpen(false)}
+              initialPillar={niyyahInitialPillar}
+              onRewardToast={(msg) => {
+                setRewardToast(msg);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isCustomDeckModalOpen && (
+            <CustomDeckModal
+              isOpen={isCustomDeckModalOpen}
+              onClose={() => setIsCustomDeckModalOpen(false)}
+              onImportComplete={(count) => {
+                setRewardToast(`تم استيراد ${count} بطاقة بنجاح إلى بنك المفردات! ✨`);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isCalendarShieldModalOpen && (
+            <CalendarPrayerShieldModal
+              isOpen={isCalendarShieldModalOpen}
+              onClose={() => setIsCalendarShieldModalOpen(false)}
+              onEventsImported={(count) => {
+                setRewardToast(`تمت حماية مواعيدك ومزامنة ${count} موعد في درع الصلوات 🛡️`);
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+
+          {isQuickPinModalOpen && (
+            <QuickPinModal
+              isOpen={isQuickPinModalOpen}
+              onClose={() => setIsQuickPinModalOpen(false)}
+              onProfileUpdated={() => {
+                setRewardToast('✨ تم حفظ وتحديث بيانات الحساب بنجاح');
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+            />
+          )}
+        </Suspense>
+      </ErrorBoundary>
+
+      {/* Persistent Global YouTube Player Host (Keeps Audio Playing Across All Modals & Views) */}
+      <PersistentYouTubeHost />
 
       {/* Global Floating Audio Capsule (Smart Next/Prev, Speed, Mini Bar) */}
       <GlobalAudioCapsule onOpenFaithHub={() => setIsFaithAudioModalOpen(true)} />
-
-      {/* Flagship Faith & Intellectual Audio Sanctuary Modal */}
-      <FaithAudioSanctuaryModal
-        isOpen={isFaithAudioModalOpen}
-        onClose={() => setIsFaithAudioModalOpen(false)}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
-
-      {/* Classical Arabic Poetry Diwan Modal */}
-      <ArabicPoetryModal
-        isOpen={isArabicPoetryOpen}
-        onClose={() => setIsArabicPoetryOpen(false)}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
-
-      {/* Practical Mental Models & Life Wisdom Vault Modal */}
-      <LifeWisdomModal
-        isOpen={isLifeWisdomOpen}
-        onClose={() => setIsLifeWisdomOpen(false)}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
-
-      {/* Flagship Niyyah Consecration Sanctuary Modal (4 Pillars) */}
-      <NiyyahSanctuaryModal
-        isOpen={isNiyyahModalOpen}
-        onClose={() => setIsNiyyahModalOpen(false)}
-        initialPillar={niyyahInitialPillar}
-        onRewardToast={(msg) => {
-          setRewardToast(msg);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
-
-      {/* Dynamic CEFR Custom Deck & Anki/CSV/JSON Importer Modal (OPP-0103) */}
-      <CustomDeckModal
-        isOpen={isCustomDeckModalOpen}
-        onClose={() => setIsCustomDeckModalOpen(false)}
-        onImportComplete={(count) => {
-          setRewardToast(`تم استيراد ${count} بطاقة بنجاح إلى بنك المفردات! ✨`);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
-
-      {/* Zero-Cloud Calendar Prayer Shield & Meeting Conflict Guard (OPP-0104) */}
-      <CalendarPrayerShieldModal
-        isOpen={isCalendarShieldModalOpen}
-        onClose={() => setIsCalendarShieldModalOpen(false)}
-        onEventsImported={(count) => {
-          setRewardToast(`تمت حماية مواعيدك ومزامنة ${count} موعد في درع الصلوات 🛡️`);
-          setTimeout(() => setRewardToast(null), 3500);
-        }}
-      />
-
-      {/* Quick Numeric PIN & Profile Customizer Modal */}
-      {isQuickPinModalOpen && (
-        <QuickPinModal
-          isOpen={isQuickPinModalOpen}
-          onClose={() => setIsQuickPinModalOpen(false)}
-          onProfileUpdated={() => {
-            setRewardToast('✨ تم حفظ وتحديث بيانات الحساب بنجاح');
-            setTimeout(() => setRewardToast(null), 3500);
-          }}
-        />
-      )}
-      </Suspense>
 
       {/* Living Ambient Generative Soundscape Floating Player */}
       <AmbientSoundscapeBar />

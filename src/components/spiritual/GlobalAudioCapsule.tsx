@@ -45,6 +45,7 @@ export const GlobalAudioCapsule: React.FC<GlobalAudioCapsuleProps> = ({ onOpenFa
     audioState.isLoading ||
     audioState.currentTime > 0 ||
     audioState.currentSeriesId ||
+    (audioState.mediaType === 'youtube' && audioState.youtubeVideoId) ||
     (audioState.resumePoint && audioState.resumePoint.currentTime > 0)
   );
 
@@ -62,7 +63,7 @@ export const GlobalAudioCapsule: React.FC<GlobalAudioCapsuleProps> = ({ onOpenFa
   const handleCycleSpeed = (e: React.MouseEvent) => {
     e.stopPropagation();
     soundSynth.playTactileClick();
-    const speeds = [1, 1.25, 1.5];
+    const speeds = [1, 1.25, 1.5, 2];
     const nextIdx = (speeds.indexOf(audioState.playbackRate) + 1) % speeds.length;
     gymFaithAudio.setPlaybackRate(speeds[nextIdx]);
   };
