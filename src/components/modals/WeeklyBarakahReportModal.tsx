@@ -348,27 +348,49 @@ ${worshipTxt}
           </div>
 
           {/* Saturday Buffer Safety Valve Check */}
-          <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-[#181924] border border-amber-200/90 dark:border-amber-500/25 flex items-center justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center text-base font-bold shrink-0">
-                🛡️
-              </div>
-              <div>
-                <h5 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                  {isAr ? 'صمام أمان بافر السبت (The 3-Hour Valve)' : 'Saturday Buffer Safety Valve'}
-                </h5>
-                <p className="text-[11px] text-slate-600 dark:text-zinc-400">
-                  {isAr
-                    ? 'طابور المهام المؤجلة للبافر فارغ بنجاح! السبت القادم هو أرباح ترفيه حر واستجمام 100% دون ذنب.'
-                    : 'Buffer queue is clear! Enjoy pure bonus leisure dividends without breaking your streak.'}
-                </p>
-              </div>
-            </div>
+          {(() => {
+            const bufferUsed = userState?.weeklyBufferCount || 0;
+            const isBufferClear = bufferUsed === 0;
+            return (
+              <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-[#181924] border border-amber-200/90 dark:border-amber-500/25 flex items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center text-base font-bold shrink-0">
+                    🛡️
+                  </div>
+                  <div>
+                    <h5 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                      {isAr ? 'صمام أمان بافر السبت (The 3-Hour Valve)' : 'Saturday Buffer Safety Valve'}
+                    </h5>
+                    <p className="text-[11px] text-slate-600 dark:text-zinc-400">
+                      {isBufferClear
+                        ? isAr
+                          ? 'طابور المهام المؤجلة للبافر فارغ بنجاح! السبت القادم هو أرباح ترفيه حر واستجمام 100% دون ذنب.'
+                          : 'Buffer queue is clear! Enjoy pure bonus leisure dividends without breaking your streak.'
+                        : isAr
+                        ? `تم ترحيل (${bufferUsed} من 2) مهام إلى بافر السبت (3 ساعات) لحماية شعلتك اليومية.`
+                        : `${bufferUsed}/2 deferred tasks scheduled for your Saturday 3-Hour Buffer valve.`}
+                    </p>
+                  </div>
+                </div>
 
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 shrink-0">
-              {isAr ? 'أرباح ترفيه حر 🎉' : 'Free Dividends 🎉'}
-            </span>
-          </div>
+                <span
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${
+                    isBufferClear
+                      ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30'
+                      : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30'
+                  }`}
+                >
+                  {isBufferClear
+                    ? isAr
+                      ? 'أرباح ترفيه حر 🎉'
+                      : 'Free Dividends 🎉'
+                    : isAr
+                    ? `${bufferUsed}/2 في البافر ⏱️`
+                    : `${bufferUsed}/2 Buffered ⏱️`}
+                </span>
+              </div>
+            );
+          })()}
 
           {/* Privacy & Tazkiyah Shield Toggle before Sharing */}
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] flex items-center justify-between gap-3 text-xs">

@@ -36,6 +36,7 @@ interface CircadianPhase {
   endHour: number;
   icon: any;
   accentColor: string;
+  cardSurface: string;
   actionStation?: StationId;
   isSleepAction?: boolean;
 }
@@ -84,7 +85,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 5,
       endHour: 8.5,
       icon: Sunrise,
-      accentColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30',
+      accentColor: 'text-[#fef3c7] bg-[#141517] border-[#141517]',
+      cardSurface: 'bg-[#fef3c7] text-[#141517] border-amber-300/70',
       actionStation: 'COMMUTE_MORNING',
     },
     {
@@ -115,11 +117,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 8.5,
       endHour: 12.5,
       icon: rhythm.isRestDay ? Coffee : Briefcase,
-      accentColor: rhythm.isRestDay
-        ? 'text-teal-500 bg-teal-500/10 border-teal-500/30'
-        : rhythm.isHalfDay
-        ? 'text-amber-500 bg-amber-500/10 border-amber-500/30'
-        : 'text-blue-500 bg-blue-500/10 border-blue-500/30',
+      accentColor: 'text-[#e0f2fe] bg-[#141517] border-[#141517]',
+      cardSurface: 'bg-[#e0f2fe] text-[#141517] border-sky-300/70',
       actionStation: rhythm.isRestDay ? undefined : 'WORK_MICRO_SPRINT',
       isSleepAction: rhythm.isRestDay,
     },
@@ -131,7 +130,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 12.5,
       endHour: 15.5,
       icon: Coffee,
-      accentColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30',
+      accentColor: 'text-[#bce8c2] bg-[#141517] border-[#141517]',
+      cardSurface: 'bg-[#bce8c2] text-[#141517] border-[#1eb814]/30',
       isSleepAction: true,
     },
     {
@@ -154,7 +154,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 15.5,
       endHour: 18.5,
       icon: Zap,
-      accentColor: 'text-purple-500 bg-purple-500/10 border-purple-500/30',
+      accentColor: 'text-[#fde6d8] bg-[#141517] border-[#141517]',
+      cardSurface: 'bg-[#fde6d8] text-[#141517] border-[#ff5500]/25',
       actionStation: 'GYM_ANCHOR',
     },
     {
@@ -165,7 +166,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 18.5,
       endHour: 20.5,
       icon: Sunset,
-      accentColor: 'text-rose-500 bg-rose-500/10 border-rose-500/30',
+      accentColor: 'text-[#fce2e6] bg-[#141517] border-[#141517]',
+      cardSurface: 'bg-[#fce2e6] text-[#141517] border-rose-300/70',
       actionStation: 'RETROSPECTIVE_CHECKIN',
     },
     {
@@ -176,7 +178,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 20.5,
       endHour: 24,
       icon: Moon,
-      accentColor: 'text-indigo-400 bg-indigo-950/40 border-indigo-800/40',
+      accentColor: 'text-[#e2defc] bg-[#141517] border-[#141517]',
+      cardSurface: 'bg-[#e2defc] text-[#141517] border-[#5448e8]/25',
       isSleepAction: true,
     },
     {
@@ -187,7 +190,8 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       startHour: 1.5,
       endHour: 5.0,
       icon: Star,
-      accentColor: 'text-amber-400 bg-amber-950/40 border-amber-500/40',
+      accentColor: 'text-[#141517] bg-[#bce8c2] border-[#1eb814]/40',
+      cardSurface: 'bg-[#141517] text-white border-[#bce8c2]/40',
       isSleepAction: false,
     },
   ];
@@ -327,28 +331,35 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
 
   return (
     <div
-      className={`rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/90 dark:border-zinc-800 shadow-xs p-3.5 sm:p-4 space-y-3 transition-all ${className}`}
+      className={`rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 shadow-sm p-4 sm:p-5 space-y-3.5 transition-all ${className}`}
       dir="rtl"
     >
       {/* Top Banner: Next Best Action & Current Time Dial */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-teal-500 to-emerald-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
+        <div
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setIsExpanded(!isExpanded);
+          }}
+          className="flex items-center gap-3 cursor-pointer select-none flex-1 min-w-0"
+        >
+          <div className="w-11 h-11 rounded-2xl bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] flex items-center justify-center shadow-xs shrink-0">
             <Clock className="w-5 h-5 animate-pulse" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[11px] font-bold text-slate-500 dark:text-zinc-400">
                 المسار الزمني وإيقاع اليوم الحي
               </span>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold border border-emerald-200 dark:border-emerald-800/40">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#bce8c2] text-[#141517] text-[10px] font-black border border-[#1eb814]/30">
                 {activePhase.title}
               </span>
             </div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-1.5 mt-0.5">
+            <h4 className="text-xs sm:text-sm font-black text-[#141517] dark:text-white flex items-center gap-1.5 mt-0.5 truncate">
               <span>{nextAction.title}</span>
             </h4>
-            <p className="text-[11px] text-slate-500 dark:text-zinc-400 line-clamp-1">
+            <p className="text-[11px] text-slate-600 dark:text-zinc-400 line-clamp-1 font-medium">
               {nextAction.detail}
             </p>
           </div>
@@ -358,16 +369,19 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
           <button
             type="button"
             onClick={handleActionClick}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-sm shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+            className="px-4 py-2 rounded-full bg-[#141517] hover:bg-zinc-800 dark:bg-[#bce8c2] dark:hover:bg-[#d4f5dc] text-[#bce8c2] dark:text-[#141517] text-xs font-black shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
           >
-            <ArrowUpRight className="w-3.5 h-3.5 text-white/90 shrink-0" />
+            <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
             <span>{nextAction.cta}</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 rounded-xl border border-slate-200 dark:border-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setIsExpanded(!isExpanded);
+            }}
+            className="p-2 rounded-full bg-[#e2defc] hover:brightness-95 text-[#141517] border border-[#5448e8]/20 transition-all active:scale-95 cursor-pointer"
             title={isExpanded ? 'طي الخط الزمني' : 'عرض محطات اليوم كاملة'}
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -378,35 +392,89 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       {/* Circadian Progression Ribbon */}
       <div className="relative pt-2 pb-1" dir="ltr">
         {/* Track Line with ambient glow */}
-        <div className="w-full h-3.5 sm:h-4 rounded-full bg-slate-100 dark:bg-white/[0.06] overflow-hidden relative shadow-inner border border-slate-200/60 dark:border-white/[0.05]">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            setIsExpanded(!isExpanded);
+          }}
+          className="w-full h-4 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden relative shadow-inner border border-slate-200/80 dark:border-white/10 block cursor-pointer"
+          title="اضغط لعرض بطاقات المسار الزمني"
+        >
           {/* Progress fill up to current time (Continuous 24h cycle from Fajr) */}
           <div
-            className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-indigo-500 rounded-full transition-all duration-700 shadow-md relative"
+            className="h-full bg-gradient-to-r from-[#fef3c7] via-[#bce8c2] to-[#e2defc] rounded-full transition-all duration-700 shadow-xs relative border-r-2 border-[#1eb814]"
             style={{
               width: `${Math.min(100, Math.max(0, (((currentTimeDec >= 5 ? currentTimeDec - 5 : currentTimeDec + 19) / 24) * 100)))}%`,
             }}
           >
             {/* Pulsing beacon on the leading edge */}
-            <div className="absolute right-0 top-0 bottom-0 w-2 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
+            <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-[#141517] dark:bg-white rounded-full animate-pulse" />
           </div>
-        </div>
+        </button>
 
-        {/* High-Contrast Phase Indicators aligned with progression bar */}
-        <div className="flex justify-between items-center text-[11px] sm:text-xs font-mono font-bold text-slate-700 dark:text-zinc-300 pt-2 px-0.5" dir="ltr">
-          <span className="flex items-center gap-1"><span>🌅 الفجر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">05:00</bdi></span>
-          <span className="flex items-center gap-1"><span>☀️ الظهر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">12:30</bdi></span>
-          <span className="flex items-center gap-1"><span>⚡ العصر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">15:30</bdi></span>
-          <span className="flex items-center gap-1"><span>🌆 المغرب</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">18:30</bdi></span>
-          <span className="flex items-center gap-1"><span>🌌 السَّحَر</span> <bdi className="text-slate-600 dark:text-zinc-400 font-sans text-[10px]">24:00</bdi></span>
+        {/* Interactive Phase Indicators aligned with progression bar */}
+        <div className="flex justify-between items-center text-[10px] sm:text-xs font-mono font-bold pt-2 px-0.5 gap-1" dir="ltr">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              onSelectStation('COMMUTE_MORNING');
+            }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fef3c7] text-[#141517] hover:brightness-95 transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>🌅 الفجر</span> <bdi className="font-sans text-[10px]">05:00</bdi>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              onOpenSleepRest();
+            }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#bce8c2] text-[#141517] hover:brightness-95 transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>☀️ الظهر</span> <bdi className="font-sans text-[10px]">12:30</bdi>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              onSelectStation('GYM_ANCHOR');
+            }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fde6d8] text-[#141517] hover:brightness-95 transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>⚡ العصر</span> <bdi className="font-sans text-[10px]">15:30</bdi>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              onSelectStation('RETROSPECTIVE_CHECKIN');
+            }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fce2e6] text-[#141517] hover:brightness-95 transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>🌆 المغرب</span> <bdi className="font-sans text-[10px]">18:30</bdi>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              onOpenSleepRest();
+            }}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#e2defc] text-[#141517] hover:brightness-95 transition-transform active:scale-95 cursor-pointer"
+          >
+            <span>🌌 السَّحَر</span> <bdi className="font-sans text-[10px]">24:00</bdi>
+          </button>
         </div>
       </div>
 
-      {/* Expanded Details: 6 Circadian Phases Cards */}
+      {/* Expanded Details: Circadian Pastel Bento Cards (rounded-[26px]) */}
       {isExpanded && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-3 border-t border-slate-100 dark:border-white/[0.08] animate-fade-in">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 border-t border-slate-100 dark:border-white/10 animate-fade-in">
           {phases.map((phase) => {
             const Icon = phase.icon;
             const isCurrent = phase.id === activePhase.id;
+            const isDarkCard = phase.id === 'qiyam_last_third';
 
             return (
               <div
@@ -418,33 +486,37 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
                     onOpenSleepRest();
                   } else if (phase.actionStation) {
                     onSelectStation(phase.actionStation);
+                  } else if (onOpenNawafilModal) {
+                    onOpenNawafilModal();
                   }
                 }}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-start relative overflow-hidden tap-spring active:scale-98 ${
+                className={`p-4 rounded-[26px] border transition-all cursor-pointer text-start relative overflow-hidden tap-spring active:scale-98 ${
+                  phase.cardSurface
+                } ${
                   isCurrent
-                    ? 'bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-500/70 ring-2 ring-emerald-500/25 shadow-xs'
-                    : 'bg-white dark:bg-[#121422] border-slate-200/90 dark:border-white/[0.08] hover:border-slate-300 dark:hover:border-zinc-700 shadow-2xs'
+                    ? 'ring-2 ring-[#1eb814] shadow-md'
+                    : 'shadow-2xs hover:brightness-98'
                 }`}
               >
                 {isCurrent && (
-                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[9px] font-black bg-emerald-600 text-white animate-pulse">
+                  <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#141517] text-[#bce8c2] animate-pulse">
                     الآن 📍
                   </span>
                 )}
                 <div className="flex items-center gap-2.5">
-                  <div className={`p-2 rounded-xl border shrink-0 ${phase.accentColor}`}>
+                  <div className={`p-2 rounded-2xl border shrink-0 ${phase.accentColor}`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-black text-slate-900 dark:text-zinc-100 truncate">
+                    <div className={`text-xs font-black truncate ${isDarkCard ? 'text-white' : 'text-[#141517]'}`}>
                       {phase.title}
                     </div>
-                    <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono font-bold">
+                    <span className={`text-[11px] font-mono font-black ${isDarkCard ? 'text-[#bce8c2]' : 'text-[#141517]/70'}`}>
                       <bdi dir="ltr">{phase.timeRange}</bdi>
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-zinc-300 mt-2 leading-relaxed line-clamp-2 font-medium">
+                <p className={`text-xs mt-2.5 leading-relaxed line-clamp-2 font-bold ${isDarkCard ? 'text-zinc-300' : 'text-[#141517]/80'}`}>
                   {phase.subtitle}
                 </p>
               </div>
@@ -455,3 +527,4 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
     </div>
   );
 };
+

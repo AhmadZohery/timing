@@ -24,6 +24,8 @@ import { ZeroTypingChips, ZERO_TYPING_PRESETS } from '../common/ZeroTypingChips'
 import { resolveStationMetadata, PERSONA_CONFIGS } from '../../utils/lifestyleEngine';
 import { WIRD_PRESETS, getActiveSpiritualWirds } from '../../utils/spiritualWirdEngine';
 import { getDailyTadabburItem, type DailyTadabburItem } from '../../data/dailyTadabburData';
+import confetti from 'canvas-confetti';
+import { getBiologicalDate, upsertDailyLog, triggerCelebrationConfetti } from '../../utils/gamification';
 
 interface CommuteMorningViewProps {
   quranProgress: QuranProgress | undefined;
@@ -97,7 +99,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
 
     await db.quran_progress.update(quranProgress.id, {
       currentPage: nextPg,
-      lastUpdated: new Date().toISOString().split('T')[0],
+      lastUpdated: getBiologicalDate(),
     });
 
     const quranGoal = await db.goals.get('goal-quran');
@@ -112,7 +114,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
     if (!quranProgress?.id) return;
     await db.quran_progress.update(quranProgress.id, {
       currentPage: page,
-      lastUpdated: new Date().toISOString().split('T')[0],
+      lastUpdated: getBiologicalDate(),
     });
 
     const quranGoal = await db.goals.get('goal-quran');
@@ -131,8 +133,26 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
 
     await db.book_progress.update(bookProgress.id, {
       currentPage: nextPg,
-      lastUpdated: new Date().toISOString().split('T')[0],
+      lastUpdated: getBiologicalDate(),
     });
+  };
+
+  const handleCompleteWithCelebration = (e: React.MouseEvent<HTMLButtonElement>) => {
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+    try {
+      const x = e.clientX ? e.clientX / window.innerWidth : 0.5;
+      const y = e.clientY ? e.clientY / window.innerHeight : 0.6;
+      confetti({ disableForReducedMotion: true,
+        particleCount: 55,
+        spread: 65,
+        origin: { x, y },
+        colors: ['#1eb814', '#bce8c2', '#fde6d8', '#e2defc'],
+      });
+    } catch {
+      triggerCelebrationConfetti();
+    }
+    onCompleteStation();
   };
 
   const quranPercent = Math.round(
@@ -147,50 +167,59 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
 
   return (
     <div className="space-y-5 transition-colors duration-200">
-      {/* Sleek Native Station Header Bar (Apple-Tier) */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-l from-emerald-500/10 via-white dark:via-zinc-900 to-white dark:to-zinc-900 border border-emerald-500/20 shadow-xs flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 shrink-0">
-            <BookOpen className="w-5 h-5" />
+      {/* Habitline Obsidian Station Hero Banner */}
+      <div className="celestial-obsidian-stage rounded-[28px] text-white p-4 sm:p-5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-12 h-12 rounded-2xl bg-habit-green-ink text-white flex items-center justify-center shadow-lg shadow-[#1eb814]/25 shrink-0">
+            <BookOpen className="w-6 h-6" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                {persona.badge} • <span className="opacity-75 font-normal">{isAr ? 'الوقت المقترح:' : 'Suggested:'}</span> <bdi dir="ltr" className="font-mono">{stationMeta.shortTime}</bdi>
+              <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 text-[10px] font-bold border border-white/10">
+                {isAr ? 'المحطة 1 من 8' : 'Station 1 of 8'}
+              </span>
+              <span className="text-[11px] text-zinc-300 font-bold">
+                {persona.badge} • <span className="text-zinc-400 font-normal">{isAr ? 'الوقت المقترح:' : 'Suggested:'}</span>{' '}
+                <bdi dir="ltr" className="font-mono tabular-nums text-[#bce8c2]">{stationMeta.shortTime}</bdi>
               </span>
               <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold border border-emerald-200 dark:border-emerald-800/40"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1eb814]/20 text-[#bce8c2] text-[10px] font-bold border border-[#1eb814]/30"
                 title={isAr ? 'المحطة مفتوحة ومتاحة دائماً، والمقصود حظر مشتتات السوشيال ميديا أثناء الورد' : 'Focus protected from distractions'}
               >
                 <Shield className="w-2.5 h-2.5" />
                 <span>{isAr ? 'درع التركيز وحظر المشتتات 🛡️' : 'Focus Shield 🛡️'}</span>
               </span>
             </div>
-            <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100 truncate">
+            <h2 className="text-base sm:text-lg font-bold text-white truncate">
               {isAr ? stationMeta.titleAr : stationMeta.titleEn}
             </h2>
           </div>
         </div>
 
-        <div className="shrink-0">
-          <span className="text-xs px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-mono font-bold">
+        <div className="shrink-0 flex items-center gap-2 self-end sm:self-center">
+          {isCompleted && (
+            <span className="text-xs px-3 py-1.5 rounded-full bg-[#bce8c2] text-zinc-950 font-bold shadow-xs">
+              {isAr ? 'مكتملة اليوم ✓' : 'Completed ✓'}
+            </span>
+          )}
+          <span className="text-xs px-3.5 py-1.5 rounded-full bg-[#bce8c2] text-zinc-950 font-mono font-bold tabular-nums shadow-sm">
             +10 XP
           </span>
         </div>
       </div>
 
-      {/* Grid: Quran Tracker & Book Reader */}
+      {/* Grid: Quran Tracker (Soft Mint) & Book Reader (Soft Lavender) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-        {/* Dynamic Spiritual Wird Card */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-4 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-800/60 transition-all">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
-                <Bookmark className="w-4 h-4" />
+        {/* Dynamic Spiritual Wird Card — Emerald-Gold Mihrab Arch (Unified Hybrid) */}
+        <div className="mihrab-emerald-arch p-5 sm:p-6 rounded-t-[44px] rounded-b-[28px] flex flex-col justify-between space-y-4 transition-all">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400 text-amber-950 flex items-center justify-center shadow-sm shrink-0">
+                <Bookmark className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100">{activeWirdTitle}</h3>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                <h3 className="font-bold text-sm sm:text-base text-amber-50">{activeWirdTitle}</h3>
+                <span className="text-[11px] text-emerald-200 font-bold">
                   {wirdPreset?.badge || (isAr ? 'ورد اليوم المبارك' : 'Daily Wird')}
                 </span>
               </div>
@@ -204,7 +233,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
                   haptic.vibrateLight();
                   setShowFlexibleTrackerModal(true);
                 }}
-                className="tap-spring px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors active:scale-95 shadow-xs"
+                className="tap-spring min-h-[44px] px-3 py-1.5 rounded-full bg-amber-400 hover:bg-amber-300 text-amber-950 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95 shadow-xs"
                 title={isAr ? 'تخصيص السورة والآيات والصفحات' : 'Customize Surah and range'}
               >
                 <Sliders className="w-3 h-3" />
@@ -217,28 +246,28 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
                   haptic.vibrateLight();
                   setShowGridModal(true);
                 }}
-                className="tap-spring px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-800/40 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+                className="tap-spring min-h-[44px] px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-[11px] font-bold border border-white/20 flex items-center gap-1 cursor-pointer transition-all active:scale-95"
               >
-                <Grid className="w-3 h-3" />
+                <Grid className="w-3 h-3 text-amber-300" />
                 <span>{isAr ? `الخريطة` : `Grid`}</span>
               </button>
             </div>
           </div>
 
           {/* Surah & Ayah / Bookmark Range Indicator */}
-          <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 flex items-center justify-between">
+          <div className="p-3.5 rounded-[20px] bg-white/10 border border-white/15 flex items-center justify-between">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs font-black text-slate-900 dark:text-zinc-100 truncate">
+                <span className="text-xs font-bold text-white truncate">
                   📖 {quranProgress?.surah ? (quranProgress.surah.startsWith('سورة') ? quranProgress.surah : `سورة ${quranProgress.surah}`) : (isAr ? 'سورة البقرة' : 'Surah Al-Baqarah')}
                 </span>
                 {quranProgress?.startAyah && quranProgress?.endAyah && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-mono font-bold">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#bce8c2] text-zinc-950 font-mono font-bold tabular-nums">
                     {isAr ? `آية ${quranProgress.startAyah} - ${quranProgress.endAyah}` : `Ayah ${quranProgress.startAyah}-${quranProgress.endAyah}`}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400 block mt-0.5 truncate">
+              <span className="text-[11px] text-emerald-100/80 block mt-0.5 truncate tabular-nums">
                 {isAr
                   ? `📌 موضع التوقف: صفحة ${quranProgress?.currentPage || quranProgress?.startPage || 1} من 604`
                   : `📌 Position: Page ${quranProgress?.currentPage || 1} of 604`}
@@ -250,55 +279,71 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
                 soundSynth.playTactileClick();
                 setShowFlexibleTrackerModal(true);
               }}
-              className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer shrink-0 ps-2"
+              className="min-h-[44px] text-[11px] font-bold text-amber-300 hover:underline cursor-pointer shrink-0 ps-2"
             >
               {isAr ? 'تعديل النطاق ✏️' : 'Edit Range ✏️'}
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
-            <span><bdi dir="ltr">{currentWirdPages} / {totalWirdPages}</bdi> {t('quran_progress')}</span>
-            <span className="font-bold text-emerald-700 dark:text-emerald-400">{quranPercent}%</span>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+          {/* Glowing progress ring + page counter */}
+          <div className="flex items-center gap-4">
             <div
-              className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 transition-all duration-500"
-              style={{ width: `${quranPercent}%` }}
-            />
+              className="relative w-16 h-16 shrink-0 flex items-center justify-center"
+              role="img"
+              aria-label={isAr ? `تقدم الورد ${quranPercent}%` : `Wird progress ${quranPercent}%`}
+            >
+              <svg className="w-16 h-16 -rotate-90 overflow-visible" viewBox="0 0 64 64" aria-hidden="true">
+                <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="5" />
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="26"
+                  fill="none"
+                  stroke="#1eb814"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 26}
+                  strokeDashoffset={2 * Math.PI * 26 * (1 - Math.min(100, Math.max(0, quranPercent)) / 100)}
+                  className="ring-glow-emerald transition-all duration-700 ease-out"
+                />
+              </svg>
+              <span className="absolute text-[11px] font-bold text-white tabular-nums">{quranPercent}%</span>
+            </div>
+            <div className="min-w-0 text-xs text-emerald-50 font-mono tabular-nums">
+              <span><bdi dir="ltr">{currentWirdPages} / {totalWirdPages}</bdi> {t('quran_progress')}</span>
+            </div>
           </div>
 
           {/* MVD notice if active */}
           {isSurvivalMode && (
-            <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 text-[11px] leading-relaxed">
+            <div className="p-3 rounded-[18px] bg-[#fde6d8] dark:bg-amber-950/45 border border-amber-400/30 text-amber-950 dark:text-amber-200 text-[11px] leading-relaxed">
               🛡️ <strong>وضع البقاء مُفعّل:</strong> يكفيك قراءة صفحة واحدة أو 5 آيات لحماية شعلتك!
             </div>
           )}
 
           {/* Quranly-Inspired Authentic Hasanat Calculator (+10 Hasanat / Letter, ~5,500/Page) */}
-          <div className="p-2.5 rounded-xl bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-teal-500/10 border border-emerald-500/20 flex items-center justify-between gap-2 shadow-2xs">
-            <div className="flex items-center gap-2">
+          <div className="p-3 rounded-[20px] bg-white/10 border border-white/15 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
               <span className="text-base">🪙</span>
               <div>
-                <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium">
+                <span className="text-[10px] text-emerald-100/80 block font-medium">
                   {isAr ? 'الحسنات المقدرة لورد اليوم (10 حسنات لكل حرف):' : 'Estimated Hasanat (10 Hasanat / Letter):'}
                 </span>
-                <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 font-mono">
+                <span className="text-xs font-bold text-amber-200 font-mono tabular-nums">
                   +{(currentWirdPages * 5500).toLocaleString()} {isAr ? 'حسنة مضاعفة 🤍' : 'Hasanat 🤍'}
                 </span>
               </div>
             </div>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/40 shrink-0">
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#bce8c2] text-zinc-950 shrink-0 tashkeel-text">
               {isAr ? '«بِكُلِّ حَرْفٍ حَسَنَةٌ»' : 'Hadith Based'}
             </span>
           </div>
 
           {/* Action Buttons: Quick Increment & Open Modal */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             <button
               onClick={handleIncrementQuranPage}
-              className="tap-spring py-3 px-3 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md shadow-emerald-600/25 border border-emerald-500/30"
+              className="tap-spring py-3 px-3.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-md shadow-[#1eb814]/25"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>{isAr ? '+1 صفحة تالية' : '+1 Next Page'}</span>
@@ -310,9 +355,9 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
                 soundSynth.playTactileClick();
                 setShowFlexibleTrackerModal(true);
               }}
-              className="tap-spring py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer border border-slate-200 dark:border-zinc-700"
+              className="tap-spring py-3 px-3.5 rounded-full bg-[#141517] hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
             >
-              <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <BookOpen className="w-3.5 h-3.5 text-[#bce8c2] dark:text-[#1eb814]" />
               <span>{isAr ? 'تحديد السورة والآيات' : 'Select Surah/Ayahs'}</span>
             </button>
           </div>
@@ -322,7 +367,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             <button
               type="button"
               onClick={() => onOpenSmartTasbih('tahlil_100')}
-              className="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer shadow-2xs"
+              className="w-full py-2.5 px-4 rounded-full bg-[#fde6d8] hover:bg-[#fbd5be] dark:bg-amber-950/45 dark:hover:bg-amber-900/50 border border-amber-400/40 text-amber-950 dark:text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer shadow-2xs"
             >
               <span>🛡️</span>
               <span>{isAr ? 'حرز الصباح (100x لا إله إلا الله...)' : 'Morning 100x Shield'}</span>
@@ -330,29 +375,36 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           )}
         </div>
 
-        {/* Book Reader Card */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex flex-col justify-between space-y-4 shadow-sm hover:border-sky-300 dark:hover:border-sky-800/60 transition-all">
+        {/* Book Reader Card — Habitline Soft Lavender Surface */}
+        <div className="bento-3d-lavender p-5 sm:p-6 rounded-[28px] border border-white/50 dark:border-indigo-500/25 flex flex-col justify-between space-y-4 transition-all">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-sky-50 dark:bg-cyan-500/20 text-sky-700 dark:text-cyan-400">
-                <BookOpen className="w-4 h-4" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#5448e8] text-white flex items-center justify-center shadow-sm shrink-0">
+                <BookOpen className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100 truncate">
-                {bookProgress?.title ?? t('book_card_title')}
-              </h3>
+              <div>
+                <h3 className="font-bold text-sm sm:text-base text-zinc-950 dark:text-zinc-100 truncate">
+                  {bookProgress?.title ?? t('book_card_title')}
+                </h3>
+                <span className="text-[11px] font-bold text-indigo-900 dark:text-indigo-300">
+                  {isAr ? 'قراءة المعرفة وبناء الفكر' : 'Knowledge & Deep Reading'}
+                </span>
+              </div>
             </div>
-            <span className="text-xs font-mono font-bold text-sky-700 dark:text-cyan-400">{bookPercent}%</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-white/90 dark:bg-zinc-900 font-mono font-bold text-[#5448e8] dark:text-indigo-300 tabular-nums shadow-2xs">
+              {bookPercent}%
+            </span>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 font-mono">
+          <div className="p-3.5 rounded-[20px] bg-white/90 dark:bg-zinc-900/90 border border-indigo-400/20 flex items-center justify-between text-xs text-zinc-800 dark:text-zinc-300 font-mono tabular-nums">
             <span><bdi dir="ltr">{bookProgress?.currentPage ?? 0} / {bookProgress?.totalPages ?? 280}</bdi></span>
             <span>{t('book_remaining')} <bdi dir="ltr">{(bookProgress?.totalPages ?? 280) - (bookProgress?.currentPage ?? 0)}</bdi></span>
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+          <div className="w-full h-3 rounded-full bg-white/80 dark:bg-zinc-800 overflow-hidden p-0.5 border border-indigo-400/20">
             <div
-              className="h-full bg-gradient-to-r from-sky-500 to-cyan-400 transition-all duration-500"
+              className="h-full rounded-full bg-[#5448e8] transition-all duration-500"
               style={{ width: `${bookPercent}%` }}
             />
           </div>
@@ -360,42 +412,49 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
           {/* Quick Increment Button */}
           <button
             onClick={handleIncrementBookPage}
-            className="tap-spring w-full py-2.5 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-cyan-500/15 dark:hover:bg-cyan-500/25 border border-sky-200 dark:border-cyan-500/40 text-sky-800 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-2xs"
+            className="tap-spring w-full py-3 px-4 rounded-full bg-[#5448e8] hover:bg-[#4538d8] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-md shadow-[#5448e8]/25"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span>{t('book_increment')}</span>
           </button>
         </div>
       </div>
 
-      {/* Book Insight / Quote of the Day Capture */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-xs">
+      {/* Book Insight / Quote of the Day Capture — Habitline Soft Amber Surface */}
+      <div className="p-5 rounded-[28px] bg-[#fde6d8]/75 dark:bg-amber-950/45 border border-amber-400/30 dark:border-amber-500/25 space-y-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-2">
-            <Bookmark className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
+          <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-xl bg-habit-flame-ink text-white flex items-center justify-center shadow-2xs">
+              <Bookmark className="w-3.5 h-3.5" />
+            </div>
             <span>{t('quote_title')}</span>
           </h4>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col sm:flex-row gap-2.5">
           <input
             id="morning-quote-input"
             type="text"
             placeholder={t('quote_placeholder')}
             defaultValue={localStorage.getItem('midmar_today_quote') || ''}
             onChange={(e) => localStorage.setItem('midmar_today_quote', e.target.value)}
-            className="flex-1 py-2 px-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:border-sky-500"
+            className="flex-1 py-2.5 px-4 rounded-2xl bg-white dark:bg-zinc-900 border border-amber-400/30 dark:border-zinc-700 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-[#ff5500] shadow-2xs"
           />
           <button
+            type="button"
             onClick={() => {
               soundSynth.playTactileClick();
               haptic.vibrateLight();
+              const val = (document.getElementById('morning-quote-input') as HTMLInputElement)?.value || localStorage.getItem('midmar_today_quote') || '';
+              if (val) {
+                upsertDailyLog(getBiologicalDate(), { goldenNugget: val } as any).catch(() => {});
+              }
               setIsQuoteSaved(true);
               setTimeout(() => setIsQuoteSaved(false), 2200);
             }}
-            className={`tap-spring py-2 px-4 rounded-xl font-bold text-xs cursor-pointer shadow-xs transition-all shrink-0 active:scale-95 ${
+            className={`min-h-[44px] tap-spring py-2.5 px-5 rounded-full font-bold text-xs cursor-pointer shadow-sm transition-all shrink-0 active:scale-95 ${
               isQuoteSaved
-                ? 'bg-emerald-600 text-white shadow-emerald-500/25 ring-2 ring-emerald-500/30'
-                : 'bg-sky-600 hover:bg-sky-500 text-white'
+                ? 'bg-habit-green-ink text-white shadow-[#1eb814]/25 ring-2 ring-[#1eb814]/30'
+                : 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 hover:opacity-90'
             }`}
           >
             {isQuoteSaved ? (isAr ? 'تم الحفظ بنجاح ✔' : 'Saved ✔') : t('save_template')}
@@ -409,31 +468,36 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
             soundSynth.playTactileClick();
             haptic.vibrateLight();
             localStorage.setItem('midmar_today_quote', chip);
+            upsertDailyLog(getBiologicalDate(), { goldenNugget: chip } as any).catch(() => {});
             const el = document.getElementById('morning-quote-input') as HTMLInputElement;
             if (el) el.value = chip;
           }}
         />
       </div>
 
-      {/* Morning Tadabbur & Spiritual Ayah Reflection Card */}
+      {/* Morning Tadabbur & Spiritual Ayah Reflection Card — Crisp White Bento */}
       {(() => {
         const todayTadabbur = getDailyTadabburItem(0);
         return (
-          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900/95 border border-slate-200/90 dark:border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-xs">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40 shrink-0 mt-0.5">
-                <Heart className="w-4 h-4 fill-emerald-500/20" />
+          <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-[#d4f5dc] dark:bg-emerald-950/60 text-[#1eb814] dark:text-emerald-300 border border-[#1eb814]/25 flex items-center justify-center shrink-0 mt-0.5">
+                <Heart className="w-5 h-5 fill-[#1eb814]/20" />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                  <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">
                     {isAr ? 'نفحة اليوم القرآنية للتدبر والسكينة' : 'Morning Quranic Reflection & Focus Anchor'}
                   </h4>
-                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 font-mono font-bold border border-emerald-200/60 dark:border-emerald-800/40">
+                  <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#d4f5dc] dark:bg-emerald-900/50 text-zinc-950 dark:text-emerald-200 font-mono font-bold">
                     {todayTadabbur.quran.surahName} ({todayTadabbur.quran.ayahRange})
                   </span>
                 </div>
-                <p className="text-sm text-slate-900 dark:text-amber-100/90 leading-[2.3] tashkeel-text font-quran line-clamp-3">
+                <p
+                  dir="rtl"
+                  lang="ar"
+                  className="text-sm text-zinc-900 dark:text-amber-100/90 leading-[2.3] tashkeel-text font-quran line-clamp-3"
+                >
                   «{todayTadabbur.quran.arabicText}»
                 </p>
               </div>
@@ -447,7 +511,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
                   haptic.vibrateLight();
                   onOpenTadabburModal(todayTadabbur, 'quran');
                 }}
-                className="tap-spring py-2 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition-colors shadow-2xs cursor-pointer self-end sm:self-auto active:scale-95"
+                className="tap-spring py-2.5 px-4 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition-all shadow-sm cursor-pointer self-end sm:self-auto active:scale-95"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>{isAr ? 'تفسير ابن كثير وأسباب النزول' : 'Tafsir & Context'}</span>
@@ -463,28 +527,28 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
         onSelectLevel={onSelectEnergyLevel}
       />
 
-      {/* Completion & Transition Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 flex items-center justify-between gap-3 shadow-xs">
+      {/* Completion & Transition Bar — Habitline Pill CTA */}
+      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
         <div>
-          <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200">{t('station_1_finish')}</h4>
-          <p className="text-[11px] text-slate-500 dark:text-zinc-500">
+          <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">{t('station_1_finish')}</h4>
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
             {t('station_1_finish_desc')}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-center">
           {!isCompleted ? (
             <button
-              onClick={onCompleteStation}
-              className="py-2.5 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
+              onClick={handleCompleteWithCelebration}
+              className="tap-spring py-3 px-6 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-[#1eb814]/25 active:scale-95 cursor-pointer"
             >
               <CheckCircle className="w-4 h-4" />
-              <span>{t('mark_done')} (+10)</span>
+              <span>{t('mark_done')} (+10 XP)</span>
             </button>
           ) : (
             <button
               onClick={onNextStation}
-              className="py-2.5 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-100 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="tap-spring py-3 px-6 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 font-bold text-xs flex items-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer"
             >
               <span>{t('next_station')}</span>
               <ArrowIcon className="w-4 h-4" />

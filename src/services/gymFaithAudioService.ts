@@ -108,8 +108,26 @@ class GymFaithAudioService {
   private maxReconnectAttempts = 6;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private watchdogTimer: ReturnType<typeof setInterval> | null = null;
+  private fadeTimer: ReturnType<typeof setInterval> | null = null;
   private lastKnownPosition = 0;
   private lastPositionUpdateTime = Date.now();
+
+  private clearFadeTimer() {
+    if (this.fadeTimer) {
+      clearInterval(this.fadeTimer);
+      this.fadeTimer = null;
+    }
+    if (this.audio && !this.isDucking) {
+      this.audio.volume = this.state.volume;
+    }
+  }
+
+  private clearReconnectTimeout() {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+  }
 
   constructor() {
     audioCoordinator.register('gym_faith', () => this.pause());
@@ -219,7 +237,6 @@ class GymFaithAudioService {
     this.audio.preload = 'auto';
     try {
       (this.audio as any).playsInline = true;
-      (this.audio as any).crossOrigin = 'anonymous';
     } catch {}
     this.audio.volume = this.state.volume;
     this.audio.playbackRate = this.state.playbackRate;
@@ -227,16 +244,19 @@ class GymFaithAudioService {
     this.audio.addEventListener('playing', () => {
       this.isUserPaused = false;
       this.reconnectAttempts = 0;
-      if (this.reconnectTimeout) {
-        clearTimeout(this.reconnectTimeout);
-        this.reconnectTimeout = null;
-      }
+      this.clearReconnectTimeout();
       this.lastPositionUpdateTime = Date.now();
       if (this.audio) {
         this.lastKnownPosition = this.audio.currentTime;
       }
       this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
       this.updateMediaSession();
+    });
+
+    this.audio.addEventListener('canplay', () => {
+      if (!this.isUserPaused && this.state.isLoading) {
+        this.updateState({ isLoading: false });
+      }
     });
 
     this.audio.addEventListener('waiting', () => {
@@ -246,8 +266,10 @@ class GymFaithAudioService {
     });
 
     this.audio.addEventListener('stalled', () => {
-      if (!this.isUserPaused && this.state.isPlaying) {
-        this.scheduleAutoReconnect('stalled');
+      // Do NOT call audio.load() on normal browser buffer lookahead pauses;
+      // only reflect loading state if readyState is genuinely below HAVE_FUTURE_DATA (3).
+      if (!this.isUserPaused && this.state.isPlaying && this.audio && this.audio.readyState < 3) {
+        this.updateState({ isLoading: true });
       }
     });
 
@@ -271,7 +293,7 @@ class GymFaithAudioService {
 
       // Smooth real-time state update
       if (cur !== this.state.currentTime || dur !== this.state.duration) {
-        this.updateState({ currentTime: cur, duration: dur });
+        this.updateState({ currentTime: cur, duration: dur, isLoading: false });
       }
 
       // Throttle persistent localStorage save to once every 3 seconds
@@ -305,14 +327,18 @@ class GymFaithAudioService {
       // Do not monitor HTML5 audio when in YouTube mode
       if (this.state.mediaType === 'youtube') return;
       if (!this.audio || this.isUserPaused || !this.state.isPlaying) return;
-      if (this.state.isLoading || this.reconnectTimeout) return;
+      if (this.reconnectTimeout) return;
 
       const now = Date.now();
       const currentPos = this.audio.currentTime;
 
-      // Check if audio has stalled for > 10 seconds without user pausing (exclude live radio where currentTime can be static)
-      if (this.state.mode !== 'channel' && Math.abs(currentPos - this.lastKnownPosition) < 0.1) {
-        if (now - this.lastPositionUpdateTime > 10000) {
+      // Only trigger soft reconnect if playback position is frozen for > 25s AND buffer is starved (readyState < 3)
+      if (
+        this.state.mode !== 'channel' &&
+        Math.abs(currentPos - this.lastKnownPosition) < 0.1 &&
+        this.audio.readyState < 3
+      ) {
+        if (now - this.lastPositionUpdateTime > 25000) {
           console.warn('[GymFaithAudio] Audio stall detected by watchdog. Triggering soft reconnect.');
           this.scheduleAutoReconnect('watchdog_stall');
         }
@@ -320,7 +346,7 @@ class GymFaithAudioService {
         this.lastKnownPosition = currentPos;
         this.lastPositionUpdateTime = now;
       }
-    }, 4000);
+    }, 5000);
   }
 
   private stopWatchdog() {
@@ -346,7 +372,7 @@ class GymFaithAudioService {
     }
 
     this.reconnectAttempts++;
-    const delay = Math.min(1000 * Math.pow(1.4, this.reconnectAttempts - 1), 6000);
+    const delay = Math.min(1200 * Math.pow(1.4, this.reconnectAttempts - 1), 6000);
     this.updateState({
       isLoading: true,
       hasError: false,
@@ -408,9 +434,9 @@ class GymFaithAudioService {
         album: this.state.mode === 'series' ? 'سلاسل السيرة والهمم' : 'أثير الرياضة الإيماني',
         artwork: [
           {
-            src: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=512&auto=format&fit=crop',
+            src: '/icon-512.png',
             sizes: '512x512',
-            type: 'image/jpeg',
+            type: 'image/png',
           },
         ],
       });
@@ -421,7 +447,13 @@ class GymFaithAudioService {
     if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
 
     try {
-      navigator.mediaSession.setActionHandler('play', () => this.play());
+      navigator.mediaSession.setActionHandler('play', () => {
+        if (this.state.mode === 'series' && this.state.currentSeriesId && this.state.currentEpisodeId) {
+          this.playEpisode(this.state.currentSeriesId, this.state.currentEpisodeId, this.state.currentTime);
+        } else {
+          this.play();
+        }
+      });
       navigator.mediaSession.setActionHandler('pause', () => this.pause());
       navigator.mediaSession.setActionHandler('seekbackward', (details) => {
         this.seekBy(-(details.seekOffset || 15));
@@ -637,7 +669,15 @@ class GymFaithAudioService {
 
   // Play Live Radio Channel
   public async play(channelId?: string) {
-    if (this.state.mediaType === 'youtube') {
+    this.clearFadeTimer();
+    this.clearReconnectTimeout();
+    this.reconnectAttempts = 0;
+
+    if (!channelId && this.state.mode === 'series' && this.state.currentSeriesId && this.state.currentEpisodeId) {
+      return this.playEpisode(this.state.currentSeriesId, this.state.currentEpisodeId, this.state.currentTime);
+    }
+
+    if (this.state.mediaType === 'youtube' && channelId) {
       try {
         this.ytBridge?.pause();
       } catch {}
@@ -647,6 +687,8 @@ class GymFaithAudioService {
     if (!this.audio) return;
     this.isUserPaused = false;
     this.startWatchdog();
+
+    const sessionId = ++this.currentSessionId;
 
     if (channelId) {
       const channel = GYM_FAITH_CHANNELS.find((c) => c.id === channelId);
@@ -658,10 +700,6 @@ class GymFaithAudioService {
           !this.audio.src ||
           !this.audio.src.includes(channel.streamUrl.replace(/^https?:\/\//, ''));
 
-        if (isDifferent) {
-          this.audio.src = channel.streamUrl;
-          this.audio.load();
-        }
         this.updateState({
           mode: 'channel',
           mediaType: 'audio',
@@ -677,6 +715,11 @@ class GymFaithAudioService {
           errorMessage: null,
         });
         localStorage.setItem(STORAGE_CHANNEL_KEY, channel.id);
+
+        if (isDifferent) {
+          this.audio.src = channel.streamUrl;
+          this.audio.load();
+        }
       }
     } else {
       // Resuming existing playback
@@ -688,9 +731,15 @@ class GymFaithAudioService {
         return;
       }
 
-      if (!this.audio.src) {
-        const targetId = this.state.currentChannelId;
-        const channel = GYM_FAITH_CHANNELS.find((c) => c.id === targetId) || GYM_FAITH_CHANNELS[0];
+      const targetId = this.state.currentChannelId;
+      const isCustomChannel = Boolean(targetId && targetId.startsWith('custom_'));
+      const channel = GYM_FAITH_CHANNELS.find((c) => c.id === targetId) || GYM_FAITH_CHANNELS[0];
+
+      const needsChannelSrcLoad =
+        !this.audio.src ||
+        (!isCustomChannel && !this.audio.src.includes(channel.streamUrl.replace(/^https?:\/\//, '')));
+
+      if (needsChannelSrcLoad) {
         this.audio.src = channel.streamUrl;
         this.audio.load();
         this.updateState({
@@ -722,11 +771,14 @@ class GymFaithAudioService {
     try {
       audioCoordinator.requestExclusive('gym_faith');
       this.audio.playbackRate = this.state.playbackRate;
+      this.audio.volume = this.state.volume;
       await this.audio.play();
+      if (sessionId !== this.currentSessionId) return;
       this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
       this.updateMediaSession();
       this.saveResumePoint();
     } catch (e: any) {
+      if (sessionId !== this.currentSessionId) return;
       console.warn('Gym faith audio play error:', e);
       let userMsg = 'انقر للتشغيل أو تأكد من إعدادات الصوت.';
       if (e?.name === 'NotSupportedError') {
@@ -748,6 +800,10 @@ class GymFaithAudioService {
 
   // Play On-Demand Series Episode with Seamless Continuity & Race Condition Protection
   public async playEpisode(seriesId: string, episodeId: string, startSecond = 0) {
+    this.clearFadeTimer();
+    this.clearReconnectTimeout();
+    this.reconnectAttempts = 0;
+
     this.initAudio();
     if (!this.audio) return;
     this.isUserPaused = false;
@@ -802,7 +858,22 @@ class GymFaithAudioService {
         this.ytBridge?.pause();
       } catch {}
     }
-    this.updateState({ mediaType: 'audio', youtubeVideoId: null, youtubePlaylistId: null });
+
+    // Update UI state synchronously BEFORE awaiting IndexedDB/offline lookup so titles never lag or mismatch
+    this.updateState({
+      mode: 'series',
+      mediaType: 'audio',
+      youtubeVideoId: null,
+      youtubePlaylistId: null,
+      currentSeriesId: series.id,
+      currentEpisodeId: episode.id,
+      currentTitleAr: `${series.titleAr} • ${episode.titleAr}`,
+      currentSheikhAr: series.sheikhAr,
+      isLoading: true,
+      hasError: false,
+      errorMessage: null,
+      ...(isDifferent ? { currentTime: startSecond, duration: 0 } : {}),
+    });
 
     if (isDifferent) {
       const playableUrl = await offlineAudioService.getPlayableUrl(episode.id, episode.audioUrl);
@@ -812,19 +883,10 @@ class GymFaithAudioService {
       this.audio.src = playableUrl;
       this.audio.load();
       if (startSecond > 0) {
-        this.audio.currentTime = startSecond;
+        try {
+          this.audio.currentTime = startSecond;
+        } catch {}
       }
-      this.updateState({
-        mode: 'series',
-        currentSeriesId: series.id,
-        currentEpisodeId: episode.id,
-        currentTitleAr: `${series.titleAr} • ${episode.titleAr}`,
-        currentSheikhAr: series.sheikhAr,
-        isLoading: true,
-        hasError: false,
-        errorMessage: null,
-        currentTime: startSecond,
-      });
     }
 
     try {
@@ -832,7 +894,9 @@ class GymFaithAudioService {
       this.audio.playbackRate = this.state.playbackRate;
       this.audio.volume = this.state.volume;
       if (startSecond > 0 && !isDifferent) {
-        this.audio.currentTime = startSecond;
+        try {
+          this.audio.currentTime = startSecond;
+        } catch {}
       }
       await this.audio.play();
       if (sessionId !== this.currentSessionId) return;
@@ -840,6 +904,7 @@ class GymFaithAudioService {
       this.updateMediaSession();
       this.saveResumePoint();
     } catch (e: any) {
+      if (sessionId !== this.currentSessionId) return;
       console.warn('Episode play failed:', e);
       let userMsg = 'انقر للتشغيل أو تأكد من إعدادات الصوت.';
       if (e?.name === 'NotSupportedError') {
@@ -886,10 +951,8 @@ class GymFaithAudioService {
   public pause(fadeMs = 50) {
     this.isUserPaused = true;
     this.stopWatchdog();
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
+    this.clearReconnectTimeout();
+    this.clearFadeTimer();
 
     if (this.state.mediaType === 'youtube') {
       try {
@@ -908,13 +971,13 @@ class GymFaithAudioService {
       const steps = 5;
       const stepDuration = Math.round(fadeMs / steps);
       let currentStep = 0;
-      const fadeTimer = setInterval(() => {
+      this.fadeTimer = setInterval(() => {
         currentStep++;
         if (targetAudio) {
           targetAudio.volume = Math.max(0, originalVol * (1 - currentStep / steps));
         }
         if (currentStep >= steps) {
-          clearInterval(fadeTimer);
+          this.clearFadeTimer();
           try {
             targetAudio.pause();
             targetAudio.volume = originalVol;
@@ -1115,6 +1178,10 @@ class GymFaithAudioService {
   }
 
   public async playCustomUrl(url: string, titleAr: string, sheikhAr: string) {
+    this.clearFadeTimer();
+    this.clearReconnectTimeout();
+    this.reconnectAttempts = 0;
+
     if (isYouTubeUrl(url)) {
       if (this.audio && !this.audio.paused) {
         try {
@@ -1167,7 +1234,9 @@ class GymFaithAudioService {
     this.isUserPaused = false;
     this.startWatchdog();
 
-    const isDifferent = !this.audio.src || !this.audio.src.includes(url);
+    const sessionId = ++this.currentSessionId;
+
+    const isDifferent = !this.audio.src || !this.audio.src.includes(url.replace(/^https?:\/\//, ''));
     if (isDifferent) {
       this.audio.src = url;
       this.audio.load();
@@ -1194,10 +1263,12 @@ class GymFaithAudioService {
       this.audio.playbackRate = this.state.playbackRate;
       this.audio.volume = this.state.volume;
       await this.audio.play();
+      if (sessionId !== this.currentSessionId) return;
       this.updateState({ isPlaying: true, isLoading: false, hasError: false, errorMessage: null });
       this.updateMediaSession();
       this.saveResumePoint();
     } catch (e: any) {
+      if (sessionId !== this.currentSessionId) return;
       console.warn('Custom audio play failed:', e);
       let userMsg = 'تعذر تشغيل هذا المقطع الصوتي حالياً.';
       if (e?.name === 'NotAllowedError') {

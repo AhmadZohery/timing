@@ -6,6 +6,7 @@ import {
   CEFR_LEVELS_INFO,
 } from '../data/languages/vocabularyDatabase';
 import { db } from '../db/db';
+import { formatLocalDate } from '../utils/gamification';
 
 export interface LevelProgress {
   level: CefrLevel;
@@ -100,7 +101,61 @@ export class SpacedRepetitionService {
     } catch {}
 
     // Hydrate from Dexie if local memory was empty
-    this.syncFromDexie();
+    void this.syncFromDexie();
+  }
+
+  public async reloadCustomWordsFromDexie(): Promise<void> {
+    try {
+      if (db.custom_vocabulary_words) {
+        const [dexieCustomWords, dexieDecks] = await Promise.all([
+          db.custom_vocabulary_words.toArray(),
+          db.custom_decks ? db.custom_decks.toArray() : Promise.resolve([]),
+        ]);
+        const deckMap = new Map<string, Record<string, any>>(
+          dexieDecks.map((d) => [d.id, d as Record<string, any>])
+        );
+        const wordMap = new Map<string, VocabularyWord>();
+        this.customWords.forEach((w) => wordMap.set(w.id, w));
+
+        for (const cw of dexieCustomWords) {
+          const raw = cw as Record<string, any>;
+          const deck = raw.deckId ? deckMap.get(raw.deckId) : undefined;
+          if (raw.deletedAt || raw.isDeleted || deck?.deletedAt || deck?.isDeleted) {
+            wordMap.delete(cw.id);
+            continue;
+          }
+          const wordText: string = raw.word || raw.term || '';
+          const translationAr: string = raw.translationAr || cw.translation || '';
+          if (!wordText) continue;
+
+          const exampleSentence: string = cw.exampleSentence || raw.contextSentence || raw.exampleEn || '';
+          const exampleTranslationAr: string =
+            raw.exampleTranslationAr || cw.exampleTranslation || raw.contextSentenceAr || raw.exampleAr || '';
+          const mappedWord = {
+            id: cw.id,
+            word: wordText,
+            translationAr,
+            phonetic: cw.pronunciation || raw.phonetic || '',
+            pronunciation: cw.pronunciation || raw.phonetic || '',
+            partOfSpeech: raw.partOfSpeech || 'noun',
+            contextSentence: exampleSentence,
+            contextSentenceAr: exampleTranslationAr,
+            exampleEn: exampleSentence,
+            exampleAr: exampleTranslationAr,
+            collocations: Array.isArray(raw.collocations) ? raw.collocations : [],
+            category: (raw.category || deck?.category || 'custom') as VocabularyWord['category'],
+            level: (cw.cefrLevel || raw.level || deck?.cefrLevel || 'B1') as CefrLevel,
+            lang: (raw.language || raw.lang || deck?.language || deck?.targetLanguage || this.activeLanguage) as TargetLanguageCode,
+          } as VocabularyWord;
+          wordMap.set(cw.id, mappedWord);
+        }
+
+        this.customWords = Array.from(wordMap.values());
+        this.saveCustomWords();
+      }
+    } catch (e) {
+      console.warn('Dexie custom vocabulary words sync notice:', e);
+    }
   }
 
   private async syncFromDexie() {
@@ -126,6 +181,7 @@ export class SpacedRepetitionService {
           });
         }
       }
+      await this.reloadCustomWordsFromDexie();
     } catch (e) {
       console.warn('Dexie language progress sync notice:', e);
     }
@@ -171,9 +227,10 @@ export class SpacedRepetitionService {
    * 30% of quota dedicated to fresh new words (steady forward expansion).
    */
   public getTodayWords(count?: number): VocabularyWord[] {
+    void this.reloadCustomWordsFromDexie();
     const limit = count || this.dailyQuota;
     const all = this.getAllWordsForLanguage();
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate();
 
     const dueReviews: VocabularyWord[] = [];
     const inProgress: VocabularyWord[] = [];
@@ -222,7 +279,7 @@ export class SpacedRepetitionService {
    * Capped to MAX_SESSION_REVIEWS to avoid review avalanche burnout.
    */
   public getDueReviewWords(): VocabularyWord[] {
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate();
     const all = this.getAllWordsForLanguage();
 
     const due = all.filter((w) => {
@@ -256,7 +313,7 @@ export class SpacedRepetitionService {
    * prioritized by (1) lowest ease factor (hardest to retain), (2) most lapses, (3) oldest overdue date.
    */
   public getAvalancheRecoveryQueue(): VocabularyWord[] {
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate();
     const all = this.getAllWordsForLanguage();
 
     const overdue = all.filter((w) => {
@@ -321,7 +378,7 @@ export class SpacedRepetitionService {
     item.status = 'learning';
     item.scheduledIntervalDays = 1;
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    item.nextReviewDate = tomorrow.toISOString().split('T')[0];
+    item.nextReviewDate = formatLocalDate(tomorrow);
 
     this.progress[wordId] = item;
     this.saveProgress();
@@ -355,7 +412,7 @@ export class SpacedRepetitionService {
     rating: 'easy' | 'medium' | 'hard' = 'medium'
   ) {
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = formatLocalDate(today);
 
     let item = this.progress[wordId];
     if (!item) {
@@ -398,7 +455,7 @@ export class SpacedRepetitionService {
         const daysToAdd = Math.max(30, Math.round(baseDays * (item.easeFactor / 2.5)));
         item.scheduledIntervalDays = daysToAdd;
         const nextDate = new Date(today.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
-        item.nextReviewDate = nextDate.toISOString().split('T')[0];
+        item.nextReviewDate = formatLocalDate(nextDate);
       } else {
         item.box = nextBox;
         item.status = 'learning';
@@ -407,7 +464,7 @@ export class SpacedRepetitionService {
         const daysToAdd = Math.max(1, Math.round(baseInterval * (item.easeFactor / 2.5)));
         item.scheduledIntervalDays = daysToAdd;
         const nextDate = new Date(today.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
-        item.nextReviewDate = nextDate.toISOString().split('T')[0];
+        item.nextReviewDate = formatLocalDate(nextDate);
       }
     } else {
       item.timesIncorrect += 1;
@@ -419,7 +476,7 @@ export class SpacedRepetitionService {
       item.scheduledIntervalDays = 1;
       // Review tomorrow
       const tomorrow = new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000);
-      item.nextReviewDate = tomorrow.toISOString().split('T')[0];
+      item.nextReviewDate = formatLocalDate(tomorrow);
     }
 
     item.lastReviewedDate = todayStr;
@@ -449,7 +506,7 @@ export class SpacedRepetitionService {
 
   public getStats(): LanguageLearningStats {
     const all = this.getAllWordsForLanguage();
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate();
 
     let mastered = 0;
     let learning = 0;

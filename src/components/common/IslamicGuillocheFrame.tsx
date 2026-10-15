@@ -8,6 +8,42 @@ interface IslamicGuillocheFrameProps {
   headerTitle?: string;
 }
 
+// Authentic Mathematical Girih 8-Point Interlaced Star & Strapwork Medallion
+const GirihCornerMedallion = ({ className: cName }: { className: string }) => (
+  <svg
+    viewBox="0 0 40 40"
+    className={`w-8 h-8 absolute pointer-events-none select-none ${cName}`}
+    fill="none"
+    stroke="currentColor"
+  >
+    {/* Outer framing hairlines (0.75px haute-horlogerie style) */}
+    <path d="M 1 36 L 1 1 L 36 1" strokeWidth="0.75" strokeLinecap="round" opacity="0.4" />
+    <path d="M 4 30 L 4 4 L 30 4" strokeWidth="0.75" strokeLinecap="round" opacity="0.6" />
+    <path d="M 7 24 C 7 14, 14 7, 24 7" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="1.5 2" opacity="0.7" />
+
+    {/* Girih 8-Point Interlaced Star Center (X=14, Y=14, R=7) */}
+    <g transform="translate(13, 13)">
+      {/* Square 1 */}
+      <polygon
+        points="-6,-6 6,-6 6,6 -6,6"
+        strokeWidth="0.85"
+        opacity="0.85"
+      />
+      {/* Square 2 (rotated 45 deg) */}
+      <polygon
+        points="0,-8.48 8.48,0 0,8.48 -8.48,0"
+        strokeWidth="0.85"
+        opacity="0.85"
+      />
+      {/* Central Core Bead */}
+      <circle cx="0" cy="0" r="1.5" fill="currentColor" opacity="0.9" />
+      {/* Interlacing Strapwork Diagonal Rays */}
+      <line x1="-3" y1="-3" x2="-8" y2="-8" strokeWidth="0.75" opacity="0.6" strokeLinecap="round" />
+      <line x1="3" y1="3" x2="8" y2="8" strokeWidth="0.75" opacity="0.6" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
 export const IslamicGuillocheFrame: React.FC<IslamicGuillocheFrameProps> = ({
   children,
   variant = 'gold',
@@ -45,42 +81,6 @@ export const IslamicGuillocheFrame: React.FC<IslamicGuillocheFrameProps> = ({
       titleBadge: 'bg-slate-100 dark:bg-zinc-800 text-slate-800 dark:text-zinc-200 border-slate-300 dark:border-zinc-700',
     },
   }[variant];
-
-  // Authentic Mathematical Girih 8-Point Interlaced Star & Strapwork Medallion
-  const GirihCornerMedallion = ({ className: cName }: { className: string }) => (
-    <svg
-      viewBox="0 0 40 40"
-      className={`w-8 h-8 absolute pointer-events-none select-none ${cName}`}
-      fill="none"
-      stroke="currentColor"
-    >
-      {/* Outer framing hairlines (0.75px haute-horlogerie style) */}
-      <path d="M 1 36 L 1 1 L 36 1" strokeWidth="0.75" strokeLinecap="round" opacity="0.4" />
-      <path d="M 4 30 L 4 4 L 30 4" strokeWidth="0.75" strokeLinecap="round" opacity="0.6" />
-      <path d="M 7 24 C 7 14, 14 7, 24 7" strokeWidth="0.75" strokeLinecap="round" strokeDasharray="1.5 2" opacity="0.7" />
-
-      {/* Girih 8-Point Interlaced Star Center (X=14, Y=14, R=7) */}
-      <g transform="translate(13, 13)">
-        {/* Square 1 */}
-        <polygon
-          points="-6,-6 6,-6 6,6 -6,6"
-          strokeWidth="0.85"
-          opacity="0.85"
-        />
-        {/* Square 2 (rotated 45 deg) */}
-        <polygon
-          points="0,-8.48 8.48,0 0,8.48 -8.48,0"
-          strokeWidth="0.85"
-          opacity="0.85"
-        />
-        {/* Central Core Bead */}
-        <circle cx="0" cy="0" r="1.5" fill="currentColor" opacity="0.9" />
-        {/* Interlacing Strapwork Diagonal Rays */}
-        <line x1="-3" y1="-3" x2="-8" y2="-8" strokeWidth="0.75" opacity="0.6" strokeLinecap="round" />
-        <line x1="3" y1="3" x2="8" y2="8" strokeWidth="0.75" opacity="0.6" strokeLinecap="round" />
-      </g>
-    </svg>
-  );
 
   return (
     <div

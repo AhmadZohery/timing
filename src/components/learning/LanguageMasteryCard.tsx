@@ -38,6 +38,8 @@ import { speechService } from '../../services/speechService';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { db } from '../../db/db';
+import { getBiologicalDate, upsertDailyLog } from '../../utils/gamification';
 import { LanguageQuizModal } from './LanguageQuizModal';
 import { RootDeconstructorCard } from './RootDeconstructorCard';
 import { LanguageMovesModal, type MoveType } from './LanguageMovesModal';
@@ -302,8 +304,21 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
     setIsQuizOpen(true);
   };
 
-  const handleQuizCompleted = (score: number, total: number) => {
+  const handleQuizCompleted = async (score: number, total: number) => {
     setStats(spacedRepetition.getStats());
+    try {
+      const todayStr = getBiologicalDate();
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          totalPoints: (user.totalPoints || 0) + 20,
+        });
+      }
+      const existingLog = await db.daily_logs.get(todayStr);
+      await upsertDailyLog(todayStr, {
+        pointsEarned: (existingLog?.pointsEarned || 0) + 20,
+      });
+    } catch {}
     if (onRewardToast) {
       onRewardToast(
         isAr

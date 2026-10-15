@@ -1,3 +1,4 @@
+import { MotionConfig } from 'framer-motion';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -48,12 +49,14 @@ if ('serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
-      <LanguageProvider>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
-      </LanguageProvider>
-    </ThemeProvider>
+    <MotionConfig reducedMotion="user">
+      <ThemeProvider>
+        <LanguageProvider>
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </LanguageProvider>
+      </ThemeProvider>
+    </MotionConfig>
   </StrictMode>
 );

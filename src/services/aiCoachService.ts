@@ -44,18 +44,6 @@ export class AiCoachService {
       }
     }
 
-    // Auto-fallback: check if VITE_DEEPSEEK_API_KEY is defined in environment
-    const envDeepseekKey = (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
-    if (envDeepseekKey && typeof envDeepseekKey === 'string' && envDeepseekKey.trim()) {
-      return {
-        provider: 'deepseek',
-        apiKey: envDeepseekKey.trim(),
-        model: 'deepseek-chat',
-        enabled: true,
-        customEndpoint: 'https://api.deepseek.com/chat/completions',
-      };
-    }
-
     return null;
   }
 
@@ -283,7 +271,7 @@ ${context.voiceNotes ? `- خواطر مسجلة بصوته: "${context.voiceNote
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
+              contents: [{ parts: [{ text: taskPrompt }] }],
               generationConfig: {
                 responseMimeType: 'application/json',
                 temperature: 0.2,

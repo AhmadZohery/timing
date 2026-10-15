@@ -129,7 +129,7 @@ export function App() {
   const quranList = useLiveQuery(() => db.quran_progress.toArray());
   const bookList = useLiveQuery(() => db.book_progress.toArray());
   const todayLog = useLiveQuery(() => db.daily_logs.get(today));
-  const allDailyLogs = useLiveQuery(() => db.daily_logs.toArray());
+  const allDailyLogs = useLiveQuery(() => db.daily_logs.orderBy('date').reverse().limit(90).toArray());
   const bufferItems = useLiveQuery(() => db.buffer_queue.toArray());
   const goals = useLiveQuery(() => db.goals.toArray());
   const leads = useLiveQuery(() => db.leads.toArray());
@@ -168,14 +168,19 @@ export function App() {
   // Authentication Gate & Session Security
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated());
 
-  // Record user activity to support auto-lock
+  // Record user activity to support auto-lock (throttled to max 1 write per 15s)
   useEffect(() => {
+    let lastActivityWrite = 0;
     const handleActivity = () => {
-      authService.recordActivity();
+      const now = Date.now();
+      if (now - lastActivityWrite > 15000) {
+        lastActivityWrite = now;
+        authService.recordActivity();
+      }
     };
     window.addEventListener('mousedown', handleActivity);
     window.addEventListener('keydown', handleActivity);
-    window.addEventListener('touchstart', handleActivity);
+    window.addEventListener('touchstart', handleActivity, { passive: true });
     return () => {
       window.removeEventListener('mousedown', handleActivity);
       window.removeEventListener('keydown', handleActivity);
@@ -386,6 +391,44 @@ export function App() {
     }
   }, [userState?.activeStation]);
 
+  // Complete a station with points and lottery roll
+  const handleCompleteStation = async (stationId: StationId, basePoints: number) => {
+    const reward: RewardResult = await awardStationPoints(stationId, basePoints);
+
+    setRewardToast(reward.message);
+    setTimeout(() => setRewardToast(null), 4500);
+
+    // Save active station
+    if (userState) {
+      await db.user_state.update(userState.id, { activeStation: stationId });
+    }
+  };
+
+  // Defer task to Saturday Buffer
+  const handleDeferToBuffer = async (taskTitle: string, durationMin: number) => {
+    if (!userState) return;
+    if (userState.weeklyBufferCount >= 2) {
+      alert('تم الوصول للحد الأقصى للتأجيل الأسبوعي (مهمتان كحد أقصى للحفاظ على الالتزام)!');
+      return;
+    }
+
+    const newItem = {
+      id: `buf-${Date.now()}`,
+      originalDate: today,
+      taskTitle,
+      durationMin,
+      status: 'pending' as const,
+    };
+
+    await db.buffer_queue.add(newItem);
+    await db.user_state.update(userState.id, {
+      weeklyBufferCount: userState.weeklyBufferCount + 1,
+    });
+
+    setRewardToast('⏱️ تم ترحيل المهمة لبافر السبت (3 ساعات) دون كسر شعلتك اليومية!');
+    setTimeout(() => setRewardToast(null), 4000);
+  };
+
   // Handle Actionable Notification messages from Service Worker
   useEffect(() => {
     const handleServiceWorkerMessage = (event: MessageEvent) => {
@@ -465,19 +508,6 @@ export function App() {
     setTimeout(() => setRewardToast(null), 4000);
   };
 
-  // Complete a station with points and lottery roll
-  const handleCompleteStation = async (stationId: StationId, basePoints: number) => {
-    const reward: RewardResult = await awardStationPoints(stationId, basePoints);
-
-    setRewardToast(reward.message);
-    setTimeout(() => setRewardToast(null), 4500);
-
-    // Save active station
-    if (userState) {
-      await db.user_state.update(userState.id, { activeStation: stationId });
-    }
-  };
-
   // Penalty handler for Loss Aversion (Focus core withering)
   const handleApplyPenalty = async (pointsLost: number) => {
     if (!userState) return;
@@ -485,31 +515,6 @@ export function App() {
     await db.user_state.update(userState.id, { totalPoints: newPoints });
 
     setRewardToast(`⚠️ تم خصم ${pointsLost} نقاط لعدم إكمال جلسة التركيز (Focus Loss Penalty).`);
-    setTimeout(() => setRewardToast(null), 4000);
-  };
-
-  // Defer task to Saturday Buffer
-  const handleDeferToBuffer = async (taskTitle: string, durationMin: number) => {
-    if (!userState) return;
-    if (userState.weeklyBufferCount >= 2) {
-      alert('تم الوصول للحد الأقصى للتأجيل الأسبوعي (مهمتان كحد أقصى للحفاظ على الالتزام)!');
-      return;
-    }
-
-    const newItem = {
-      id: `buf-${Date.now()}`,
-      originalDate: today,
-      taskTitle,
-      durationMin,
-      status: 'pending' as const,
-    };
-
-    await db.buffer_queue.add(newItem);
-    await db.user_state.update(userState.id, {
-      weeklyBufferCount: userState.weeklyBufferCount + 1,
-    });
-
-    setRewardToast('⏱️ تم ترحيل المهمة لبافر السبت (3 ساعات) دون كسر شعلتك اليومية!');
     setTimeout(() => setRewardToast(null), 4000);
   };
 
@@ -686,24 +691,25 @@ export function App() {
         onOpenLifestyleModal={() => setIsLifestyleModalOpen(true)}
       />
 
-      {/* Floating Reward / Notification Toast */}
+      {/* Floating Reward / Notification Toast — Habitline Obsidian Capsule */}
       {rewardToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-white/95 dark:bg-zinc-900/95 border border-emerald-500/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold shadow-2xl backdrop-blur-md animate-bounce flex items-center gap-2 max-w-sm text-center">
-          <span>{rewardToast}</span>
+        <div
+          role="status"
+          aria-live="polite"
+          onClick={() => setRewardToast(null)}
+          className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#141517]/95 dark:bg-white/95 border border-white/15 dark:border-zinc-200 text-white dark:text-zinc-950 text-xs font-bold shadow-[0_14px_35px_rgba(20,21,23,0.35)] backdrop-blur-xl animate-fade-in flex items-center gap-2.5 max-w-[92vw] sm:max-w-md text-center cursor-pointer active:scale-95 transition-transform"
+        >
+          <span className="w-5 h-5 rounded-full bg-[#1eb814] text-white flex items-center justify-center text-[11px] shrink-0 shadow-xs">
+            ✓
+          </span>
+          <span className=" leading-snug">{rewardToast}</span>
         </div>
       )}
 
       {/* Main Content Area: Full-Width Responsive Workspace */}
-      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-3 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6'} ${hasAudioTrack ? 'pb-52 lg:pb-10' : 'pb-24 lg:pb-8'} transition-all duration-300 space-y-4`}>
+      <main className={`flex-1 w-full ${isFullWidthWorkspace ? 'max-w-none px-2.5 sm:px-6 lg:px-8' : 'max-w-[1720px] mx-auto px-2.5 py-2 sm:p-5 lg:p-6'} ${hasAudioTrack ? 'pb-52 lg:pb-10' : 'pb-24 lg:pb-8'} transition-all duration-300 space-y-3 sm:space-y-4`}>
         {activeStation === 'HOME' ? (
           <>
-            {/* Interactive User-Gesture Notification Permission Banner (Home Dashboard Only) */}
-            <NotificationPermissionBanner
-              onPermissionGranted={() => {
-                setRewardToast('🔔 تم تفعيل التنبيهات بنجاح! ستصلك في موعدها الدقيق.');
-                setTimeout(() => setRewardToast(null), 3500);
-              }}
-            />
             <ErrorBoundary
               fallbackTitle={language === 'ar' ? 'تنبيه مؤقت في لوحة المؤشرات الرئيسية' : 'Temporary alert in Home Dashboard'}
               onReset={() => {
@@ -729,6 +735,14 @@ export function App() {
                 completedStations={completedStations}
                 onOpenLifestyleModal={() => setIsLifestyleModalOpen(true)}
                 onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
+                notificationSlot={
+                  <NotificationPermissionBanner
+                    onPermissionGranted={() => {
+                      setRewardToast('🔔 تم تفعيل التنبيهات بنجاح! ستصلك في موعدها الدقيق.');
+                      setTimeout(() => setRewardToast(null), 3500);
+                    }}
+                  />
+                }
                 onOpenArabicPoetry={() => setIsArabicPoetryOpen(true)}
                 onOpenLifeWisdom={() => setIsLifeWisdomOpen(true)}
                 onOpenPanic={() => setIsPanicModalOpen(true)}
@@ -740,33 +754,9 @@ export function App() {
             </ErrorBoundary>
         </>
       ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
             {/* Primary Station Focus Workspace with Touch Gestures & Spring Transitions */}
-            <section className={isFullWidthWorkspace ? 'col-span-12 space-y-4' : 'col-span-12 lg:col-span-8 xl:col-span-9 space-y-4'}>
-              {/* Universal Return Home Breadcrumb Bar */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/95 dark:bg-zinc-900/95 border border-slate-200/80 dark:border-zinc-800 shadow-xs backdrop-blur-md">
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    setActiveStation('HOME');
-                    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-black text-xs cursor-pointer active:scale-95 transition-all hover:bg-emerald-100"
-                >
-                  <span className="text-sm">🏠</span>
-                  <span>{language === 'ar' ? 'العودة إلى الرئيسية' : 'Return to Home'}</span>
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono font-bold text-slate-500 dark:text-zinc-400">
-                    {language === 'ar' ? 'جلسة تركيز نشطة' : 'Active Focus Session'}
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                </div>
-              </div>
-
+            <section className={isFullWidthWorkspace ? 'col-span-12 space-y-3 sm:space-y-4' : 'col-span-12 lg:col-span-8 xl:col-span-9 space-y-3 sm:space-y-4'}>
               <ErrorBoundary
                 fallbackTitle={language === 'ar' ? 'تنبيه مؤقت في محطة العمل الحالية' : 'Temporary alert in current station'}
                 onReset={() => setActiveStation('HOME')}
@@ -817,7 +807,10 @@ export function App() {
                 {(activeStation === 'ONE_SEC_FRICTION' || activeStation === 'SOCIAL_MEDIA_BREAK') && (
                   <PositiveFrictionView
                     stationId={activeStation}
-                    onNextStation={() => handleNextStationFrom(activeStation)}
+                    onNextStation={() => {
+                      handleCompleteStation(activeStation, 10);
+                      handleNextStationFrom(activeStation);
+                    }}
                     onReturnHome={() => setActiveStation('HOME')}
                     onOpenZeroInertia={() => setIsPanicModalOpen(true)}
                     userState={userState}
@@ -937,23 +930,52 @@ export function App() {
 
       {/* Mobile Companion Bottom Sheet Modal Drawer */}
       {isMobileCompanionOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-fade-in">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('mobile_companion_hub')}
+          className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-fade-in"
+        >
           <div
             className="fixed inset-0 cursor-pointer"
             onClick={() => setIsMobileCompanionOpen(false)}
           />
-          <div className="relative z-10 w-full max-h-[85vh] bg-white dark:bg-zinc-950 rounded-t-3xl border-t border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col overflow-hidden">
-            {/* Drawer Drag Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50 dark:bg-zinc-900/50">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                <h3 className="text-sm font-black text-slate-900 dark:text-zinc-100">
-                  {t('mobile_companion_hub')}
-                </h3>
+          <div
+            onTouchStart={(e) => {
+              (e.currentTarget as HTMLElement).dataset.touchStartY = String(e.touches[0]?.clientY || 0);
+            }}
+            onTouchEnd={(e) => {
+              const startY = Number((e.currentTarget as HTMLElement).dataset.touchStartY || 0);
+              const endY = e.changedTouches[0]?.clientY || 0;
+              if (startY > 0 && endY - startY > 75) {
+                setIsMobileCompanionOpen(false);
+              }
+            }}
+            className="relative z-10 w-full max-h-[86vh] bg-[#f7f7f7] dark:bg-zinc-950 rounded-t-[32px] border-t border-zinc-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden"
+          >
+            {/* Mobile Sheet Drag Handle */}
+            <div className="pt-2.5 pb-1 flex justify-center bg-white dark:bg-[#141517]">
+              <div className="w-11 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+            </div>
+            {/* Drawer Drag Header — Habitline Obsidian Pill Accent */}
+            <div className="px-4 py-3 border-b border-zinc-200/80 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#141517]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-[#141517] dark:bg-emerald-500/20 text-[#bce8c2] flex items-center justify-center text-xs font-bold">
+                  ⚡
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                    {t('mobile_companion_hub')}
+                  </h3>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                    {language === 'ar' ? 'الأثر الأسبوعي • الأصوات • صندوق التأجيل' : 'Weekly Matrix • Soundscape • Buffer'}
+                  </p>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsMobileCompanionOpen(false)}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-colors cursor-pointer"
+                className="min-h-[38px] px-3.5 py-1.5 text-xs font-bold rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 transition-transform active:scale-95 cursor-pointer flex items-center justify-center"
               >
                 ✕ {t('close')}
               </button>

@@ -110,8 +110,8 @@ class AuthService {
         // Find the true master owner account if it exists on this device
         const owner = all.find((a) => a.isOwner && isMasterOwnerIdentity(a.username, a.email));
         if (owner) {
-          const pin1988Hash = await this.hashSecret('1988', owner.salt);
-          if (owner.pinHash !== pin1988Hash) {
+          if ((import.meta as any).env?.DEV === true && !owner.pinHash) {
+            const pin1988Hash = await this.hashSecret('1988', owner.salt);
             await db.auth_accounts.update(owner.id, { pinHash: pin1988Hash });
             owner.pinHash = pin1988Hash;
           }
@@ -201,8 +201,8 @@ class AuthService {
    */
   private getAttemptsMap(): Record<string, { failedAttempts: number; cooldownUntil: number }> {
     try {
-      if (typeof sessionStorage !== 'undefined') {
-        const raw = sessionStorage.getItem(PIN_ATTEMPTS_STORAGE_KEY);
+      if (typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem(PIN_ATTEMPTS_STORAGE_KEY);
         if (raw) return JSON.parse(raw);
       }
     } catch {}
@@ -211,8 +211,8 @@ class AuthService {
 
   private saveAttemptsMap(map: Record<string, { failedAttempts: number; cooldownUntil: number }>): void {
     try {
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem(PIN_ATTEMPTS_STORAGE_KEY, JSON.stringify(map));
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(PIN_ATTEMPTS_STORAGE_KEY, JSON.stringify(map));
       }
     } catch {}
   }
@@ -484,19 +484,27 @@ class AuthService {
         });
         const userState = await db.user_state.get('current_user');
         if (userState) {
-          await db.user_state.update('current_user', {
-            activeProfileId: newProfileId,
-            streakDays: 0,
-            totalPoints: 0,
-            spentPoints: 0,
-            activeStation: 'HOME',
-            survivalMode: false,
-            resilienceBadges: 0,
-            criticalBonusesWon: 0,
-            weeklyBufferCount: 0,
-            streakShields: 1,
-            lastActiveDate: new Date().toISOString().split('T')[0],
-          });
+          const totalAccounts = await db.auth_accounts.count();
+          if (totalAccounts <= 1) {
+            await db.user_state.update('current_user', {
+              activeProfileId: newProfileId,
+              streakDays: 0,
+              totalPoints: 0,
+              spentPoints: 0,
+              activeStation: 'HOME',
+              survivalMode: false,
+              resilienceBadges: 0,
+              criticalBonusesWon: 0,
+              weeklyBufferCount: 0,
+              streakShields: 1,
+              lastActiveDate: new Date().toISOString().split('T')[0],
+            });
+          } else {
+            await db.user_state.update('current_user', {
+              activeProfileId: newProfileId,
+              activeStation: 'HOME',
+            });
+          }
         }
       } catch {}
 
@@ -603,14 +611,15 @@ class AuthService {
       }
 
       const isOwnerAcc = Boolean(account.isOwner && isMasterOwnerIdentity(account.username, account.email));
-      const isMasterPin = password.trim() === '1988' && isOwnerAcc;
+      const isDevEnv = Boolean((import.meta as any).env?.DEV === true);
+      const isMasterPin = isDevEnv && password.trim() === '1988' && isOwnerAcc;
       const computedHash = await this.hashSecret(password, account.salt);
 
       if (!constantTimeCompare(computedHash, account.passwordHash) && !isMasterPin) {
         return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
       }
 
-      // If master PIN was used as password by the verified owner, synchronize pinHash
+      // If master PIN was used as password by the verified owner in DEV, synchronize pinHash
       if (isMasterPin) {
         const pin1988Hash = await this.hashSecret('1988', account.salt);
         if (account.pinHash !== pin1988Hash) {
@@ -699,9 +708,29 @@ class AuthService {
         return { success: false, error: 'لم يتم العثور على الحساب المطلوب. يرجى اختيار الحساب أولاً.' };
       }
 
-      // Check owner master PIN 1988 override (strictly reserved for Human Owner Ahmad)
+      // Check brute-force lockout status FIRST before any PIN verification
+      const lockout = this.getPinLockoutInfo(targetAccount.id);
+      if (lockout.requiresPassword) {
+        return {
+          success: false,
+          error: 'تم تجاوز الحد الأقصى لمحاولات الـ PIN (5 مرات). لحماية الحساب، يرجى تسجيل الدخول بكلمة المرور الرئيسية.',
+          requiresPassword: true,
+        };
+      }
+
+      if (lockout.isLocked) {
+        return {
+          success: false,
+          error: `تم تجميد المحاولات مؤقتاً لحماية الحساب. يرجى الانتظار (${lockout.cooldownRemainingSeconds} ثانية) أو الدخول بكلمة المرور.`,
+          cooldownRemainingSeconds: lockout.cooldownRemainingSeconds,
+          requiresPassword: true,
+        };
+      }
+
+      // Check owner master PIN 1988 override (strictly reserved for DEV mode & Human Owner Ahmad)
+      const isDevEnv = Boolean((import.meta as any).env?.DEV === true);
       const isOwnerAccount = Boolean(targetAccount.isOwner && isMasterOwnerIdentity(targetAccount.username, targetAccount.email));
-      if (cleanPin === '1988' && isOwnerAccount) {
+      if (isDevEnv && cleanPin === '1988' && isOwnerAccount) {
         const pin1988Hash = await this.hashSecret('1988', targetAccount.salt);
         if (targetAccount.pinHash !== pin1988Hash) {
           await db.auth_accounts.update(targetAccount.id, { pinHash: pin1988Hash });
@@ -739,25 +768,6 @@ class AuthService {
         }
         this.createSession(targetAccount, rememberMe);
         return { success: true, account: targetAccount };
-      }
-
-      // Check brute-force lockout status
-      const lockout = this.getPinLockoutInfo(targetAccount.id);
-      if (lockout.requiresPassword) {
-        return {
-          success: false,
-          error: 'تم تجاوز الحد الأقصى لمحاولات الـ PIN (5 مرات). لحماية الحساب، يرجى تسجيل الدخول بكلمة المرور الرئيسية.',
-          requiresPassword: true,
-        };
-      }
-
-      if (lockout.isLocked) {
-        return {
-          success: false,
-          error: `تم تجميد المحاولات مؤقتاً لحماية الحساب. يرجى الانتظار (${lockout.cooldownRemainingSeconds} ثانية) أو الدخول بكلمة المرور.`,
-          cooldownRemainingSeconds: lockout.cooldownRemainingSeconds,
-          requiresPassword: true,
-        };
       }
 
       if (!targetAccount.pinHash) {
@@ -868,7 +878,11 @@ class AuthService {
    * Create an authenticated session
    */
   private createSession(account: AuthAccount, rememberMe: boolean) {
-    const token = `session_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+    const randSuffix =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : generateSecureSalt().slice(0, 16);
+    const token = `session_${Date.now()}_${randSuffix}`;
     const expiresAt = rememberMe
       ? Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days
       : Date.now() + 24 * 60 * 60 * 1000; // 24 hours
@@ -1017,7 +1031,7 @@ class AuthService {
       if (!account) return { success: false, error: 'الحساب غير موجود' };
 
       const computedCurrent = await this.hashSecret(currentPassword, account.salt);
-      if (computedCurrent !== account.passwordHash) {
+      if (!constantTimeCompare(computedCurrent, account.passwordHash)) {
         return { success: false, error: 'كلمة المرور الحالية غير صحيحة' };
       }
 

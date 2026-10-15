@@ -17,25 +17,27 @@ export async function upsertDailyLog(
   date: string,
   updates: Partial<DailyLog>
 ): Promise<DailyLog> {
-  const existing = await db.daily_logs.get(date);
-  const user = await db.user_state.get('current_user');
-  const survivalMode = user?.survivalMode ?? false;
+  return db.transaction('rw', [db.daily_logs, db.user_state], async () => {
+    const existing = await db.daily_logs.get(date);
+    const user = await db.user_state.get('current_user');
+    const survivalMode = user?.survivalMode ?? false;
 
-  const merged: DailyLog = existing
-    ? { ...existing, ...updates }
-    : {
-        date,
-        completedStations: [],
-        pointsEarned: 0,
-        survivalModeActive: survivalMode,
-        voiceNotes: '',
-        goldenNugget: '',
-        mvdTasksDone: [],
-        ...updates,
-      };
+    const merged: DailyLog = existing
+      ? { ...existing, ...updates }
+      : {
+          date,
+          completedStations: [],
+          pointsEarned: 0,
+          survivalModeActive: survivalMode,
+          voiceNotes: '',
+          goldenNugget: '',
+          mvdTasksDone: [],
+          ...updates,
+        };
 
-  await db.daily_logs.put(merged);
-  return merged;
+    await db.daily_logs.put(merged);
+    return merged;
+  });
 }
 
 // Standard Local Date Formatter (YYYY-MM-DD)
@@ -61,6 +63,54 @@ export function getBiologicalDate(gracePeriodActive = true): string {
     }
   }
   return formatLocalDate(now);
+}
+
+// Compute streak progression, shield consumption/gain, and resilience badges for a biological date
+export function computeStreakProgress(
+  user: UserState,
+  bioDate: string,
+  wonShield = false
+): Pick<UserState, 'streakDays' | 'streakShields' | 'lastActiveDate' | 'resilienceBadges'> {
+  let streakDays = user.streakDays || 0;
+  let streakShields = user.streakShields || 0;
+  let lastActiveDate = user.lastActiveDate || bioDate;
+  let resilienceBadges = user.resilienceBadges || 0;
+
+  if (!user.lastActiveDate || user.streakDays <= 0) {
+    streakDays = 1;
+    lastActiveDate = bioDate;
+  } else {
+    const [ly, lm, ld] = user.lastActiveDate.split('-').map(Number);
+    const [by, bm, bd] = bioDate.split('-').map(Number);
+    const lastActiveMs = Date.UTC(ly, (lm || 1) - 1, ld || 1);
+    const bioDateMs = Date.UTC(by, (bm || 1) - 1, bd || 1);
+    const diffDays = Math.round((bioDateMs - lastActiveMs) / 86400000);
+
+    if (diffDays <= 0) {
+      streakDays = streakDays > 0 ? streakDays : 1;
+      lastActiveDate = bioDate;
+    } else if (diffDays === 1) {
+      streakDays = user.streakDays + 1;
+      lastActiveDate = bioDate;
+    } else if (diffDays === 2 && streakShields > 0) {
+      streakShields -= 1;
+      streakDays = user.streakDays + 1;
+      resilienceBadges += 1;
+      lastActiveDate = bioDate;
+    } else {
+      streakDays = 1;
+      lastActiveDate = bioDate;
+    }
+  }
+
+  streakShields += wonShield ? 1 : 0;
+
+  return {
+    streakDays,
+    streakShields,
+    lastActiveDate,
+    resilienceBadges,
+  };
 }
 
 // 20% Variable Dopamine Lottery
@@ -97,7 +147,7 @@ export function rollDopamineLottery(basePoints: number): RewardResult {
 
 // Trigger celebratory confetti burst
 export function triggerCelebrationConfetti() {
-  confetti({
+  confetti({ disableForReducedMotion: true,
     particleCount: 120,
     spread: 70,
     origin: { y: 0.6 },
@@ -110,37 +160,49 @@ export async function awardStationPoints(
   stationId: StationId,
   basePoints: number
 ): Promise<RewardResult> {
-  const user = await db.user_state.get('current_user');
-  if (!user) return { basePoints, bonusPoints: 0, wonShield: false, message: '' };
-
   const reward = rollDopamineLottery(basePoints);
   const totalEarned = reward.basePoints + reward.bonusPoints;
 
-  const graceActive = user.settings?.fajrGracePeriodActive ?? true;
-  const bioDate = getBiologicalDate(graceActive);
-  const todayLog = await db.daily_logs.get(bioDate);
+  let didAward = false;
+  await db.transaction('rw', [db.user_state, db.daily_logs], async () => {
+    const user = await db.user_state.get('current_user');
+    if (!user) return;
+    didAward = true;
+
+    const graceActive = user.settings?.fajrGracePeriodActive ?? true;
+    const bioDate = getBiologicalDate(graceActive);
+    const todayLog = await db.daily_logs.get(bioDate);
+    const streakUpdates = computeStreakProgress(user, bioDate, reward.wonShield);
+
+    const updatedUserState: UserState = {
+      ...user,
+      ...streakUpdates,
+      totalPoints: user.totalPoints + totalEarned,
+      criticalBonusesWon:
+        reward.bonusPoints > 0 || reward.wonShield
+          ? user.criticalBonusesWon + 1
+          : user.criticalBonusesWon,
+    };
+
+    await db.user_state.put(updatedUserState);
+
+    // Update Daily Log via resilient upsert
+    const completed = new Set(todayLog?.completedStations || []);
+    completed.add(stationId);
+    await upsertDailyLog(bioDate, {
+      completedStations: Array.from(completed),
+      pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
+    });
+  });
+
+  if (!didAward) {
+    return { basePoints, bonusPoints: 0, wonShield: false, message: '' };
+  }
 
   // Sound and Haptics
   soundSynth.playCompletionChime();
   haptic.vibrateSprintCelebration();
   triggerCelebrationConfetti();
-
-  const updatedUserState: UserState = {
-    ...user,
-    totalPoints: user.totalPoints + totalEarned,
-    streakShields: reward.wonShield ? user.streakShields + 1 : user.streakShields,
-    criticalBonusesWon: reward.bonusPoints > 0 || reward.wonShield ? user.criticalBonusesWon + 1 : user.criticalBonusesWon,
-  };
-
-  await db.user_state.put(updatedUserState);
-
-  // Update Daily Log via resilient upsert
-  const completed = new Set(todayLog?.completedStations || []);
-  completed.add(stationId);
-  await upsertDailyLog(bioDate, {
-    completedStations: Array.from(completed),
-    pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
-  });
 
   return reward;
 }
@@ -159,50 +221,59 @@ export async function awardPrayerPoints(
   isFriday = false,
   sunnahDetails?: PrayerSunnahDetails
 ): Promise<RewardResult> {
-  const user = await db.user_state.get('current_user');
-  if (!user) return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
-
-  let basePoints = 20;
-  let prayerTitle = '';
-
   if (status === 'excused') {
-    prayerTitle = 'رخصة صلاة / عذر';
     const reward: RewardResult = {
       basePoints: 20,
       bonusPoints: 0,
       wonShield: false,
       message: '🕊️ رخصة شرعية مقبولة وحماية للشعلة دون أي لوم أو حرج (+20 نقطة) 🛡️',
     };
-    const graceActive = user.settings?.fajrGracePeriodActive ?? true;
-    const bioDate = getBiologicalDate(graceActive);
-    const todayLog = await db.daily_logs.get(bioDate);
+
+    let didAwardExcused = false;
+    await db.transaction('rw', [db.user_state, db.daily_logs], async () => {
+      const user = await db.user_state.get('current_user');
+      if (!user) return;
+      didAwardExcused = true;
+
+      const graceActive = user.settings?.fajrGracePeriodActive ?? true;
+      const bioDate = getBiologicalDate(graceActive);
+      const todayLog = await db.daily_logs.get(bioDate);
+      const streakUpdates = computeStreakProgress(user, bioDate, false);
+
+      const updatedUserState: UserState = {
+        ...user,
+        ...streakUpdates,
+        totalPoints: user.totalPoints + 20,
+      };
+      await db.user_state.put(updatedUserState);
+
+      const currentPrayers = todayLog?.prayers || {};
+      const updatedPrayers = {
+        ...currentPrayers,
+        [prayer]: {
+          status: 'excused' as const,
+          completedAt: new Date().toISOString(),
+          pointsAwarded: 20,
+        },
+      };
+
+      await upsertDailyLog(bioDate, {
+        prayers: updatedPrayers,
+        pointsEarned: (todayLog?.pointsEarned || 0) + 20,
+      });
+    });
+
+    if (!didAwardExcused) {
+      return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
+    }
 
     soundSynth.playCompletionChime();
     haptic.vibrateLight();
-
-    const updatedUserState: UserState = {
-      ...user,
-      totalPoints: user.totalPoints + 20,
-    };
-    await db.user_state.put(updatedUserState);
-
-    const currentPrayers = todayLog?.prayers || {};
-    const updatedPrayers = {
-      ...currentPrayers,
-      [prayer]: {
-        status: 'excused' as const,
-        completedAt: new Date().toISOString(),
-        pointsAwarded: 20,
-      },
-    };
-
-    await upsertDailyLog(bioDate, {
-      prayers: updatedPrayers,
-      pointsEarned: (todayLog?.pointsEarned || 0) + 20,
-    });
-
     return reward;
   }
+
+  let basePoints = 20;
+  let prayerTitle = '';
 
   if (prayer === 'fajr') {
     prayerTitle = 'صلاة الفجر';
@@ -240,55 +311,79 @@ export async function awardPrayerPoints(
 
   const totalEarned = reward.basePoints + reward.bonusPoints;
 
-  const graceActive = user.settings?.fajrGracePeriodActive ?? true;
-  const bioDate = getBiologicalDate(graceActive);
-  const todayLog = await db.daily_logs.get(bioDate);
+  let didAward = false;
+  await db.transaction('rw', [db.user_state, db.daily_logs], async () => {
+    const user = await db.user_state.get('current_user');
+    if (!user) return;
+    didAward = true;
+
+    const graceActive = user.settings?.fajrGracePeriodActive ?? true;
+    const bioDate = getBiologicalDate(graceActive);
+    const todayLog = await db.daily_logs.get(bioDate);
+    const streakUpdates = computeStreakProgress(user, bioDate, reward.wonShield);
+
+    const updatedUserState: UserState = {
+      ...user,
+      ...streakUpdates,
+      totalPoints: user.totalPoints + totalEarned,
+      criticalBonusesWon:
+        reward.bonusPoints > 0 || reward.wonShield
+          ? user.criticalBonusesWon + 1
+          : user.criticalBonusesWon,
+    };
+    await db.user_state.put(updatedUserState);
+
+    // Update Daily Log prayers via resilient upsert
+    const currentPrayers = todayLog?.prayers || {};
+    const updatedPrayers = {
+      ...currentPrayers,
+      [prayer]: {
+        status,
+        completedAt: new Date().toISOString(),
+        pointsAwarded: totalEarned,
+        sunnahPerformed: sunnahDetails?.sunnahPerformed,
+        sunnahQabliyahRakats: sunnahDetails?.qabliyahRakats,
+        sunnahBadiyahRakats: sunnahDetails?.badiyahRakats,
+        witrRakats: sunnahDetails?.witrRakats,
+      },
+    };
+
+    await upsertDailyLog(bioDate, {
+      prayers: updatedPrayers,
+      pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
+    });
+  });
+
+  if (!didAward) {
+    return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
+  }
 
   soundSynth.playCompletionChime();
   haptic.vibrateSprintCelebration();
   triggerCelebrationConfetti();
 
-  const updatedUserState: UserState = {
-    ...user,
-    totalPoints: user.totalPoints + totalEarned,
-    streakShields: reward.wonShield ? user.streakShields + 1 : user.streakShields,
-  };
-  await db.user_state.put(updatedUserState);
-
-  // Update Daily Log prayers via resilient upsert
-  const currentPrayers = todayLog?.prayers || {};
-  const updatedPrayers = {
-    ...currentPrayers,
-    [prayer]: {
-      status,
-      completedAt: new Date().toISOString(),
-      pointsAwarded: totalEarned,
-      sunnahPerformed: sunnahDetails?.sunnahPerformed,
-      sunnahQabliyahRakats: sunnahDetails?.qabliyahRakats,
-      sunnahBadiyahRakats: sunnahDetails?.badiyahRakats,
-      witrRakats: sunnahDetails?.witrRakats,
-    },
-  };
-
-  await upsertDailyLog(bioDate, {
-    prayers: updatedPrayers,
-    pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
-  });
-
   return reward;
 }
 
-// Award points for specific spiritual daily habits (Baqarah, Yasin, Mulk, Kahf, Qiyam, Adhkar)
+// Award points for specific spiritual daily habits (Baqarah, Yasin, Mulk, Kahf, Qiyam, Adhkar, Fasting, Wird)
 export async function awardSpiritualHabitPoints(
-  habitKey: 'baqarah' | 'yasin' | 'mulk' | 'kahf' | 'qiyam' | 'adhkar_morning' | 'adhkar_evening' | 'adhkar_sleep',
+  habitKey:
+    | 'baqarah'
+    | 'yasin'
+    | 'mulk'
+    | 'kahf'
+    | 'qiyam'
+    | 'adhkar_morning'
+    | 'adhkar_evening'
+    | 'adhkar_sleep'
+    | 'fasting'
+    | 'wird',
   title: string
 ): Promise<RewardResult> {
-  const user = await db.user_state.get('current_user');
-  if (!user) return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
-
   let basePoints = 15;
   if (habitKey === 'baqarah') basePoints = 35;
   else if (habitKey === 'qiyam' || habitKey === 'kahf') basePoints = 30;
+  else if (habitKey === 'fasting' || habitKey === 'wird') basePoints = 25;
   else if (habitKey === 'yasin' || habitKey === 'mulk') basePoints = 15;
   else if (habitKey.startsWith('adhkar')) basePoints = 15;
 
@@ -296,43 +391,157 @@ export async function awardSpiritualHabitPoints(
   const totalEarned = reward.basePoints + reward.bonusPoints;
   reward.message = `✨ مبارك! أتممت ${title} بنجاح (+${totalEarned} نقطة)`;
 
-  const graceActive = user.settings?.fajrGracePeriodActive ?? true;
-  const bioDate = getBiologicalDate(graceActive);
-  const todayLog = await db.daily_logs.get(bioDate);
+  let earlyReturnResult: RewardResult | null = null;
+  let didAward = false;
+
+  await db.transaction('rw', [db.user_state, db.daily_logs], async () => {
+    const user = await db.user_state.get('current_user');
+    if (!user) return;
+
+    const graceActive = user.settings?.fajrGracePeriodActive ?? true;
+    const bioDate = getBiologicalDate(graceActive);
+    const todayLog = await db.daily_logs.get(bioDate);
+
+    // Idempotency checks to prevent duplicate XP farming on the same biological day
+    if (habitKey === 'fasting' && todayLog?.fastingDone) {
+      earlyReturnResult = {
+        basePoints: 0,
+        bonusPoints: 0,
+        wonShield: false,
+        message: '✔ تم تسجيل صيام اليوم مسبقاً — تقبل الله طاعتك!',
+      };
+      return;
+    }
+    if (habitKey === 'wird' && todayLog?.quranWirdDone) {
+      earlyReturnResult = {
+        basePoints: 0,
+        bonusPoints: 0,
+        wonShield: false,
+        message: '✔ تم تسجيل ورد اليوم مسبقاً — زادك الله نوراً!',
+      };
+      return;
+    }
+    if (
+      (habitKey === 'baqarah' && todayLog?.baqarahProgress?.completed) ||
+      (habitKey === 'yasin' && todayLog?.surahYasinDone) ||
+      (habitKey === 'mulk' && todayLog?.surahMulkDone) ||
+      (habitKey === 'kahf' && todayLog?.surahKahfDone) ||
+      (habitKey === 'qiyam' && todayLog?.qiyamNightDone) ||
+      (habitKey === 'adhkar_morning' && todayLog?.adhkarMorningDone) ||
+      (habitKey === 'adhkar_evening' && todayLog?.adhkarEveningDone) ||
+      (habitKey === 'adhkar_sleep' && todayLog?.adhkarSleepDone)
+    ) {
+      earlyReturnResult = {
+        basePoints: 0,
+        bonusPoints: 0,
+        wonShield: false,
+        message: `✔ تم تسجيل ${title} اليوم مسبقاً — تقبل الله طاعتك!`,
+      };
+      return;
+    }
+
+    didAward = true;
+    const streakUpdates = computeStreakProgress(user, bioDate, reward.wonShield);
+
+    const updatedUserState: UserState = {
+      ...user,
+      ...streakUpdates,
+      totalPoints: user.totalPoints + totalEarned,
+      criticalBonusesWon:
+        reward.bonusPoints > 0 || reward.wonShield
+          ? user.criticalBonusesWon + 1
+          : user.criticalBonusesWon,
+    };
+    await db.user_state.put(updatedUserState);
+
+    const updates: Partial<DailyLog> = {
+      pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
+    };
+
+    if (habitKey === 'baqarah') {
+      updates.baqarahProgress = { pagesRead: 48, targetPages: 48, completed: true };
+    } else if (habitKey === 'yasin') {
+      updates.surahYasinDone = true;
+    } else if (habitKey === 'mulk') {
+      updates.surahMulkDone = true;
+    } else if (habitKey === 'kahf') {
+      updates.surahKahfDone = true;
+    } else if (habitKey === 'qiyam') {
+      updates.qiyamNightDone = true;
+    } else if (habitKey === 'adhkar_morning') {
+      updates.adhkarMorningDone = true;
+    } else if (habitKey === 'adhkar_evening') {
+      updates.adhkarEveningDone = true;
+    } else if (habitKey === 'adhkar_sleep') {
+      updates.adhkarSleepDone = true;
+    } else if (habitKey === 'fasting') {
+      updates.fastingDone = true;
+    } else if (habitKey === 'wird') {
+      updates.quranWirdDone = true;
+    }
+
+    await upsertDailyLog(bioDate, updates);
+  });
+
+  if (earlyReturnResult) {
+    return earlyReturnResult;
+  }
+  if (!didAward) {
+    return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
+  }
 
   soundSynth.playCompletionChime();
   haptic.vibrateLight();
   triggerCelebrationConfetti();
 
-  const updatedUserState: UserState = {
-    ...user,
-    totalPoints: user.totalPoints + totalEarned,
-  };
-  await db.user_state.put(updatedUserState);
+  return reward;
+}
 
-  const updates: Partial<DailyLog> = {
-    pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
-  };
+// Award general points with atomic UserState, Streak, and DailyLog updates
+export async function awardGeneralPoints(
+  basePoints: number,
+  title: string,
+  dailyLogUpdates?: Partial<DailyLog>
+): Promise<RewardResult> {
+  const reward = rollDopamineLottery(basePoints);
+  const totalEarned = reward.basePoints + reward.bonusPoints;
+  reward.message = `✨ مبارك! ${title} (+${totalEarned} نقطة)`;
 
-  if (habitKey === 'baqarah') {
-    updates.baqarahProgress = { pagesRead: 48, targetPages: 48, completed: true };
-  } else if (habitKey === 'yasin') {
-    updates.surahYasinDone = true;
-  } else if (habitKey === 'mulk') {
-    updates.surahMulkDone = true;
-  } else if (habitKey === 'kahf') {
-    updates.surahKahfDone = true;
-  } else if (habitKey === 'qiyam') {
-    updates.qiyamNightDone = true;
-  } else if (habitKey === 'adhkar_morning') {
-    updates.adhkarMorningDone = true;
-  } else if (habitKey === 'adhkar_evening') {
-    updates.adhkarEveningDone = true;
-  } else if (habitKey === 'adhkar_sleep') {
-    updates.adhkarSleepDone = true;
+  let didAward = false;
+  await db.transaction('rw', [db.user_state, db.daily_logs], async () => {
+    const user = await db.user_state.get('current_user');
+    if (!user) return;
+    didAward = true;
+
+    const graceActive = user.settings?.fajrGracePeriodActive ?? true;
+    const bioDate = getBiologicalDate(graceActive);
+    const todayLog = await db.daily_logs.get(bioDate);
+    const streakUpdates = computeStreakProgress(user, bioDate, reward.wonShield);
+
+    const updatedUserState: UserState = {
+      ...user,
+      ...streakUpdates,
+      totalPoints: user.totalPoints + totalEarned,
+      criticalBonusesWon:
+        reward.bonusPoints > 0 || reward.wonShield
+          ? user.criticalBonusesWon + 1
+          : user.criticalBonusesWon,
+    };
+    await db.user_state.put(updatedUserState);
+
+    await upsertDailyLog(bioDate, {
+      ...dailyLogUpdates,
+      pointsEarned: (todayLog?.pointsEarned || 0) + totalEarned,
+    });
+  });
+
+  if (!didAward) {
+    return { basePoints: 0, bonusPoints: 0, wonShield: false, message: '' };
   }
 
-  await upsertDailyLog(bioDate, updates);
+  soundSynth.playCompletionChime();
+  haptic.vibrateLight();
+  triggerCelebrationConfetti();
 
   return reward;
 }
@@ -354,50 +563,57 @@ export async function redeemReward(
   reward: RealLifeRewardItem,
   note?: string
 ): Promise<RedeemRewardResult> {
-  const user = await db.user_state.get('current_user');
-  if (!user) {
-    return {
-      success: false,
-      message: 'لم يتم العثور على بيانات المستخدم',
-    };
-  }
-
-  const spendable = getSpendablePoints(user);
-  if (spendable < reward.pointsCost) {
-    return {
-      success: false,
-      message: `رصيد نقاطك المتاحة (${spendable} نقطة) لا يكفي لاستبدال هذه المكافأة (${reward.pointsCost} نقطة). واصل إنجازك! 🚀`,
-    };
-  }
-
-  const record: RedeemedRewardRecord = {
-    id: `redeem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    rewardId: reward.id,
-    title: reward.title,
-    pointsSpent: reward.pointsCost,
-    redeemedAt: new Date().toISOString(),
-    category: reward.category,
-    emoji: reward.emoji,
-    note: note?.trim() || undefined,
+  let result: RedeemRewardResult = {
+    success: false,
+    message: 'لم يتم العثور على بيانات المستخدم',
   };
 
-  await db.redeemed_rewards.add(record);
+  await db.transaction('rw', [db.user_state, db.redeemed_rewards], async () => {
+    const user = await db.user_state.get('current_user');
+    if (!user) return;
 
-  const updatedSpent = (user.spentPoints || 0) + reward.pointsCost;
-  await db.user_state.update('current_user', {
-    spentPoints: updatedSpent,
+    const spendable = getSpendablePoints(user);
+    if (spendable < reward.pointsCost) {
+      result = {
+        success: false,
+        message: `رصيد نقاطك المتاحة (${spendable} نقطة) لا يكفي لاستبدال هذه المكافأة (${reward.pointsCost} نقطة). واصل إنجازك! 🚀`,
+      };
+      return;
+    }
+
+    const record: RedeemedRewardRecord = {
+      id: `redeem_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      rewardId: reward.id,
+      title: reward.title,
+      pointsSpent: reward.pointsCost,
+      redeemedAt: new Date().toISOString(),
+      category: reward.category,
+      emoji: reward.emoji,
+      note: note?.trim() || undefined,
+    };
+
+    await db.redeemed_rewards.add(record);
+
+    const updatedSpent = (user.spentPoints || 0) + reward.pointsCost;
+    await db.user_state.update('current_user', {
+      spentPoints: updatedSpent,
+    });
+
+    result = {
+      success: true,
+      message: `🎉 مبارك! تم استبدال "${reward.title}" بنجاح! حان وقت الاستمتاع بها دون أدنى شعور بالذنب!`,
+      record,
+    };
   });
 
-  // Dopamine feedback: Chime, haptic, confetti
-  soundSynth.playCompletionChime();
-  haptic.vibrateSprintCelebration();
-  triggerCelebrationConfetti();
+  if (result.success) {
+    // Dopamine feedback: Chime, haptic, confetti
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+    triggerCelebrationConfetti();
+  }
 
-  return {
-    success: true,
-    message: `🎉 مبارك! تم استبدال "${reward.title}" بنجاح! حان وقت الاستمتاع بها دون أدنى شعور بالذنب!`,
-    record,
-  };
+  return result;
 }
 
 // Add a custom real-life reward to the wishlist

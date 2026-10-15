@@ -275,14 +275,6 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
         setAiProvider(cfg.provider || 'gemini');
         setAiModel(cfg.model || (cfg.provider === 'deepseek' ? 'deepseek-chat' : 'gemini-2.0-flash'));
         setAiEnabled(cfg.enabled ?? true);
-      } else {
-        const envKey = (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
-        if (envKey) {
-          setAiProvider('deepseek');
-          setAiApiKey(envKey);
-          setAiModel('deepseek-chat');
-          setAiEnabled(true);
-        }
       }
     });
   }, []);
@@ -462,7 +454,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
       } else {
         setImportStatus(language === 'ar' ? 'فشل في قراءة ملف النسخ الاحتياطي.' : 'Failed to read backup file.');
       }
-    } catch (_err) {
+    } catch {
       setImportStatus(language === 'ar' ? 'حدث خطأ أثناء تحميل الملف أو كلمة المرور غير مطابقة.' : 'Error loading backup file or wrong password.');
     }
   };
@@ -1326,8 +1318,6 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
               onClick={() => {
                 setAiProvider('deepseek');
                 setAiModel('deepseek-chat');
-                const envKey = (import.meta as any).env?.VITE_DEEPSEEK_API_KEY;
-                if (!aiApiKey && envKey) setAiApiKey(envKey);
               }}
               className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 aiProvider === 'deepseek'

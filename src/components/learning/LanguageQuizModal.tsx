@@ -107,11 +107,38 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
   const currentWordProgress = currentWord ? spacedRepetition.getWordProgress(currentWord.id) : undefined;
   const isLeech = currentWord ? spacedRepetition.isLeechWord(currentWord.id) : false;
 
-  // Dynamic Options Generator based on Quiz Mode
+  // Dynamic Options Generator based on Quiz Mode (deterministic pure selection)
   const { options, correctAnswer } = useMemo(() => {
     if (!currentWord) return { options: [], correctAnswer: '' };
     const lang = currentWord.lang;
     const langWords = VOCABULARY_DATABASE.filter((w) => w.lang === lang);
+    const seed =
+      currentWord.id.split('').reduce((acc, ch, idx) => acc + ch.charCodeAt(0) * (idx + 1), 0) +
+      currentIndex * 17 +
+      activeQuizMode.length * 31;
+
+    const pickDistractors = (pool: string[], count: number): string[] => {
+      if (pool.length <= count) return [...pool];
+      const result: string[] = [];
+      const len = pool.length;
+      for (let i = 0; i < count; i++) {
+        const idx = (seed + i * 7) % len;
+        let candidate = pool[idx];
+        let step = 1;
+        while (result.includes(candidate) && step < len) {
+          candidate = pool[(idx + step) % len];
+          step++;
+        }
+        result.push(candidate);
+      }
+      return result;
+    };
+
+    const rotateOptions = (arr: string[]): string[] => {
+      if (arr.length <= 1) return arr;
+      const offset = seed % arr.length;
+      return [...arr.slice(offset), ...arr.slice(0, offset)];
+    };
 
     if (activeQuizMode === 'reverse_recall' || activeQuizMode === 'cloze_sentence') {
       // Question is Arabic meaning / sentence; options are target words
@@ -120,8 +147,8 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
         .map((w) => w.word)
         .filter((w) => w.toLowerCase() !== correct.toLowerCase());
 
-      const shuffled = [...otherWords].sort(() => 0.5 - Math.random()).slice(0, 3);
-      const combined = [correct, ...shuffled].sort(() => 0.5 - Math.random());
+      const distractors = pickDistractors(otherWords, 3);
+      const combined = rotateOptions([correct, ...distractors]);
       return { options: combined, correctAnswer: correct };
     } else {
       // Standard Multiple Choice or Listening: Question is Foreign word/audio; options are Arabic translations
@@ -139,11 +166,11 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
       ];
 
       const pool = otherTranslations.length >= 3 ? otherTranslations : [...otherTranslations, ...fallbackDistractors];
-      const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, 3);
-      const combined = [correct, ...shuffled].sort(() => 0.5 - Math.random());
+      const distractors = pickDistractors(pool, 3);
+      const combined = rotateOptions([correct, ...distractors]);
       return { options: combined, correctAnswer: correct };
     }
-  }, [currentWord, activeQuizMode]);
+  }, [currentWord, activeQuizMode, currentIndex]);
 
   // Automatically speak word in listening mode
   useEffect(() => {
@@ -203,7 +230,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
       setCurrentIndex((i) => i + 1);
     } else {
       setIsFinished(true);
-      const finalScore = score + (selectedOption === correctAnswer ? 1 : 0);
+      const finalScore = score;
       if (finalScore / effectiveWords.length >= 0.75) {
         soundSynth.playCompletionChime();
         haptic.vibrateSprintCelebration();

@@ -185,32 +185,70 @@ export const MizanMuhasabahCard: React.FC<{
 
   const score = Math.round((checkedIds.length / MUHASABAH_CHECKPOINTS.length) * 100);
 
+  const handleSliderChange = (targetCount: number) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const clamped = Math.max(0, Math.min(MUHASABAH_CHECKPOINTS.length, targetCount));
+    const nextIds = MUHASABAH_CHECKPOINTS.slice(0, clamped).map((c) => c.id);
+    setCheckedIds(nextIds);
+    localStorage.setItem(storageKey, JSON.stringify(nextIds));
+    if (clamped === MUHASABAH_CHECKPOINTS.length && checkedIds.length < MUHASABAH_CHECKPOINTS.length) {
+      soundSynth.playStreakMilestoneChime();
+      haptic.vibrateSprintCelebration();
+      if (onRewardToast) {
+        onRewardToast(
+          isAr
+            ? 'ما شاء الله! اكتمل ميزان المحاسبة اليومي 7/7 (صحيفة بيضاء مشرقة) ✨'
+            : 'SubhanAllah! 7/7 Daily Accountability completed (Pure Ledger) ✨'
+        );
+      }
+    }
+  };
+
+  const getPastelUncheckedSurface = (color: string) => {
+    switch (color) {
+      case 'rose':
+        return 'bg-[#fce2e6]/45 dark:bg-white/[0.04] border-[#fce2e6] dark:border-white/10 hover:bg-[#fce2e6]/80';
+      case 'indigo':
+      case 'purple':
+        return 'bg-[#e2defc]/45 dark:bg-white/[0.04] border-[#e2defc] dark:border-white/10 hover:bg-[#e2defc]/80';
+      case 'amber':
+        return 'bg-[#fde6d8]/45 dark:bg-white/[0.04] border-[#fde6d8] dark:border-white/10 hover:bg-[#fde6d8]/80';
+      default:
+        return 'bg-[#d4f5dc]/40 dark:bg-white/[0.04] border-[#bce8c2] dark:border-white/10 hover:bg-[#d4f5dc]/75';
+    }
+  };
+
   return (
-    <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-[#fbf9f5] via-white to-white dark:from-[#11131a] dark:via-[#0c0d12] dark:to-[#0c0d12] border border-amber-900/15 dark:border-amber-500/20 space-y-4 shadow-sm">
+    <div className="p-4 sm:p-6 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-4 shadow-sm transition-all">
       {/* Header Bar */}
-      <div className="flex items-center justify-between gap-3 border-b border-amber-900/10 dark:border-white/10 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2.5 rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-400">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-3.5">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-[#141517] dark:bg-[#fde6d8] text-[#fde6d8] dark:text-[#141517] shadow-2xs shrink-0">
             <Scale className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono font-black uppercase tracking-wider text-slate-500 dark:text-[#fde6d8]">
                 {isAr ? 'ميزان المحاسبة والمساءلة اليومية' : 'Daily Mizan & Self-Audit'}
               </span>
               <span
-                className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-black border ${
                   score === 100
-                    ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                    ? 'bg-[#bce8c2] text-[#141517] border-[#1eb814]/40'
                     : score >= 70
-                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300'
-                    : 'bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300'
+                    ? 'bg-[#fde6d8] text-[#141517] border-[#ff5500]/25'
+                    : 'bg-[#e2defc] text-[#141517] border-[#5448e8]/20'
                 }`}
               >
                 {checkedIds.length} / {MUHASABAH_CHECKPOINTS.length} ({score}%)
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-zinc-100">
+            <h3
+              dir="rtl"
+              lang="ar"
+              className="tashkeel-text leading-[2.2] text-sm sm:text-base font-bold text-[#141517] dark:text-white"
+            >
               {isAr ? '«حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا»' : 'Account for yourselves before you are judged'}
             </h3>
           </div>
@@ -222,7 +260,7 @@ export const MizanMuhasabahCard: React.FC<{
             soundSynth.playTactileClick();
             setIsExpanded(!isExpanded);
           }}
-          className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
+          className="p-2 rounded-full bg-[#e2defc] hover:brightness-95 text-[#141517] transition-all active:scale-95 cursor-pointer"
         >
           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
@@ -231,25 +269,49 @@ export const MizanMuhasabahCard: React.FC<{
       {isExpanded && (
         <div className="space-y-4 animate-fade-in">
           {/* Classical Quote Banner */}
-          <div className="p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/20 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <p className="font-serif text-amber-950 dark:text-amber-200 leading-relaxed">
+          <div className="p-4 rounded-[26px] bg-[#fde6d8]/65 dark:bg-white/5 border border-[#fde6d8] dark:border-[#fde6d8]/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <p
+              dir="rtl"
+              lang="ar"
+              className="tashkeel-text leading-[2.2] font-quran text-sm sm:text-base text-[#141517] dark:text-[#fde6d8] font-normal flex-1 min-w-[220px]"
+            >
               «حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا، وَزِنُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُوزَنُوا، فَإِنَّهُ أَهْوَنُ عَلَيْكُمْ فِي الْحِسَابِ غَدًا أَنْ تُحَاسَبُوا الْيَوْمَ»
-              <span className="block text-[10px] text-amber-800/70 dark:text-amber-400/70 font-sans mt-0.5">
+              <span className="block text-[10px] text-[#141517]/75 dark:text-[#fde6d8]/80 font-sans font-bold mt-1">
                 — أمير المؤمنين عمر بن الخطاب رضي الله عنه
               </span>
             </p>
-            <div className="text-right">
-              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 block">
-                {score === 100
-                  ? isAr ? '🌟 صحيفة بيضاء مشرقة' : '🌟 Pure Ledger'
-                  : score >= 70
-                  ? isAr ? '🌿 مجاهدة ويقظة نفس' : '🌿 Vigilant Soul'
-                  : isAr ? '🤲 تدارك واستغفار' : '🤲 Seek Forgiveness'}
-              </span>
+            <div className="px-3 py-1.5 rounded-full bg-[#141517] text-[#bce8c2] font-black text-[11px] shrink-0">
+              {score === 100
+                ? isAr ? '🌟 صحيفة بيضاء مشرقة' : '🌟 Pure Ledger'
+                : score >= 70
+                ? isAr ? '🌿 مجاهدة ويقظة نفس' : '🌿 Vigilant Soul'
+                : isAr ? '🤲 تدارك واستغفار' : '🤲 Seek Forgiveness'}
             </div>
           </div>
 
-          {/* 7 Checkpoints Grid */}
+          {/* Interactive Mizan Balance Slider */}
+          <div className="p-3.5 rounded-[22px] bg-[#141517] text-white border border-white/10 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <span className="text-[#bce8c2] flex items-center gap-1.5">
+                <Scale className="w-3.5 h-3.5 text-[#1eb814]" />
+                <span>{isAr ? 'مؤشر كفة الميزان اليومي التفاعلي' : 'Interactive Daily Mizan Scale'}</span>
+              </span>
+              <span className="font-mono font-black px-2 py-0.5 rounded-full bg-[#bce8c2] text-[#141517]">
+                {checkedIds.length} / {MUHASABAH_CHECKPOINTS.length}
+              </span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={MUHASABAH_CHECKPOINTS.length}
+              step={1}
+              value={checkedIds.length}
+              onChange={(e) => handleSliderChange(Number(e.target.value))}
+              className="w-full accent-[#bce8c2] h-2 bg-white/15 rounded-full cursor-pointer"
+            />
+          </div>
+
+          {/* 7 Checkpoints Grid (Habitline Pastel & Obsidian Bento Cards) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {MUHASABAH_CHECKPOINTS.map((item) => {
               const isChecked = checkedIds.includes(item.id);
@@ -259,36 +321,46 @@ export const MizanMuhasabahCard: React.FC<{
                 <div
                   key={item.id}
                   onClick={() => toggleCheck(item.id)}
-                  className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
+                  className={`p-3.5 rounded-[26px] border transition-all cursor-pointer flex items-start gap-3 select-none active:scale-[0.98] ${
                     isChecked
-                      ? 'bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/40 ring-1 ring-emerald-500/20'
-                      : 'bg-white/80 dark:bg-zinc-900/60 border-slate-200/80 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700'
+                      ? 'bg-[#bce8c2] text-[#141517] border-[#1eb814]/40 shadow-xs'
+                      : getPastelUncheckedSurface(item.color)
                   }`}
                 >
                   <div
-                    className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 mt-0.5 text-xs transition-colors ${
+                    className={`w-6 h-6 rounded-xl flex items-center justify-center shrink-0 mt-0.5 text-xs transition-colors ${
                       isChecked
-                        ? 'bg-emerald-600 text-white font-black shadow-xs'
-                        : 'border border-slate-300 dark:border-zinc-700 text-transparent'
+                        ? 'bg-[#141517] text-[#bce8c2] font-black shadow-2xs'
+                        : 'border border-[#141517]/25 dark:border-white/25 bg-white/80 dark:bg-zinc-900 text-transparent'
                     }`}
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3.5 h-3.5 stroke-[2.75]" />
                   </div>
 
                   <div className="space-y-0.5 min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <Icon className={`w-3.5 h-3.5 shrink-0 ${isChecked ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} />
+                      <Icon
+                        className={`w-3.5 h-3.5 shrink-0 ${
+                          isChecked ? 'text-[#1eb814]' : 'text-[#141517] dark:text-[#bce8c2]'
+                        }`}
+                      />
                       <h4
-                        className={`text-xs font-bold truncate ${
+                        className={`text-xs font-black truncate ${
                           isChecked
-                            ? 'text-emerald-900 dark:text-emerald-200'
-                            : 'text-slate-800 dark:text-zinc-200'
+                            ? 'text-[#141517]'
+                            : 'text-[#141517] dark:text-white'
                         }`}
                       >
                         {isAr ? item.titleAr : item.titleEn}
                       </h4>
                     </div>
-                    <p className="text-[10px] text-slate-500 dark:text-zinc-400 leading-snug line-clamp-2">
+                    <p
+                      className={`text-[10px] leading-snug line-clamp-2 font-bold ${
+                        isChecked
+                          ? 'text-[#141517]/80'
+                          : 'text-slate-600 dark:text-zinc-400'
+                      }`}
+                    >
                       {isAr ? item.descAr : item.descEn}
                     </p>
                   </div>
@@ -298,13 +370,13 @@ export const MizanMuhasabahCard: React.FC<{
           </div>
 
           {/* Sadaqah Channels 1-Tap Bar */}
-          <div className="p-3.5 rounded-2xl bg-teal-500/5 dark:bg-teal-950/20 border border-teal-500/20 space-y-2">
+          <div className="p-4 rounded-[26px] bg-[#e2defc]/55 dark:bg-white/[0.04] border border-[#e2defc] dark:border-[#e2defc]/25 space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-teal-900 dark:text-teal-200 flex items-center gap-1.5">
-                <HeartHandshake className="w-3.5 h-3.5 text-teal-600" />
+              <span className="text-[11px] font-black text-[#141517] dark:text-[#e2defc] flex items-center gap-1.5">
+                <HeartHandshake className="w-4 h-4 text-[#5448e8] dark:text-[#bce8c2]" />
                 <span>{isAr ? 'مصارف الصدقة اليومية (سجّل ما تصدقت به بنقرة)' : 'Daily Sadaqah Channels'}</span>
               </span>
-              <span className="text-[10px] font-mono text-teal-600 dark:text-teal-400">
+              <span className="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-[#141517] text-[#bce8c2]">
                 {selectedSadaqah.length} {isAr ? 'مصارف موثقة' : 'logged'}
               </span>
             </div>
@@ -317,13 +389,13 @@ export const MizanMuhasabahCard: React.FC<{
                     key={ch.id}
                     type="button"
                     onClick={() => toggleSadaqah(ch.id, ch.labelAr)}
-                    className={`py-1 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    className={`py-1.5 px-3 rounded-full text-[11px] font-black transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
                       isSelected
-                        ? 'bg-teal-600 text-white shadow-xs font-black'
-                        : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-teal-500/20 hover:border-teal-500/40'
+                        ? 'bg-[#141517] text-[#bce8c2] dark:bg-[#bce8c2] dark:text-[#141517] shadow-xs'
+                        : 'bg-white dark:bg-[#141517] text-[#141517] dark:text-zinc-200 border border-[#5448e8]/20 dark:border-white/15 hover:bg-[#d4f5dc]'
                     }`}
                   >
-                    {isSelected && <Check className="w-3 h-3" />}
+                    {isSelected && <Check className="w-3 h-3 text-[#1eb814] dark:text-[#141517]" />}
                     <span>{isAr ? ch.labelAr : ch.labelEn}</span>
                   </button>
                 );
@@ -335,3 +407,4 @@ export const MizanMuhasabahCard: React.FC<{
     </div>
   );
 };
+

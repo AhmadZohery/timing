@@ -112,7 +112,12 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 bg-white dark:bg-[#12131A] border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isAr ? 'ديوان الحكمة والشعر العربي المشروح' : 'Classical Arabic Poetry & Wisdom Diwan'}
+        className="relative z-10 bg-white dark:bg-[#12131A] border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+      >
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-amber-200/50 dark:border-white/[0.08] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -143,7 +148,8 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
               speechService.stop();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
+            aria-label={isAr ? 'إغلاق' : 'Close'}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -172,7 +178,7 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                   soundSynth.playTactileClick();
                   setSelectedTheme(th.id);
                 }}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
                   selectedTheme === th.id
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 hover:border-amber-400'
@@ -222,8 +228,9 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleSpeak(item)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors"
+                        className="min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
                         title={isAr ? 'استمع للإلقاء الصوتي' : 'Listen'}
+                        aria-label={isAr ? 'استمع للإلقاء الصوتي' : 'Listen'}
                       >
                         <Volume2 className="w-4 h-4" />
                       </button>
@@ -231,8 +238,9 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleCopy(item)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors"
+                        className="min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
                         title={isAr ? 'نسخ البيت' : 'Copy'}
+                        aria-label={isAr ? 'نسخ البيت' : 'Copy'}
                       >
                         {copiedId === item.id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
                       </button>
@@ -240,12 +248,13 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                       <button
                         type="button"
                         onClick={() => toggleBookmark(item.id)}
-                        className={`p-1.5 rounded-lg transition-colors ${
+                        className={`min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center p-1.5 rounded-lg transition-colors cursor-pointer ${
                           isBookmarked
                             ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/40'
                             : 'text-slate-400 hover:text-amber-600'
                         }`}
                         title={isAr ? 'حفظ في المفضلة' : 'Bookmark'}
+                        aria-label={isAr ? 'حفظ في المفضلة' : 'Bookmark'}
                       >
                         <Bookmark className="w-4 h-4 fill-current" />
                       </button>
@@ -254,9 +263,13 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
 
                   {/* Poetic Verse with Tashkeel & Dignified Typography */}
                   <div className="text-center py-4 px-3 bg-gradient-to-b from-amber-50/40 to-transparent dark:from-white/[0.02] rounded-2xl border border-amber-100/60 dark:border-white/[0.04] mb-3 overflow-hidden">
-                    <div className="text-sm xs:text-base sm:text-xl font-bold font-serif text-slate-900 dark:text-amber-100 poetic-calligraphy select-text leading-loose space-y-1">
+                    <div
+                      dir="rtl"
+                      lang="ar"
+                      className="text-sm xs:text-base sm:text-xl font-bold font-serif text-slate-900 dark:text-amber-100 poetic-calligraphy tashkeel-text select-text leading-[2.2] space-y-1"
+                    >
                       {item.verse.split('\n').map((line, lIdx) => (
-                        <p key={lIdx} className="whitespace-nowrap overflow-x-auto scrollbar-none px-1 tracking-wide">
+                        <p key={lIdx} className="whitespace-nowrap overflow-x-auto scrollbar-none px-1">
                           {line}
                         </p>
                       ))}

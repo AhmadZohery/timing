@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   CheckCircle2,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Home,
+  Sliders,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { StationId, UserState } from '../types';
 import { soundSynth } from '../services/soundSynthesizer';
 import { haptic } from '../services/vibrationService';
@@ -26,9 +29,11 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
   onSelectStation,
   isFullWidth = false,
   userState,
+  onOpenLifestyleModal,
 }) => {
   const { language, isRTL } = useTranslation();
   const isAr = language === 'ar';
+  const [isMobilePickerOpen, setIsMobilePickerOpen] = useState(false);
 
   const personaId = userState?.settings?.lifestylePersona || 'builder_exec';
   const overrides = userState?.settings?.stationCustomOverrides;
@@ -62,13 +67,6 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
       ? stationIds[currentIndex - 1]
       : stationIds[stationIds.length - 1];
 
-  const prevMeta =
-    currentStation === 'HOME'
-      ? stations[stations.length - 1]
-      : currentIndex > 0
-      ? stations[currentIndex - 1]
-      : null;
-
   const nextStation: StationId =
     currentStation === 'HOME'
       ? stationIds[0]
@@ -88,6 +86,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
   const handleSelect = (id: StationId) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
+    setIsMobilePickerOpen(false);
     onSelectStation(id);
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -98,155 +97,196 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
   const NextChevron = isRTL ? ChevronLeft : ChevronRight;
 
   return (
-    <nav className="w-full bg-white/95 dark:bg-zinc-950/95 border-b border-slate-200/80 dark:border-zinc-800/80 px-2 sm:px-4 py-2 backdrop-blur-md transition-colors duration-200 block">
-      <div className={`w-full ${isFullWidth ? 'max-w-none px-1 sm:px-4' : 'max-w-[1720px] mx-auto'} transition-all duration-300`}>
+    <nav className={`w-full px-2.5 sm:px-4 py-1.5 transition-colors duration-200 ${currentStation === 'HOME' ? 'hidden lg:block' : 'block'}`}>
+      <div className={`w-full ${isFullWidth ? 'max-w-none' : 'max-w-[1720px] mx-auto'} transition-all duration-300 space-y-2`}>
         {/* ============================================================ */}
-        {/* MOBILE BIDIRECTIONAL STEPPER (< lg)                          */}
-        {/* Allows seamless forward and reverse navigation               */}
+        {/* MOBILE HABITLINE OBSIDIAN BAR (< lg, Active Station View)    */}
+        {/* Tapping center pill opens interactive 8-station switcher!    */}
         {/* ============================================================ */}
-        <div className="lg:hidden space-y-1.5 py-0.5">
-          <div className="flex items-center justify-between gap-1.5">
-            {/* ‹ Previous Station / Back Button */}
-            <button
-              type="button"
-              onClick={() => handleSelect(prevStation)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold shrink-0 active:scale-95 transition-all cursor-pointer hover:bg-slate-200 dark:hover:bg-zinc-700"
-              title={isAr ? 'المحطة السابقة (العكس)' : 'Previous Station'}
-            >
-              <PrevChevron className="w-3.5 h-3.5" />
-              <span>
-                {currentStation === 'HOME'
-                  ? (isAr ? (prevMeta?.shortLabelAr || 'ختام اليوم 🏆') : (prevMeta?.shortLabelEn || 'Finish 🏆'))
-                  : prevStation === 'HOME'
-                  ? (isAr ? 'الرئيسية 🏠' : 'Home')
-                  : (isAr ? (prevMeta?.shortLabelAr || 'السابق') : (prevMeta?.shortLabelEn || 'Prev'))}
-              </span>
-            </button>
+        <div className="lg:hidden rounded-[24px] bg-[#141517] text-white p-2 shadow-lg border border-white/10 flex items-center justify-between gap-2">
+          {/* Start: Return Home Pill */}
+          <button
+            type="button"
+            onClick={() => handleSelect('HOME')}
+            className="h-9 px-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-bold shrink-0 flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer border border-white/10"
+            title={isAr ? 'العودة للرئيسية' : 'Back to Home'}
+          >
+            <Home className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
+            <span>{isAr ? 'الرئيسية' : 'Home'}</span>
+          </button>
 
-            {/* Center: Home / Active Station Title & Step Counter */}
-            <button
-              type="button"
-              onClick={() => handleSelect('HOME')}
-              className="flex-1 flex flex-col items-center min-w-0 text-center px-1 py-0.5 rounded-xl hover:bg-slate-100/60 dark:hover:bg-zinc-800/40 transition-colors cursor-pointer select-none"
-              title={isAr ? 'العودة للرئيسية' : 'Go to Home Dashboard'}
-            >
-              <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 dark:text-zinc-500">
-                {currentStation === 'HOME' ? (
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
-                    <Home className="w-3 h-3 inline" />
-                    <span>{isAr ? 'الرئيسية' : 'Home'}</span>
-                  </span>
-                ) : (
-                  <>
-                    <span>
-                      {isAr
-                        ? `المحطة ${currentIndex + 1} من ${stationIds.length}`
-                        : `Station ${currentIndex + 1} of ${stationIds.length}`}
-                    </span>
-                    {isCompleted && (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
-                        ✓ {isAr ? 'مكتملة' : 'Done'}
-                      </span>
-                    )}
-                  </>
-                )}
-              </div>
-              <div className="text-xs font-black text-slate-900 dark:text-zinc-100 truncate w-full">
-                {currentStation === 'HOME'
-                  ? (isAr ? 'لوحة التحكم والمسار اليومي' : 'Daily LifeOS Roadmap')
-                  : (currentMeta ? (isAr ? currentMeta.titleAr : currentMeta.titleEn) : '')}
-              </div>
-            </button>
+          {/* Center: Clickable Current Station Title + Quick Switcher Drawer Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsMobilePickerOpen(!isMobilePickerOpen);
+            }}
+            className="min-w-0 flex-1 h-9 px-2.5 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center gap-1.5 text-center cursor-pointer active:scale-95 transition-all"
+            title={isAr ? 'اضغط للتنقل السريع بين جميع محطات اليوم' : 'Tap to switch station'}
+          >
+            <span className="text-xs font-bold text-white truncate">
+              {currentMeta ? (isAr ? currentMeta.titleAr : currentMeta.titleEn) : ''}
+            </span>
+            <span className="px-2 py-0.5 rounded-full bg-[#ff5500] text-white text-[10px] font-mono font-bold shrink-0">
+              <bdi dir="ltr">{currentIndex + 1}/{stationIds.length}</bdi>
+            </span>
+            {isCompleted && (
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
+            )}
+            <ChevronDown className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform ${isMobilePickerOpen ? 'rotate-180' : ''}`} />
+          </button>
 
-            {/* Next Station Button › */}
-            <button
-              type="button"
-              onClick={() => handleSelect(nextStation)}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold shrink-0 active:scale-95 transition-all cursor-pointer hover:bg-emerald-100"
-              title={isAr ? 'المحطة التالية' : 'Next Station'}
-            >
-              <span>
-                {nextStation === 'HOME'
-                  ? (isAr ? 'الرئيسية 🏠' : 'Home 🏠')
-                  : nextMeta
-                  ? (isAr ? nextMeta.shortLabelAr : nextMeta.shortLabelEn)
-                  : (isAr ? 'التالي' : 'Next')}
-              </span>
-              <NextChevron className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* Interactive 6-Station Segmented Micro Indicator Track */}
-          <div className="flex items-center justify-center gap-1.5 pt-0.5">
-            {stationIds.map((id, idx) => {
-              const isAct = currentStation === id;
-              const isComp = completedStations.includes(id);
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => handleSelect(id)}
-                  aria-label={`Station ${idx + 1}`}
-                  title={isAr ? stations[idx]?.titleAr : stations[idx]?.titleEn}
-                  className={`relative h-1.5 rounded-full transition-all cursor-pointer before:absolute before:-inset-y-4 before:-inset-x-2.5 before:content-[''] ${
-                    isAct
-                      ? 'w-7 bg-emerald-600 dark:bg-emerald-400 shadow-2xs'
-                      : isComp
-                      ? 'w-3 bg-emerald-500/70 dark:bg-emerald-600/70'
-                      : 'w-2.5 bg-slate-200 dark:bg-zinc-700 hover:bg-slate-300'
-                  }`}
-                />
-              );
-            })}
-          </div>
+          {/* End: Next Station Pill */}
+          <button
+            type="button"
+            onClick={() => handleSelect(nextStation)}
+            className="h-9 px-3.5 rounded-full bg-[#1eb814] hover:bg-[#199d10] text-white text-xs font-bold shrink-0 flex items-center gap-1 active:scale-95 transition-all cursor-pointer shadow-xs"
+            title={isAr ? 'المحطة التالية' : 'Next Station'}
+          >
+            <span className="max-w-[78px] sm:max-w-[110px] truncate">
+              {nextStation === 'HOME'
+                ? isAr
+                  ? 'الختام'
+                  : 'Finish'
+                : nextMeta
+                ? isAr
+                  ? nextMeta.shortLabelAr
+                  : nextMeta.shortLabelEn
+                : isAr
+                ? 'التالي'
+                : 'Next'}
+            </span>
+            <NextChevron className="w-3.5 h-3.5 shrink-0" />
+          </button>
         </div>
 
+        {/* Mobile Expandable All-Stations Quick Jumper Drawer */}
+        <AnimatePresence>
+          {isMobilePickerOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -6 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -6 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:hidden overflow-hidden"
+            >
+              <div className="p-3 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-xl space-y-2.5">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-bold text-zinc-900 dark:text-white">
+                    {isAr ? '🧭 التنقل السريع بين المحطات (٨ محطات)' : '🧭 Quick Station Switcher'}
+                  </span>
+                  {onOpenLifestyleModal && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobilePickerOpen(false);
+                        onOpenLifestyleModal();
+                      }}
+                      className="text-[11px] font-bold text-[#5448e8] dark:text-indigo-400 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sliders className="w-3 h-3" />
+                      <span>{isAr ? 'تخصيص المحطات' : 'Customize'}</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  {stations.map((st, idx) => {
+                    const Icon = st.icon;
+                    const isAct = currentStation === st.id;
+                    const isComp = completedStations.includes(st.id);
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => handleSelect(st.id)}
+                        className={`p-2.5 rounded-2xl border text-start flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
+                          isAct
+                            ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-[#141517] dark:border-white font-bold shadow-xs'
+                            : isComp
+                            ? 'bg-[#bce8c2] dark:bg-emerald-950/60 border-[#1eb814]/40 text-zinc-900 dark:text-emerald-100 font-bold'
+                            : 'bg-zinc-50 dark:bg-zinc-800/70 border-zinc-200/70 dark:border-white/10 text-zinc-700 dark:text-zinc-300'
+                        }`}
+                      >
+                        <div
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs ${
+                            isAct
+                              ? 'bg-[#ff5500] text-white'
+                              : isComp
+                              ? 'bg-[#1eb814] text-white'
+                              : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400'
+                          }`}
+                        >
+                          {isComp ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[11px] font-bold block truncate">
+                            {idx + 1}. {isAr ? st.titleAr : st.titleEn}
+                          </span>
+                          <span className="text-[10px] opacity-75 font-mono block truncate">
+                            {st.shortTime}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ============================================================ */}
-        {/* DESKTOP BIDIRECTIONAL STEPPER & CARDS (lg+)                  */}
-        {/* Full 7 cards with Prev & Next quick step arrows              */}
+        {/* DESKTOP HABITLINE FLOATING PILL BAR (lg+)                    */}
+        {/* Obsidian Active Pill + Mint Completed Pills                  */}
         {/* ============================================================ */}
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-1.5 rounded-[24px] bg-white/95 dark:bg-zinc-900/95 p-1.5 shadow-lg border border-zinc-200/80 dark:border-white/10 backdrop-blur-xl">
           {/* Quick Prev Station Button */}
           <button
             type="button"
             onClick={() => handleSelect(prevStation)}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shrink-0"
-            title={isAr ? 'المحطة السابقة (السهم العكسي)' : 'Previous Station'}
+            className="w-10 h-10 rounded-2xl bg-zinc-100 hover:bg-zinc-200/80 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-95"
+            title={isAr ? 'المحطة السابقة' : 'Previous Station'}
           >
             <PrevChevron className="w-4 h-4" />
           </button>
 
-          {/* 7 Interactive Cards */}
-          <div className="flex-1 grid grid-cols-7 items-center gap-2">
-            {/* 1. Home Sanctuary Card */}
+          {/* Interactive Pill Tabs */}
+          <div className="flex-1 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {/* 1. Home Sanctuary Pill Tab */}
             <button
               type="button"
               onClick={() => handleSelect('HOME')}
-              className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-start transition-all cursor-pointer select-none ${
+              className={`flex-1 min-w-0 flex items-center gap-2.5 px-3 py-2 rounded-2xl text-start transition-all cursor-pointer select-none ${
                 currentStation === 'HOME'
-                  ? 'bg-emerald-50 dark:bg-zinc-800/90 border border-emerald-500/50 text-emerald-900 dark:text-emerald-300 shadow-sm ring-1 ring-emerald-500/20'
-                  : 'bg-transparent border border-transparent text-slate-500 dark:text-zinc-500 hover:bg-slate-100/60 dark:hover:bg-zinc-800/30 hover:text-slate-800 dark:hover:text-zinc-300'
+                  ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-md'
+                  : 'bg-transparent border border-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   currentStation === 'HOME'
-                    ? 'bg-emerald-200/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400'
-                    : 'bg-slate-100 dark:bg-zinc-800/60 text-slate-400 dark:text-zinc-500'
+                    ? 'bg-[#1eb814] text-white'
+                    : 'bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500'
                 }`}
               >
                 <span className="text-base">🏠</span>
               </div>
               <div className="overflow-hidden min-w-0">
-                <span className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-bold block">{isAr ? 'البداية ✦' : 'Start ✦'}</span>
-                <span className="text-xs font-bold truncate block">{isAr ? 'الرئيسية' : 'Home'}</span>
-                <span className="text-[10px] text-slate-400 dark:text-zinc-500 block truncate">
-                  {isAr ? 'نظرة اليوم والتحفيز' : 'Overview'}
+                <span
+                  className={`text-[10px] font-bold block ${
+                    currentStation === 'HOME' ? 'text-emerald-300 dark:text-emerald-600' : 'text-[#1eb814]'
+                  }`}
+                >
+                  {isAr ? 'البداية ✦' : 'Start ✦'}
                 </span>
+                <span className="text-xs font-bold truncate block">{isAr ? 'الرئيسية' : 'Home'}</span>
               </div>
             </button>
 
-            {/* 6 Stations Cards */}
+            {/* Stations Pill Tabs */}
             {stations.map((station, index) => {
               const Icon = station.icon;
               const isActive = currentStation === station.id;
@@ -257,36 +297,34 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
                   key={station.id}
                   type="button"
                   onClick={() => handleSelect(station.id)}
-                  className={`flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-start transition-all cursor-pointer select-none ${
+                  className={`flex-1 min-w-0 flex items-center gap-2.5 px-3 py-2 rounded-2xl text-start transition-all cursor-pointer select-none ${
                     isActive
-                      ? 'bg-emerald-50 dark:bg-zinc-800/90 border border-emerald-500/50 text-emerald-900 dark:text-emerald-300 shadow-sm ring-1 ring-emerald-500/20'
+                      ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-md scale-[1.01]'
                       : isComp
-                      ? 'bg-slate-50 dark:bg-zinc-950/40 border border-slate-200 dark:border-zinc-800/60 text-slate-700 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200 hover:border-slate-300'
-                      : 'bg-transparent border border-transparent text-slate-500 dark:text-zinc-500 hover:bg-slate-100/60 dark:hover:bg-zinc-800/30 hover:text-slate-800 dark:hover:text-zinc-300'
+                      ? 'bg-[#d4f5dc] dark:bg-emerald-950/50 border border-[#1eb814]/40 text-zinc-900 dark:text-emerald-100 hover:bg-[#bce8c2]'
+                      : 'bg-transparent border border-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       isActive
-                        ? 'bg-emerald-200/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400'
+                        ? 'bg-[#ff5500] text-white'
                         : isComp
-                        ? 'bg-emerald-100 dark:bg-zinc-800 text-emerald-700 dark:text-emerald-400'
-                        : 'bg-slate-100 dark:bg-zinc-800/60 text-slate-400 dark:text-zinc-500'
+                        ? 'bg-[#1eb814] text-white'
+                        : 'bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500'
                     }`}
                   >
-                    {isComp ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <Icon className="w-4 h-4" />
-                    )}
+                    {isComp ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
                   </div>
 
                   <div className="overflow-hidden min-w-0">
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono">#{index + 1}</span>
-                      <span className="text-xs font-bold truncate block">{isAr ? station.titleAr : station.titleEn}</span>
+                      <span className="text-[10px] opacity-70 font-mono">#{index + 1}</span>
+                      <span className="text-xs font-bold truncate block">
+                        {isAr ? station.titleAr : station.titleEn}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 dark:text-zinc-500 block truncate">
+                    <span className="text-[10px] opacity-75 block truncate font-mono">
                       {station.shortTime}
                     </span>
                   </div>
@@ -302,7 +340,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
               if (nextStation) handleSelect(nextStation);
               else handleSelect('HOME');
             }}
-            className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 transition-all cursor-pointer shrink-0"
+            className="w-10 h-10 rounded-2xl bg-[#1eb814] hover:bg-[#199d10] text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-xs active:scale-95"
             title={isAr ? 'المحطة التالية ›' : 'Next Station ›'}
           >
             <NextChevron className="w-4 h-4" />

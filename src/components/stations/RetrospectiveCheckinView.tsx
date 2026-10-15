@@ -17,6 +17,8 @@ import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { ZeroTypingChips, ZERO_TYPING_PRESETS } from '../common/ZeroTypingChips';
 import { MizanMuhasabahCard } from '../spiritual/MizanMuhasabahCard';
+import confetti from 'canvas-confetti';
+import { getBiologicalDate, upsertDailyLog, triggerCelebrationConfetti } from '../../utils/gamification';
 
 interface RetrospectiveCheckinViewProps {
   isCompleted: boolean;
@@ -40,10 +42,14 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
   onRewardToast,
 }) => {
   const { t, language } = useTranslation();
+  const isAr = language === 'ar';
 
   const [isRecording, setIsRecording] = useState(false);
   const [voiceText, setVoiceText] = useState(initialVoiceNotes || '');
   const [goldenNuggetText, setGoldenNuggetText] = useState(initialGoldenNugget || '');
+  const [dayRating, setDayRating] = useState<number>(() =>
+    Number(localStorage.getItem('midmar_day_rating') || '4')
+  );
   const [speechSupported, setSpeechSupported] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -87,12 +93,42 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
     soundSynth.playTactileClick();
     haptic.vibrateLight();
     onSaveRetrospective(voiceText, goldenNuggetText);
+    try {
+      const wins = [
+        localStorage.getItem('midmar_win_1') || '',
+        localStorage.getItem('midmar_win_2') || '',
+        localStorage.getItem('midmar_win_3') || '',
+      ].filter(Boolean);
+      const tomorrowAnchor = localStorage.getItem('midmar_tomorrow_anchor') || '';
+      upsertDailyLog(getBiologicalDate(), {
+        voiceNotes: voiceText,
+        goldenNugget: goldenNuggetText,
+        moodRating: dayRating,
+        notes: [wins.length ? `Wins: ${wins.join(' | ')}` : '', tomorrowAnchor ? `Anchor: ${tomorrowAnchor}` : '']
+          .filter(Boolean)
+          .join(' • '),
+      } as any).catch(() => {});
+    } catch {}
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
   };
 
-  const handleComplete = () => {
+  const handleComplete = (e: React.MouseEvent<HTMLButtonElement>) => {
     handleSave();
+    soundSynth.playCompletionChime();
+    haptic.vibrateSprintCelebration();
+    try {
+      const x = e.clientX ? e.clientX / window.innerWidth : 0.5;
+      const y = e.clientY ? e.clientY / window.innerHeight : 0.6;
+      confetti({ disableForReducedMotion: true,
+        particleCount: 55,
+        spread: 65,
+        origin: { x, y },
+        colors: ['#1eb814', '#bce8c2', '#fde6d8', '#e2defc'],
+      });
+    } catch {
+      triggerCelebrationConfetti();
+    }
     onCompleteStation();
   };
 
@@ -100,24 +136,35 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
 
   return (
     <div className="space-y-4 transition-colors duration-200">
-      {/* Header */}
-      <div className="p-4 rounded-xl bg-gradient-to-l from-teal-50 via-white to-white dark:from-teal-950/40 dark:via-zinc-900 dark:to-zinc-900 border border-teal-200 dark:border-teal-500/20 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-400">
-              <Mic className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-[11px] font-mono text-teal-700 dark:text-teal-400 font-semibold uppercase tracking-wider">
-                {t('station_5_badge')}
-              </span>
-              <h2 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-                {t('station_5_heading')}
-              </h2>
-            </div>
+      {/* Habitline Obsidian Station Hero Banner */}
+      <div className="celestial-obsidian-stage rounded-[28px] text-white p-4 sm:p-5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-12 h-12 rounded-2xl bg-habit-green-ink text-white flex items-center justify-center shadow-lg shadow-[#1eb814]/25 shrink-0">
+            <Mic className="w-6 h-6" />
           </div>
-          <span className="text-xs px-2.5 py-1 rounded-full bg-teal-100 dark:bg-teal-500/10 text-teal-800 dark:text-teal-400 font-mono font-bold shadow-2xs">
-            +10
+          <div className="min-w-0 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 text-[10px] font-bold border border-white/10">
+                {isAr ? 'المحطة 7 من 8' : 'Station 7 of 8'}
+              </span>
+              <span className="text-[11px] font-mono text-[#bce8c2] font-bold uppercase tracking-wider tabular-nums">
+                {t('station_5_badge')} • <bdi dir="ltr">21:30 - 22:00</bdi>
+              </span>
+            </div>
+            <h2 className="text-base sm:text-lg font-bold text-white truncate">
+              {t('station_5_heading')}
+            </h2>
+          </div>
+        </div>
+
+        <div className="shrink-0 flex items-center gap-2 self-end sm:self-center">
+          {isCompleted && (
+            <span className="text-xs px-3 py-1.5 rounded-full bg-[#bce8c2] text-zinc-950 font-bold shadow-xs">
+              {isAr ? 'مكتملة اليوم ✓' : 'Completed ✓'}
+            </span>
+          )}
+          <span className="text-xs px-3.5 py-1.5 rounded-full bg-[#bce8c2] text-zinc-950 font-mono font-bold tabular-nums shadow-sm">
+            +10 XP
           </span>
         </div>
       </div>
@@ -127,19 +174,19 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
 
       {/* Responsive 2-Column Grid for Retrospective Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        {/* Left Column: Voice Journal & Golden Nugget */}
+        {/* Left Column: Voice Journal (Soft Lavender) & Golden Nugget (Soft Amber) */}
         <div className="lg:col-span-6 space-y-4">
-          {/* Voice-to-Text Card */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between">
+          {/* Voice-to-Text Card — Habitline Soft Lavender Surface */}
+          <div className="bento-3d-lavender p-5 sm:p-6 rounded-[28px] border border-white/50 dark:border-indigo-500/25 space-y-4">
+            <div className="flex items-center justify-between gap-3">
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
+                <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-1.5 flex-wrap">
                   <span>{t('voice_question')}</span>
-                  <span className="text-[11px] font-normal text-slate-500 dark:text-zinc-400">
+                  <span className="text-[11px] font-medium text-indigo-900 dark:text-indigo-300">
                     {t('voice_subtext')}
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-zinc-400">
+                <p className="text-xs text-zinc-700 dark:text-zinc-300">
                   {t('voice_desc')}
                 </p>
               </div>
@@ -147,10 +194,10 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               {/* Voice Record Button */}
               <button
                 onClick={handleToggleVoice}
-                className={`p-3.5 rounded-2xl transition-all cursor-pointer shadow-md tap-spring active:scale-90 ${
+                className={`p-3.5 rounded-2xl transition-all cursor-pointer shadow-md tap-spring active:scale-90 shrink-0 ${
                   isRecording
                     ? 'bg-rose-500 text-white animate-pulse shadow-rose-500/30 ring-4 ring-rose-500/20'
-                    : 'bg-gradient-to-tr from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white shadow-teal-600/25 border border-white/20'
+                    : 'bg-[#5448e8] hover:bg-[#4538d8] text-white shadow-[#5448e8]/25'
                 }`}
                 title={isRecording ? 'Stop Recording' : 'Start Voice Recording'}
               >
@@ -160,20 +207,20 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
 
             {/* Status indicator with animated audio waves */}
             {isRecording && (
-              <div className="p-3 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 flex items-center justify-between gap-3 animate-fade-in">
+              <div className="p-3.5 rounded-[20px] bg-[#fce2e6] dark:bg-rose-950/45 border border-rose-400/40 flex items-center justify-between gap-3 animate-fade-in">
                 <div className="flex items-center gap-2.5">
                   <div className="flex items-end gap-1 h-5">
-                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.6s_infinite_100ms] h-3" />
-                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.8s_infinite_200ms] h-5" />
-                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.5s_infinite_300ms] h-4" />
-                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.7s_infinite_150ms] h-2" />
-                    <span className="w-1 bg-rose-500 rounded-full animate-[bounce_0.9s_infinite_250ms] h-5" />
+                    <span className="w-1 bg-rose-600 rounded-full animate-[bounce_0.6s_infinite_100ms] h-3" />
+                    <span className="w-1 bg-rose-600 rounded-full animate-[bounce_0.8s_infinite_200ms] h-5" />
+                    <span className="w-1 bg-rose-600 rounded-full animate-[bounce_0.5s_infinite_300ms] h-4" />
+                    <span className="w-1 bg-rose-600 rounded-full animate-[bounce_0.7s_infinite_150ms] h-2" />
+                    <span className="w-1 bg-rose-600 rounded-full animate-[bounce_0.9s_infinite_250ms] h-5" />
                   </div>
-                  <span className="text-xs text-rose-700 dark:text-rose-300 font-bold">
+                  <span className="text-xs text-rose-950 dark:text-rose-200 font-bold">
                     {language === 'ar' ? 'جاري الاستماع وتفريغ الصوت فورا...' : 'Listening actively & transcribing...'}
                   </span>
                 </div>
-                <span className="text-[11px] font-mono text-rose-600 dark:text-rose-400 font-black">
+                <span className="text-[11px] font-mono text-rose-800 dark:text-rose-300 font-bold tabular-nums">
                   🎙️ {voiceText.trim() ? voiceText.trim().split(/\s+/).length : 0} {language === 'ar' ? 'كلمة' : 'words'}
                 </span>
               </div>
@@ -181,7 +228,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
 
             {/* Voice Error Banner */}
             {voiceError && (
-              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs font-medium animate-fade-in">
+              <div className="p-3 rounded-[18px] bg-[#fde6d8] dark:bg-amber-950/45 border border-amber-400/35 text-amber-950 dark:text-amber-200 text-xs font-medium animate-fade-in">
                 ⚠️ {voiceError}
               </div>
             )}
@@ -192,13 +239,13 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               placeholder={t('voice_placeholder')}
               value={voiceText}
               onChange={(e) => setVoiceText(e.target.value)}
-              className="w-full p-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-teal-500 leading-relaxed resize-none shadow-2xs"
+              className="w-full p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-indigo-400/25 dark:border-zinc-700 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-[#5448e8] leading-relaxed resize-none shadow-2xs"
             />
 
             {/* Live Words & 1-Tap Extract to Golden Nugget */}
             {voiceText.trim().length > 0 && (
               <div className="flex items-center justify-between gap-2 pt-0.5">
-                <span className="text-[10px] text-slate-400 font-mono">
+                <span className="text-[10px] text-zinc-600 dark:text-zinc-400 font-mono tabular-nums">
                   {voiceText.trim().split(/\s+/).length} {language === 'ar' ? 'كلمة مفرغة' : 'words transcribed'}
                 </span>
                 <button
@@ -213,7 +260,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                       onRewardToast(language === 'ar' ? '💡 تم استخراج فكرة اليوم الذهبية من حديثك الصوتي!' : 'Extracted golden nugget from your voice!');
                     }
                   }}
-                  className="text-[11px] font-bold text-teal-700 dark:text-teal-300 hover:underline cursor-pointer flex items-center gap-1"
+                  className="text-[11px] font-bold text-[#5448e8] dark:text-indigo-300 hover:underline cursor-pointer flex items-center gap-1"
                 >
                   <span>💡</span>
                   <span>{language === 'ar' ? 'استخراج كفكرة ذهبية لليوم' : 'Extract to Golden Nugget'}</span>
@@ -229,17 +276,17 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
             />
           </div>
 
-          {/* One Golden Nugget Field */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-md bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400">
+          {/* One Golden Nugget Field — Habitline Soft Amber Surface */}
+          <div className="bento-3d-amber p-5 sm:p-6 rounded-[28px] border border-white/50 dark:border-amber-500/25 space-y-3.5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-habit-flame-ink text-white flex items-center justify-center shadow-xs shrink-0">
                 <Lightbulb className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-zinc-100">
+                <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-zinc-100">
                   {t('golden_nugget_title')}
                 </h3>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                <p className="text-[11px] text-zinc-700 dark:text-zinc-300">
                   {t('golden_nugget_desc')}
                 </p>
               </div>
@@ -250,7 +297,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               placeholder={t('golden_nugget_placeholder')}
               value={goldenNuggetText}
               onChange={(e) => setGoldenNuggetText(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-amber-900 dark:text-amber-200 placeholder:text-slate-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 font-medium shadow-2xs"
+              className="w-full px-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 border border-amber-400/30 dark:border-zinc-700 text-xs text-zinc-950 dark:text-amber-200 placeholder:text-zinc-400 focus:outline-none focus:border-[#ff5500] font-medium shadow-2xs"
             />
 
             {/* Zero-Typing Chips for Golden Nugget */}
@@ -261,15 +308,17 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
           </div>
         </div>
 
-        {/* Right Column: 3 Micro-Wins + Rating + Ivy Lee Tomorrow Anchor */}
+        {/* Right Column: 3 Micro-Wins (Soft Mint) + Ivy Lee Tomorrow Anchor (Crisp White) + Rating */}
         <div className="lg:col-span-6 space-y-4">
-          {/* 3 Daily Micro-Wins */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-xs">
-            <h3 className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          {/* 3 Daily Micro-Wins — Habitline Soft Mint Surface */}
+          <div className="bento-3d-mint p-5 sm:p-6 rounded-[28px] border border-white/50 dark:border-emerald-500/25 space-y-3.5">
+            <h3 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-habit-green-ink text-white flex items-center justify-center shadow-2xs">
+                <CheckCircle className="w-4 h-4" />
+              </div>
               <span>{t('daily_wins_title')}</span>
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {[1, 2, 3].map((num) => (
                 <input
                   key={num}
@@ -278,7 +327,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                   placeholder={(t as any)[`win_${num}_placeholder`] || `Win ${num}...`}
                   defaultValue={localStorage.getItem(`midmar_win_${num}`) || ''}
                   onChange={(e) => localStorage.setItem(`midmar_win_${num}`, e.target.value)}
-                  className="w-full py-2 px-3 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 focus:outline-hidden focus:border-emerald-500"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-white dark:bg-zinc-900 border border-[#1eb814]/25 dark:border-zinc-700 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-[#1eb814]"
                 />
               ))}
             </div>
@@ -301,14 +350,16 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
             />
           </div>
 
-          {/* Tomorrow Morning Non-Negotiable Anchor Task (Ivy Lee Method) */}
-          <div className="p-5 rounded-2xl bg-gradient-to-r from-teal-50/80 to-emerald-50/70 dark:from-teal-950/20 dark:to-emerald-950/20 border border-teal-200 dark:border-teal-800/40 space-y-2.5 shadow-xs">
+          {/* Tomorrow Morning Non-Negotiable Anchor Task (Ivy Lee Method) — Crisp White Bento */}
+          <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-3 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-teal-900 dark:text-teal-300 flex items-center gap-1.5">
-                <Anchor className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <h3 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#141517] dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center shadow-2xs">
+                  <Anchor className="w-4 h-4" />
+                </div>
                 <span>{t('tomorrow_anchor_title')}</span>
               </h3>
-              <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-relaxed">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
                 {t('tomorrow_anchor_desc')}
               </p>
             </div>
@@ -318,7 +369,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
               placeholder={t('tomorrow_anchor_placeholder')}
               defaultValue={localStorage.getItem('midmar_tomorrow_anchor') || ''}
               onChange={(e) => localStorage.setItem('midmar_tomorrow_anchor', e.target.value)}
-              className="w-full py-2.5 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-teal-300 dark:border-teal-800 text-xs text-slate-900 dark:text-zinc-100 font-semibold focus:outline-hidden focus:border-teal-500 shadow-2xs"
+              className="w-full py-3 px-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-900 dark:text-zinc-100 font-bold focus:outline-hidden focus:border-[#1eb814] shadow-2xs"
             />
 
             {/* Zero-Typing Chips for Tomorrow Anchor */}
@@ -332,28 +383,32 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
             />
           </div>
 
-          {/* Day Rating (1 to 5 Stars) */}
-          <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
-            <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+          {/* Day Rating (1 to 5 Stars) — Habitline Soft Amber */}
+          <div className="pride-golden-ticket p-4 sm:p-5 rounded-[28px] flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">
               {t('day_rating_title')}
             </span>
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((star) => {
-                const currentRating = Number(localStorage.getItem('midmar_day_rating') || '4');
                 return (
                   <button
                     key={star}
+                    type="button"
+                    aria-label={`${star}/5`}
+                    aria-pressed={star <= dayRating}
                     onClick={() => {
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();
+                      setDayRating(star);
                       localStorage.setItem('midmar_day_rating', String(star));
+                      upsertDailyLog(getBiologicalDate(), { moodRating: star } as any).catch(() => {});
                       setIsSaved(true);
                       setTimeout(() => setIsSaved(false), 1500);
                     }}
-                    className={`tap-spring p-2 sm:p-2.5 rounded-xl transition-all active:scale-88 cursor-pointer ${
-                      star <= currentRating
-                        ? 'text-amber-500 bg-amber-500/15 dark:bg-amber-500/20 shadow-xs'
-                        : 'text-slate-300 dark:text-zinc-700 hover:text-amber-400'
+                    className={`min-h-[44px] min-w-[44px] tap-spring p-2 sm:p-2.5 rounded-2xl transition-all active:scale-88 cursor-pointer flex items-center justify-center ${
+                      star <= dayRating
+                        ? 'text-[#ff5500] bg-white dark:bg-zinc-900 shadow-xs'
+                        : 'text-amber-900/55 dark:text-amber-200/50 hover:text-[#ff5500]'
                     }`}
                   >
                     <Star className="w-5 h-5 fill-current" />
@@ -365,17 +420,17 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
         </div>
       </div>
 
-      {/* Save & Complete Actions */}
-      <div className="p-4 rounded-xl bg-white dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 flex items-center justify-between gap-3 shadow-xs">
+      {/* Save & Complete Actions — Habitline Pill CTA */}
+      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
         <button
           onClick={handleSave}
-          className="tap-spring py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 font-medium text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+          className="tap-spring py-2.5 px-5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 self-start sm:self-center"
         >
           <Save className="w-4 h-4" />
           <span>{isSaved ? 'تم الحفظ ✔' : t('save_draft')}</span>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-end sm:self-center">
           {onOpenEvaluation && (
             <button
               type="button"
@@ -384,10 +439,10 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                 haptic.vibrateLight();
                 onOpenEvaluation();
               }}
-              className="tap-spring py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+              className="tap-spring py-2.5 px-4 rounded-full bg-[#fde6d8] hover:bg-[#fbd5be] dark:bg-amber-950/45 text-zinc-950 dark:text-amber-200 border border-amber-400/35 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
               title={language === 'ar' ? 'عرض تقرير وتقييم اليوم والأسبوع' : 'View Evaluation Report'}
             >
-              <Trophy className="w-4 h-4 text-amber-600" />
+              <Trophy className="w-4 h-4 text-[#ff5500]" />
               <span className="hidden sm:inline">{language === 'ar' ? 'تقرير وتقييم اليوم' : 'Evaluation Report'}</span>
             </button>
           )}
@@ -395,10 +450,10 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
           {!isCompleted ? (
             <button
               onClick={handleComplete}
-              className="tap-spring py-2.5 px-5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-teal-500/20 active:scale-95 cursor-pointer"
+              className="tap-spring py-3 px-6 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-[#1eb814]/25 active:scale-95 cursor-pointer"
             >
               <CheckCircle className="w-4 h-4" />
-              <span>{t('finish_day_reward')} (+10)</span>
+              <span>{t('finish_day_reward')} (+10 XP)</span>
             </button>
           ) : (
             <button
@@ -407,7 +462,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
                 haptic.vibrateLight();
                 onNextStation();
               }}
-              className="tap-spring py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-zinc-100 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+              className="tap-spring py-3 px-6 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 font-bold text-xs flex items-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer"
             >
               <span>{t('station_6_title')}</span>
               <ArrowIcon className="w-4 h-4" />

@@ -183,7 +183,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
     e.preventDefault();
     setErrorMsg(null);
 
-    if (isPinMode && lockoutCooldown > 0 && loginPin.trim() !== '1988') {
+    if (isPinMode && lockoutCooldown > 0) {
       setErrorMsg(
         isAr
           ? `يرجى الانتظار (${lockoutCooldown} ثانية) قبل المحاولة مجدداً أو الدخول بكلمة المرور.`
@@ -679,9 +679,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
                         : `Enter Quick PIN for (${selectedAccount?.displayName || loginUsername}):`}
                     </label>
                     <p className="text-[10px] text-amber-400 font-mono">
-                      {selectedAccount?.isOwner && isMasterOwnerIdentity(selectedAccount.username, selectedAccount.email)
-                        ? (isAr ? '🔑 رمز الدخول السريع للمالك: 1988' : '🔑 Master Owner Quick PIN: 1988')
-                        : (isAr ? '🔒 مشفر بـ Salt مستقل ومحمي ضد التخمين' : '🔒 Scoped cryptographic PIN')}
+                      {isAr ? '🔒 مشفر بـ Salt مستقل ومحمي ضد التخمين' : '🔒 Scoped cryptographic PIN'}
                     </p>
                   </div>
 

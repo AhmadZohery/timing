@@ -5,7 +5,24 @@
  */
 
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import process from 'node:process';
+
+function scanSrcForLeakedSecrets(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      scanSrcForLeakedSecrets(fullPath);
+    } else if (/\.(ts|tsx|js|jsx|mjs)$/.test(entry.name)) {
+      const content = fs.readFileSync(fullPath, 'utf-8');
+      if (content.includes('VITE_DEEPSEEK_API_KEY') || content.includes('VITE_GEMINI_API_KEY')) {
+        throw new Error(`Leaked frontend secret reference found in ${fullPath}`);
+      }
+    }
+  }
+}
 
 const steps = [
   { name: '1. Canonical State Compile', cmd: 'node scripts/state.mjs compile' },
@@ -15,6 +32,7 @@ const steps = [
   { name: '5. Production Bundle Build (Vite)', cmd: 'npm run build' },
   { name: '6. Agent OS Evaluation Suite', cmd: 'node evals/run-evals.mjs' },
   { name: '7. Security Pen Test & Cryptographic Timing Gate', cmd: 'node evals/security-pen-test.mjs' },
+  { name: '8. Client Bundle Secret Leak Audit (src/)', fn: () => scanSrcForLeakedSecrets(path.resolve('src')) },
 ];
 
 console.log('================================================================');
@@ -27,12 +45,17 @@ for (const step of steps) {
   process.stdout.write(`⏳ Running [${step.name}]... `);
   const startTime = Date.now();
   try {
-    execSync(step.cmd, { stdio: 'pipe', encoding: 'utf-8' });
+    if (step.fn) {
+      step.fn();
+    } else {
+      execSync(step.cmd, { stdio: 'pipe', encoding: 'utf-8' });
+    }
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(`✅ PASSED (${duration}s)`);
   } catch (err) {
     console.log(`❌ FAILED`);
     console.error(`\nError in step: ${step.name}`);
+    if (err.message) console.error(err.message);
     if (err.stdout) console.error(err.stdout.toString());
     if (err.stderr) console.error(err.stderr.toString());
     failed = true;

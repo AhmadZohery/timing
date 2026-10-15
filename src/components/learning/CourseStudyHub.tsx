@@ -45,6 +45,7 @@ import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { speechService } from '../../services/speechService';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { upsertDailyLog } from '../../utils/gamification';
 
 interface CourseStudyHubProps {
   onRewardToast?: (msg: string) => void;
@@ -472,6 +473,21 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
     const updated = recordDailyCourseProgress(activeCourse, 1, todayStr, focusNote);
     await db.study_courses.put(updated);
     setFocusNote('');
+
+    try {
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          totalPoints: (user.totalPoints || 0) + 25,
+        });
+      }
+      const existingLog = await db.daily_logs.get(todayStr);
+      await upsertDailyLog(todayStr, {
+        pointsEarned: (existingLog?.pointsEarned || 0) + 25,
+        totalFocusMinutes: (existingLog?.totalFocusMinutes || 0) + focusDurationMin,
+        focusSessionsCount: (existingLog?.focusSessionsCount || 0) + 1,
+      });
+    } catch {}
 
     if (onRewardToast) {
       onRewardToast(

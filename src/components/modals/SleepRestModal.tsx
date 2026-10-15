@@ -167,6 +167,30 @@ export const SleepRestModal: React.FC<SleepRestModalProps> = ({
     }
   }, [syncFajr, todayTimes.fajr]);
 
+  const handleCompleteNap = async () => {
+    const todayStr = getBiologicalDate(userState?.settings?.fajrGracePeriodActive ?? true);
+    try {
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          totalPoints: (user.totalPoints || 0) + 10,
+        });
+      }
+      const existingLog = await db.daily_logs.get(todayStr);
+      await upsertDailyLog(todayStr, {
+        powerNapDone: true,
+        pointsEarned: (existingLog?.pointsEarned || 0) + 10,
+      });
+    } catch {
+      await upsertDailyLog(todayStr, {
+        powerNapDone: true,
+      });
+    }
+    if (onRewardToast) {
+      onRewardToast('☕ هنيئاً لك القيلولة! استعدت طاقتك الذهنية بالكامل (+10 نقاط)');
+    }
+  };
+
   // Nap timer effect
   useEffect(() => {
     let interval: any;
@@ -315,23 +339,28 @@ export const SleepRestModal: React.FC<SleepRestModalProps> = ({
     haptic.vibrateLight();
 
     const todayStr = getBiologicalDate(userState?.settings?.fajrGracePeriodActive ?? true);
-    await upsertDailyLog(todayStr, {
-      sleepHours: hours,
-      sleepQuality: quality,
-    });
+    try {
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          totalPoints: (user.totalPoints || 0) + 5,
+        });
+      }
+      const existingLog = await db.daily_logs.get(todayStr);
+      await upsertDailyLog(todayStr, {
+        sleepHours: hours,
+        sleepQuality: quality,
+        pointsEarned: (existingLog?.pointsEarned || 0) + 5,
+      });
+    } catch {
+      await upsertDailyLog(todayStr, {
+        sleepHours: hours,
+        sleepQuality: quality,
+      });
+    }
 
     if (onRewardToast) {
       onRewardToast('✨ تم تسجيل ساعات وجودة النوم بنجاح (+5 نقاط استشفاء)!');
-    }
-  };
-
-  const handleCompleteNap = async () => {
-    const todayStr = getBiologicalDate(userState?.settings?.fajrGracePeriodActive ?? true);
-    await upsertDailyLog(todayStr, {
-      powerNapDone: true,
-    });
-    if (onRewardToast) {
-      onRewardToast('☕ هنيئاً لك القيلولة! استعدت طاقتك الذهنية بالكامل (+10 نقاط)');
     }
   };
 

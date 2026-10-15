@@ -260,7 +260,10 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-amber-900/40 shadow-2xl flex flex-col overflow-hidden text-right cursor-default animate-scale-in"
+        role="dialog"
+        aria-modal="true"
+        aria-label="أذكار الصباح والمساء"
+        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-amber-900/40 shadow-2xl flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -277,14 +280,14 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                <h3 dir="rtl" lang="ar" className="text-base sm:text-lg font-black text-slate-900 dark:text-white tashkeel-text">
                   {timeMode === 'morning' ? 'أَذْكَارُ الصَّبَاحِ الْمُبَارَكَةُ' : 'أَذْكَارُ الْمَسَاءِ وَحِصْنُ الْمُسْلِمِ'}
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300">
                   {completedCount}/{filteredAdhkar.length} مكتمل
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p dir="rtl" lang="ar" className="text-[11px] text-slate-500 dark:text-slate-400 tashkeel-text">
                 {timeMode === 'morning'
                   ? '«مَنْ قَالَهَا حِينَ يُصْبِحُ أُجِيرَ مِنَ الْجِنِّ حَتَّى يُمْسِيَ»'
                   : '«مَنْ قَالَهَا حِينَ يُمْسِي كَانَ فِي حِفْظِ اللَّهِ حَتَّى يُصْبِحَ»'}
@@ -301,12 +304,13 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                   soundSynth.playTactileClick();
                   setTimeMode('morning');
                 }}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   timeMode === 'morning'
                     ? 'bg-amber-500 text-slate-950 shadow-xs'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
                 title="أذكار الصباح"
+                aria-label="أذكار الصباح"
               >
                 <Sun className="w-4 h-4" />
               </button>
@@ -316,12 +320,13 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                   soundSynth.playTactileClick();
                   setTimeMode('evening');
                 }}
-                className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   timeMode === 'evening'
                     ? 'bg-indigo-600 text-white shadow-xs'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
                 title="أذكار المساء"
+                aria-label="أذكار المساء"
               >
                 <Moon className="w-4 h-4" />
               </button>
@@ -331,7 +336,8 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="إغلاق"
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -348,7 +354,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                 soundSynth.playTactileClick();
                 setViewMode('concise');
               }}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`min-h-[38px] px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'concise'
                   ? 'bg-amber-500 text-slate-950 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -364,7 +370,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                 soundSynth.playTactileClick();
                 setViewMode('full');
               }}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`min-h-[38px] px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'full'
                   ? 'bg-indigo-600 text-white shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -393,10 +399,10 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
             return (
               <div
                 key={item.id}
-                className={`p-3.5 rounded-2xl border transition-all text-right space-y-2 ${
+                className={`p-3.5 rounded-2xl border transition-all text-start space-y-2 ${
                   isItemDone
                     ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-100'
-                    : 'bg-white dark:bg-zinc-850 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-2xs'
+                    : 'bg-white dark:bg-zinc-900/90 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-2xs'
                 }`}
               >
                 {/* Title & Counter Controls */}
@@ -417,7 +423,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                     <button
                       type="button"
                       onClick={() => handleTap(item.id, item.target)}
-                      className={`min-h-[36px] px-3 py-1.5 rounded-xl font-mono text-xs font-black transition-all cursor-pointer select-none active:scale-90 flex items-center gap-1.5 ${
+                      className={`min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-xl font-mono text-xs font-black transition-all cursor-pointer select-none active:scale-90 flex items-center justify-center gap-1.5 ${
                         isItemDone
                           ? 'bg-emerald-500 text-slate-950 shadow-xs'
                           : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20'
@@ -431,8 +437,9 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                       <button
                         type="button"
                         onClick={() => handleFastComplete(item.id, item.target)}
-                        className="min-h-[36px] px-2.5 rounded-lg bg-slate-200 dark:bg-zinc-700/60 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white text-[11px] font-bold cursor-pointer"
+                        className="min-h-[44px] min-w-[44px] px-2.5 rounded-xl bg-slate-200 dark:bg-zinc-700/60 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white text-[11px] font-bold flex items-center justify-center cursor-pointer"
                         title="إتمام سريع"
+                        aria-label="إتمام سريع"
                       >
                         ✔
                       </button>
@@ -442,11 +449,11 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
 
                 {/* Text Display: Concise vs Full */}
                 {viewMode === 'concise' ? (
-                  <p className="text-xs leading-relaxed text-slate-700 dark:text-slate-300 font-serif select-text ps-7">
+                  <p dir="rtl" lang="ar" className="text-xs tashkeel-text leading-[2.2] text-slate-700 dark:text-slate-300 font-serif select-text ps-7">
                     {item.shortSnippet}
                   </p>
                 ) : (
-                  <p className="text-xs sm:text-sm leading-[2.2] text-slate-900 dark:text-slate-100 font-serif select-text ps-7 whitespace-pre-line bg-slate-50 dark:bg-zinc-950/40 p-3 rounded-xl border border-slate-200 dark:border-zinc-800/80">
+                  <p dir="rtl" lang="ar" className="text-xs sm:text-sm tashkeel-text leading-[2.2] text-slate-900 dark:text-slate-100 font-serif select-text ps-7 whitespace-pre-line bg-slate-50 dark:bg-zinc-950/40 p-3 rounded-xl border border-slate-200 dark:border-zinc-800/80">
                     {item.fullText}
                   </p>
                 )}

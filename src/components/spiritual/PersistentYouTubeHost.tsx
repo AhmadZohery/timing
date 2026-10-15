@@ -20,12 +20,14 @@ export const PersistentYouTubeHost: React.FC = () => {
   const [audioState, setAudioState] = useState<GymFaithAudioState>(() =>
     gymFaithAudio.getState()
   );
+  const audioStateRef = useRef<GymFaithAudioState>(audioState);
   const playerRef = useRef<any>(null);
   const progressTimerRef = useRef<any>(null);
   const currentVideoIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     return gymFaithAudio.subscribe((state) => {
+      audioStateRef.current = state;
       setAudioState(state);
     });
   }, []);
@@ -33,8 +35,9 @@ export const PersistentYouTubeHost: React.FC = () => {
   const videoId = audioState.youtubeVideoId;
   const isYouTube = audioState.mediaType === 'youtube' && Boolean(videoId);
 
-  // 1. Ensure YouTube IFrame API script is in the DOM
+  // 1. Ensure YouTube IFrame API script is in the DOM only when YouTube playback is requested
   useEffect(() => {
+    if (!isYouTube || !videoId) return;
     if (!window.YT) {
       const existingScript = document.getElementById('youtube-iframe-api');
       if (!existingScript) {
@@ -44,7 +47,7 @@ export const PersistentYouTubeHost: React.FC = () => {
         document.body.appendChild(tag);
       }
     }
-  }, []);
+  }, [isYouTube, videoId]);
 
   // 2. Initialize or re-cue player when videoId changes
   useEffect(() => {
@@ -52,7 +55,7 @@ export const PersistentYouTubeHost: React.FC = () => {
 
     if (currentVideoIdRef.current === videoId && playerRef.current) {
       // Same video already loaded, ensure playback
-      if (audioState.isPlaying) {
+      if (audioStateRef.current.isPlaying) {
         try {
           playerRef.current.playVideo();
         } catch {}
@@ -120,11 +123,12 @@ export const PersistentYouTubeHost: React.FC = () => {
                 },
               });
 
-              if (audioState.currentTime > 0) {
-                event.target.seekTo(audioState.currentTime, true);
+              const latestState = audioStateRef.current;
+              if (latestState.currentTime > 0) {
+                event.target.seekTo(latestState.currentTime, true);
               }
-              event.target.setPlaybackRate(audioState.playbackRate);
-              event.target.setVolume(Math.round(audioState.volume * 100));
+              event.target.setPlaybackRate(latestState.playbackRate);
+              event.target.setVolume(Math.round(latestState.volume * 100));
               event.target.playVideo();
             },
             onStateChange: (event: any) => {

@@ -58,7 +58,7 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
 } else if (fs.existsSync(VAPID_FILE)) {
   try {
     vapidKeys = JSON.parse(fs.readFileSync(VAPID_FILE, 'utf-8'));
-  } catch (_) {}
+  } catch {}
 }
 
 if (!vapidKeys || !vapidKeys.publicKey || !vapidKeys.privateKey) {
@@ -83,14 +83,14 @@ function getSubscriptions() {
     if (fs.existsSync(SUBSCRIPTIONS_FILE)) {
       return JSON.parse(fs.readFileSync(SUBSCRIPTIONS_FILE, 'utf-8'));
     }
-  } catch (_) {}
+  } catch {}
   return {};
 }
 
 function saveSubscriptions(subs) {
   try {
     fs.writeFileSync(SUBSCRIPTIONS_FILE, JSON.stringify(subs, null, 2), 'utf-8');
-  } catch (_) {}
+  } catch {}
 }
 
 function getScheduledAlarms() {
@@ -98,14 +98,14 @@ function getScheduledAlarms() {
     if (fs.existsSync(SCHEDULED_ALARMS_FILE)) {
       return JSON.parse(fs.readFileSync(SCHEDULED_ALARMS_FILE, 'utf-8'));
     }
-  } catch (_) {}
+  } catch {}
   return [];
 }
 
 function saveScheduledAlarms(alarms) {
   try {
     fs.writeFileSync(SCHEDULED_ALARMS_FILE, JSON.stringify(alarms, null, 2), 'utf-8');
-  } catch (_) {}
+  } catch {}
 }
 
 // Autonomous Background Push Dispatcher (Runs every 15s to deliver alarms even if app is closed)
@@ -137,11 +137,8 @@ setInterval(async () => {
 
   for (const alarm of alarms) {
     let userSubs = subsMap[alarm.profileId] || [];
-    if (userSubs.length === 0 && subsMap['default']) {
+    if (userSubs.length === 0 && alarm.profileId !== 'default' && subsMap['default']) {
       userSubs = subsMap['default'];
-    }
-    if (userSubs.length === 0) {
-      userSubs = Object.values(subsMap).flat();
     }
 
     // Deduplicate subscriptions by endpoint
@@ -245,6 +242,7 @@ function parseJsonBody(req) {
       body += chunk;
       if (body.length > 20 * 1024 * 1024) {
         // 20MB limit
+        req.destroy();
         reject(new Error('Payload too large'));
       }
     });
@@ -278,8 +276,18 @@ const SERVER_API_SECRET = (process.env.SERVER_API_SECRET || process.env.MIDMAR_A
 
 // Sliding window IP rate limiter
 const rateLimitMap = new Map();
+const MAX_RATE_LIMIT_ENTRIES = 5000;
 function checkRateLimit(ip, limit = 60, windowMs = 60000) {
   const now = Date.now();
+  if (rateLimitMap.size > MAX_RATE_LIMIT_ENTRIES) {
+    for (const [k, v] of rateLimitMap.entries()) {
+      if (now > v.resetAt) rateLimitMap.delete(k);
+    }
+    if (rateLimitMap.size > MAX_RATE_LIMIT_ENTRIES) {
+      const oldestKey = rateLimitMap.keys().next().value;
+      if (oldestKey !== undefined) rateLimitMap.delete(oldestKey);
+    }
+  }
   const entry = rateLimitMap.get(ip) || { count: 0, resetAt: now + windowMs };
   if (now > entry.resetAt) {
     entry.count = 1;
@@ -384,7 +392,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/auth/register' && req.method === 'POST') {
     try {
       const payload = await parseJsonBody(req);
-      const { id, username, email, displayName, passwordHash, salt, pinHash, role, onboardingCompleted } = payload;
+      const { id, username, email, displayName, passwordHash, salt, pinHash, onboardingCompleted } = payload;
 
       if (!username || !passwordHash || !salt) {
         return sendJson(res, 400, { ok: false, error: 'بيانات التسجيل غير مكتملة' });
@@ -407,7 +415,7 @@ const server = http.createServer(async (req, res) => {
         const assignedRole = isTargetOwner ? 'owner' : 'user';
 
         const user = await pgCreateUser({
-          id: id || `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          id: id || `user_${Date.now()}_${crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 7)}`,
           username,
           email: email || `${username.toLowerCase()}@local.app`,
           displayName: displayName || username,
@@ -422,7 +430,7 @@ const server = http.createServer(async (req, res) => {
         const usersFile = path.resolve(DATA_DIR, 'users.json');
         let users = [];
         if (fs.existsSync(usersFile)) {
-          try { users = JSON.parse(fs.readFileSync(usersFile, 'utf-8')); } catch (_) {}
+          try { users = JSON.parse(fs.readFileSync(usersFile, 'utf-8')); } catch {}
         }
         if (users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
           return sendJson(res, 409, { ok: false, error: 'اسم المستخدم مسجل مسبقاً' });
@@ -433,7 +441,7 @@ const server = http.createServer(async (req, res) => {
         const assignedRole = isTargetOwner ? 'owner' : 'user';
 
         const user = {
-          id: id || `user_${Date.now()}`,
+          id: id || `user_${Date.now()}_${crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : ''}`,
           username,
           email: email || `${username.toLowerCase()}@local.app`,
           displayName: displayName || username,
@@ -475,7 +483,7 @@ const server = http.createServer(async (req, res) => {
           try {
             const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
             user = users.find((u) => u.username.toLowerCase() === usernameOrEmail.toLowerCase() || u.email?.toLowerCase() === usernameOrEmail.toLowerCase());
-          } catch (_) {}
+          } catch {}
         }
       }
 
@@ -500,7 +508,8 @@ const server = http.createServer(async (req, res) => {
         await pgUpdateUserLogin(user.id);
       }
 
-      const { passwordHash: _, ...safeUser } = user;
+      const safeUser = { ...user };
+      delete safeUser.passwordHash;
       safeUser.onboardingCompleted = Boolean(user.onboardingCompleted ?? user.onboarding_completed);
       return sendJson(res, 200, { ok: true, user: safeUser, storage: isPgConnected() ? 'postgresql' : 'file' });
     } catch (err) {
@@ -530,7 +539,7 @@ const server = http.createServer(async (req, res) => {
           try {
             const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
             user = users.find((u) => u.id === accountIdOrUsername || u.username.toLowerCase() === accountIdOrUsername.toLowerCase());
-          } catch (_) {}
+          } catch {}
         }
       }
 
@@ -539,26 +548,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (!user.pinHash) {
-        if (user.role === 'owner') {
-          if (isPgConnected()) {
-            await pgUpdateUserPin(user.id, pinHash);
-          } else {
-            const usersFile = path.resolve(DATA_DIR, 'users.json');
-            if (fs.existsSync(usersFile)) {
-              try {
-                const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
-                const u = users.find((x) => x.id === user.id);
-                if (u) {
-                  u.pinHash = pinHash;
-                  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
-                }
-              } catch (_) {}
-            }
-          }
-          user.pinHash = pinHash;
-        } else {
-          return sendJson(res, 400, { ok: false, error: 'لم يتم تفعيل رمز الـ PIN لهذا الحساب' });
-        }
+        return sendJson(res, 400, { ok: false, error: 'لم يتم تفعيل رمز الـ PIN لهذا الحساب' });
       }
 
       if (!constantTimeCompare(user.pinHash, pinHash)) {
@@ -569,7 +559,8 @@ const server = http.createServer(async (req, res) => {
         await pgUpdateUserLogin(user.id);
       }
 
-      const { passwordHash: _, ...safeUser } = user;
+      const safeUser = { ...user };
+      delete safeUser.passwordHash;
       return sendJson(res, 200, { ok: true, user: safeUser, storage: isPgConnected() ? 'postgresql' : 'file' });
     } catch (err) {
       return sendJson(res, 500, { ok: false, error: err.message });
@@ -595,7 +586,7 @@ const server = http.createServer(async (req, res) => {
               hasPin: Boolean(u.pinHash),
               lastLoginAt: u.lastLoginAt,
             }));
-          } catch (_) {}
+          } catch {}
         }
         return sendJson(res, 200, { ok: true, users, source: 'file' });
       }
@@ -606,15 +597,20 @@ const server = http.createServer(async (req, res) => {
 
   // 1.5 Update PIN for an Account
   if (pathname === '/api/auth/update-pin' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
-      const { accountId, pinHash } = payload;
+      const accountId = payload.accountId || payload.userId;
+      const nextPinHash = payload.removePin ? null : (payload.pinHash || null);
       if (!accountId) {
         return sendJson(res, 400, { ok: false, error: 'معرف الحساب مطلوب' });
       }
 
       if (isPgConnected()) {
-        await pgUpdateUserPin(accountId, pinHash || null);
+        await pgUpdateUserPin(accountId, nextPinHash);
       } else {
         const usersFile = path.resolve(DATA_DIR, 'users.json');
         if (fs.existsSync(usersFile)) {
@@ -622,10 +618,10 @@ const server = http.createServer(async (req, res) => {
             const users = JSON.parse(fs.readFileSync(usersFile, 'utf-8'));
             const user = users.find((u) => u.id === accountId);
             if (user) {
-              user.pinHash = pinHash || null;
+              user.pinHash = nextPinHash;
               fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
             }
-          } catch (_) {}
+          } catch {}
         }
       }
       return sendJson(res, 200, { ok: true, message: 'تم تحديث رمز PIN بنجاح على السيرفر' });
@@ -636,9 +632,14 @@ const server = http.createServer(async (req, res) => {
 
   // 1.6 Update User Profile (DisplayName, Username, Email, OnboardingCompleted)
   if (pathname === '/api/auth/update-profile' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
-      const { accountId, displayName, username, email, onboardingCompleted } = payload;
+      const accountId = payload.accountId || payload.userId;
+      const { displayName, username, email, onboardingCompleted } = payload;
       if (!accountId) {
         return sendJson(res, 400, { ok: false, error: 'معرف الحساب مطلوب' });
       }
@@ -662,7 +663,7 @@ const server = http.createServer(async (req, res) => {
               if (onboardingCompleted !== undefined) user.onboardingCompleted = Boolean(onboardingCompleted);
               fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf-8');
             }
-          } catch (_) {}
+          } catch {}
         }
       }
       return sendJson(res, 200, { ok: true, message: 'تم تحديث الملف الشخصي بنجاح' });
@@ -673,6 +674,10 @@ const server = http.createServer(async (req, res) => {
 
   // 2. Web Push: Get VAPID Public Key
   if (pathname === '/api/push/vapid-public-key' && req.method === 'GET') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     return sendJson(res, 200, {
       ok: true,
       publicKey: vapidKeys.publicKey,
@@ -681,6 +686,10 @@ const server = http.createServer(async (req, res) => {
 
   // 3. Web Push: Register Client Device Subscription
   if (pathname === '/api/push/subscribe' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const profileId = payload.profileId || 'default';
@@ -720,6 +729,10 @@ const server = http.createServer(async (req, res) => {
 
   // 4. Web Push: Schedule Alarms Queue from Client
   if (pathname === '/api/push/schedule' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const profileId = payload.profileId || 'default';
@@ -776,6 +789,10 @@ const server = http.createServer(async (req, res) => {
 
   // 5. Web Push: Cancel Alarm
   if (pathname === '/api/push/cancel' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const tag = payload.tag;
@@ -806,15 +823,16 @@ const server = http.createServer(async (req, res) => {
 
   // 6. Web Push: Send Test Lockscreen Notification (Delay 5-10s)
   if (pathname === '/api/push/test' && req.method === 'POST') {
+    const auth = verifyRequestAuth(req);
+    if (!auth.authorized) {
+      return sendJson(res, auth.status, { ok: false, error: auth.error });
+    }
     try {
       const payload = await parseJsonBody(req);
       const profileId = payload.profileId || 'default';
       const delaySeconds = Math.max(1, payload.delaySeconds || 5);
       const subsMap = getSubscriptions();
-      let userSubs = subsMap[profileId] || subsMap['default'] || [];
-      if (userSubs.length === 0) {
-        userSubs = Object.values(subsMap).flat();
-      }
+      const userSubs = subsMap[profileId] || (profileId !== 'default' ? subsMap['default'] : []) || [];
 
       if (userSubs.length === 0) {
         return sendJson(res, 400, {
@@ -1023,13 +1041,17 @@ const server = http.createServer(async (req, res) => {
     try {
       const payload = await parseJsonBody(req);
       const { clientDeviceId = 'unknown_client', userId = 'default_user', lastSyncTimestamp = 0, changes = {} } = payload;
-      const deltaFile = path.resolve(DATA_DIR, `delta_${userId}.json`);
+      const safeUserId = String(userId || 'default_user').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const deltaFile = path.resolve(DATA_DIR, `delta_${safeUserId}.json`);
+      if (!deltaFile.startsWith(DATA_DIR)) {
+        return sendJson(res, 403, { ok: false, error: 'Forbidden path' });
+      }
 
       let deltaStore = {};
       if (fs.existsSync(deltaFile)) {
         try {
           deltaStore = JSON.parse(fs.readFileSync(deltaFile, 'utf-8'));
-        } catch (_) {
+        } catch {
           deltaStore = {};
         }
       }
@@ -1218,11 +1240,11 @@ const server = http.createServer(async (req, res) => {
       filePath = path.join(filePath, 'index.html');
       stat = fs.statSync(filePath);
     }
-  } catch (_) {
+  } catch {
     filePath = path.join(DIST_DIR, 'index.html');
     try {
       stat = fs.statSync(filePath);
-    } catch (e) {
+    } catch {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('404: Dist build not found. Run npm run build first.');
       return;

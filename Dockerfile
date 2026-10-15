@@ -10,8 +10,9 @@ RUN npm ci
 # Copy source and build
 COPY . .
 RUN npm run build
+RUN npm prune --omit=dev
 
-# Production Node.js Server & Static Host (Zero npm dependencies in runtime)
+# Production Node.js Server & Static Host (Zero dev dependencies in runtime)
 FROM node:20-alpine
 
 WORKDIR /app

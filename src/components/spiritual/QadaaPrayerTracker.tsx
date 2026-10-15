@@ -10,6 +10,8 @@ import {
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { db } from '../../db/db';
+import { getBiologicalDate, upsertDailyLog } from '../../utils/gamification';
 
 export interface PrayerQadaaItem {
   total: number;
@@ -62,7 +64,7 @@ export const QadaaPrayerTracker: React.FC<{
   };
 
   // Perform +1 Qadaa Repayment
-  const handleLogRepayment = (prayerKey: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha', prayerNameAr: string) => {
+  const handleLogRepayment = async (prayerKey: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha', prayerNameAr: string) => {
     const item = qadaa[prayerKey];
     if (item.completed >= item.total) {
       soundSynth.playCompletionChime();
@@ -82,6 +84,20 @@ export const QadaaPrayerTracker: React.FC<{
     };
 
     saveState(updated);
+
+    try {
+      const todayStr = getBiologicalDate();
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          totalPoints: (user.totalPoints || 0) + 10,
+        });
+      }
+      const existingLog = await db.daily_logs.get(todayStr);
+      await upsertDailyLog(todayStr, {
+        pointsEarned: (existingLog?.pointsEarned || 0) + 10,
+      });
+    } catch {}
 
     if (onRewardToast) {
       const rem = item.total - (item.completed + 1);

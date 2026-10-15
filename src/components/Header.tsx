@@ -488,6 +488,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const renderPinnedAction = (id: HeaderPinActionId) => {
+    const baseBtnClass = "min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-[38px] flex items-center justify-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-2xl transition-all cursor-pointer shadow-2xs text-xs active:scale-95 shrink-0";
     switch (id) {
       case 'courses':
         if (!onOpenCourses) return null;
@@ -501,9 +502,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenCourses();
             }}
             title={language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI)' : 'AI Course Study Roadmap'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 font-bold`}
           >
-            <GraduationCap className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+            <GraduationCap className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-indigo-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'المذاكرة 📚' : 'Courses'}</span>
           </button>
         );
@@ -520,9 +521,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenQuickReminder();
             }}
             title={language === 'ar' ? 'منبهات وتذكيرات اليوم (خلف الشاشة)' : 'Daily Alarms & Custom Reminders'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-bold`}
           >
-            <Bell className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <Bell className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-amber-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'تذكير 🔔' : 'Reminder'}</span>
           </button>
         );
@@ -539,9 +540,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenCommandPalette();
             }}
             title={language === 'ar' ? 'البحث السريع والأوامر الفورية (⌘K)' : 'Command Palette (⌘K)'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shadow-2xs font-medium text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-zinc-100 hover:bg-zinc-200/80 dark:bg-zinc-800/80 dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-medium`}
           >
-            <Search className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+            <Search className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-indigo-500 shrink-0" />
             <span className="hidden md:inline">{language === 'ar' ? 'بحث ⌘K' : 'Search'}</span>
           </button>
         );
@@ -558,9 +559,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenNiyyahModal();
             }}
             title={language === 'ar' ? 'محراب استحضار وتجديد النوايا' : 'Niyyah Sanctuary'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold`}
           >
-            <Compass className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <Compass className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-emerald-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'النية ✨' : 'Niyyah'}</span>
           </button>
         );
@@ -577,9 +578,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenBufferModal();
             }}
             title={language === 'ar' ? 'صندوق التأجيل ومفرغة المهام' : 'Buffer Queue'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30 font-bold`}
           >
-            <Clock className="w-3.5 h-3.5 shrink-0 text-sky-500" />
+            <Clock className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-sky-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'التأجيل' : 'Buffer'} {pendingBufferCount > 0 && `(${pendingBufferCount})`}</span>
           </button>
         );
@@ -591,9 +592,9 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={handlePanicClick}
             title={t('panic_button')}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-500/30 font-bold`}
           >
-            <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-rose-500" />
+            <AlertTriangle className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-rose-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'طوارئ 🚨' : 'Panic'}</span>
           </button>
         );
@@ -605,13 +606,13 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={handleSurvivalToggle}
             title={isSurvival ? (language === 'ar' ? 'إلغاء وضع الحد الأدنى MVD' : 'Disable MVD') : (language === 'ar' ? 'تفعيل وضع الحد الأدنى MVD' : 'Enable MVD')}
-            className={`flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0 ${
+            className={`${baseBtnClass} font-bold border ${
               isSurvival
                 ? 'bg-amber-500/20 border-amber-500 text-amber-800 dark:text-amber-200'
-                : 'bg-slate-100 hover:bg-slate-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300'
+                : 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-800 border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-zinc-300'
             }`}
           >
-            <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <ShieldAlert className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-amber-500" />
             <span className="hidden md:inline">{isSurvival ? 'MVD نشط' : 'MVD'}</span>
           </button>
         );
@@ -628,9 +629,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenSleepRest();
             }}
             title={language === 'ar' ? 'بروتوكول النوم والاسترخاء' : 'Sleep Rest'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 font-bold`}
           >
-            <Moon className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+            <Moon className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-indigo-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'نوم 🌙' : 'Sleep'}</span>
           </button>
         );
@@ -647,9 +648,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenWirdModal();
             }}
             title={language === 'ar' ? 'الورد القرآني' : 'Quran Wird'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold`}
           >
-            <BookOpen className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <BookOpen className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-emerald-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'الورد 📖' : 'Wird'}</span>
           </button>
         );
@@ -666,9 +667,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenSmartTasbih();
             }}
             title={language === 'ar' ? 'السبحة الذكية' : 'Smart Tasbih'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-400 border border-teal-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-400 border border-teal-500/30 font-bold`}
           >
-            <Disc className="w-3.5 h-3.5 shrink-0 text-teal-500" />
+            <Disc className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-teal-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'سبحة 📿' : 'Tasbih'}</span>
           </button>
         );
@@ -685,9 +686,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenArabicPoetry();
             }}
             title={language === 'ar' ? 'ديوان الشعر العربي' : 'Classical Poetry'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-bold`}
           >
-            <Scroll className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+            <Scroll className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-amber-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'شعر 📜' : 'Poetry'}</span>
           </button>
         );
@@ -704,9 +705,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenLifeWisdom();
             }}
             title={language === 'ar' ? 'منارة الحكمة' : 'Life Wisdom'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold`}
           >
-            <Lightbulb className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <Lightbulb className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-emerald-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'حكمة 💡' : 'Wisdom'}</span>
           </button>
         );
@@ -722,9 +723,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenGoalsModal();
             }}
             title={t('goals_velocity')}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-sky-500/10 hover:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30 font-bold`}
           >
-            <Target className="w-3.5 h-3.5 shrink-0 text-sky-500" />
+            <Target className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-sky-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'الأهداف 🎯' : 'Goals'}</span>
           </button>
         );
@@ -741,9 +742,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenAiCoach();
             }}
             title={t('ai_coach_title')}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 font-bold`}
           >
-            <Lightbulb className="w-3.5 h-3.5 shrink-0 text-indigo-500" />
+            <Lightbulb className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-indigo-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'الموجه AI' : 'Coach'}</span>
           </button>
         );
@@ -760,9 +761,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenPaletteModal();
             }}
             title={language === 'ar' ? 'طراز وألوان الشاشة' : 'Color Palette'}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400 border border-fuchsia-500/30 font-bold`}
           >
-            <Palette className="w-3.5 h-3.5 shrink-0 text-fuchsia-500" />
+            <Palette className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-fuchsia-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'المظهر 🎨' : 'Palette'}</span>
           </button>
         );
@@ -779,9 +780,9 @@ export const Header: React.FC<HeaderProps> = ({
               onOpenArchiveModal();
             }}
             title={t('history_archive')}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 transition-all cursor-pointer shadow-2xs font-bold text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold`}
           >
-            <Calendar className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+            <Calendar className="w-4 h-4 sm:w-3.5 sm:h-3.5 shrink-0 text-emerald-500" />
             <span className="hidden md:inline">{language === 'ar' ? 'الأرشيف 📅' : 'Archive'}</span>
           </button>
         );
@@ -793,9 +794,9 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={handleToggleMute}
             title={isMuted ? (language === 'ar' ? 'تشغيل الصوت' : 'Unmute') : (language === 'ar' ? 'كتم الصوت' : 'Mute')}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shadow-2xs font-medium text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-zinc-100 hover:bg-zinc-200/80 dark:bg-zinc-800/80 dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-medium`}
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-500 shrink-0" /> : <Volume2 className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+            {isMuted ? <VolumeX className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-rose-500 shrink-0" /> : <Volume2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-500 shrink-0" />}
             <span className="hidden md:inline">{isMuted ? (language === 'ar' ? 'تشغيل' : 'Unmute') : (language === 'ar' ? 'كتم' : 'Mute')}</span>
           </button>
         );
@@ -807,9 +808,9 @@ export const Header: React.FC<HeaderProps> = ({
             type="button"
             onClick={handleThemeToggle}
             title={theme === 'light' ? (language === 'ar' ? 'الوضع الليلي' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري' : 'Light Mode')}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 transition-all cursor-pointer shadow-2xs font-medium text-xs active:scale-95 shrink-0"
+            className={`${baseBtnClass} bg-zinc-100 hover:bg-zinc-200/80 dark:bg-zinc-800/80 dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-medium`}
           >
-            {theme === 'light' ? <Moon className="w-3.5 h-3.5 text-slate-700 shrink-0" /> : <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+            {theme === 'light' ? <Moon className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-slate-700 shrink-0" /> : <Sun className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-amber-400 shrink-0" />}
             <span className="hidden md:inline">{theme === 'light' ? (language === 'ar' ? 'ليلي' : 'Dark') : (language === 'ar' ? 'نهاري' : 'Light')}</span>
           </button>
         );
@@ -819,10 +820,24 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const currentHour = new Date().getHours();
+  const mobileTimeGreeting =
+    language === 'ar'
+      ? currentHour >= 4 && currentHour < 12
+        ? 'صباح الخير 👋'
+        : currentHour >= 12 && currentHour < 17
+        ? 'طاب يومك 👋'
+        : 'مساء النور ✨'
+      : currentHour >= 4 && currentHour < 12
+      ? 'Good Morning 👋'
+      : currentHour >= 12 && currentHour < 17
+      ? 'Good Afternoon 👋'
+      : 'Good Evening ✨';
+
   return (
-    <header className="sticky top-0 z-30 w-full bg-white/80 dark:bg-[#0c0e14]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] px-3 sm:px-6 py-2.5 transition-colors duration-200 shadow-2xs">
-      <div className={`w-full ${isFullWidth ? 'max-w-none px-1 sm:px-2' : 'max-w-[1720px] mx-auto'} flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300`}>
-        {/* Logo & Brand (Click to return Home) */}
+    <header className="sticky top-0 z-30 w-full px-2.5 sm:px-4 pt-2 pb-1 transition-colors duration-200">
+      <div className={`w-full ${isFullWidth ? 'max-w-none' : 'max-w-[1720px] mx-auto'} rounded-[24px] sm:rounded-[20px] bg-[#141517] sm:bg-white/95 dark:bg-[#141517]/95 backdrop-blur-xl border border-white/10 sm:border-zinc-200/80 dark:border-white/10 shadow-xl shadow-black/15 sm:shadow-zinc-200/30 dark:shadow-black/40 px-3.5 sm:px-5 py-2 flex items-center justify-between gap-2 sm:gap-4 transition-all duration-300`}>
+        {/* Avatar + Greeting on Mobile (< sm) / Logo & Brand on Desktop (sm+) */}
         <button
           type="button"
           onClick={() => {
@@ -831,18 +846,32 @@ export const Header: React.FC<HeaderProps> = ({
             onGoHome?.();
             if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="flex items-center gap-2.5 shrink-0 text-start cursor-pointer group active:scale-95 transition-transform select-none tap-spring"
+          className="min-h-[42px] sm:min-h-0 flex items-center justify-start gap-2.5 shrink-0 text-start cursor-pointer group active:scale-95 transition-transform select-none tap-spring"
           title={language === 'ar' ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home'}
         >
+          {/* Mobile Circular Avatar (Matches Habitline mobile-image.png) */}
+          <div className="sm:hidden w-10 h-10 rounded-full bg-gradient-to-tr from-[#1eb814] via-emerald-400 to-teal-300 p-0.5 shadow-md shrink-0">
+            <div className="w-full h-full rounded-full bg-[#1e2024] flex items-center justify-center text-base">
+              <span>{activeProfileEmoji || '🦅'}</span>
+            </div>
+          </div>
+
+          {/* Desktop Logo */}
           <img
             src="/favicon.svg"
             alt="Midmar Logo"
-            className="w-9 h-9 rounded-xl shadow-md shadow-emerald-950/30 group-hover:scale-105 group-hover:shadow-emerald-500/30 transition-all object-cover"
+            className="hidden sm:block w-9 h-9 rounded-xl shadow-md shadow-emerald-950/30 group-hover:scale-105 group-hover:shadow-emerald-500/30 transition-all object-cover shrink-0"
           />
-          <div className="hidden sm:block">
-            <h1 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-zinc-100 flex items-center gap-1.5">
-              {t('app_name')}
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
+
+          {/* Mobile 2-Line Greeting vs Desktop Brand */}
+          <div className="block">
+            <span className="sm:hidden block text-[11px] font-medium text-zinc-400 leading-tight">
+              {mobileTimeGreeting}
+            </span>
+            <h1 className="text-sm sm:text-base font-bold tracking-tight text-white sm:text-slate-900 dark:text-zinc-100 flex items-center gap-1.5 leading-tight">
+              <span className="sm:hidden">{activeProfileName || t('app_name')}</span>
+              <span className="hidden sm:inline">{t('app_name')}</span>
+              <span className="hidden sm:inline-flex text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
                 {t('life_os')}
               </span>
             </h1>
@@ -868,28 +897,44 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Streak Celebration Popup Toast */}
           {streakToast && (
-            <div className="absolute -bottom-8 right-0 sm:right-auto z-40 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold shadow-lg animate-fade-in flex items-center gap-1.5 border border-slate-800 dark:border-zinc-200">
+            <div
+              role="status"
+              aria-live="polite"
+              className="absolute -bottom-8 end-0 sm:end-auto z-40 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold shadow-lg animate-fade-in flex items-center gap-1.5 border border-slate-800 dark:border-zinc-200"
+            >
               <span>{streakToast}</span>
             </div>
           )}
 
-          {/* Streak Shields */}
-          <div
+          {/* Streak Shields — Clickable to open Daily Evaluation & Resilience */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenEvaluationModal?.();
+            }}
             title={t('shields_count')}
-            className="flex items-center gap-1 px-2 py-1 rounded-full bg-sky-50 dark:bg-cyan-950/40 border border-sky-200 dark:border-cyan-800/40 text-sky-700 dark:text-cyan-400 font-mono text-xs shadow-xs"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-sky-50 hover:bg-sky-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/50 border border-sky-200 dark:border-cyan-800/40 text-sky-700 dark:text-cyan-400 font-mono text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
           >
             <Shield className="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400 fill-sky-600/20" />
             <span>{userState?.streakShields ?? 0}</span>
-          </div>
+          </button>
 
-          {/* Total Points */}
-          <div
+          {/* Total Points — Clickable to open Rewards Store */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenRewardsModal?.();
+            }}
             title={t('total_points')}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 font-mono text-xs shadow-xs"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800/40 text-amber-700 dark:text-amber-400 font-mono text-xs shadow-xs active:scale-95 transition-all cursor-pointer"
           >
             <Trophy className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>{userState?.totalPoints ?? 0}</span>
-          </div>
+          </button>
 
           {/* Offline Ready Badge */}
           {!isOnline && (
@@ -900,9 +945,65 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Action Controls & Toggles */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          {/* Pinned Quick Action Buttons (User Customizable, Max 4) */}
-          {pinnedActions.map((actionId) => renderPinnedAction(actionId))}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Mobile Habitline Circular Glass Buttons (< md) — Matches mobile-image.png */}
+          <div className="flex md:hidden items-center gap-1.5 relative">
+            <button
+              type="button"
+              onClick={handleStreakClick}
+              title={streakTier.title}
+              className="h-10 px-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 flex items-center gap-1.5 font-mono text-xs font-bold text-white shadow-2xs active:scale-95 transition-all cursor-pointer"
+            >
+              <Flame className="w-3.5 h-3.5 fill-[#ff5500] text-[#ff5500]" />
+              <span>{streakDays}</span>
+            </button>
+            {streakToast && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="absolute -bottom-9 end-0 z-40 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold shadow-lg animate-fade-in flex items-center gap-1.5 border border-slate-800 dark:border-zinc-200"
+              >
+                <span>{streakToast}</span>
+              </div>
+            )}
+
+            {onOpenQuickReminder && (
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  onOpenQuickReminder();
+                }}
+                className="relative w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center text-white active:scale-95 transition-all cursor-pointer"
+                title={language === 'ar' ? 'مركز المنبهات والإشعارات والأذان' : 'Alarms & Notifications Hub'}
+                aria-label={language === 'ar' ? 'مركز المنبهات والإشعارات والأذان' : 'Alarms & Notifications Hub'}
+              >
+                <Bell className="w-4 h-4 text-[#bce8c2]" />
+                <span className="absolute top-2 end-2 w-2 h-2 rounded-full bg-[#1eb814] ring-2 ring-[#141517]" />
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Clean Circular Glass Search Button (< md) */}
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenCommandPalette?.();
+            }}
+            className="md:hidden w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-center text-white active:scale-95 transition-all cursor-pointer"
+            title={language === 'ar' ? 'البحث الشامل والأوامر (⌘K)' : 'Quick Search (⌘K)'}
+            aria-label={language === 'ar' ? 'البحث الشامل' : 'Search'}
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
+          {/* Pinned Quick Action Buttons (Desktop / Tablet Only, Max 4) */}
+          <div className="hidden md:flex items-center gap-1.5">
+            {pinnedActions.map((actionId) => renderPinnedAction(actionId))}
+          </div>
 
           {/* Unified LifeOS Control Center Dropdown */}
           <div ref={controlCenterRef} className="relative">
@@ -913,111 +1014,141 @@ export const Header: React.FC<HeaderProps> = ({
                 haptic.vibrateLight();
                 setShowControlCenter(!showControlCenter);
               }}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer shadow-xs ${
+              className={`w-10 h-10 sm:w-auto sm:min-h-[38px] flex items-center justify-center gap-1.5 sm:px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer shadow-xs ${
                 showControlCenter
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-600/20 ring-2 ring-emerald-500/20'
-                  : 'bg-slate-100 dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-800'
+                  ? 'bg-[#1eb814] text-white border-[#1eb814] shadow-emerald-600/20 ring-2 ring-emerald-500/20'
+                  : 'bg-white/10 sm:bg-[#141517] dark:bg-white/10 border-white/10 sm:border-[#141517] dark:border-white/10 text-white hover:opacity-90'
               }`}
               title={language === 'ar' ? 'مركز التحكم والإنتاجية' : 'LifeOS Control Center'}
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-500" />
+              <SlidersHorizontal className={`w-4 h-4 sm:w-3.5 sm:h-3.5 ${showControlCenter ? 'text-white' : 'text-[#bce8c2]'}`} />
               <span className="hidden sm:inline">{language === 'ar' ? 'مركز التحكم' : 'Control Center'}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${showControlCenter ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`hidden sm:inline w-3 h-3 transition-transform ${showControlCenter ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Control Center Popover Dropdown */}
+            {/* Control Center Popover Dropdown — Impeccable Habitline Bento Menu */}
             {showControlCenter && (
               <>
                 <div
-                  className="fixed inset-0 z-40 cursor-default bg-black/10 dark:bg-black/30 backdrop-blur-2xs"
+                  className="fixed inset-0 z-40 cursor-default bg-black/25 dark:bg-black/45 backdrop-blur-2xs"
                   onClick={() => setShowControlCenter(false)}
                   onTouchStart={() => setShowControlCenter(false)}
                 />
                 <div
-                  className="absolute end-0 top-full mt-2 z-50 w-72 sm:w-80 rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 shadow-2xl p-3 space-y-3 animate-fade-in"
-                  style={{ maxHeight: '82vh', overflowY: 'auto' }}
+                  className="absolute end-0 top-full mt-2.5 z-50 w-[312px] sm:w-[348px] rounded-[28px] bg-[#f7f7f7] dark:bg-[#141517] border border-zinc-200/90 dark:border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.28)] p-3 space-y-2.5 animate-fade-in"
+                  style={{ maxHeight: '84vh', overflowY: 'auto' }}
                 >
-                  {/* Popover Header */}
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-zinc-800 text-xs font-bold text-slate-800 dark:text-zinc-200">
-                    <div className="flex items-center gap-1.5">
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>{language === 'ar' ? 'مركز التحكم والأدوات' : 'Control Center'}</span>
+                  {/* Obsidian Hero Profile & Live Status Card */}
+                  <div className="rounded-[22px] bg-[#141517] dark:bg-zinc-900 text-white p-3.5 border border-white/10 space-y-2.5 shadow-md">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#1eb814] to-emerald-400 p-0.5 shrink-0">
+                          <div className="w-full h-full rounded-full bg-[#141517] flex items-center justify-center text-sm">
+                            {activeProfileEmoji || '🦅'}
+                          </div>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-white truncate">
+                            {activeProfileName || (language === 'ar' ? 'مركز قيادة مِضمار' : 'Midmar Command')}
+                          </div>
+                          <div className="text-[10px] text-zinc-400 flex items-center gap-2 font-mono">
+                            <span>🔥 {streakDays}d</span>
+                            <span>•</span>
+                            <span>🛡️ {userState?.streakShields ?? 0}</span>
+                            <span>•</span>
+                            <span className="text-[#bce8c2]">🏆 {userState?.totalPoints ?? 0} XP</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowControlCenter(false);
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setIsPinModalOpen(true);
+                        }}
+                        className="px-2.5 py-1 rounded-full bg-[#bce8c2] hover:bg-[#a7dfb0] text-zinc-950 text-[10px] font-bold flex items-center gap-1 shrink-0 cursor-pointer transition-colors"
+                        title={language === 'ar' ? 'تخصيص الأزرار العلوية' : 'Customize Top Pins'}
+                      >
+                        <Pin className="w-3 h-3" />
+                        <span>{language === 'ar' ? 'تثبيت' : 'Pins'} ({pinnedActions.length}/{MAX_PINNED_ACTIONS})</span>
+                      </button>
                     </div>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-zinc-800 text-slate-500">
-                      LifeOS Hub
-                    </span>
+
+                    {/* Direct Bell / Notifications Hub Shortcut inside Control Center */}
+                    {onOpenQuickReminder && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowControlCenter(false);
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          onOpenQuickReminder();
+                        }}
+                        className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-between text-xs font-bold text-white cursor-pointer transition-colors"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Bell className="w-3.5 h-3.5 text-[#bce8c2]" />
+                          <span>{language === 'ar' ? 'مركز المنبهات والأذان والإشعارات' : 'Alarms, Adhan & Notifications'}</span>
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1eb814] text-white">
+                          {language === 'ar' ? 'فتح ←' : 'Open →'}
+                        </span>
+                      </button>
+                    )}
                   </div>
 
-                  {/* Pin Customizer Banner / Trigger */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowControlCenter(false);
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      setIsPinModalOpen(true);
-                    }}
-                    className="w-full flex items-center justify-between p-2 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25 transition-all cursor-pointer text-xs font-bold group"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Pin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 group-hover:rotate-12 transition-transform" />
-                      <span>{language === 'ar' ? 'تخصيص الأزرار العلوية' : 'Customize Top Pins'}</span>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-mono font-bold">
-                      {pinnedActions.length}/{MAX_PINNED_ACTIONS}
-                    </span>
-                  </button>
-
-                  {/* Quick Action Strip (Emergency & Vital Modes on all screens) */}
-                  <div className="p-2 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 space-y-1.5">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 block">
-                      {language === 'ar' ? 'أدوات الوصول السريع' : 'Quick Actions'}
+                  {/* Quick Action Strip (Habitline Pastel Bento Tiles) */}
+                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-2 shadow-2xs">
+                    <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
+                      {language === 'ar' ? 'أوضاع الطوارئ والوصول السريع' : 'Quick Modes & Controls'}
                     </span>
                     <div className="grid grid-cols-2 gap-1.5">
-                      {/* Panic */}
+                      {/* Panic (Soft Rose) */}
                       <button
                         type="button"
                         onClick={() => {
                           setShowControlCenter(false);
                           handlePanicClick();
                         }}
-                        className="flex items-center gap-1.5 p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold border border-rose-200/60 dark:border-rose-900/40"
+                        className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#fce2e6] dark:bg-rose-950/50 text-rose-950 dark:text-rose-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
                       >
                         <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                         <span className="truncate">{t('panic_button')}</span>
                       </button>
 
-                      {/* Survival MVD */}
+                      {/* Survival MVD (Soft Amber) */}
                       <button
                         type="button"
                         onClick={() => {
                           setShowControlCenter(false);
                           handleSurvivalToggle();
                         }}
-                        className={`flex items-center gap-1.5 p-2 rounded-xl text-xs font-bold border transition-colors ${
+                        className={`flex items-center gap-1.5 p-2.5 rounded-2xl text-xs font-bold cursor-pointer active:scale-95 transition-all ${
                           isSurvival
-                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700'
-                            : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700'
+                            ? 'bg-[#ff5500] text-white shadow-xs'
+                            : 'bg-[#fde6d8] dark:bg-amber-950/50 text-amber-950 dark:text-amber-200'
                         }`}
                       >
-                        <ShieldAlert className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                        <span className="truncate">{isSurvival ? 'إلغاء MVD' : 'وضع MVD'}</span>
+                        <ShieldAlert className={`w-3.5 h-3.5 shrink-0 ${isSurvival ? 'text-white' : 'text-amber-600'}`} />
+                        <span className="truncate">{isSurvival ? 'إلغاء MVD' : 'وضع الطوارئ MVD'}</span>
                       </button>
 
-                      {/* Buffer */}
+                      {/* Buffer (Soft Sky) */}
                       <button
                         type="button"
                         onClick={() => {
                           setShowControlCenter(false);
                           onOpenBufferModal();
                         }}
-                        className="flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium border border-slate-200 dark:border-zinc-700"
+                        className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#e0f2fe] dark:bg-sky-950/50 text-sky-950 dark:text-sky-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
                       >
-                        <Clock className="w-3.5 h-3.5 text-sky-500 shrink-0" />
-                        <span className="truncate">{language === 'ar' ? 'صندوق التأجيل' : 'Buffer Tasks'} {pendingBufferCount > 0 && `(${pendingBufferCount})`}</span>
+                        <Clock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                        <span className="truncate">{language === 'ar' ? 'صندوق التأجيل' : 'Buffer'} {pendingBufferCount > 0 && `(${pendingBufferCount})`}</span>
                       </button>
 
-                      {/* Sleep Rest */}
+                      {/* Sleep Rest (Soft Lavender) */}
                       {onOpenSleepRest && (
                         <button
                           type="button"
@@ -1025,9 +1156,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenSleepRest();
                           }}
-                          className="flex items-center gap-1.5 p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-medium border border-indigo-200 dark:border-indigo-800/40"
+                          className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#e2defc] dark:bg-indigo-950/50 text-indigo-950 dark:text-indigo-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
                         >
-                          <Moon className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                          <Moon className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'بروتوكول النوم' : 'Sleep'}</span>
                         </button>
                       )}
@@ -1036,13 +1167,13 @@ export const Header: React.FC<HeaderProps> = ({
                       <button
                         type="button"
                         onClick={handleToggleMute}
-                        className={`flex items-center gap-1.5 p-2 rounded-xl border text-xs font-medium transition-colors ${
+                        className={`flex items-center gap-1.5 p-2.5 rounded-2xl text-xs font-bold cursor-pointer active:scale-95 transition-all ${
                           isMuted
-                            ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400'
-                            : 'bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-200 dark:border-zinc-700'
+                            ? 'bg-[#fce2e6] dark:bg-rose-950/40 text-rose-800 dark:text-rose-300'
+                            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200'
                         }`}
                       >
-                        {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-500 shrink-0" /> : <Volume2 className="w-3.5 h-3.5 text-slate-600 dark:text-zinc-400 shrink-0" />}
+                        {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-600 shrink-0" /> : <Volume2 className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />}
                         <span className="truncate">{isMuted ? (language === 'ar' ? 'تشغيل الصوت' : 'Unmute') : (language === 'ar' ? 'كتم الصوت' : 'Mute')}</span>
                       </button>
 
@@ -1052,9 +1183,9 @@ export const Header: React.FC<HeaderProps> = ({
                         onClick={() => {
                           handleThemeToggle();
                         }}
-                        className="flex items-center gap-1.5 p-2 rounded-xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium border border-slate-200 dark:border-zinc-700"
+                        className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
                       >
-                        {theme === 'light' ? <Moon className="w-3.5 h-3.5 text-slate-700 shrink-0" /> : <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+                        {theme === 'light' ? <Moon className="w-3.5 h-3.5 text-zinc-800 shrink-0" /> : <Sun className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
                         <span className="truncate">{theme === 'light' ? (language === 'ar' ? 'الوضع الليلي' : 'Dark Mode') : (language === 'ar' ? 'الوضع النهاري' : 'Light Mode')}</span>
                       </button>
 
@@ -1066,9 +1197,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             promptInstall();
                           }}
-                          className="flex items-center gap-1.5 p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-300 dark:border-emerald-800 col-span-2 justify-center"
+                          className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#d4f5dc] dark:bg-emerald-950/50 text-zinc-900 dark:text-emerald-200 text-xs font-bold col-span-2 justify-center cursor-pointer"
                         >
-                          <Download className="w-3.5 h-3.5 shrink-0" />
+                          <Download className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span>{t('install_app_btn')}</span>
                         </button>
                       )}
@@ -1076,8 +1207,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Category 1: Analytics & Productivity */}
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 px-2 block">
+                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
+                    <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
                       {language === 'ar' ? 'الإنتاجية والمسارات والتقارير' : 'Productivity & Analytics'}
                     </span>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -1088,9 +1219,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenCourses();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer text-start border border-indigo-200/80 dark:border-indigo-800/50 col-span-2 shadow-xs"
+                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#e2defc]/80 dark:bg-indigo-950/50 hover:bg-[#e2defc] text-zinc-900 dark:text-indigo-200 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
-                          <GraduationCap className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                          <GraduationCap className="w-4 h-4 text-indigo-700 dark:text-indigo-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI) 📚' : 'AI Course Study Roadmap 📚'}</span>
                         </button>
                       )}
@@ -1101,9 +1232,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenArchiveModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-emerald-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#d4f5dc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <Calendar className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{t('history_archive')}</span>
                         </button>
                       )}
@@ -1115,7 +1246,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenEvaluationModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-amber-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#fde6d8]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Trophy className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'التقييم الدوري' : 'Evaluation'}</span>
@@ -1128,7 +1259,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onOpenGoalsModal();
                         }}
-                        className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-sky-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                        className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#e0f2fe]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                       >
                         <Target className="w-3.5 h-3.5 text-sky-500 shrink-0" />
                         <span className="truncate">{t('goals_velocity')}</span>
@@ -1141,7 +1272,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenRewardsModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-[#fde6d8]/75 dark:bg-amber-950/40 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Gift className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'متجر المكافآت' : 'Rewards Store'}</span>
@@ -1155,9 +1286,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenPrideTicket();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-purple-50/70 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-800 dark:text-purple-300 text-xs font-bold transition-colors cursor-pointer text-start border border-purple-200/80 dark:border-purple-800/50 col-span-2"
+                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#d4f5dc]/80 dark:bg-emerald-950/40 hover:bg-[#bce8c2] text-zinc-900 dark:text-emerald-200 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
-                          <Ticket className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                          <Ticket className="w-4 h-4 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تذكرة إنجاز اليوم (Pride Ticket)' : 'Daily Pride Ticket'}</span>
                         </button>
                       )}
@@ -1165,9 +1296,9 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Category 2: Guidance & Spiritual */}
-                  <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-zinc-900">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 px-2 block">
-                      {language === 'ar' ? 'التوجيه والعادات والموقع' : 'Guidance & Habits'}
+                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
+                    <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
+                      {language === 'ar' ? 'التوجيه والعادات والروحانيات' : 'Guidance & Spiritual'}
                     </span>
                     <div className="grid grid-cols-2 gap-1.5">
                       {onOpenAiCoach && (
@@ -1177,7 +1308,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenAiCoach();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-indigo-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#e2defc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Lightbulb className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{t('ai_coach_title')}</span>
@@ -1191,9 +1322,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenHabitModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-emerald-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#d4f5dc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <PlusCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <PlusCircle className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'إضافة عبادة/عادة' : 'Add Habit'}</span>
                         </button>
                       )}
@@ -1205,7 +1336,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenOnboardingWizard();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-amber-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#fde6d8]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تخصيص مجالك' : 'Domain'}</span>
@@ -1219,9 +1350,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenPrayerLocation();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-emerald-50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#d4f5dc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <MapPin className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'مواقيت وموقع الصلاة' : 'Prayer Location'}</span>
                         </button>
                       )}
@@ -1233,9 +1364,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenSmartTasbih();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-teal-50/70 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 text-teal-800 dark:text-teal-300 text-xs font-bold transition-colors cursor-pointer text-start border border-teal-200/80 dark:border-teal-800/50"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-[#d4f5dc]/65 dark:bg-teal-950/30 hover:bg-[#bce8c2] text-zinc-900 dark:text-teal-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <Disc className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                          <Disc className="w-4 h-4 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'مسبحة الأذكار الذكية' : 'Digital Tasbih'}</span>
                         </button>
                       )}
@@ -1247,9 +1378,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenWirdModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start border border-emerald-200/80 dark:border-emerald-800/50"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-[#d4f5dc]/65 dark:bg-emerald-950/30 hover:bg-[#bce8c2] text-zinc-900 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <BookOpen className="w-4 h-4 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'الورد القرآني' : 'Quran Wird'}</span>
                         </button>
                       )}
@@ -1261,10 +1392,10 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenLifestyleModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-sky-50/70 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 text-sky-800 dark:text-sky-300 text-xs font-bold transition-colors cursor-pointer text-start border border-sky-200/80 dark:border-sky-800/50 col-span-2"
+                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#e0f2fe]/80 dark:bg-sky-950/30 hover:bg-[#e0f2fe] text-zinc-900 dark:text-sky-300 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
                           <Compass className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
-                          <span className="truncate">{language === 'ar' ? 'نمط الحياة والمحطات' : 'Lifestyle Flow'}</span>
+                          <span className="truncate">{language === 'ar' ? 'نمط الحياة وخريطة المحطات' : 'Lifestyle Flow'}</span>
                         </button>
                       )}
 
@@ -1275,9 +1406,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenArabicPoetry();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-[#fde6d8]/75 dark:bg-amber-950/30 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <Scroll className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <Scroll className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'ديوان الشعر العربي' : 'Classical Poetry'}</span>
                         </button>
                       )}
@@ -1289,9 +1420,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenLifeWisdom();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start border border-emerald-200/80 dark:border-emerald-800/50"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-[#e2defc]/75 dark:bg-indigo-950/30 hover:bg-[#e2defc] text-zinc-900 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          <Lightbulb className="w-4 h-4 text-indigo-700 dark:text-indigo-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'منارة الحكمة' : 'Life Wisdom'}</span>
                         </button>
                       )}
@@ -1303,9 +1434,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenNiyyahModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50 col-span-2"
+                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#fde6d8]/80 dark:bg-amber-950/30 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
-                          <Compass className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <Compass className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'محراب استحضار وتجديد النوايا' : 'Niyyah Sanctuary'}</span>
                         </button>
                       )}
@@ -1313,8 +1444,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Category 3: System & Tools */}
-                  <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-zinc-900">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 px-2 block">
+                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
+                    <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
                       {language === 'ar' ? 'أدوات النظام والمظهر' : 'System & Themes'}
                     </span>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -1325,10 +1456,10 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenPaletteModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-200/80 dark:border-amber-800/50 col-span-2"
+                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#141517] dark:bg-white text-white dark:text-zinc-950 text-xs font-bold transition-opacity hover:opacity-90 cursor-pointer text-start col-span-2"
                         >
-                          <Palette className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                          <span className="truncate">{language === 'ar' ? 'تخصيص المظهر والطراز اللوني' : 'Atelier Color Palette'}</span>
+                          <Palette className="w-4 h-4 text-[#bce8c2] dark:text-[#1eb814] shrink-0" />
+                          <span className="truncate">{language === 'ar' ? 'تخصيص المظهر والطراز اللوني 🎨' : 'Atelier Color Palette 🎨'}</span>
                         </button>
                       )}
 
@@ -1338,7 +1469,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onOpenBatteryGuide();
                         }}
-                        className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                        className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                       >
                         <BatteryCharging className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         <span className="truncate">{t('battery_guide')}</span>
@@ -1351,7 +1482,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenShortcutsModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Command className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{t('shortcuts_modal_title')}</span>
@@ -1366,10 +1497,10 @@ export const Header: React.FC<HeaderProps> = ({
                             soundSynth.playTactileClick();
                             onOpenPinModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start border border-amber-500/30 shadow-xs"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-[#fde6d8]/75 dark:bg-amber-500/15 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <KeyRound className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                          <span className="truncate">{language === 'ar' ? 'تغيير الـ PIN والبيانات 🔑' : 'Change PIN & Identity 🔑'}</span>
+                          <KeyRound className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span className="truncate">{language === 'ar' ? 'تغيير الـ PIN 🔑' : 'Change PIN 🔑'}</span>
                         </button>
                       )}
 
@@ -1379,9 +1510,9 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onOpenSettingsModal();
                         }}
-                        className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                        className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                       >
-                        <Settings className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        <Settings className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                         <span className="truncate">{t('settings')}</span>
                       </button>
 
@@ -1392,9 +1523,9 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenA2hsModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
-                          <Download className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <Download className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تثبيت الأيقونة' : 'Install Icon'}</span>
                         </button>
                       )}
@@ -1407,7 +1538,7 @@ export const Header: React.FC<HeaderProps> = ({
                             soundSynth.playTactileClick();
                             onToggleFullWidth();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           {isFullWidth ? <Columns className="w-3.5 h-3.5 text-teal-500 shrink-0" /> : <Maximize2 className="w-3.5 h-3.5 text-teal-500 shrink-0" />}
                           <span className="truncate">{isFullWidth ? t('toggle_companion_hub') : t('toggle_full_width')}</span>
@@ -1420,7 +1551,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           handleLangToggle();
                         }}
-                        className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-zinc-900 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors cursor-pointer text-start"
+                        className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                       >
                         <Globe className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                         <span className="truncate">{language === 'ar' ? 'English (EN)' : 'عربي (AR)'}</span>
@@ -1429,7 +1560,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Popover Footer: Profile & Logout */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                  <div className="pt-1 flex items-center justify-between gap-2">
                     {onOpenProfileModal && (
                       <button
                         type="button"
@@ -1437,11 +1568,11 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onOpenProfileModal();
                         }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold cursor-pointer hover:bg-slate-200 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold cursor-pointer hover:bg-zinc-100 transition-colors"
                       >
                         <Users className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                         <span>{activeProfileEmoji || '⚡'}</span>
-                        <span className="max-w-[100px] truncate">{activeProfileName || (language === 'ar' ? 'الملف الشخصي' : 'Profile')}</span>
+                        <span className="max-w-[110px] truncate">{activeProfileName || (language === 'ar' ? 'تبديل الحساب' : 'Switch Profile')}</span>
                       </button>
                     )}
                     {onLogout && (
@@ -1451,7 +1582,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onLogout();
                         }}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-bold cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors ms-auto"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#fce2e6] dark:bg-rose-950/50 text-rose-800 dark:text-rose-300 text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity ms-auto"
                       >
                         <Lock className="w-3.5 h-3.5 shrink-0" />
                         <span>{language === 'ar' ? 'قفل وخروج' : 'Logout'}</span>
@@ -1497,7 +1628,8 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPinModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1521,7 +1653,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Grid of Options (Scrollable area) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto pr-1 flex-1 min-h-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto pe-1 flex-1 min-h-0">
               {PINNABLE_OPTIONS.map((opt) => {
                 const isPinned = pinnedActions.includes(opt.id);
                 const isMaxReached = !isPinned && pinnedActions.length >= MAX_PINNED_ACTIONS;

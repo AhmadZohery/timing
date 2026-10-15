@@ -127,117 +127,141 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
             haptic.vibrateLight();
             onOpenEvaluationModal();
           }}
-          className="w-full py-2.5 px-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-indigo-500/10 border border-emerald-300 dark:border-emerald-700/50 hover:border-emerald-400 text-emerald-950 dark:text-emerald-200 text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-2xs group"
+          className="w-full py-3 px-4 rounded-[26px] bg-[#141517] hover:bg-zinc-900 border border-white/10 text-white text-xs font-black flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer shadow-sm group"
         >
-          <div className="flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-xl bg-[#bce8c2] text-[#141517] group-hover:scale-105 transition-transform">
+              <Trophy className="w-4 h-4" />
+            </div>
             <span>{isAr ? 'لوحة التقييم الدوري والتحفيز 📊' : 'Evaluation & Scorecard 📊'}</span>
           </div>
-          <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-white/80 dark:bg-zinc-800 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-300">
+          <span className="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-[#e2defc] text-[#141517]">
             LifeOS
           </span>
         </button>
       )}
 
       {/* 2. Today's Strategic Anchor Micro-Step */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-3.5 shadow-sm transition-colors">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
-              <Zap className="w-4 h-4 fill-emerald-500" />
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] shadow-2xs">
+              <Zap className="w-4 h-4 fill-current" />
             </div>
-            <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+            <h4 className="text-xs font-black text-[#141517] dark:text-white">
               {isAr ? 'مرساة اليوم غير القابلة للتفاوض' : 'Today’s Non-Negotiable Anchor'}
             </h4>
           </div>
 
           <button
-            onClick={onOpenGoalsModal}
-            className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenGoalsModal();
+            }}
+            className="text-[10px] px-2.5 py-1 rounded-full bg-[#d4f5dc] hover:bg-[#bce8c2] text-[#141517] font-black border border-[#1eb814]/25 active:scale-95 transition-all cursor-pointer"
           >
             {isAr ? 'تغيير' : 'Change'}
           </button>
         </div>
 
         {activeAnchorStep ? (
-          <div
+          <button
+            type="button"
             onClick={handleToggleAnchor}
-            className={`p-3 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition-all ${
+            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer text-start transition-all active:scale-[0.98] ${
               activeAnchorStep.completed
-                ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-800/60'
-                : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 hover:border-emerald-400'
+                ? 'bg-[#bce8c2] text-[#141517] border-[#1eb814]/40 shadow-2xs'
+                : 'bg-[#d4f5dc]/45 dark:bg-white/5 border-[#bce8c2] dark:border-white/10 hover:bg-[#d4f5dc]/75'
             }`}
           >
             <div className="space-y-0.5 min-w-0">
-              <span className={`text-xs font-bold block truncate ${
-                activeAnchorStep.completed ? 'line-through text-slate-400 dark:text-zinc-500' : 'text-slate-900 dark:text-zinc-100'
+              <span className={`text-xs font-black block truncate ${
+                activeAnchorStep.completed ? 'line-through text-[#141517]/70' : 'text-[#141517] dark:text-white'
               }`}>
                 {activeAnchorStep.title}
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400 block truncate">
+              <span className={`text-[10px] font-bold block truncate ${
+                activeAnchorStep.completed ? 'text-[#141517]/80' : 'text-slate-600 dark:text-zinc-400'
+              }`}>
                 {activeAnchorStep.goalTitle} • {activeAnchorStep.durationMin} {isAr ? 'دقيقة' : 'min'}
               </span>
             </div>
 
-            <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${
+            <div className={`w-6 h-6 rounded-xl border flex items-center justify-center shrink-0 transition-colors ${
               activeAnchorStep.completed
-                ? 'bg-emerald-600 border-emerald-600 text-white'
-                : 'border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900'
+                ? 'bg-[#141517] border-[#141517] text-[#bce8c2]'
+                : 'border-[#141517]/30 dark:border-zinc-600 bg-white dark:bg-zinc-900'
             }`}>
-              {activeAnchorStep.completed && <CheckCircle className="w-3.5 h-3.5 stroke-[3]" />}
+              {activeAnchorStep.completed && <CheckCircle className="w-4 h-4 stroke-[2.75]" />}
             </div>
-          </div>
+          </button>
         ) : (
-          <div
-            onClick={onOpenGoalsModal}
-            className="p-3 rounded-xl border border-dashed border-slate-300 dark:border-zinc-800 hover:border-emerald-400 text-center cursor-pointer transition-colors"
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenGoalsModal();
+            }}
+            className="w-full p-3.5 rounded-2xl bg-[#d4f5dc]/35 dark:bg-white/5 border border-dashed border-[#1eb814]/40 hover:bg-[#d4f5dc]/60 text-center cursor-pointer transition-all active:scale-[0.98]"
           >
-            <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium block">
+            <span className="text-xs text-[#141517] dark:text-[#bce8c2] font-black block">
               {isAr ? '+ اختر خطوة مجهرية كمرساة لليوم' : '+ Select today’s non-negotiable step'}
             </span>
-          </div>
+          </button>
         )}
 
         {tomorrowAnchor && (
-          <div className="pt-2 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-teal-800 dark:text-teal-300 font-medium">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenGoalsModal();
+            }}
+            className="w-full pt-2.5 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-[11px] text-[#141517] dark:text-[#bce8c2] font-medium cursor-pointer hover:opacity-80"
+          >
             <span>⚓ {isAr ? 'مرساة صباح الغد:' : 'Tomorrow Anchor:'}</span>
-            <span className="font-bold truncate max-w-[160px]">{tomorrowAnchor}</span>
-          </div>
+            <span className="font-black truncate max-w-[160px] px-2 py-0.5 rounded-lg bg-[#d4f5dc] text-[#141517]">{tomorrowAnchor}</span>
+          </button>
         )}
       </div>
 
       {/* 3. Focus Sound Synthesizer Deck (Web Audio API) */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-[26px] bg-[#e2defc]/35 dark:bg-[#141517] border border-[#e2defc] dark:border-[#e2defc]/20 space-y-3.5 shadow-sm transition-colors">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#e2defc] text-[#e2defc] dark:text-[#141517] shadow-2xs">
               <Headphones className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+              <h4 className="text-xs font-black text-[#141517] dark:text-white">
                 {isAr ? 'مولد الأصوات وموجات التركيز' : 'Procedural Sound Synthesizer'}
               </h4>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400">Web Audio API • Binaural Beats</span>
+              <span className="text-[10px] font-bold text-[#141517]/70 dark:text-[#e2defc]/80">Web Audio API • Binaural Beats</span>
             </div>
           </div>
 
           {ambientSound !== 'none' && (
-            <div className="flex items-center gap-0.5">
-              <span className="w-1 h-3 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="w-1 h-4 rounded-full bg-emerald-500 animate-pulse delay-75" />
-              <span className="w-1 h-2 rounded-full bg-emerald-500 animate-pulse delay-150" />
+            <div className="flex items-center gap-0.5 px-2 py-1 rounded-full bg-[#141517] dark:bg-[#e2defc]/15">
+              <span className="w-1 h-3 rounded-full bg-[#bce8c2] animate-pulse" />
+              <span className="w-1 h-4 rounded-full bg-[#1eb814] animate-pulse delay-75" />
+              <span className="w-1 h-2 rounded-full bg-[#e2defc] animate-pulse delay-150" />
             </div>
           )}
         </div>
 
-        {/* Ambient Sound Options */}
+        {/* Ambient Sound Options (Lavender #e2defc & Obsidian #141517 pills) */}
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 text-xs font-medium">
           <button
+            type="button"
             onClick={() => handleSetAmbient('brown')}
-            className={`py-1.5 px-1 rounded-lg border flex items-center justify-center gap-1 cursor-pointer transition-all ${
+            className={`py-2 px-1.5 rounded-xl border flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${
               ambientSound === 'brown'
-                ? 'bg-amber-100 dark:bg-amber-500/20 border-amber-300 dark:border-amber-400 text-amber-900 dark:text-amber-200 shadow-2xs font-bold'
-                : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300'
+                ? 'bg-[#141517] dark:bg-[#e2defc] border-[#141517] dark:border-[#e2defc] text-[#e2defc] dark:text-[#141517] shadow-xs font-black'
+                : 'bg-[#e2defc]/70 dark:bg-white/5 border-[#5448e8]/20 text-[#141517] dark:text-[#e2defc] hover:bg-[#e2defc]'
             }`}
           >
             <Radio className="w-3 h-3" />
@@ -245,11 +269,12 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => handleSetAmbient('rain')}
-            className={`py-1.5 px-1 rounded-lg border flex items-center justify-center gap-1 cursor-pointer transition-all ${
+            className={`py-2 px-1.5 rounded-xl border flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${
               ambientSound === 'rain'
-                ? 'bg-sky-100 dark:bg-cyan-500/20 border-sky-300 dark:border-cyan-400 text-sky-900 dark:text-cyan-200 shadow-2xs font-bold'
-                : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300'
+                ? 'bg-[#141517] dark:bg-[#e2defc] border-[#141517] dark:border-[#e2defc] text-[#e2defc] dark:text-[#141517] shadow-xs font-black'
+                : 'bg-[#e2defc]/70 dark:bg-white/5 border-[#5448e8]/20 text-[#141517] dark:text-[#e2defc] hover:bg-[#e2defc]'
             }`}
           >
             <CloudRain className="w-3 h-3" />
@@ -257,11 +282,12 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => handleSetAmbient('alpha')}
-            className={`py-1.5 px-1 rounded-lg border flex items-center justify-center gap-1 cursor-pointer transition-all ${
+            className={`py-2 px-1.5 rounded-xl border flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${
               ambientSound === 'alpha'
-                ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-300 dark:border-purple-400 text-purple-900 dark:text-purple-200 shadow-2xs font-bold'
-                : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300'
+                ? 'bg-[#141517] dark:bg-[#e2defc] border-[#141517] dark:border-[#e2defc] text-[#e2defc] dark:text-[#141517] shadow-xs font-black'
+                : 'bg-[#e2defc]/70 dark:bg-white/5 border-[#5448e8]/20 text-[#141517] dark:text-[#e2defc] hover:bg-[#e2defc]'
             }`}
           >
             <Radio className="w-3 h-3" />
@@ -269,11 +295,12 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => handleSetAmbient('theta')}
-            className={`py-1.5 px-1 rounded-lg border flex items-center justify-center gap-1 cursor-pointer transition-all ${
+            className={`py-2 px-1.5 rounded-xl border flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${
               ambientSound === 'theta'
-                ? 'bg-emerald-100 dark:bg-emerald-500/20 border-emerald-300 dark:border-emerald-400 text-emerald-900 dark:text-emerald-200 shadow-2xs font-bold'
-                : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300'
+                ? 'bg-[#141517] dark:bg-[#bce8c2] border-[#141517] dark:border-[#bce8c2] text-[#bce8c2] dark:text-[#141517] shadow-xs font-black'
+                : 'bg-[#e2defc]/70 dark:bg-white/5 border-[#5448e8]/20 text-[#141517] dark:text-[#e2defc] hover:bg-[#e2defc]'
             }`}
           >
             <Radio className="w-3 h-3" />
@@ -281,11 +308,12 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={() => handleSetAmbient('none')}
-            className={`py-1.5 px-1 rounded-lg border flex items-center justify-center gap-1 cursor-pointer transition-all ${
+            className={`py-2 px-1.5 rounded-xl border flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 ${
               ambientSound === 'none'
-                ? 'bg-slate-200 dark:bg-zinc-800 border-slate-300 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 font-bold'
-                : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400'
+                ? 'bg-[#141517] dark:bg-white/15 border-[#141517] dark:border-white/20 text-white font-black'
+                : 'bg-white/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-400 hover:bg-white'
             }`}
           >
             <VolumeX className="w-3 h-3" />
@@ -294,8 +322,15 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
         </div>
 
         {/* Volume Slider */}
-        <div className="flex items-center gap-2 pt-1">
-          <Volume2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-2.5 pt-1 bg-white/80 dark:bg-white/5 px-3 py-2 rounded-2xl border border-[#5448e8]/15">
+          <button
+            type="button"
+            onClick={() => handleSetAmbient('none')}
+            className="text-[#141517] dark:text-[#e2defc] shrink-0 cursor-pointer hover:scale-110 transition-transform"
+            title={isAr ? 'كتم الصوت' : 'Mute'}
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+          </button>
           <input
             type="range"
             min={0.1}
@@ -303,90 +338,120 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
             step={0.05}
             value={volume}
             onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-            className="w-full accent-emerald-600 h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg cursor-pointer"
+            className="w-full accent-[#5448e8] h-1.5 bg-[#e2defc] dark:bg-zinc-800 rounded-lg cursor-pointer"
           />
-          <span className="text-[10px] font-mono text-slate-400 w-7 text-end">{Math.round(volume * 100)}%</span>
+          <span className="text-[10px] font-mono font-black text-[#141517] dark:text-[#e2defc] w-8 text-end">
+            {Math.round(volume * 100)}%
+          </span>
         </div>
       </div>
 
       {/* 4. Goals Velocity Quick Preview */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-3.5 shadow-sm transition-colors">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#d4f5dc] text-[#d4f5dc] dark:text-[#141517] shadow-2xs">
               <Target className="w-4 h-4" />
             </div>
-            <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+            <h4 className="text-xs font-black text-[#141517] dark:text-white">
               {isAr ? 'سرعة الأهداف الكبرى' : 'Active Goal Velocity'}
             </h4>
           </div>
 
           <button
-            onClick={onOpenGoalsModal}
-            className="text-[11px] text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-0.5 cursor-pointer font-bold"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenGoalsModal();
+            }}
+            className="text-[10px] px-2.5 py-1 rounded-full bg-[#d4f5dc] hover:bg-[#bce8c2] text-[#141517] flex items-center gap-0.5 cursor-pointer font-black active:scale-95 transition-all"
           >
             <span>{isAr ? 'عرض الكل' : 'View All'}</span>
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="w-3 h-3 rtl:rotate-180" />
           </button>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {goals.slice(0, 3).map((g) => {
             const pct = Math.min(100, Math.round((g.currentValue / g.targetValue) * 100));
             return (
-              <div key={g.id} className="space-y-1">
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  onOpenGoalsModal();
+                }}
+                className="w-full p-2.5 rounded-2xl bg-slate-50/80 dark:bg-white/5 hover:bg-[#d4f5dc]/40 dark:hover:bg-white/10 border border-slate-200/70 dark:border-white/10 space-y-1.5 text-start transition-all active:scale-[0.99] cursor-pointer"
+              >
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-semibold text-slate-800 dark:text-zinc-200 truncate max-w-[180px]">
+                  <span className="font-bold text-[#141517] dark:text-zinc-100 truncate max-w-[175px]">
                     {g.title}
                   </span>
-                  <span className="font-mono text-slate-500 dark:text-zinc-400">
+                  <span className="font-mono font-bold text-[#141517] dark:text-[#bce8c2]">
                     {g.currentValue}/{g.targetValue} {g.unit} ({pct}%)
                   </span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-zinc-800 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-slate-200/80 dark:bg-zinc-800 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-sky-400"
+                    className="h-full rounded-full bg-[#1eb814] transition-all duration-500"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
 
       {/* 5. Saturday Buffer Health Card */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-2.5 shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-[26px] bg-[#fde6d8]/45 dark:bg-[#141517] border border-[#fde6d8] dark:border-[#fde6d8]/20 space-y-3 shadow-sm transition-colors">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#fde6d8] text-[#fde6d8] dark:text-[#141517] shadow-2xs">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+              <h4 className="text-xs font-black text-[#141517] dark:text-white">
                 {isAr ? 'صمام بافر السبت (3 ساعات)' : 'Saturday Buffer Health'}
               </h4>
-              <span className="text-[10px] text-slate-500 dark:text-zinc-400">
+              <span className="text-[10px] font-bold text-[#141517]/70 dark:text-[#fde6d8]/80">
                 {isAr ? 'تأجيل آمن يحمي شعلتك' : 'Zero-guilt streak protection'}
               </span>
             </div>
           </div>
 
           <button
-            onClick={onOpenBufferModal}
-            className="text-[10px] px-2 py-1 rounded-md bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800/40 cursor-pointer shadow-2xs"
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onOpenBufferModal();
+            }}
+            className="text-[10px] px-3 py-1 rounded-full bg-[#141517] dark:bg-[#fde6d8] text-[#fde6d8] dark:text-[#141517] font-black cursor-pointer shadow-2xs active:scale-95 transition-transform"
           >
             {pendingBufferCount} {isAr ? 'مؤجل' : 'Queued'}
           </button>
         </div>
 
-        <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-[11px] text-slate-600 dark:text-zinc-400 flex items-center justify-between">
-          <span>{isAr ? 'المتاح للتأجيل هذا الأسبوع:' : 'Buffer capacity remaining:'}</span>
-          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            onOpenBufferModal();
+          }}
+          className="w-full p-3 rounded-2xl bg-white/85 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 border border-[#ff5500]/20 text-[11px] text-[#141517] dark:text-zinc-200 flex items-center justify-between cursor-pointer transition-all active:scale-[0.98]"
+        >
+          <span className="font-bold">{isAr ? 'المتاح للتأجيل هذا الأسبوع:' : 'Buffer capacity remaining:'}</span>
+          <span className="font-mono font-black px-2 py-0.5 rounded-lg bg-[#bce8c2] text-[#141517]">
             {Math.max(0, 2 - (userState?.weeklyBufferCount || 0))} / 2
           </span>
-        </div>
+        </button>
       </div>
     </aside>
   );
 };
+

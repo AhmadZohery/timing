@@ -559,25 +559,34 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
   const anchorTask = isSurvival ? tasks.find((t) => !t.completed) : null;
   const activeTask = tasks.find((t) => t.id === activeTaskId);
 
+  const doFirstCount = tasks.filter((t) => !t.completed && t.priority === 'high').length;
+  const scheduleCount = tasks.filter(
+    (t) => !t.completed && t.priority !== 'high' && (t.taskRole || 'maker') === 'maker'
+  ).length;
+  const delegateCount = tasks.filter(
+    (t) => !t.completed && t.priority !== 'high' && t.taskRole === 'manager'
+  ).length;
+  const completedTasksCount = tasks.filter((t) => t.completed).length;
+
   return (
     <div className="space-y-5 transition-colors duration-200">
       {/* Survival Mode MVD Banner */}
       {isSurvival && (
-        <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border-2 border-amber-500/30 text-amber-950 dark:text-amber-200 flex items-start justify-between gap-3 shadow-xs animate-fade-in">
+        <div className="p-4 sm:p-5 rounded-[26px] bg-[#fde6d8] dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-700/50 text-[#141517] dark:text-amber-100 flex items-start justify-between gap-3 shadow-xs animate-fade-in">
           <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-2xl bg-amber-500 text-white shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-[#141517] text-[#fde6d8] shrink-0 shadow-sm">
               <Shield className="w-5 h-5" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="font-black text-sm">
+                <h4 className="font-bold text-sm">
                   {isAr ? 'وضع البقاء والحد الأدنى الفعال (MVD Survival Mode) 🛡️' : 'MVD Survival Mode Active 🛡️'}
                 </h4>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-100 font-mono">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#141517] text-[#fde6d8] font-mono">
                   1 Task = 100% Flame Protection
                 </span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
+              <p className="text-xs text-[#141517]/80 dark:text-amber-200/80 leading-relaxed">
                 {isAr
                   ? 'أنت اليوم في وضع الطاقة المنخفضة أو الظرف الطارئ. إنجاز مهمة أساسية واحدة فقط (Anchor Task) كافٍ تماماً لحماية شعلتك ونجاح يومك دون أي ضغط أو تأنيب ضمير.'
                   : 'You are in emergency/low-energy mode today. Completing just ONE anchor task protects 100% of your streak with zero guilt.'}
@@ -588,18 +597,18 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
       )}
 
       {/* Rhythm & Profile Status Header */}
-      <div className="p-4 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/80 dark:border-zinc-800/90 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-xl shadow-2xs">
+          <div className="w-11 h-11 rounded-2xl bg-[#141517] dark:bg-zinc-800 text-[#bce8c2] flex items-center justify-center text-xl shadow-xs">
             {activeProfile?.avatarEmoji || '⚡'}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm text-slate-900 dark:text-white">
+              <span className="font-bold text-sm text-[#141517] dark:text-white">
                 {activeProfile?.name || (isAr ? 'الملف الشخصي' : 'Profile')}
               </span>
               {activeProfile?.customRoleTitle && (
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 font-medium">
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#e2defc] dark:bg-indigo-950/60 text-[#141517] dark:text-indigo-200 font-bold">
                   {activeProfile.customRoleTitle}
                 </span>
               )}
@@ -614,23 +623,23 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
         <div className="flex items-center gap-2">
           <span
-            className={`px-3 py-1 rounded-xl text-xs font-bold ${
+            className={`px-3 py-1 rounded-full text-xs font-bold ${
               rhythm.isRestDay
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                ? 'bg-[#d4f5dc] text-[#141517] dark:bg-emerald-950/60 dark:text-emerald-300 border border-[#bce8c2] dark:border-emerald-800'
                 : rhythm.isHalfDay
-                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
-                : 'bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-cyan-300 border border-sky-300 dark:border-sky-800'
+                ? 'bg-[#fde6d8] text-[#141517] dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300/70 dark:border-amber-800'
+                : 'bg-[#e0f2fe] text-[#141517] dark:bg-sky-950/60 dark:text-cyan-300 border border-sky-200 dark:border-sky-800'
             }`}
           >
             {isAr ? rhythm.badgeAr : rhythm.rhythm}
           </span>
           {rhythm.targetSessions > 0 ? (
-            <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-zinc-900 text-[#141517] dark:text-zinc-300 font-mono font-bold">
               🎯 {completedSessionsCount} / {rhythm.targetSessions} {isAr ? 'جلسات' : 'sessions'}
             </span>
           ) : (
-            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-              <Coffee className="w-3.5 h-3.5" />
+            <span className="text-xs px-2.5 py-1 rounded-full bg-[#d4f5dc] dark:bg-emerald-950/60 text-[#141517] dark:text-emerald-300 font-bold flex items-center gap-1">
+              <Coffee className="w-3.5 h-3.5 text-[#1eb814]" />
               <span>{isAr ? 'راحة تامة' : 'Rest Mode'}</span>
             </span>
           )}
@@ -639,24 +648,24 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
       {/* Sunday Rest Oasis Card */}
       {rhythm.isRestDay && (
-        <div className="p-5 rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/40 dark:via-zinc-900 dark:to-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 shadow-xs space-y-3">
+        <div className="p-5 rounded-[26px] bg-[#d4f5dc]/70 dark:bg-emerald-950/30 border border-[#bce8c2] dark:border-emerald-800/60 shadow-xs space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-2xl bg-emerald-600 text-white shrink-0 mt-0.5 shadow-sm">
+              <div className="p-2.5 rounded-2xl bg-[#141517] text-[#bce8c2] shrink-0 mt-0.5 shadow-sm">
                 <Coffee className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-emerald-900 dark:text-emerald-200">
+                <h4 className="font-bold text-sm text-[#141517] dark:text-emerald-100">
                   {isAr ? rhythm.titleAr : rhythm.titleEn}
                 </h4>
-                <p className="text-xs text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
+                <p className="text-xs text-[#141517]/80 dark:text-emerald-200/80 mt-1 leading-relaxed">
                   {isAr ? rhythm.descAr : `${rhythm.dayNameEn} is your day off! No forced tasks, streak is 100% protected.`}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setShowRestDayWorkArea(!showRestDayWorkArea)}
-              className="px-3 py-1.5 rounded-xl bg-white/80 dark:bg-zinc-800 text-emerald-900 dark:text-emerald-200 text-xs font-bold border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+              className="px-3.5 py-1.5 rounded-full bg-[#141517] text-[#bce8c2] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs"
             >
               <span>{showRestDayWorkArea ? (isAr ? 'إخفاء مساحة العمل' : 'Hide Work') : (isAr ? 'فتح جلسة خفيفة اختيارية' : 'Open Optional Work')}</span>
               {showRestDayWorkArea ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -665,15 +674,15 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
           {/* Sunday Rest Ideas */}
           {domainPreset.restDayIdeas.length > 0 && (
-            <div className="pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1">
+            <div className="pt-2 border-t border-[#141517]/10 dark:border-emerald-800/40 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-[#141517] dark:text-emerald-200 flex items-center gap-1">
                 <Heart className="w-3.5 h-3.5 text-rose-500" />
                 <span>{isAr ? 'أفكار لتجديد طاقتك:' : 'Recharge Ideas:'}</span>
               </span>
               {domainPreset.restDayIdeas.map((idea, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 bg-white/90 dark:bg-zinc-900/90 text-emerald-800 dark:text-emerald-300 text-xs rounded-xl border border-emerald-200 dark:border-emerald-800/50 shadow-2xs"
+                  className="px-3 py-1 bg-white/90 dark:bg-zinc-900/90 text-[#141517] dark:text-emerald-300 text-xs font-medium rounded-full border border-[#bce8c2] dark:border-emerald-800/50 shadow-2xs"
                 >
                   🌿 {idea}
                 </span>
@@ -685,21 +694,21 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
       {/* Saturday Half-Day Sprint Card */}
       {rhythm.isHalfDay && (
-        <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-amber-950/40 dark:via-zinc-900 dark:to-amber-950/40 border border-amber-200 dark:border-amber-800/60 shadow-xs flex items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 rounded-[26px] bg-[#fde6d8]/80 dark:bg-amber-950/30 border border-amber-300/70 dark:border-amber-800/60 shadow-xs flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-amber-500 text-white shrink-0 shadow-sm">
+            <div className="p-2.5 rounded-2xl bg-[#141517] text-[#fde6d8] shrink-0 shadow-sm">
               <Sun className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="font-bold text-sm text-amber-900 dark:text-amber-200">
+                <h4 className="font-bold text-sm text-[#141517] dark:text-amber-100">
                   {isAr ? rhythm.titleAr : rhythm.titleEn}
                 </h4>
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 font-bold">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] bg-[#141517] text-[#fde6d8] font-bold">
                   {isAr ? '2 إلى 3 جلسات فقط' : '2-3 Sessions Max'}
                 </span>
               </div>
-              <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5 leading-relaxed">
+              <p className="text-xs text-[#141517]/80 dark:text-amber-200/80 mt-0.5 leading-relaxed">
                 {isAr ? rhythm.descAr : 'Saturday is half-day: wrap up weekly items early and enjoy the rest of your day!'}
               </p>
             </div>
@@ -707,73 +716,104 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
         </div>
       )}
 
-      {/* Productivity Stats Bar */}
+      {/* Productivity Stats Bar — Habitline Pastel Bento Tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-sky-50 dark:bg-cyan-500/20 text-sky-700 dark:text-cyan-400">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+          }}
+          className="p-4 rounded-[24px] bg-[#e0f2fe]/70 dark:bg-[#141517] border border-sky-200/80 dark:border-zinc-800 shadow-xs flex items-center gap-3 text-start transition-transform active:scale-[0.98] cursor-pointer"
+        >
+          <div className="p-2.5 rounded-2xl bg-[#141517] dark:bg-sky-500/20 text-[#e0f2fe] dark:text-sky-300 shrink-0">
             <Zap className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-bold uppercase block">
+            <span className="text-[10px] text-[#141517]/70 dark:text-zinc-400 font-bold uppercase block">
               {isAr ? 'جلسات اليوم' : 'Sessions Today'}
             </span>
-            <span className="text-base font-black font-mono text-slate-900 dark:text-zinc-100">
+            <span className="text-base font-black font-mono text-[#141517] dark:text-zinc-100">
               {completedSessionsCount}
             </span>
           </div>
-        </div>
+        </button>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+          }}
+          className="p-4 rounded-[24px] bg-[#d4f5dc]/80 dark:bg-[#141517] border border-[#bce8c2] dark:border-zinc-800 shadow-xs flex items-center gap-3 text-start transition-transform active:scale-[0.98] cursor-pointer"
+        >
+          <div className="p-2.5 rounded-2xl bg-[#141517] dark:bg-emerald-500/20 text-[#bce8c2] dark:text-emerald-300 shrink-0">
             <Clock className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-bold uppercase block">
+            <span className="text-[10px] text-[#141517]/70 dark:text-zinc-400 font-bold uppercase block">
               {isAr ? 'التركيز الصافي' : 'Net Focus Time'}
             </span>
-            <span className="text-base font-black font-mono text-slate-900 dark:text-zinc-100">
+            <span className="text-base font-black font-mono text-[#141517] dark:text-zinc-100">
               {totalFocusMinutes} {isAr ? 'دقيقة' : 'min'}
             </span>
           </div>
-        </div>
+        </button>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setShowAddTask((prev) => !prev);
+          }}
+          className="p-4 rounded-[24px] bg-[#e2defc]/80 dark:bg-[#141517] border border-indigo-200/80 dark:border-zinc-800 shadow-xs flex items-center gap-3 text-start transition-transform active:scale-[0.98] cursor-pointer"
+        >
+          <div className="p-2.5 rounded-2xl bg-[#141517] dark:bg-indigo-500/20 text-[#e2defc] dark:text-indigo-300 shrink-0">
             <CheckCircle2 className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-bold uppercase block">
+            <span className="text-[10px] text-[#141517]/70 dark:text-zinc-400 font-bold uppercase block">
               {isAr ? 'المهام المنجزة' : 'Tasks Done'}
             </span>
-            <span className="text-base font-black font-mono text-slate-900 dark:text-zinc-100">
-              {tasks.filter((t) => t.completed).length} / {tasks.length}
+            <span className="text-base font-black font-mono text-[#141517] dark:text-zinc-100">
+              {completedTasksCount} / {tasks.length}
             </span>
           </div>
-        </div>
+        </button>
 
-        <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-xs flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400">
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            haptic.vibrateLight();
+            setIsUrgeOpen(true);
+            setUrgeSeconds(60);
+          }}
+          className="p-4 rounded-[24px] bg-[#fde6d8]/80 dark:bg-[#141517] border border-amber-200/80 dark:border-zinc-800 shadow-xs flex items-center gap-3 text-start transition-transform active:scale-[0.98] cursor-pointer"
+        >
+          <div className="p-2.5 rounded-2xl bg-[#141517] dark:bg-amber-500/20 text-[#fde6d8] dark:text-amber-300 shrink-0">
             <Waves className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-bold uppercase block">
+            <span className="text-[10px] text-[#141517]/70 dark:text-zinc-400 font-bold uppercase block">
               {isAr ? 'حراسة اليقظة' : 'Attention Guard'}
             </span>
-            <span className="text-base font-black font-mono text-slate-900 dark:text-zinc-100">
+            <span className="text-base font-black font-mono text-[#141517] dark:text-zinc-100">
               {surfedCount}
             </span>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Main 2-Column Responsive Workspace */}
       {rhythm.isRestDay && !showRestDayWorkArea ? (
-        <div className="p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-900/40 text-center space-y-4 shadow-xs">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center text-3xl">
+        <div className="p-8 rounded-[26px] bg-white dark:bg-[#141517] border border-[#bce8c2] dark:border-emerald-900/40 text-center space-y-4 shadow-xs">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-[#d4f5dc] dark:bg-emerald-950/60 text-[#141517] flex items-center justify-center text-3xl shadow-xs">
             🌴
           </div>
           <div className="max-w-md mx-auto space-y-1.5">
-            <h3 className="font-bold text-base text-slate-900 dark:text-white">
+            <h3 className="font-bold text-base text-[#141517] dark:text-white">
               {isAr ? `عطلة ${rhythm.dayNameAr} سعيدة ومباركة! 🌴` : `Happy Restful ${rhythm.dayNameEn}! 🌴`}
             </h3>
             <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
@@ -785,7 +825,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
           <button
             type="button"
             onClick={() => setShowRestDayWorkArea(true)}
-            className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
+            className="px-5 py-2.5 rounded-full bg-[#141517] text-[#bce8c2] text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-xs"
           >
             {isAr ? '✍️ فتح جلسة تركيز خفيفة اختيارية' : 'Open optional light focus session'}
           </button>
@@ -793,12 +833,14 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column: Focus Session Engine (Timer, Modes, Sounds) */}
-        <div className="lg:col-span-6 p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-5 shadow-xs">
+        <div className="lg:col-span-6 p-5 sm:p-6 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/80 dark:border-zinc-800/90 space-y-5 shadow-xs">
           {/* Header & Focus Mode Switcher */}
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-sky-700 dark:text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4" />
+              <span className="text-xs font-bold text-[#141517] dark:text-[#bce8c2] uppercase tracking-wider flex items-center gap-2">
+                <span className="w-7 h-7 rounded-xl bg-[#141517] dark:bg-zinc-800 text-[#bce8c2] flex items-center justify-center">
+                  <Briefcase className="w-3.5 h-3.5" />
+                </span>
                 <span>{t('workday_planner_title')}</span>
               </span>
               <div className="flex items-center gap-2">
@@ -809,14 +851,14 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     haptic.vibrateLight();
                     setIsSanctuaryOpen(true);
                   }}
-                  className="py-1 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                  className="py-1.5 px-3 rounded-full bg-[#141517] hover:bg-zinc-800 text-[#bce8c2] border border-zinc-800 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
                   title={isAr ? 'دخول وضع التركيز العميق وعزل المشتتات' : 'Enter Deep Focus Sanctuary'}
                 >
                   <Shield className="w-3.5 h-3.5" />
                   <span>{isAr ? 'خلوة التركيز 🛡️' : 'Deep Focus 🛡️'}</span>
                 </button>
                 {isBreakPhase && (
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold animate-pulse">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#fde6d8] text-[#141517] font-bold animate-pulse">
                     ☕ {isAr ? 'فترة استراحة' : 'Rest Break'} ({restMin}m)
                   </span>
                 )}
@@ -824,7 +866,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
             </div>
 
             {/* Mode Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
               {[
                 { id: 'quick_20', label: '20/3m', desc: isAr ? '✨ المقترحة لك' : 'Optimal' },
                 { id: 'pomodoro_25', label: '25/5m', desc: 'Pomodoro' },
@@ -840,10 +882,10 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     timer.stopTimer();
                     setIsBreakPhase(false);
                   }}
-                  className={`p-2 rounded-xl text-center border transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-2xl text-center border transition-all cursor-pointer active:scale-95 ${
                     focusMode === m.id
-                      ? 'bg-sky-600 border-sky-600 text-white shadow-sm font-bold'
-                      : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-sky-400'
+                      ? 'bg-[#141517] dark:bg-[#bce8c2] border-[#141517] dark:border-[#bce8c2] text-[#bce8c2] dark:text-[#141517] shadow-sm font-bold'
+                      : 'bg-slate-50 dark:bg-zinc-900/90 border-slate-200/80 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:border-[#141517]/40'
                   }`}
                 >
                   <span className="text-xs block font-mono font-bold">{m.label}</span>
@@ -854,23 +896,23 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
             {/* Prayer-Aware Focus Block (التقريب الزمني الذكي للصلوات) */}
             {nextPrayer && nextPrayer.minutesRemaining > 5 && nextPrayer.minutesRemaining <= 120 && (
-              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between gap-2 shadow-2xs mt-2">
+              <div className="p-3.5 rounded-2xl bg-[#d4f5dc]/75 dark:bg-emerald-950/30 border border-[#bce8c2] dark:border-emerald-800/50 flex items-center justify-between gap-2 shadow-2xs mt-2">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-sm shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#141517] text-[#bce8c2] flex items-center justify-center text-sm shrink-0">
                     🕌
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200">
+                      <span className="text-xs font-bold text-[#141517] dark:text-emerald-100">
                         {isAr
                           ? `سويعة إنجاز حتى أذان ${nextPrayer.arabicName}`
                           : `Sprint until ${nextPrayer.englishName}`}
                       </span>
-                      <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-emerald-500/25 text-emerald-800 dark:text-emerald-300">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#141517] text-[#bce8c2]">
                         {prayerSprintMinutes} {isAr ? 'دقيقة' : 'min'}
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-500 dark:text-zinc-400 block truncate">
+                    <span className="text-[10px] text-[#141517]/75 dark:text-zinc-400 block truncate">
                       {isAr
                         ? `ينتهي قبل الأذان بدقيقتين للتهيئة والوضوء (الأذان: ${nextPrayer.formattedTime})`
                         : `Ends 2m before Adhan at ${nextPrayer.formattedTime}`}
@@ -888,10 +930,10 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     timer.stopTimer();
                     setIsBreakPhase(false);
                   }}
-                  className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95 ${
+                  className={`py-1.5 px-3.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95 ${
                     focusMode === 'custom' && customMinutes === prayerSprintMinutes
-                      ? 'bg-emerald-600 text-white font-black'
-                      : 'bg-emerald-600/20 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white border border-emerald-500/30'
+                      ? 'bg-[#1eb814] text-white font-black'
+                      : 'bg-[#141517] text-[#bce8c2] hover:opacity-90'
                   }`}
                 >
                   {focusMode === 'custom' && customMinutes === prayerSprintMinutes
@@ -904,22 +946,22 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
           {/* Active Task Working Banner */}
           {activeTask ? (
-            <div className="p-3 rounded-2xl bg-sky-50 dark:bg-cyan-950/40 border border-sky-200 dark:border-cyan-800/50 flex items-center justify-between gap-2 text-xs">
+            <div className="p-3.5 rounded-2xl bg-[#e2defc]/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2 truncate">
-                <Target className="w-4 h-4 text-sky-600 dark:text-cyan-400 shrink-0" />
-                <span className="font-bold text-sky-900 dark:text-cyan-200 truncate">
+                <Target className="w-4 h-4 text-[#141517] dark:text-indigo-300 shrink-0" />
+                <span className="font-bold text-[#141517] dark:text-indigo-100 truncate">
                   {t('active_working_on')} {activeTask.title}
                 </span>
               </div>
               <button
                 onClick={() => setActiveTaskId(null)}
-                className="text-[10px] px-2 py-1 rounded-md bg-white dark:bg-zinc-900 text-slate-500 hover:text-slate-800 cursor-pointer"
+                className="text-[10px] px-2.5 py-1 rounded-full bg-white dark:bg-zinc-900 text-[#141517] dark:text-zinc-300 font-bold hover:opacity-80 cursor-pointer"
               >
                 {isAr ? 'إلغاء التحديد' : 'Deselect'}
               </button>
             </div>
           ) : (
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-zinc-950/70 border border-dashed border-slate-200 dark:border-zinc-800 text-center text-xs text-slate-500 dark:text-zinc-400">
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-900/70 border border-dashed border-slate-200 dark:border-zinc-800 text-center text-xs text-slate-500 dark:text-zinc-400">
               {t('select_task_to_focus')}
             </div>
           )}
@@ -929,13 +971,13 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
             <div
               className={`w-48 h-48 sm:w-52 sm:h-52 rounded-full border-4 flex flex-col items-center justify-center transition-all duration-500 shadow-inner ${
                 isBreakPhase
-                  ? 'border-amber-400 bg-amber-50/50 dark:bg-amber-950/20'
+                  ? 'border-amber-400 bg-[#fde6d8]/50 dark:bg-amber-950/20'
                   : timer.isRunning
-                  ? 'border-sky-500 bg-sky-50/30 dark:bg-zinc-950'
-                  : 'border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950'
+                  ? 'border-[#1eb814] bg-[#d4f5dc]/40 dark:bg-zinc-950 shadow-[0_0_35px_rgba(188,232,194,0.35)]'
+                  : 'border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900/90'
               }`}
             >
-              <span className="text-5xl font-mono font-black tracking-tight text-slate-900 dark:text-zinc-100">
+              <span className="text-5xl font-mono font-black tracking-tight text-[#141517] dark:text-zinc-100">
                 {timer.remainingSec > 0
                   ? formatTime(timer.remainingSec)
                   : `${isBreakPhase ? restMin : workMin}:00`}
@@ -947,19 +989,19 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
             {!timer.isRunning ? (
               <button
                 onClick={timer.remainingSec > 0 ? handleResume : handleStartWork}
-                className="py-3 px-8 rounded-2xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm flex items-center gap-2 shadow-md shadow-sky-600/20 active:scale-95 transition-all cursor-pointer"
+                className="py-3 px-7 rounded-full bg-[#141517] dark:bg-[#bce8c2] hover:opacity-95 text-[#bce8c2] dark:text-[#141517] font-bold text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
               >
-                <Play className="w-4 h-4 fill-white" />
+                <Play className="w-4 h-4 fill-current" />
                 <span>{timer.remainingSec > 0 ? (isAr ? 'متابعة الإنجاز' : t('resume_focus_session')) : (isAr ? 'بدء سويعة الإنجاز ⚡' : t('start_focus_session'))}</span>
               </button>
             ) : (
               <button
                 onClick={handlePause}
-                className="py-3 px-8 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer"
+                className="py-3 px-7 rounded-full bg-[#fde6d8] hover:opacity-95 text-[#141517] font-bold text-sm flex items-center gap-2 border border-amber-300 shadow-md active:scale-95 transition-all cursor-pointer"
               >
                 <Pause className="w-4 h-4" />
                 <span>{isAr ? 'إيقاف مؤقت' : t('pause_focus_session')}</span>
@@ -969,7 +1011,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
             <button
               onClick={handleReset}
               title="إعادة ضبط / Reset"
-              className="p-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 active:scale-95 transition-all cursor-pointer shadow-2xs"
+              className="p-3 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-[#141517] dark:text-zinc-300 active:scale-95 transition-all cursor-pointer shadow-2xs"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -983,9 +1025,9 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                   onOpenTwoMinuteRule(activeTask?.title);
                 }}
                 title={isAr ? 'قاعدة الدقيقتين: ابدأ بـ 120 ثانية فقط لكسر حاجز المقاومة' : '2-Minute Rule: Kickstart with 120s'}
-                className="py-3 px-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-700/50 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                className="py-3 px-4 rounded-full bg-[#fde6d8] hover:opacity-90 dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-700/50 text-[#141517] dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
               >
-                <Zap className="w-4 h-4 fill-amber-500 text-amber-600 dark:text-amber-400" />
+                <Zap className="w-4 h-4 fill-[#ff5500] text-[#ff5500]" />
                 <span>{isAr ? '⚡ 2 دقيقة' : '⚡ 2-Min'}</span>
               </button>
             )}
@@ -1004,9 +1046,9 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     soundSynth.playTactileClick();
                     setAmbientSound(snd);
                   }}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition-colors cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold transition-colors cursor-pointer ${
                     ambientSound === snd
-                      ? 'bg-sky-600 text-white'
+                      ? 'bg-[#141517] dark:bg-[#e2defc] text-[#e2defc] dark:text-[#141517]'
                       : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900'
                   }`}
                 >
@@ -1021,7 +1063,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                 setIsUrgeOpen(true);
                 setUrgeSeconds(60);
               }}
-              className="py-1.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="py-1.5 px-3.5 rounded-full bg-[#e0f2fe] hover:opacity-90 dark:bg-blue-950/40 border border-sky-200 dark:border-blue-800/50 text-[#141517] dark:text-blue-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
             >
               <Waves className="w-3.5 h-3.5" />
               <span>{isAr ? 'مقاومة التشتت (60ث) 🌊' : 'Urge Control (60s) 🌊'}</span>
@@ -1037,7 +1079,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                   const taskTitle = activeTask?.title || (isAr ? 'جلسة عمل مؤجلة' : 'Deferred Focus Task');
                   onDeferToBuffer(taskTitle, workMin);
                 }}
-                className="py-1 px-2.5 rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-500/30 text-xs cursor-pointer"
+                className="py-1 px-3 rounded-full bg-[#fde6d8] hover:opacity-90 dark:bg-amber-500/10 text-[#141517] dark:text-amber-300 font-bold border border-amber-300/70 dark:border-amber-500/30 text-xs cursor-pointer"
               >
                 {t('defer_to_buffer')} ({bufferAvailableCount}/2)
               </button>
@@ -1045,12 +1087,14 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
           )}
         </div>
 
-        {/* Right Column: Workday Tasks Backlog & Schedule */}
-        <div className="lg:col-span-6 p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-4 shadow-xs">
+        {/* Right Column: Workday Tasks Backlog & Eisenhower Matrix */}
+        <div className="lg:col-span-6 p-5 sm:p-6 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/80 dark:border-zinc-800/90 space-y-4 shadow-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-sky-600 dark:text-cyan-400" />
-              <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100">
+              <span className="w-7 h-7 rounded-xl bg-[#141517] dark:bg-zinc-800 text-[#bce8c2] flex items-center justify-center">
+                <Layers className="w-3.5 h-3.5" />
+              </span>
+              <h3 className="font-bold text-sm text-[#141517] dark:text-zinc-100">
                 {t('workday_tasks_title')}
               </h3>
             </div>
@@ -1059,9 +1103,9 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
               <button
                 type="button"
                 onClick={handleToggleIvyLee}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border ${
                   ivyLeeLockEnabled
-                    ? 'bg-amber-500/15 border-amber-400 text-amber-800 dark:text-amber-300 shadow-xs ring-1 ring-amber-400/40'
+                    ? 'bg-[#fde6d8] border-amber-400 text-[#141517] shadow-xs ring-1 ring-amber-400/40'
                     : 'bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 hover:text-slate-900'
                 }`}
                 title={
@@ -1076,7 +1120,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
               <button
                 onClick={() => setShowAddTask(!showAddTask)}
-                className="px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/40 text-sky-700 dark:text-cyan-300 text-xs font-bold flex items-center gap-1 border border-sky-200 dark:border-sky-800/40 cursor-pointer shadow-2xs"
+                className="px-3 py-1.5 rounded-full bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs transition-all active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{t('add_work_task')}</span>
@@ -1084,11 +1128,74 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
             </div>
           </div>
 
+          {/* Eisenhower Matrix Pastel Quadrant Header Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* Do First: #fce2e6 Rose */}
+            <div className="p-2.5 rounded-2xl bg-[#fce2e6] dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-800/50 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-[#141517] dark:text-rose-200 block">
+                  {isAr ? '🔥 أنجز فوراً' : '🔥 Do First'}
+                </span>
+                <span className="text-[9px] text-[#141517]/70 dark:text-rose-300/70 block">
+                  {isAr ? 'أولوية قصوى' : 'Urgent / High'}
+                </span>
+              </div>
+              <span className="w-6 h-6 rounded-full bg-[#141517] text-[#fce2e6] text-xs font-mono font-bold flex items-center justify-center">
+                {doFirstCount}
+              </span>
+            </div>
+
+            {/* Schedule: #e2defc Lavender */}
+            <div className="p-2.5 rounded-2xl bg-[#e2defc] dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/50 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-[#141517] dark:text-indigo-200 block">
+                  {isAr ? '🎨 جدولة عميقة' : '🎨 Schedule'}
+                </span>
+                <span className="text-[9px] text-[#141517]/70 dark:text-indigo-300/70 block">
+                  {isAr ? 'صانع • تركيز' : 'Maker Flow'}
+                </span>
+              </div>
+              <span className="w-6 h-6 rounded-full bg-[#141517] text-[#e2defc] text-xs font-mono font-bold flex items-center justify-center">
+                {scheduleCount}
+              </span>
+            </div>
+
+            {/* Delegate: #fde6d8 Amber */}
+            <div className="p-2.5 rounded-2xl bg-[#fde6d8] dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-[#141517] dark:text-amber-200 block">
+                  {isAr ? '📋 تفويض وتنسيق' : '📋 Delegate'}
+                </span>
+                <span className="text-[9px] text-[#141517]/70 dark:text-amber-300/70 block">
+                  {isAr ? 'مدير • متابعة' : 'Manager Ops'}
+                </span>
+              </div>
+              <span className="w-6 h-6 rounded-full bg-[#141517] text-[#fde6d8] text-xs font-mono font-bold flex items-center justify-center">
+                {delegateCount}
+              </span>
+            </div>
+
+            {/* Completed: #d4f5dc Mint */}
+            <div className="p-2.5 rounded-2xl bg-[#d4f5dc] dark:bg-emerald-950/40 border border-[#bce8c2] dark:border-emerald-800/50 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-[#141517] dark:text-emerald-200 block">
+                  {isAr ? '✓ مكتملة' : '✓ Completed'}
+                </span>
+                <span className="text-[9px] text-[#141517]/70 dark:text-emerald-300/70 block">
+                  {isAr ? 'حصاد اليوم' : 'Done Today'}
+                </span>
+              </div>
+              <span className="w-6 h-6 rounded-full bg-[#1eb814] text-white text-xs font-mono font-bold flex items-center justify-center">
+                {completedTasksCount}
+              </span>
+            </div>
+          </div>
+
           {/* Quick Domain-Tailored Task Chips */}
-          <div className="p-3 bg-slate-50 dark:bg-zinc-950/60 rounded-2xl border border-slate-200 dark:border-zinc-800/80 space-y-2">
+          <div className="p-3.5 bg-slate-50 dark:bg-zinc-900/70 rounded-2xl border border-slate-200/80 dark:border-zinc-800/80 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-[11px] font-bold text-[#141517] dark:text-zinc-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#ff5500]" />
                 <span>
                   {isAr
                     ? `اقتراحات سريعة لمجالك (${domainPreset.titleAr}):`
@@ -1106,9 +1213,9 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleAddPresetTask(preset.title, preset.durationMin)}
-                    className="px-2.5 py-1 rounded-xl bg-white dark:bg-zinc-900 hover:bg-sky-50 dark:hover:bg-cyan-950/50 border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs hover:border-sky-300 dark:hover:border-cyan-700 cursor-pointer"
+                    className="px-3 py-1 rounded-full bg-white dark:bg-zinc-900 hover:bg-[#d4f5dc]/60 dark:hover:bg-zinc-800 border border-slate-200 dark:border-zinc-800 text-[#141517] dark:text-zinc-300 text-xs font-medium flex items-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer"
                   >
-                    <Plus className="w-3 h-3 text-sky-600 dark:text-cyan-400" />
+                    <Plus className="w-3 h-3 text-[#1eb814]" />
                     <span>{preset.title}</span>
                     <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-mono">
                       {preset.durationMin}m
@@ -1123,14 +1230,14 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
           {showAddTask && (
             <form
               onSubmit={handleAddTask}
-              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-sky-200 dark:border-sky-900/60 space-y-3 animate-fade-in"
+              className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3 animate-fade-in"
             >
               <input
                 type="text"
                 placeholder={t('task_title_placeholder')}
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                className="w-full py-2 px-3 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs text-slate-900 dark:text-zinc-100 focus:outline-hidden focus:border-sky-500 font-medium"
+                className="w-full py-2 px-3 rounded-xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-[#141517] dark:text-zinc-100 focus:outline-hidden focus:border-[#141517] font-medium"
               />
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex-1 min-w-[120px] flex items-center gap-1.5">
@@ -1142,13 +1249,13 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     step={5}
                     value={newTaskEstimate}
                     onChange={(e) => setNewTaskEstimate(Number(e.target.value))}
-                    className="w-16 py-1 px-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold text-center"
+                    className="w-16 py-1 px-2 rounded-lg bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-mono font-bold text-center"
                   />
                 </div>
                 <select
                   value={newTaskPriority}
                   onChange={(e) => setNewTaskPriority(e.target.value as TaskPriority)}
-                  className="py-1 px-2.5 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-xs font-medium"
+                  className="py-1 px-2.5 rounded-lg bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs font-medium"
                 >
                   <option value="high">{t('task_priority_high')}</option>
                   <option value="medium">{t('task_priority_medium')}</option>
@@ -1156,13 +1263,13 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                 </select>
 
                 {/* Maker vs Manager Selector */}
-                <div className="flex items-center gap-1 bg-white dark:bg-zinc-900 p-0.5 rounded-lg border border-slate-200 dark:border-zinc-800">
+                <div className="flex items-center gap-1 bg-white dark:bg-zinc-950 p-0.5 rounded-lg border border-slate-200 dark:border-zinc-800">
                   <button
                     type="button"
                     onClick={() => setNewTaskRole('maker')}
                     className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all cursor-pointer ${
                       newTaskRole === 'maker'
-                        ? 'bg-indigo-600 text-white shadow-xs'
+                        ? 'bg-[#e2defc] text-[#141517] shadow-xs'
                         : 'text-slate-600 dark:text-zinc-400'
                     }`}
                   >
@@ -1173,7 +1280,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     onClick={() => setNewTaskRole('manager')}
                     className={`px-2 py-0.5 rounded text-[11px] font-bold transition-all cursor-pointer ${
                       newTaskRole === 'manager'
-                        ? 'bg-emerald-600 text-white shadow-xs'
+                        ? 'bg-[#fde6d8] text-[#141517] shadow-xs'
                         : 'text-slate-600 dark:text-zinc-400'
                     }`}
                   >
@@ -1182,13 +1289,13 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                 </div>
 
                 {/* Optional Task Alarm Reminder */}
-                <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2 py-1 rounded-lg border border-slate-200 dark:border-zinc-800">
+                <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-950 px-2 py-1 rounded-lg border border-slate-200 dark:border-zinc-800">
                   <label className="flex items-center gap-1 cursor-pointer text-[11px] font-bold text-slate-600 dark:text-zinc-400">
                     <input
                       type="checkbox"
                       checked={newTaskReminderEnabled}
                       onChange={(e) => setNewTaskReminderEnabled(e.target.checked)}
-                      className="w-3.5 h-3.5 accent-amber-500 rounded cursor-pointer"
+                      className="w-3.5 h-3.5 accent-[#141517] rounded cursor-pointer"
                     />
                     <span>⏰ {isAr ? 'تنبيه' : 'Alarm'}</span>
                   </label>
@@ -1197,14 +1304,14 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                       type="time"
                       value={newTaskReminderTime}
                       onChange={(e) => setNewTaskReminderTime(e.target.value)}
-                      className="px-1.5 py-0.5 rounded bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-[11px] font-mono font-bold text-slate-900 dark:text-white"
+                      className="px-1.5 py-0.5 rounded bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-[11px] font-mono font-bold text-[#141517] dark:text-white"
                     />
                   )}
                 </div>
 
                 <button
                   type="submit"
-                  className="py-1 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer"
+                  className="py-1.5 px-3.5 rounded-full bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] text-xs font-bold cursor-pointer"
                 >
                   {isAr ? 'إضافة' : 'Add'}
                 </button>
@@ -1214,16 +1321,16 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
           {/* Maker vs Manager Ratio & Context-Switching Guard */}
           {tasks.length > 0 && (
-            <div className="p-3 bg-slate-50 dark:bg-zinc-950/70 rounded-2xl border border-slate-200/90 dark:border-zinc-800/80 space-y-2">
+            <div className="p-3.5 bg-slate-50 dark:bg-zinc-900/70 rounded-2xl border border-slate-200/90 dark:border-zinc-800/80 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1.5 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500 inline-block" />
-                  <span className="text-slate-800 dark:text-zinc-200">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#e2defc] border border-indigo-400 inline-block" />
+                  <span className="text-[#141517] dark:text-zinc-200">
                     {isAr ? 'صانع (عمل عميق):' : 'Maker:'} {makerPercentage}% ({totalMakerMins}m)
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#fde6d8] border border-amber-400 inline-block" />
                   <span className="text-slate-600 dark:text-zinc-400">
                     {isAr ? 'مدير (تنسيق واجتماعات):' : 'Manager:'} {managerPercentage}% ({totalManagerMins}m)
                   </span>
@@ -1231,19 +1338,19 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
               </div>
 
               {/* Segmented Progress bar */}
-              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden flex">
+              <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden flex">
                 <div
                   style={{ width: `${makerPercentage}%` }}
-                  className="h-full bg-gradient-to-r from-indigo-600 to-indigo-500 transition-all duration-500"
+                  className="h-full bg-[#e2defc] border-r border-indigo-300 transition-all duration-500"
                 />
                 <div
                   style={{ width: `${managerPercentage}%` }}
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                  className="h-full bg-[#fde6d8] transition-all duration-500"
                 />
               </div>
 
               {hasContextSwitchingPenalty && (
-                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-300 flex items-center gap-1.5 font-medium">
+                <div className="p-2.5 rounded-xl bg-[#fde6d8] dark:bg-amber-950/40 border border-amber-300/70 text-[11px] text-[#141517] dark:text-amber-200 flex items-center gap-1.5 font-medium">
                   <span>⚠️</span>
                   <span>
                     {isAr
@@ -1256,7 +1363,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
           )}
 
           {/* Tasks List */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {tasks.map((task) => {
               const isCurrent = activeTaskId === task.id;
               const isIvyLeeActive =
@@ -1268,29 +1375,31 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
               return (
                 <div
                   key={task.id}
-                  className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                  className={`p-3.5 rounded-[22px] border transition-all flex items-center justify-between gap-3 ${
                     task.completed
-                      ? 'bg-slate-50/50 dark:bg-zinc-950/40 border-slate-200 dark:border-zinc-900 opacity-60'
+                      ? 'bg-[#d4f5dc]/45 dark:bg-emerald-950/20 border-[#bce8c2] dark:border-emerald-900/50 opacity-80'
                       : isIvyLeeActive
-                      ? 'bg-amber-50/60 dark:bg-amber-950/25 border-amber-400 dark:border-amber-500 shadow-sm ring-2 ring-amber-400/40'
+                      ? 'bg-[#fde6d8]/70 dark:bg-amber-950/25 border-amber-400 dark:border-amber-500 shadow-sm ring-2 ring-amber-400/40'
                       : isIvyLeeLocked
                       ? 'bg-slate-50/40 dark:bg-zinc-950/30 border-slate-200/80 dark:border-zinc-900/80 opacity-75'
                       : isCurrent
-                      ? 'bg-sky-50/80 dark:bg-cyan-950/30 border-sky-400 dark:border-cyan-600 shadow-xs'
+                      ? 'bg-[#e2defc]/60 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-600 shadow-xs'
                       : isSurvival && task.id === anchorTask?.id
-                      ? 'bg-amber-50/70 dark:bg-amber-950/25 border-amber-400 dark:border-amber-600/70 shadow-xs ring-1 ring-amber-400/30'
-                      : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 hover:border-slate-300'
+                      ? 'bg-[#fde6d8]/70 dark:bg-amber-950/25 border-amber-400 dark:border-amber-600/70 shadow-xs ring-1 ring-amber-400/30'
+                      : 'bg-white dark:bg-zinc-900/90 border-slate-200/80 dark:border-zinc-800 hover:border-slate-300'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 flex-1 min-w-0">
                     <button
                       onClick={() => handleToggleTask(task)}
-                      className="cursor-pointer text-emerald-600 dark:text-emerald-400 shrink-0"
+                      className="cursor-pointer shrink-0 transition-transform active:scale-90"
                     >
                       {task.completed ? (
-                        <CheckCircle2 className="w-5 h-5 fill-emerald-100 dark:fill-emerald-950/60" />
+                        <span className="w-5 h-5 rounded-full bg-[#1eb814] text-white flex items-center justify-center shadow-2xs">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </span>
                       ) : (
-                        <Circle className="w-5 h-5 text-slate-300 dark:text-zinc-700" />
+                        <Circle className="w-5 h-5 text-slate-300 dark:text-zinc-700 hover:text-[#1eb814]" />
                       )}
                     </button>
                     <div className="truncate">
@@ -1298,67 +1407,73 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                         <span
                           className={`text-xs font-bold block truncate ${
                             task.completed
-                              ? 'line-through text-slate-400 dark:text-zinc-600'
-                              : 'text-slate-900 dark:text-zinc-100'
+                              ? 'line-through text-slate-500 dark:text-zinc-500'
+                              : 'text-[#141517] dark:text-zinc-100'
                           }`}
                         >
                           {task.title}
                         </span>
                         {isIvyLeeActive && (
-                          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300/80 shrink-0">
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-[#141517] text-[#fde6d8] shrink-0">
                             🎯 {isAr ? 'المهمة النشطة #1' : 'Ivy Lee Active #1'}
                           </span>
                         )}
                         {isIvyLeeLocked && (
-                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-slate-200/80 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 shrink-0 flex items-center gap-1">
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 shrink-0 flex items-center gap-1">
                             🔒 {isAr ? 'مقفلة حتى إتمام #1' : 'Locked until #1 done'}
                           </span>
                         )}
                         {isSurvival && !task.completed && task.id === anchorTask?.id && (
-                          <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-700/60 shrink-0">
+                          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-[#141517] text-[#fde6d8] shrink-0">
                             ⭐ {isAr ? 'مهمة النجاة 100%' : 'MVD Anchor'}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5">
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-zinc-400 font-mono mt-0.5 flex-wrap">
                         <span>{task.estimatedMinutes}m est</span>
                         {task.actualMinutes > 0 && (
-                          <span className="text-sky-700 dark:text-cyan-400 font-bold">
+                          <span className="text-[#1eb814] font-bold">
                             ({task.actualMinutes}m actual)
                           </span>
                         )}
                         <span
-                          className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                            task.priority === 'high'
-                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                            task.completed
+                              ? 'bg-[#d4f5dc] text-[#141517]'
+                              : task.priority === 'high'
+                              ? 'bg-[#fce2e6] text-[#141517] dark:bg-rose-950/60 dark:text-rose-200'
                               : task.priority === 'medium'
-                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
+                              ? 'bg-[#fde6d8] text-[#141517] dark:bg-amber-950/60 dark:text-amber-200'
                               : 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-400'
                           }`}
                         >
-                          {task.priority}
+                          {task.priority === 'high'
+                            ? isAr
+                              ? 'أنجز فوراً'
+                              : 'Do First'
+                            : task.priority}
                         </span>
 
                         {/* Maker vs Manager Toggle Chip */}
                         <button
                           type="button"
                           onClick={() => handleToggleTaskRole(task)}
-                          className={`px-1.5 py-0.2 rounded text-[9px] font-bold cursor-pointer transition-all ${
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-bold cursor-pointer transition-all ${
                             isMaker
-                              ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40'
-                              : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40'
+                              ? 'bg-[#e2defc] text-[#141517] dark:bg-indigo-950/60 dark:text-indigo-200'
+                              : 'bg-[#fde6d8] text-[#141517] dark:bg-amber-950/60 dark:text-amber-200'
                           }`}
                           title={isAr ? 'اضغط للتبديل بين صانع (عميق) ومدير (تنسيق)' : 'Toggle Maker / Manager'}
                         >
-                          {isMaker ? (isAr ? '🎨 صانع' : '🎨 Maker') : (isAr ? '📋 مدير' : '📋 Manager')}
+                          {isMaker ? (isAr ? '🎨 صانع' : '🎨 Schedule') : (isAr ? '📋 مدير' : '📋 Delegate')}
                         </button>
 
                         {/* Reminder Badge */}
                         {task.reminderTime && (
                           <span
-                            className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold flex items-center gap-0.5 ${
+                            className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-bold flex items-center gap-0.5 ${
                               task.reminderEnabled
-                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                                ? 'bg-[#fde6d8] text-[#141517] border border-amber-300'
                                 : 'bg-slate-100 text-slate-400 dark:bg-zinc-800 line-through'
                             }`}
                           >
@@ -1391,9 +1506,9 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                               ? (isAr ? `تنبيه نشط في ${task.reminderTime} (انقر لتعطيل المنبه)` : `Alarm active at ${task.reminderTime}`)
                               : (isAr ? 'ضبط منبه مستقل لهذه المهمة ⏰' : 'Set alarm for this task')
                           }
-                          className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                          className={`p-1.5 rounded-full border transition-colors cursor-pointer ${
                             task.reminderEnabled
-                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 shadow-2xs'
+                              ? 'bg-[#fde6d8] text-[#141517] border-amber-300 shadow-2xs'
                               : 'bg-slate-50 dark:bg-zinc-900 text-slate-400 hover:text-amber-600 border-slate-200 dark:border-zinc-800'
                           }`}
                         >
@@ -1405,7 +1520,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                           onClick={() => handleAiDeconstructTask(task)}
                           disabled={deconstructingTaskId === task.id}
                           title={isAr ? 'تفكيك المهمة بالذكاء الاصطناعي لـ 3 خطوات مجهرية' : 'Deconstruct with AI into 3 tiny steps'}
-                          className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors cursor-pointer border border-indigo-200 dark:border-indigo-800/40"
+                          className="p-1.5 rounded-full bg-[#e2defc] dark:bg-indigo-950/40 text-[#141517] dark:text-indigo-300 hover:opacity-85 transition-colors cursor-pointer"
                         >
                           <Sparkles className={`w-3.5 h-3.5 ${deconstructingTaskId === task.id ? 'animate-spin' : ''}`} />
                         </button>
@@ -1420,9 +1535,9 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                               onOpenTwoMinuteRule(task.title);
                             }}
                             title={isAr ? 'بدء قاعدة الدقيقتين (120 ثانية) لهذه المهمة ⚡' : 'Start 2-Minute Rule (120s) ⚡'}
-                            className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors cursor-pointer border border-amber-200 dark:border-amber-800/40"
+                            className="p-1.5 rounded-full bg-[#fde6d8] dark:bg-amber-950/40 text-[#ff5500] hover:opacity-85 transition-colors cursor-pointer"
                           >
-                            <Zap className="w-3.5 h-3.5 fill-amber-500/20" />
+                            <Zap className="w-3.5 h-3.5 fill-[#ff5500]" />
                           </button>
                         )}
 
@@ -1433,7 +1548,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                               soundSynth.playWarningSound();
                               haptic.vibrateLight();
                             }}
-                            className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed flex items-center gap-1 border border-slate-200 dark:border-zinc-700"
+                            className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed flex items-center gap-1 border border-slate-200 dark:border-zinc-700"
                             title={
                               isAr
                                 ? 'مقفلة بوضع آيفي لي: أنجز المهمة الأولى أولاً لمنع التشتت الذهني!'
@@ -1449,10 +1564,10 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                               soundSynth.playTactileClick();
                               setActiveTaskId(task.id);
                             }}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                               isCurrent
-                                ? 'bg-sky-600 text-white shadow-xs'
-                                : 'bg-slate-100 dark:bg-zinc-800 hover:bg-sky-50 text-slate-700 dark:text-zinc-300'
+                                ? 'bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] shadow-xs'
+                                : 'bg-slate-100 dark:bg-zinc-800 hover:bg-[#d4f5dc] text-[#141517] dark:text-zinc-300'
                             }`}
                           >
                             {isCurrent ? (isAr ? 'نشطة ⚡' : 'Active ⚡') : (isAr ? 'تركيز' : 'Focus')}
@@ -1484,35 +1599,35 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
       {/* Urge Control Wave Overlay Modal */}
       {isUrgeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-blue-400/80 dark:border-blue-700 text-center space-y-5 shadow-2xl relative overflow-hidden">
+          <div className="w-full max-w-md p-6 rounded-[26px] bg-white dark:bg-[#141517] border border-sky-300 dark:border-zinc-800 text-center space-y-5 shadow-2xl relative overflow-hidden">
             {/* Box Breathing Circle (4s Inhale -> 4s Hold -> 4s Exhale -> 4s Rest) */}
             {(() => {
               const cycleSec = (60 - urgeSeconds) % 16;
               let phaseTitle = isAr ? 'شهيق عميق من الأنف (4ث)' : 'Deep Inhale (4s)';
-              let phaseColor = 'text-sky-600 dark:text-sky-400';
-              let circleClass = 'scale-115 border-sky-400 bg-sky-50 dark:bg-sky-950/60 shadow-lg shadow-sky-500/20';
+              let phaseColor = 'text-[#141517] dark:text-sky-300';
+              let circleClass = 'scale-115 border-sky-400 bg-[#e0f2fe] dark:bg-sky-950/60 shadow-lg';
 
               if (cycleSec >= 4 && cycleSec < 8) {
                 phaseTitle = isAr ? 'حبس النفس بهدوء (4ث)' : 'Hold Breath (4s)';
-                phaseColor = 'text-indigo-600 dark:text-indigo-400';
-                circleClass = 'scale-125 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 shadow-xl shadow-indigo-500/30';
+                phaseColor = 'text-[#141517] dark:text-indigo-300';
+                circleClass = 'scale-125 border-indigo-400 bg-[#e2defc] dark:bg-indigo-950/60 shadow-xl';
               } else if (cycleSec >= 8 && cycleSec < 12) {
                 phaseTitle = isAr ? 'زفير بطيء ومريح (4ث)' : 'Slow Exhale (4s)';
-                phaseColor = 'text-teal-600 dark:text-teal-400';
-                circleClass = 'scale-95 border-teal-400 bg-teal-50 dark:bg-teal-950/60 shadow-md shadow-teal-500/20';
+                phaseColor = 'text-[#1eb814] dark:text-emerald-300';
+                circleClass = 'scale-95 border-[#1eb814] bg-[#d4f5dc] dark:bg-teal-950/60 shadow-md';
               } else if (cycleSec >= 12) {
                 phaseTitle = isAr ? 'سكون وفراغ واسترخاء (4ث)' : 'Rest & Stillness (4s)';
-                phaseColor = 'text-blue-600 dark:text-blue-400';
-                circleClass = 'scale-90 border-blue-400 bg-blue-50 dark:bg-blue-950/50';
+                phaseColor = 'text-[#141517] dark:text-amber-300';
+                circleClass = 'scale-90 border-amber-300 bg-[#fde6d8] dark:bg-blue-950/50';
               }
 
               return (
                 <div className="space-y-4">
                   <div className={`w-28 h-28 mx-auto rounded-full border-3 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out ${circleClass}`}>
-                    <span className="text-3xl font-mono font-black text-slate-900 dark:text-white">
+                    <span className="text-3xl font-mono font-black text-[#141517] dark:text-white">
                       {urgeSeconds}s
                     </span>
-                    <span className="text-[10px] font-mono font-bold text-slate-500">
+                    <span className="text-[10px] font-mono font-bold text-[#141517]/70 dark:text-zinc-400">
                       {isAr ? 'ركوب الموجة' : 'Urge Surfing'}
                     </span>
                   </div>
@@ -1521,7 +1636,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                     <span className={`text-xs font-black tracking-wide ${phaseColor} block transition-colors duration-500`}>
                       🧘 {phaseTitle}
                     </span>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-100">
+                    <h3 className="font-bold text-sm text-[#141517] dark:text-zinc-100">
                       {t('urge_surfing_title')}
                     </h3>
                     <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-relaxed max-w-xs mx-auto">
@@ -1533,18 +1648,18 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
             })()}
 
             {urgeSeconds === 0 ? (
-              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold animate-bounce">
+              <div className="p-3 rounded-2xl bg-[#d4f5dc] text-[#141517] text-xs font-bold animate-bounce">
                 🎉 {t('urge_surfing_resisted')}
               </div>
             ) : (
-              <div className="text-[11px] font-mono font-semibold text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-950/40 py-1.5 px-3 rounded-full inline-block">
+              <div className="text-[11px] font-mono font-semibold text-[#141517] dark:text-sky-200 bg-[#e0f2fe] dark:bg-blue-950/40 py-1.5 px-3.5 rounded-full inline-block">
                 🌊 الرغبة كالموجة: ترتفع ثم تبلغ ذروتها وتتلاشى تماماً دون أن تستجيب لها
               </div>
             )}
 
             <button
               onClick={() => setIsUrgeOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-black text-xs font-bold cursor-pointer transition-all active:scale-95"
+              className="w-full py-2.5 rounded-full bg-[#141517] hover:opacity-90 dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] text-xs font-bold cursor-pointer transition-all active:scale-95"
             >
               {isAr ? 'إغلاق والعودة للتركيز' : 'Close and Return to Focus'}
             </button>

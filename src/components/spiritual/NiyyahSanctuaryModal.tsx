@@ -276,6 +276,9 @@ export const NiyyahSanctuaryModal: React.FC<NiyyahSanctuaryModalProps> = ({
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isAr ? 'محراب تجديد النية والاحتساب' : 'Niyyah & Consecration Sanctuary'}
         className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl bg-[#faf8f5] dark:bg-[#0c0d12] border border-amber-900/20 dark:border-amber-500/20 shadow-2xl text-slate-900 dark:text-zinc-100 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -302,7 +305,8 @@ export const NiyyahSanctuaryModal: React.FC<NiyyahSanctuaryModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+            aria-label={isAr ? 'إغلاق' : 'Close'}
+            className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -311,7 +315,7 @@ export const NiyyahSanctuaryModal: React.FC<NiyyahSanctuaryModalProps> = ({
         {/* Central Prophetic Hadith Banner */}
         <div className="px-4 sm:px-6 pt-4">
           <div className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/20 text-center space-y-1">
-            <p className="text-xs sm:text-sm font-serif font-black text-amber-950 dark:text-amber-200">
+            <p dir="rtl" lang="ar" className="text-xs sm:text-sm font-serif font-bold text-amber-950 dark:text-amber-200 tashkeel-text select-text">
               «إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى»
             </p>
             <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
@@ -340,7 +344,7 @@ export const NiyyahSanctuaryModal: React.FC<NiyyahSanctuaryModalProps> = ({
                     haptic.vibrateLight();
                     setActivePillar(p.id);
                   }}
-                  className={`p-2.5 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                  className={`p-2.5 rounded-2xl border text-start transition-all cursor-pointer flex flex-col justify-between gap-2 ${
                     isActive
                       ? 'bg-white dark:bg-zinc-800 border-amber-500/50 shadow-sm ring-1 ring-amber-500/30'
                       : 'bg-black/[0.02] dark:bg-white/[0.02] border-slate-200/80 dark:border-zinc-800 hover:bg-white/50'
@@ -423,11 +427,19 @@ export const NiyyahSanctuaryModal: React.FC<NiyyahSanctuaryModalProps> = ({
                         </h4>
                       </div>
 
-                      <p className="text-[11px] text-amber-900/80 dark:text-amber-300/80 font-serif pr-7">
+                      <p
+                        dir={isAr ? 'rtl' : 'ltr'}
+                        lang={isAr ? 'ar' : 'en'}
+                        className="text-[11px] text-amber-900/80 dark:text-amber-300/80 font-serif tashkeel-text text-start ps-7 select-text"
+                      >
                         {isAr ? item.evidenceAr : item.evidenceEn}
                       </p>
 
-                      <div className="text-[10px] text-slate-500 dark:text-zinc-400 pr-7 italic">
+                      <div
+                        dir="rtl"
+                        lang="ar"
+                        className="text-[10px] text-slate-500 dark:text-zinc-400 text-start ps-7 italic select-text"
+                      >
                         {item.scholarAr}
                       </div>
                     </div>

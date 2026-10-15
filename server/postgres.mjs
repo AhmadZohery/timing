@@ -241,7 +241,7 @@ export async function pgSaveUserSyncData(userId, data, clientTimestamp) {
        ON CONFLICT (id) DO NOTHING;`,
       [userId, `user_${userId}`, `${userId}@local.app`, userId]
     );
-  } catch (_) {}
+  } catch {}
 
   const query = `
     INSERT INTO user_sync_data (user_id, data, client_timestamp, synced_at)

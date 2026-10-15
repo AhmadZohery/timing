@@ -180,7 +180,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
 
   // Determine dynamic font size classes
   const ayahFontClasses = {
-    sm: 'text-base sm:text-lg leading-[2.1]',
+    sm: 'text-base sm:text-lg leading-[2.2]',
     md: 'text-lg sm:text-xl md:text-2xl leading-[2.4]',
     lg: 'text-xl sm:text-2xl md:text-3xl leading-[2.6]',
     xl: 'text-2xl sm:text-3xl md:text-4xl leading-[2.8]',
@@ -221,6 +221,9 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
         }}
       />
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isAr ? 'روضة التدبر والحديث النبوي الشريف' : 'Daily Quran & Hadith Sanctuary'}
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -259,7 +262,8 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 type="button"
                 onClick={handlePrevDay}
                 title={isAr ? 'اليوم السابق' : 'Previous Day'}
-                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                aria-label={isAr ? 'اليوم السابق' : 'Previous Day'}
+                className="min-w-[38px] min-h-[38px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
               >
                 {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
@@ -270,7 +274,8 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 type="button"
                 onClick={handleNextDay}
                 title={isAr ? 'اليوم التالي' : 'Next Day'}
-                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                aria-label={isAr ? 'اليوم التالي' : 'Next Day'}
+                className="min-w-[38px] min-h-[38px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
               >
                 {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
@@ -358,7 +363,8 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+              aria-label={isAr ? 'إغلاق' : 'Close'}
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors cursor-pointer"
               title={isAr ? 'إغلاق' : 'Close'}
             >
               <X className="w-5 h-5" />
@@ -378,13 +384,13 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 haptic.vibrateLight();
                 setActiveTab('quran');
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`min-h-[44px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'quran'
                   ? 'bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-400 shadow-md ring-1 ring-emerald-500/25'
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <BookMarked className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <BookMarked className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{isAr ? 'الآية الكريمة وتفسير ابن كثير' : 'Ayah & Tafsir Ibn Kathir'}</span>
             </button>
 
@@ -395,13 +401,13 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 haptic.vibrateLight();
                 setActiveTab('hadith');
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`min-h-[44px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'hadith'
                   ? 'bg-white dark:bg-zinc-900 text-teal-700 dark:text-teal-400 shadow-md ring-1 ring-teal-500/25'
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
-              <Scroll className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <Scroll className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
               <span>{isAr ? 'الحديث الشريف وصحيح السنة' : 'Sahih Hadith & Sunnah'}</span>
             </button>
           </div>
@@ -453,7 +459,9 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                   <IslamicRubElHizb className="absolute top-3.5 start-3.5 w-4 h-4 text-amber-500/50" />
                   <IslamicRubElHizb className="absolute top-3.5 end-3.5 w-4 h-4 text-amber-500/50" />
                   <p
-                    className={`${ayahFontClasses} text-center font-quran text-slate-950 dark:text-amber-100 font-normal px-2 sm:px-6 select-text`}
+                    dir="rtl"
+                    lang="ar"
+                    className={`${ayahFontClasses} tashkeel-text text-center font-quran text-slate-950 dark:text-amber-100 font-normal px-2 sm:px-6 select-text`}
                   >
                     {quran.arabicText}
                   </p>
@@ -479,7 +487,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                           <span className="font-quran font-bold text-base text-emerald-800 dark:text-emerald-400 shrink-0">
                             {wm.word}:
                           </span>
-                          <span className="text-xs sm:text-sm text-slate-700 dark:text-zinc-300 font-sans font-medium leading-relaxed">
+                          <span className="text-xs sm:text-sm text-slate-700 dark:text-zinc-300 font-sans font-medium leading-relaxed select-text">
                             {wm.meaning}
                           </span>
                         </div>
@@ -501,7 +509,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                       مرجع معتمد
                     </span>
                   </div>
-                  <div className={`text-slate-800 dark:text-zinc-200 font-sans leading-relaxed space-y-3 ${bodyFontClasses}`}>
+                  <div className={`text-slate-800 dark:text-zinc-200 font-sans leading-relaxed space-y-3 select-text ${bodyFontClasses}`}>
                     {quran.tafsirIbnKathir.split('\n\n').map((paragraph, pIdx) => (
                       <p key={pIdx} className="leading-relaxed">
                         {paragraph}
@@ -519,7 +527,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                         {isAr ? 'أسباب النزول المعتمدة والصحيحة' : 'Context & Asbab al-Nuzul'}
                       </h3>
                     </div>
-                    <p className={`text-slate-700 dark:text-zinc-300 font-sans leading-relaxed ${bodyFontClasses}`}>
+                    <p className={`text-slate-700 dark:text-zinc-300 font-sans leading-relaxed select-text ${bodyFontClasses}`}>
                       {quran.asbabNuzul}
                     </p>
                   </div>
@@ -582,7 +590,9 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                     عن {hadith.narrator} رضي الله عنه قال: قال رسول الله ﷺ:
                   </div>
                   <p
-                    className={`${ayahFontClasses} text-center font-quran text-slate-950 dark:text-teal-50 font-normal px-2 sm:px-6 select-text`}
+                    dir="rtl"
+                    lang="ar"
+                    className={`${ayahFontClasses} tashkeel-text text-center font-quran text-slate-950 dark:text-teal-50 font-normal px-2 sm:px-6 select-text`}
                   >
                     «{hadith.matn}»
                   </p>
@@ -604,7 +614,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                       فتح الباري / شرح النووي
                     </span>
                   </div>
-                  <div className={`text-slate-800 dark:text-zinc-200 font-sans leading-relaxed space-y-3 ${bodyFontClasses}`}>
+                  <div className={`text-slate-800 dark:text-zinc-200 font-sans leading-relaxed space-y-3 select-text ${bodyFontClasses}`}>
                     {hadith.sharhSummary.split('\n\n').map((paragraph, pIdx) => (
                       <p key={pIdx} className="leading-relaxed">
                         {paragraph}

@@ -1,5 +1,6 @@
 import { db } from '../db/db';
 import { isWebCryptoAvailable } from './cryptoFallback';
+import { formatLocalDate } from './gamification';
 
 export interface UniversalBackupData {
   version: number;
@@ -7,6 +8,29 @@ export interface UniversalBackupData {
   tables: Record<string, any[]>;
   legacyLocalData?: Record<string, string | null>;
 }
+
+const SAFE_LEGACY_LOCAL_KEYS = new Set([
+  'midmar_theme_mode',
+  'midmar_theme_palette',
+  'midmar_language',
+  'midmar_movement_cat',
+  'midmar_win_1',
+  'midmar_win_2',
+  'midmar_win_3',
+  'midmar_tomorrow_anchor',
+  'midmar_retro_rating',
+  'midmar_retro_reflection',
+  'midmar_language_target',
+  'midmar_language_quota',
+  'midmar_luxury_theme',
+  'midmar_asr_method',
+]);
+
+const FORBIDDEN_LOCAL_KEYS = new Set([
+  'midmar_auth_persistent_session',
+  'midmar_server_sync_token',
+  'midmar_ai_config',
+]);
 
 export async function exportDatabaseToJson(): Promise<string> {
   const tablesData: Record<string, any[]> = {};
@@ -59,7 +83,7 @@ export function downloadBackupFile(jsonString: string) {
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = formatLocalDate();
   a.href = url;
   a.download = `midmar-lifeos-backup-${dateStr}.json`;
   document.body.appendChild(a);
@@ -107,10 +131,14 @@ export async function importDatabaseFromJson(jsonString: string): Promise<boolea
       }
     });
 
-    // Restore preserved local preferences
-    if (parsed.legacyLocalData) {
+    // Restore preserved local preferences restricted to safe UI preference keys
+    if (parsed.legacyLocalData && typeof parsed.legacyLocalData === 'object') {
       for (const [k, v] of Object.entries(parsed.legacyLocalData)) {
-        if (typeof v === 'string') {
+        if (
+          typeof v === 'string' &&
+          SAFE_LEGACY_LOCAL_KEYS.has(k) &&
+          !FORBIDDEN_LOCAL_KEYS.has(k)
+        ) {
           try {
             localStorage.setItem(k, v);
           } catch {}
@@ -133,7 +161,7 @@ export async function importDatabaseFromJson(jsonString: string): Promise<boolea
  */
 export async function migrateLocalStorageToDexie(): Promise<void> {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatLocalDate();
     const win1 = localStorage.getItem('midmar_win_1');
     const win2 = localStorage.getItem('midmar_win_2');
     const win3 = localStorage.getItem('midmar_win_3');

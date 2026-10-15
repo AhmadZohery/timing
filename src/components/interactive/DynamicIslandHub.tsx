@@ -505,6 +505,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
   }, [isExpanded]);
 
   const isPrevPrayerConfirmed = Boolean(confirmedPrayers[prayerWindowProgress.prevKey]);
+  const hasActiveMobileLiveEvent = Boolean(audioState.isPlaying || isApproaching || isExpanded);
 
   return (
     <>
@@ -523,7 +524,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
         )}
       </AnimatePresence>
 
-      <div className="relative z-50 flex justify-center w-full px-2">
+      <div className={`relative z-50 ${hasActiveMobileLiveEvent ? 'flex' : 'hidden lg:flex'} justify-center w-full px-2`}>
         {/* Precision Stately Jewel Capsule - Proportionately Sized (~320-350px) with Zero Bloat */}
         <motion.div
           ref={containerRef}
@@ -748,7 +749,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="p-1 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                    className="min-w-[44px] min-h-[44px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                     aria-label={isAr ? 'إغلاق' : 'Close'}
                   >
                     <X className="w-4 h-4" />
@@ -812,8 +813,8 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                       </div>
                     </div>
 
-                    {/* Media Micro Controls */}
-                    <div className="flex items-center gap-1 shrink-0">
+                    {/* Media Micro Controls (Strictly LTR per BiDi media convention) */}
+                    <div dir="ltr" className="flex items-center gap-1 shrink-0">
                       <button
                         type="button"
                         onClick={() => {
@@ -821,8 +822,9 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                           haptic.vibrateLight();
                           gymFaithAudio.seekBy(-15);
                         }}
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                        className="min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
                         title={isAr ? 'رجوع 15 ثانية' : 'Back 15s'}
+                        aria-label={isAr ? 'رجوع 15 ثانية' : 'Back 15s'}
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                       </button>
@@ -834,13 +836,14 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                           haptic.vibrateLight();
                           gymFaithAudio.togglePlay();
                         }}
-                        className="p-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black shadow-sm transition-all cursor-pointer"
+                        className="min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center p-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black shadow-sm transition-all cursor-pointer"
                         title={audioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
+                        aria-label={audioState.isPlaying ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
                       >
                         {audioState.isPlaying ? (
                           <Pause className="w-3.5 h-3.5 fill-current" />
                         ) : (
-                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <Play className="w-3.5 h-3.5 fill-current pl-0.5" />
                         )}
                       </button>
 
@@ -851,8 +854,9 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                           haptic.vibrateLight();
                           gymFaithAudio.seekBy(15);
                         }}
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                        className="min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
                         title={isAr ? 'تقديم 15 ثانية' : 'Forward 15s'}
+                        aria-label={isAr ? 'تقديم 15 ثانية' : 'Forward 15s'}
                       >
                         <RotateCw className="w-3.5 h-3.5" />
                       </button>
@@ -1001,7 +1005,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                                   : 'bg-emerald-400 text-black font-black shadow-[0_0_10px_rgba(52,211,153,0.9)] ring-2 ring-emerald-300/50'
                                 : prayer.isPast
                                 ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400/35'
-                                : 'bg-white/5 text-white/30 border border-white/10'
+                                : 'bg-white/5 text-white/60 border border-white/15'
                             }`}
                           >
                             {prayer.isTarget ? (
@@ -1009,7 +1013,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                             ) : prayer.isPast ? (
                               <Check className="w-2.5 h-2.5 stroke-[3]" />
                             ) : (
-                              <span className="w-1 h-1 rounded-full bg-white/20" />
+                              <span className="w-1 h-1 rounded-full bg-white/40" />
                             )}
                           </div>
 
@@ -1020,14 +1024,14 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                                   ? 'text-amber-300'
                                   : 'text-emerald-300'
                                 : prayer.isPast
-                                ? 'text-white/70'
-                                : 'text-white/30'
+                                ? 'text-white/75'
+                                : 'text-white/60'
                             }`}
                           >
                             {isAr ? prayer.ar : prayer.en}
                           </span>
 
-                          <span className="text-[8px] font-mono text-white/40">
+                          <span className="text-[8px] font-mono text-white/55">
                             {formatClockTime(prayer.time, isAr)}
                           </span>
                         </div>

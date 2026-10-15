@@ -19,12 +19,45 @@
   --color-brand-800: #065f46;
   --color-brand-900: #064e3b;
   --color-brand-950: #022c22;
+
+  --color-zinc-850: #1f1f23;
+
+  /* Habitline & Impeccable Design System Tokens */
+  --color-habit-obsidian: #141517;
+  --color-habit-emerald: #1eb814;
+  --color-habit-mint: #bce8c2;
+  --color-habit-mint-soft: #d4f5dc;
+  --color-habit-lavender: #e2defc;
+  --color-habit-rose: #fce2e6;
+  --color-habit-amber: #fde6d8;
+  --color-habit-primary: #0022ff;
+  --color-habit-flame: #ff5500;
+  --color-habit-green: #1eb814;
+  --color-habit-violet: #9000ff;
+  --color-habit-teal: #0283a7;
+  --color-habit-lime: #f3fe97;
+  --color-habit-bg: #f7f7f7;
+
+  /* Contrast tokens (council): -ink = fill under white text, -ink-deep = pressed/pastel text, -glow = text/stroke on dark */
+  --color-habit-green-ink: #138508;
+  --color-habit-green-ink-deep: #0e6b06;
+  --color-habit-flame-ink: #cc4400;
+  --color-habit-flame-ink-deep: #a33600;
+  --color-habit-violet-glow: #b366ff;
+  --color-habit-teal-ink: #02789a;
+  --color-habit-teal-glow: #1fb0d4;
+  --color-habit-gold: #f59e0b;
+
+  /* Motion signature */
+  --ease-signature: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root {
   font-family: 'IBM Plex Sans Arabic', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
-  --bg-main: #f8fafc;
+  --bg-light: #f7f7f7;
+  --bg-main: #f7f7f7;
   --text-main: #0f172a;
   font-variant-numeric: tabular-nums lining-nums;
 
@@ -137,6 +170,11 @@ body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
   transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+p, blockquote, article, .select-text {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 /* Light & Dark Custom scrollbars */
@@ -314,6 +352,44 @@ html.dark .glass-panel {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Habitline Design System Reusable Surfaces */
+.habitline-pill-shell {
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 0.375rem;
+  box-shadow: var(--shadow-photometric-lg);
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+html.dark .habitline-pill-shell {
+  background-color: rgba(24, 24, 27, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.habitline-card {
+  border-radius: 1.5rem;
+  background-color: #ffffff;
+  border: 1px solid rgba(228, 228, 231, 0.8);
+  box-shadow: 0 10px 15px -3px rgba(228, 228, 231, 0.4), 0 4px 6px -4px rgba(228, 228, 231, 0.4);
+}
+
+html.dark .habitline-card {
+  background-color: rgba(24, 24, 27, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.habitline-dot-matrix {
+  background-image: radial-gradient(rgba(24, 24, 27, 0.08) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+html.dark .habitline-dot-matrix {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+}
+
 /* Glow Borders */
 .glow-emerald {
   box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.22);
@@ -327,3 +403,196 @@ html.dark .glass-panel {
   box-shadow: 0 0 20px -3px rgba(245, 158, 11, 0.22);
 }
 
+/* Vestibular Accessibility: Respect Reduced Motion (council: delays + infinite decorative loops must also stop) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-focus-core, .animate-breathe, .animate-subtle-float, .animate-glow-pulse,
+  .animate-pulse, .arc-ping, .wave-bar {
+    animation: none !important;
+  }
+}
+
+/* Arabic micro-labels: 700 closes the eyelets of م و ص ع at <=12px, so cap small bold labels at 600.
+   Unlayered on purpose so it beats the Tailwind `font-bold` utility. */
+html[lang="ar"] :is(.text-\[10px\], .text-\[11px\], .text-xs).font-bold {
+  font-weight: 600;
+}
+
+/* Hit-area extension: visual size stays, the tappable area becomes >= 44x44 (centred, so RTL-neutral). */
+@utility touch-target {
+  &:where(:not(.absolute, .fixed, .sticky)) { position: relative; }
+  @media (pointer: coarse), (max-width: 48rem) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+/* Same, but only extends vertically: for tight horizontal chip rows. */
+@utility touch-target-y {
+  &:where(:not(.absolute, .fixed, .sticky)) { position: relative; }
+  @media (pointer: coarse), (max-width: 48rem) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: max(100%, 44px);
+      transform: translateY(-50%);
+    }
+  }
+}
+
+@layer base {
+  /* Kills the 300ms tap delay + double-tap zoom without blocking horizontal swipes. */
+  button, [role="button"], [role="tab"], a, summary { touch-action: manipulation; }
+
+  /* Two-tone focus ring that is visible on any surface: colour comes from the surface via custom properties. */
+  :root { --focus-ring: #141517; --focus-halo: rgba(255, 255, 255, 0.95); }
+  html.dark,
+  .celestial-obsidian-stage,
+  .chronograph-3d-ring { --focus-ring: #fcd34d; --focus-halo: rgba(20, 21, 23, 0.95); }
+  html:not(.dark) .mihrab-emerald-arch { --focus-ring: #141517; --focus-halo: #fde68a; }
+
+  :where(button, [role="button"], [role="tab"], a, summary, [tabindex="0"]):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--focus-halo);
+  }
+  :where(input, textarea, select):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible { outline: 2px solid Highlight !important; box-shadow: none !important; }
+}
+
+@layer components {
+  /* ===== Unified Hybrid: Celestial Obsidian + 3D Tactile Bento ===== */
+  /* Near-pure obsidian with an amber bloom only around the sun (approved mockup). */
+  .celestial-obsidian-stage {
+    background:
+      radial-gradient(70% 45% at 50% 36%, rgba(251, 191, 36, 0.22) 0%, rgba(251, 191, 36, 0.07) 45%, transparent 75%),
+      linear-gradient(180deg, #17181a 0%, #0f1011 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.18), 0 22px 48px -12px rgba(0, 0, 0, 0.28);
+  }
+
+  /* Deep elliptical bottom edge of the celestial stage */
+  .celestial-stage-curve {
+    border-radius: 36px 36px 50% 50% / 36px 36px 72px 72px;
+  }
+
+  .bento-3d-lavender {
+    background: linear-gradient(145deg, #f0edff 0%, #dcd5fc 100%);
+    box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.9), inset 0 -3px 6px 0 rgba(109, 40, 217, 0.09), 0 14px 30px -8px rgba(109, 40, 217, 0.18);
+  }
+
+  .bento-3d-rose {
+    background: linear-gradient(145deg, #fff0f3 0%, #fad6dd 100%);
+    box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.9), inset 0 -3px 6px 0 rgba(225, 29, 72, 0.09), 0 14px 30px -8px rgba(190, 18, 60, 0.18);
+  }
+
+  .bento-3d-mint {
+    background: linear-gradient(145deg, #e3f9e8 0%, #bce8c2 100%);
+    box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.9), inset 0 -3px 6px 0 rgba(22, 163, 74, 0.1), 0 14px 30px -8px rgba(19, 133, 8, 0.18);
+  }
+
+  /* Saturated golden amber (mockup), not peach */
+  .bento-3d-amber {
+    background: linear-gradient(145deg, #ffe9a8 0%, #fcd072 55%, #f7b84a 100%);
+    box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.85), inset 0 -3px 6px 0 rgba(217, 119, 6, 0.12), 0 14px 30px -8px rgba(217, 119, 6, 0.28);
+  }
+
+  .mihrab-emerald-arch {
+    background: radial-gradient(85% 95% at 50% 0%, rgba(30, 184, 20, 0.3) 0%, rgba(6, 78, 59, 0.97) 72%, #042f2e 100%);
+    border: 1.5px solid rgba(251, 191, 36, 0.5);
+    box-shadow: inset 0 2px 0 0 rgba(253, 224, 71, 0.45), 0 18px 38px -8px rgba(16, 185, 129, 0.32);
+  }
+
+  .chronograph-3d-ring {
+    background: radial-gradient(circle at 50% 35%, #23262f 0%, #121318 75%, #090a0d 100%);
+    border: 6px solid #78350f;
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.75), 0 0 0 2px rgba(251, 191, 36, 0.35), 0 20px 44px -8px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Golden evening "pride ticket" — warm amber, melatonin-friendly */
+  .pride-golden-ticket {
+    background: linear-gradient(145deg, #fff7e0 0%, #fde3a0 55%, #f5c25a 100%);
+    border: 1.5px dashed rgba(180, 83, 9, 0.45);
+    box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.85), 0 14px 30px -8px rgba(217, 119, 6, 0.3);
+  }
+
+  html.dark .bento-3d-lavender {
+    background: linear-gradient(145deg, rgba(49, 46, 129, 0.62) 0%, rgba(23, 21, 58, 0.92) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(167, 139, 250, 0.35), 0 14px 32px -8px rgba(124, 58, 237, 0.28);
+  }
+
+  html.dark .bento-3d-rose {
+    background: linear-gradient(145deg, rgba(136, 19, 55, 0.62) 0%, rgba(60, 6, 23, 0.92) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(251, 113, 133, 0.35), 0 14px 32px -8px rgba(244, 63, 94, 0.28);
+  }
+
+  html.dark .bento-3d-mint {
+    background: linear-gradient(145deg, rgba(6, 95, 70, 0.62) 0%, rgba(4, 47, 46, 0.92) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(110, 231, 183, 0.35), 0 14px 32px -8px rgba(16, 185, 129, 0.28);
+  }
+
+  html.dark .bento-3d-amber {
+    background: linear-gradient(145deg, rgba(120, 53, 15, 0.62) 0%, rgba(56, 20, 4, 0.92) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(251, 191, 36, 0.35), 0 14px 32px -8px rgba(245, 158, 11, 0.28);
+  }
+
+  html.dark .pride-golden-ticket {
+    background: linear-gradient(145deg, rgba(120, 53, 15, 0.7) 0%, rgba(77, 40, 8, 0.92) 100%);
+    border-color: rgba(251, 191, 36, 0.45);
+    box-shadow: inset 0 1px 0 0 rgba(251, 191, 36, 0.35), 0 14px 32px -8px rgba(245, 158, 11, 0.3);
+  }
+
+  /* Neon glow filters for SVG progress rings (dark surfaces) */
+  .ring-glow-emerald { filter: drop-shadow(0 0 6px rgba(30, 184, 20, 0.6)); }
+  .ring-glow-flame { filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.55)); }
+  .ring-glow-violet { filter: drop-shadow(0 0 6px rgba(144, 0, 255, 0.5)); }
+
+  /* On light/pastel surfaces the wide neon glow muddies the track: use a tight shadow instead. */
+  :is(.bento-3d-lavender, .bento-3d-rose, .bento-3d-mint, .bento-3d-amber, .pride-golden-ticket) .ring-glow-emerald { filter: drop-shadow(0 1px 3px rgba(19, 133, 8, 0.35)); }
+  :is(.bento-3d-lavender, .bento-3d-rose, .bento-3d-mint, .bento-3d-amber, .pride-golden-ticket) .ring-glow-flame { filter: drop-shadow(0 1px 3px rgba(204, 68, 0, 0.35)); }
+  :is(.bento-3d-lavender, .bento-3d-rose, .bento-3d-mint, .bento-3d-amber, .pride-golden-ticket) .ring-glow-violet { filter: drop-shadow(0 1px 3px rgba(144, 0, 255, 0.35)); }
+  html.dark :is(.bento-3d-lavender, .bento-3d-rose, .bento-3d-mint, .bento-3d-amber) .ring-glow-emerald { filter: drop-shadow(0 0 6px rgba(30, 184, 20, 0.6)); }
+  html.dark :is(.bento-3d-lavender, .bento-3d-rose, .bento-3d-mint, .bento-3d-amber) .ring-glow-flame { filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.55)); }
+  html.dark :is(.bento-3d-lavender, .bento-3d-rose, .bento-3d-mint, .bento-3d-amber) .ring-glow-violet { filter: drop-shadow(0 0 6px rgba(144, 0, 255, 0.5)); }
+
+  /* Card press: lift on hover (hover-capable devices only), settle on press. */
+  .bento-press {
+    transition: transform 280ms var(--ease-signature), box-shadow 280ms var(--ease-signature);
+  }
+  @media (hover: hover) {
+    .bento-press:hover { transform: translateY(-2px); }
+  }
+  .bento-press:active { transform: translateY(1px) scale(0.975); transition-duration: 90ms; }
+
+  /* Audio waveform: idle = static, playing = scaleY pulse with a negative delay (no initial wait). */
+  .wave-bar { transform-origin: center; }
+  .wave-bar-play { animation: wave-bar var(--d, 1000ms) ease-in-out infinite alternate; animation-delay: var(--dl, 0ms); }
+
+  /* Current-prayer marker ping on the arc */
+  .arc-ping { transform-box: fill-box; transform-origin: center; animation: arc-ping 2.4s ease-out infinite; }
+}
+
+@keyframes wave-bar { from { transform: scaleY(0.35); } to { transform: scaleY(1); } }
+@keyframes arc-ping { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.5); opacity: 0; } }

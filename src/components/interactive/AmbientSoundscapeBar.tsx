@@ -78,13 +78,13 @@ export const AmbientSoundscapeBar: React.FC = () => {
     return null;
   }
 
-  // Shift upwards if Faith Audio capsule is active
+  // Shift upwards if Faith Audio capsule is active; hide on mobile when idle so it never clutters the screen
   const positionClass = isFaithCapsuleActive
     ? 'bottom-[154px] sm:bottom-[160px] lg:bottom-24 start-4 z-40'
     : 'bottom-[98px] sm:bottom-[104px] lg:bottom-6 start-4 z-30';
 
   return (
-    <div className={`fixed transition-all duration-300 pointer-events-auto ${positionClass}`}>
+    <div className={`fixed transition-all duration-300 pointer-events-auto ${!isPlaying ? 'hidden lg:block' : 'block'} ${positionClass}`}>
       {/* Expanded Soundscape Selector */}
       {isExpanded && (
         <div className="mb-2 p-2.5 rounded-2xl bg-white/95 dark:bg-zinc-900/95 border border-slate-200 dark:border-zinc-800 shadow-xl backdrop-blur-md space-y-2 animate-fade-in w-60 text-xs">

@@ -18,7 +18,11 @@ export function getOrCreateDeviceId(): string {
   if (typeof localStorage === 'undefined') return 'device_ephemeral';
   let deviceId = localStorage.getItem(DEVICE_ID_KEY);
   if (!deviceId) {
-    deviceId = `dev_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`;
+    const token =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID().replace(/-/g, '')
+        : Math.random().toString(36).slice(2, 10);
+    deviceId = `dev_${token}_${Date.now()}`;
     localStorage.setItem(DEVICE_ID_KEY, deviceId);
   }
   return deviceId;
@@ -247,6 +251,21 @@ export class ServerSyncService {
     }
   }
 
+  private getDeltaFromTable<T extends Record<string, any>>(items: T[], lastSyncTimestamp: number): T[] {
+    if (lastSyncTimestamp <= 0) return items;
+    return items.filter((item) => {
+      const rawTs = item.updatedAt ?? item.createdAt;
+      if (!rawTs) {
+        return true;
+      }
+      const numericTs = typeof rawTs === 'number' ? rawTs : Date.parse(String(rawTs));
+      if (Number.isNaN(numericTs)) {
+        return true;
+      }
+      return numericTs > lastSyncTimestamp;
+    });
+  }
+
   /**
    * Lightweight Last-Write-Wins (LWW) Delta Sync (OPP-0101 / RFC-0001)
    * Only transmits modified items since lastSyncTimestamp.
@@ -297,13 +316,13 @@ export class ServerSyncService {
         db.goals.toArray(),
       ]);
 
-      const changedTasks = allTasks.filter((t: any) => (t.updatedAt || 0) > lastSyncTimestamp);
-      const changedHabits = allHabits.filter((h: any) => (h.updatedAt || 0) > lastSyncTimestamp);
-      const changedEvents = allCalendarEvents.filter((e: any) => (e.updatedAt || 0) > lastSyncTimestamp);
-      const changedDecks = allDecks.filter((d: any) => (d.updatedAt || 0) > lastSyncTimestamp);
-      const changedWords = allWords.filter((w: any) => (w.updatedAt || 0) > lastSyncTimestamp);
-      const changedCourses = allCourses.filter((c: any) => (c.updatedAt || 0) > lastSyncTimestamp);
-      const changedGoals = allGoals.filter((g: any) => (g.updatedAt || 0) > lastSyncTimestamp);
+      const changedTasks = this.getDeltaFromTable(allTasks, lastSyncTimestamp);
+      const changedHabits = this.getDeltaFromTable(allHabits, lastSyncTimestamp);
+      const changedEvents = this.getDeltaFromTable(allCalendarEvents, lastSyncTimestamp);
+      const changedDecks = this.getDeltaFromTable(allDecks, lastSyncTimestamp);
+      const changedWords = this.getDeltaFromTable(allWords, lastSyncTimestamp);
+      const changedCourses = this.getDeltaFromTable(allCourses, lastSyncTimestamp);
+      const changedGoals = this.getDeltaFromTable(allGoals, lastSyncTimestamp);
 
       const countPushed =
         changedTasks.length +

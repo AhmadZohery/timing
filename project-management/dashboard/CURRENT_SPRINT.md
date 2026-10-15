@@ -1,5 +1,5 @@
 # 🚀 MIDMAR LIFEOS — CURRENT SPRINT & PROJECT STATUS
-**Generated At:** 2026-10-03T20:25:04.123Z  
+**Generated At:** 2026-10-15T22:46:39.231Z  
 **Canonical State:** `project-management/state/` (Source of Truth)  
 **Health Status:** 🟢 HEALTHY
 
@@ -33,6 +33,23 @@
 | `TASK-0023` | OPP-0104: بناء نافذة درع الصلوات CalendarPrayerShieldModal وربطها بالواجهة | **COMPLETED** | Level 3 | Ahmad | تطور المنتج والابتكار |
 | `TASK-0024` | OPP-0103: ربط نافذة استيراد بطاقات اللغات CustomDeckModal بالبطاقة البينتو في الواجهة الرئيسية | **COMPLETED** | Level 3 | Ahmad | تطور المنتج والابتكار |
 | `TASK-0025` | OPP-0102: تنفيذ محرك تتبع نبرة وسكتات الترتيل الصوتي Web Audio VAD بدون أي خادم | **COMPLETED** | Level 3 | Ahmad | تطور المنتج والابتكار |
+| `TASK-0026` | تحصين الخادم المرافق (server/index.mjs) وسد ثغرات المصادقة واختراق المسارات وتسرب الإشعارات | **COMPLETED** | Level 4 | Ahmad | الأمان والتحصين |
+| `TASK-0027` | تطهير مفاتيح الذكاء الاصطناعي من العميل وتأمين نظام المصادقة المحلي والحاويات | **COMPLETED** | Level 4 | Ahmad | الأمان والتحصين |
+| `TASK-0028` | إصلاح محرك النقاط والشعلة (gamification.ts) وتفعيل المعاملات الذرية (Dexie Transactions) | **COMPLETED** | Level 3 | Ahmad | المعمارية وقواعد البيانات |
+| `TASK-0029` | ربط جداول المفردات المخصصة بـ SpacedRepetitionService وإصلاح المزامنة التفاضلية وحساب العشاء | **COMPLETED** | Level 3 | Ahmad | المعمارية وقواعد البيانات |
+| `TASK-0030` | إصلاح الساعة البيولوجية الحية وأزرار الورد والصيام في الصفحة الرئيسية وتوصيل محطات التوقف | **COMPLETED** | Level 3 | Ahmad | المنطق البرمجي والمحطات |
+| `TASK-0031` | إصلاح منطق المحطات اليومية وحفظ بياناتها في Dexie وتوحيد التوقيت البيولوجي | **COMPLETED** | Level 2 | Ahmad | المنطق البرمجي والمحطات |
+| `TASK-0032` | إصلاح الحساب المزدوج في اختبار اللغات وتوصيل نقاط الوحدات التعليمية والروحانية | **COMPLETED** | Level 2 | Ahmad | المنطق البرمجي والمحطات |
+| `TASK-0033` | تطبيق معايير التشكيل العربي (line-height >= 2.2) وحماية العربية في الوضع الإنجليزي وإصلاح تكبير سورة الملك | **COMPLETED** | Level 2 | Ahmad | التصميم والخط العربي |
+| `TASK-0034` | ضبط اتجاه الإيماءات وأزرار الصوتيات في RTL وتوسيع مساحات اللمس (>= 44px) والوصولية WCAG 2.1 AA | **COMPLETED** | Level 2 | Ahmad | التصميم وتجربة المستخدم |
+| `TASK-0035` | دمج هوية ونظام تصميم قالب Habitline في واجهات مِضمار (Floating Pill Navigation, Smart Daily Planner, Calm Canvas & Bento Cards) | **COMPLETED** | Level 3 | Ahmad | التصميم وتجربة المستخدم (Habitline) |
+| `TASK-0036` | بناء نظام التصميم الهجين ثلاثي الأبعاد والوهج السماوي في src/index.css | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
+| `TASK-0037` | ترقية الشاشة الرئيسية HomeDashboardView.tsx بالقوس السماوي للصلوات وشبكة الدوائر المضيئة ومحراب الآية | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
+| `TASK-0038` | تطبيق هوية المحراب الزمردي المذهب وحلقات النيون في محطة الصباح CommuteMorningView والسبحة SmartTasbihModal | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
+| `TASK-0039` | ترقية محطتي العمل العميق WorkMicroSprintView والرياضة GymAnchorView بالكرونوغراف ثلاثي الأبعاد والموجات الصوتية الذهبية | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
+| `TASK-0040` | ترقية محطتي المساء EveningSprintView ومراجعة الليل RetrospectiveCheckinView والتحقق الشامل من البناء والأنماط | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
+| `TASK-0041` | مطابقة الشاشة الرئيسية مع التصميم المعتمد: المسرح المقوّس وقوس الصلوات الذهبي وبطاقات الحلقات الرأسية والمحراب وبطاقة الكهرمان | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
+| `TASK-0042` | إتقان تفاصيل الهوية الهجينة عبر كامل التطبيق بقرارات مجلس مديري الفن (GlowRing, Ogee Mihrab, WCAG AA Ink Tokens, Reduced-Motion & Touch Targets) | **COMPLETED** | Level 3 | Ahmad | الهوية الهجينة الموحدة (Celestial & 3D Bento) |
 
 ---
 
@@ -54,6 +71,21 @@
 | `BUG-0013` | Dexie schema v12 lacked .upgrade() handler causing legacy records with undefined updatedAt to be dropped from indexes | **HIGH** | RESOLVED | `src/db/db.ts` |
 | `BUG-0014` | Stations ONE_SEC_FRICTION and SOCIAL_MEDIA_BREAK caused blank container screen in App.tsx | **HIGH** | RESOLVED | `src/App.tsx` |
 | `BUG-0015` | DailyCircadianTimeline BiDi inversion between LTR progress ribbon and RTL time markers | **MEDIUM** | RESOLVED | `src/components/spiritual/DailyCircadianTimeline.tsx` |
+| `BUG-0016` | HomeDashboardView clock frozen at 12:00:00 breaking circadian greetings, station suggestions, and Friday window | **CRITICAL** | RESOLVED | `src/components/dashboard/HomeDashboardView.tsx` |
+| `BUG-0017` | aiCoachService.deconstructTask passes window.prompt instead of taskPrompt in Gemini branch | **CRITICAL** | RESOLVED | `src/services/aiCoachService.ts` |
+| `BUG-0018` | VITE_DEEPSEEK_API_KEY read in client code violating GEMINI.md Core Rule #4 | **CRITICAL** | RESOLVED | `src/services/aiCoachService.ts` |
+| `BUG-0019` | Hardcoded 1988 master PIN backdoor bypassing lockout and printed in cleartext on AuthGateView | **CRITICAL** | RESOLVED | `src/services/authService.ts` |
+| `BUG-0020` | Path traversal in /api/sync/delta via unsanitized userId and unauthenticated /api/auth/* routes | **CRITICAL** | RESOLVED | `server/index.mjs` |
+| `BUG-0021` | /api/auth/update-pin expects accountId while client sends userId causing 100% HTTP 400 failure | **HIGH** | RESOLVED | `server/index.mjs` |
+| `BUG-0022` | Cross-user WebPush notification leak when target user subscription list is empty | **CRITICAL** | RESOLVED | `server/index.mjs` |
+| `BUG-0023` | streakDays and streakShields are never updated anywhere in gamification.ts | **HIGH** | RESOLVED | `src/utils/gamification.ts` |
+| `BUG-0024` | PositiveFrictionView stations (ONE_SEC_FRICTION, SOCIAL_MEDIA_BREAK) and Home Wird/Fasting buttons do not properly award XP | **HIGH** | RESOLVED | `src/App.tsx` |
+| `BUG-0025` | LanguageQuizModal double-counts final question score in handleNextQuestion | **HIGH** | RESOLVED | `src/components/learning/LanguageQuizModal.tsx` |
+| `BUG-0026` | EveningSprintView mode === OUTREACH ternary leaks CODING GitHub card into all other modes | **MEDIUM** | RESOLVED | `src/components/stations/EveningSprintView.tsx` |
+| `BUG-0027` | custom_vocabulary_words table in Dexie is never read by SpacedRepetitionService | **HIGH** | RESOLVED | `src/services/spacedRepetitionService.ts` |
+| `BUG-0028` | prayerCalculator.ts toDate(hours) overflows calendar day when ishaHours >= 24.0 | **MEDIUM** | RESOLVED | `src/utils/prayerCalculator.ts` |
+| `BUG-0029` | SurahMulkModal font-size switcher (A+) overridden by hardcoded text-base md:text-lg on child paragraph | **MEDIUM** | RESOLVED | `src/components/spiritual/SurahMulkModal.tsx` |
+| `BUG-0030` | Vocalized Arabic tashkeel line-height < 2.2 and sub-44px mobile touch targets across modals and header | **HIGH** | RESOLVED | `src/components/spiritual/MorningEveningAdhkarModal.tsx` |
 
 ---
 

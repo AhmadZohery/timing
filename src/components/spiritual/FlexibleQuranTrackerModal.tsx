@@ -288,16 +288,27 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
       });
     }
 
-    // Update daily log if not just a bookmark
+    // Update daily log and user_state.totalPoints if not just a bookmark
     if (!isBookmarkOnly) {
+      const user = await db.user_state.get('current_user');
+      if (user) {
+        await db.user_state.update('current_user', {
+          totalPoints: (user.totalPoints || 0) + rewardPoints,
+        });
+      }
       const currentPoints = todayLog?.pointsEarned || 0;
       await upsertDailyLog(todayStr, {
         pointsEarned: currentPoints + rewardPoints,
-        baqarahProgress: {
-          pagesRead: finalPagesCount,
-          targetPages: finalPagesCount,
-          completed: true,
-        },
+        quranWirdDone: true,
+        ...(finalSurahNumber === 2
+          ? {
+              baqarahProgress: {
+                pagesRead: finalPagesCount,
+                targetPages: finalPagesCount,
+                completed: true,
+              },
+            }
+          : {}),
       });
 
       // Update goal if exists

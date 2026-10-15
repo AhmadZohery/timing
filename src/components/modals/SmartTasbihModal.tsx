@@ -375,21 +375,26 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-xl rounded-3xl bg-gradient-to-b from-[#0b0e14] via-[#0f141f] to-[#080a0f] border border-emerald-500/30 p-3.5 sm:p-5 shadow-2xl overflow-y-auto max-h-[92vh] flex flex-col justify-between gap-2.5">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isAr ? 'المسبحة الذكية' : 'Smart Tasbih'}
+        className="relative z-10 w-full max-w-xl rounded-3xl bg-gradient-to-b from-[#0b0e14] via-[#0f141f] to-[#080a0f] border border-emerald-500/30 p-3.5 sm:p-5 shadow-2xl overflow-y-auto max-h-[92vh] flex flex-col justify-between gap-2.5"
+      >
         {/* Subtle Ambient Backlight Glow */}
         <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Top Header Bar */}
         <div className="w-full flex items-center justify-between z-10 shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">{currentPreset.icon}</span>
-            <div>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-2xl shrink-0">{currentPreset.icon}</span>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-base font-black text-zinc-100 tracking-wide">
+                <h3 className="text-sm sm:text-base font-black text-zinc-100 truncate">
                   {isAr ? currentPreset.titleAr : currentPreset.titleEn}
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 hidden sm:inline-block">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 hidden sm:inline-block shrink-0">
                   {currentPreset.badgeAr}
                 </span>
               </div>
@@ -403,7 +408,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* Blind Tap Fullscreen Mode */}
             <button
               onClick={() => {
@@ -411,7 +416,8 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
                 haptic.vibrateLight();
                 setIsBlindTapMode(true);
               }}
-              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition-all cursor-pointer"
+              aria-label="نمط النقرة العمياء للشاشة بالكامل"
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition-all cursor-pointer"
               title="نمط النقرة العمياء للشاشة بالكامل"
             >
               <Hand className="w-4 h-4" />
@@ -420,7 +426,8 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             {/* Sound Toggle */}
             <button
               onClick={() => setSoundEnabled((prev) => !prev)}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+              aria-label={soundEnabled ? 'كتم الصوت' : 'تشغيل الصوت'}
+              className={`min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer ${
                 soundEnabled
                   ? 'bg-zinc-800 text-emerald-400 border-zinc-700'
                   : 'bg-zinc-900 text-zinc-500 border-zinc-800'
@@ -433,7 +440,8 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             {/* Haptic Toggle */}
             <button
               onClick={() => setHapticEnabled((prev) => !prev)}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+              aria-label={hapticEnabled ? 'تعطيل الاهتزاز' : 'تفعيل الاهتزاز'}
+              className={`min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl border transition-all cursor-pointer ${
                 hapticEnabled
                   ? 'bg-zinc-800 text-amber-400 border-zinc-700'
                   : 'bg-zinc-900 text-zinc-500 border-zinc-800'
@@ -446,7 +454,8 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             {/* Reset Button */}
             <button
               onClick={handleReset}
-              className="p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-all cursor-pointer"
+              aria-label="تصفير العداد"
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-all cursor-pointer"
               title="تصفير العداد"
             >
               <RotateCcw className="w-4 h-4" />
@@ -455,7 +464,8 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-700 transition-all cursor-pointer"
+              aria-label={isAr ? 'إغلاق' : 'Close'}
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white border border-zinc-700 transition-all cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -688,8 +698,12 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
 
         {/* Active Dhikr Text & Virtue Card */}
         <div className="w-full text-center space-y-2 px-1 z-10 my-auto">
-          <div className="p-3 sm:p-4 rounded-2xl bg-zinc-900/85 border border-zinc-800 shadow-inner space-y-2">
-            <h2 className="text-base sm:text-xl md:text-2xl font-bold font-serif text-amber-200/95 leading-relaxed tracking-wide select-none">
+          <div className="mihrab-emerald-arch p-3 sm:p-4 rounded-t-[40px] rounded-b-[20px] space-y-2">
+            <h2
+              dir="rtl"
+              lang="ar"
+              className="text-base sm:text-xl md:text-2xl font-bold font-serif text-amber-200/95 tashkeel-text leading-[2.2] select-none"
+            >
               {displayedText}
             </h2>
 
@@ -754,7 +768,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
             )}
 
             {currentStage.virtueAr && (
-              <p className="text-[10px] sm:text-xs text-zinc-400 font-sans leading-relaxed">
+              <p className="text-[11px] sm:text-xs text-emerald-100/85 font-sans tashkeel-text">
                 💫 {currentStage.virtueAr}
               </p>
             )}
@@ -763,7 +777,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
 
         {/* Central Giant Tactile Haptic Bead Button */}
         <div className="relative my-2 sm:my-3 z-10 flex items-center justify-center shrink-0">
-          <svg className="w-44 h-44 sm:w-56 sm:h-56 -rotate-90 transform" viewBox="0 0 240 240">
+          <svg className="w-44 h-44 sm:w-56 sm:h-56 -rotate-90 transform overflow-visible" viewBox="0 0 240 240">
             {/* Outer Track */}
             <circle
               cx="120"
@@ -771,7 +785,9 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
               r={radius}
               stroke="currentColor"
               strokeWidth="10"
-              className="text-zinc-800/60"
+              strokeDasharray="0.1 11"
+              strokeLinecap="round"
+              className="text-amber-300/40"
               fill="transparent"
             />
             {/* Dynamic Progress Ring */}
@@ -784,7 +800,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              className="transition-all duration-150 ease-out"
+              className="ring-glow-emerald transition-all duration-150 ease-out"
               fill="transparent"
             />
             <defs>
@@ -799,7 +815,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
           {/* Interactive Tap Area with Touch-manipulation & Ripple feedback */}
           <button
             onClick={handleTap}
-            className={`absolute w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-b from-[#192231] via-[#111724] to-[#0c101a] border-2 border-emerald-500/40 shadow-2xl flex flex-col items-center justify-center transition-all duration-75 active:scale-92 cursor-pointer select-none touch-manipulation ${
+            className={`absolute w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-b from-[#192231] via-[#111724] to-[#0c101a] border-2 border-amber-400/50 shadow-[0_0_28px_rgba(30,184,20,0.35)] flex flex-col items-center justify-center transition-all duration-75 active:scale-92 cursor-pointer select-none touch-manipulation ${
               isPressing
                 ? 'scale-90 ring-4 ring-emerald-400/60 shadow-emerald-500/50'
                 : 'hover:border-emerald-400/60 hover:shadow-emerald-900/30'
@@ -866,7 +882,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
 
           <button
             onClick={handleTap}
-            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+            className="min-h-[44px] px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
           >
             <span>+1 تسبيحة</span>
           </button>
@@ -892,7 +908,7 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
                   haptic.vibrateLight();
                   setIsBlindTapMode(false);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs cursor-pointer shadow-sm"
+                className="min-h-[44px] px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 font-bold text-xs cursor-pointer shadow-sm"
               >
                 {isAr ? 'خروج ✕' : 'Exit ✕'}
               </button>
@@ -900,7 +916,11 @@ export const SmartTasbihModal: React.FC<SmartTasbihModalProps> = ({
 
             {/* Giant Center Display */}
             <div className="flex flex-col items-center text-center space-y-4 my-auto">
-              <p className="text-xl sm:text-2xl font-bold font-serif text-amber-200/90 max-w-md px-4 leading-relaxed">
+              <p
+                dir="rtl"
+                lang="ar"
+                className="text-xl sm:text-2xl font-bold font-serif text-amber-200/90 tashkeel-text max-w-md px-4 leading-[2.2]"
+              >
                 {displayedText}
               </p>
               <div className="text-8xl sm:text-9xl font-mono font-black text-white tracking-wider my-4 drop-shadow-lg">

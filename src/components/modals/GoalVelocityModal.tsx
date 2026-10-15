@@ -156,10 +156,16 @@ export const GoalVelocityModal: React.FC<GoalVelocityModalProps> = ({
     const remaining = Math.max(0, goal.targetValue - goal.currentValue);
     if (remaining === 0) return language === 'ar' ? 'تم تحقيق الهدف بالكامل! 🎉' : 'Goal fully completed! 🎉';
 
-    const ratePerDay = 1.2;
+    const projectedDate = new Date();
+    const daysElapsed = goal.startDate
+      ? Math.max(1, Math.ceil((projectedDate.getTime() - new Date(goal.startDate).getTime()) / 86400000))
+      : 7;
+    const ratePerDay =
+      goal.currentValue > 0
+        ? Math.max(0.2, Number((goal.currentValue / daysElapsed).toFixed(2)))
+        : 1.0;
     const daysNeeded = Math.ceil(remaining / ratePerDay);
 
-    const projectedDate = new Date();
     projectedDate.setDate(projectedDate.getDate() + daysNeeded);
 
     const locale = language === 'ar' ? 'ar-EG' : 'en-US';

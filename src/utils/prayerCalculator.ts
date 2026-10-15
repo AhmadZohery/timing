@@ -178,8 +178,8 @@ export function calculatePrayerTimes(
   // Timezone offset in hours
   const timezoneOffset = -date.getTimezoneOffset() / 60.0;
 
-  // Solar Transit (Dhuhr)
-  const noon = 12 + timezoneOffset - longitude / 15.0 - EqT;
+  // Solar Transit (Dhuhr) normalized to [0, 24) local day window
+  const noon = normalize(12 + timezoneOffset - longitude / 15.0 - EqT, 24);
 
   // Parameters according to calculation method
   let fajrAngle = 19.5;
@@ -258,12 +258,10 @@ export function calculatePrayerTimes(
     : noon + H_isha;
 
   const toDate = (hours: number): Date => {
-    const d = new Date(date);
-    d.setSeconds(0);
-    d.setMilliseconds(0);
-    const h = Math.floor(hours);
-    const m = Math.floor((hours - h) * 60);
-    d.setHours(h, m, 0, 0);
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    if (!Number.isFinite(hours)) return d;
+    const totalMinutes = Math.round(hours * 60);
+    d.setMinutes(totalMinutes, 0, 0);
     return d;
   };
 
@@ -280,7 +278,14 @@ export function calculatePrayerTimes(
   // Qiyam Al-Layl (Last third of the night):
   // Night spans from Maghrib today to Fajr tomorrow
   // Duration = 24h + Fajr - Maghrib
-  const nextFajrTime = fajrDate.getTime() + 24 * 60 * 60 * 1000;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  let nextFajrTime = fajrDate.getTime() + DAY_MS;
+  while (nextFajrTime <= maghribDate.getTime()) {
+    nextFajrTime += DAY_MS;
+  }
+  while (nextFajrTime - maghribDate.getTime() > DAY_MS) {
+    nextFajrTime -= DAY_MS;
+  }
   const nightDurationMs = nextFajrTime - maghribDate.getTime();
   const oneThirdNightMs = nightDurationMs / 3.0;
   const qiyamDate = new Date(nextFajrTime - oneThirdNightMs);
@@ -413,7 +418,7 @@ export interface NightIntervals {
 
 /**
  * Calculates authentic astronomical night intervals (Islamic midnight and the Last Third of the Night)
- * based on Maghrib and Fajr timings.
+ * based on Maghrib/Isha and Fajr timings.
  */
 export function calculateNightIntervals(
   maghribDate: Date,
@@ -421,23 +426,34 @@ export function calculateNightIntervals(
   currentTime: Date = new Date(),
   isAr: boolean = true
 ): NightIntervals {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const HOUR_MS = 60 * 60 * 1000;
   const now = currentTime.getTime();
   let maghribTime = maghribDate.getTime();
   let fajrTime = fajrDate.getTime();
 
-  // If fajr was earlier today than maghrib, the night spans to tomorrow's fajr
-  if (fajrTime <= maghribTime) {
-    fajrTime += 24 * 60 * 60 * 1000;
+  // Normalize fajrTime relative to maghribTime into a single positive (0, 24h] window
+  while (fajrTime <= maghribTime) {
+    fajrTime += DAY_MS;
+  }
+  while (fajrTime - maghribTime > DAY_MS) {
+    fajrTime -= DAY_MS;
   }
 
-  // Adjust interval anchor depending on whether we are currently between maghrib and fajr
-  if (now > fajrTime) {
-    maghribTime += 24 * 60 * 60 * 1000;
-    fajrTime += 24 * 60 * 60 * 1000;
+  // Adjust interval anchor depending on whether we are currently in the previous or next night cycle
+  if (now < fajrTime - DAY_MS && now >= maghribTime - DAY_MS) {
+    maghribTime -= DAY_MS;
+    fajrTime -= DAY_MS;
+  } else if (now > fajrTime) {
+    while (now > fajrTime) {
+      maghribTime += DAY_MS;
+      fajrTime += DAY_MS;
+    }
   }
 
-  const nightDurationMs = fajrTime - maghribTime;
-  const midnightMs = maghribTime + nightDurationMs / 2.0;
+  const rawNightDurationMs = fajrTime - maghribTime;
+  const nightDurationMs = Math.min(18 * HOUR_MS, Math.max(6 * HOUR_MS, rawNightDurationMs));
+  const midnightMs = fajrTime - nightDurationMs / 2.0;
   const lastThirdStartMs = fajrTime - nightDurationMs / 3.0;
 
   const midnightDate = new Date(midnightMs);

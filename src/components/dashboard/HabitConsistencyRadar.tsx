@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import type { DailyLog, StationId } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { soundSynth } from '../../services/soundSynthesizer';
+import { haptic } from '../../services/vibrationService';
 
 interface HabitConsistencyRadarProps {
   dailyLogs: DailyLog[];
@@ -65,29 +67,38 @@ export const HabitConsistencyRadar: React.FC<HabitConsistencyRadarProps> = ({
   }, 0);
   const weeklyScore = Math.min(100, Math.round((completedSlots / totalSlots) * 100));
 
+  const handleInteractiveTap = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (onOpenArchiveModal) {
+      onOpenArchiveModal();
+    }
+  };
+
   return (
-    <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 space-y-3.5 shadow-sm transition-colors">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+    <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-4 shadow-sm transition-all">
+      {/* Header with Obsidian (#141517) Accent */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] shadow-2xs shrink-0">
             <Activity className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-slate-900 dark:text-zinc-100">
-              {isAr ? 'مصفوفة الاتساق الأسبوعي (7 أيام)' : '7-Day Consistency Radar'}
+            <h3 className="text-xs font-black text-[#141517] dark:text-white tracking-tight">
+              {isAr ? 'مصفوفة الاتساق الأسبوعي (7 أيام)' : '7-Day Consistency Matrix'}
             </h3>
-            <p className="text-[10px] text-slate-500 dark:text-zinc-400">
+            <p className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">
               {isAr ? 'تتبع إنجاز المحطات الست يومياً' : 'Visual multi-station habit grid'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {onOpenArchiveModal && (
             <button
-              onClick={onOpenArchiveModal}
-              className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800/40"
+              type="button"
+              onClick={handleInteractiveTap}
+              className="flex items-center gap-1 text-[10px] font-black text-[#141517] bg-[#e2defc] hover:bg-[#d4f5dc] px-2.5 py-1 rounded-full border border-[#5448e8]/20 transition-all active:scale-95 cursor-pointer shadow-2xs"
               title={isAr ? 'فتح التقويم والأرشيف' : 'Open Calendar & Archive'}
             >
               <Calendar className="w-3 h-3" />
@@ -95,55 +106,65 @@ export const HabitConsistencyRadar: React.FC<HabitConsistencyRadarProps> = ({
             </button>
           )}
 
-          <div className="flex items-center gap-1.5 font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400">
-            <Activity className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <button
+            type="button"
+            onClick={handleInteractiveTap}
+            className="flex items-center gap-1 font-mono text-xs font-black px-2.5 py-1 rounded-full bg-[#bce8c2] text-[#141517] border border-[#1eb814]/30 active:scale-95 transition-transform cursor-pointer shadow-2xs"
+            title={isAr ? 'نسبة الاتساق الأسبوعي' : 'Weekly Consistency Score'}
+          >
+            <Activity className="w-3.5 h-3.5 text-[#1eb814]" />
             <span>{weeklyScore}%</span>
-          </div>
+          </button>
         </div>
       </div>
 
       {/* 7-Day Matrix Grid */}
       <div className="space-y-2">
         {/* Days Header */}
-        <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-mono text-slate-400 dark:text-zinc-500 font-bold">
+        <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-mono font-bold">
           {last7Days.map((day) => (
-            <div
+            <button
               key={day.dateStr}
-              className={`py-1 rounded-md ${
+              type="button"
+              onClick={handleInteractiveTap}
+              className={`py-1 rounded-xl transition-all cursor-pointer active:scale-95 ${
                 day.isToday
-                  ? 'bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black'
-                  : ''
+                  ? 'bg-[#141517] text-[#bce8c2] dark:bg-[#bce8c2] dark:text-[#141517] font-black shadow-2xs'
+                  : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-white/5'
               }`}
+              title={day.dateStr}
             >
               {day.dayName}
-            </div>
+            </button>
           ))}
         </div>
 
         {/* Stations Rows */}
-        <div className="space-y-1.5 pt-1 border-t border-slate-100 dark:border-zinc-800/80">
+        <div className="space-y-1.5 pt-1.5 border-t border-slate-100 dark:border-white/10">
           {STATION_KEYS.map((st) => (
             <div key={st.id} className="grid grid-cols-7 gap-1.5 items-center">
               {last7Days.map((day) => {
                 const isDone = day.log?.completedStations?.includes(st.id);
                 return (
-                  <div
+                  <button
                     key={`${day.dateStr}-${st.id}`}
+                    type="button"
+                    onClick={handleInteractiveTap}
                     title={`${day.dateStr}: ${isAr ? st.labelAr : st.labelEn} ${isDone ? '✔' : '—'}`}
-                    className={`h-5 rounded-md flex items-center justify-center transition-all ${
+                    className={`h-6 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-90 ${
                       isDone
-                        ? 'bg-emerald-500 text-white shadow-2xs'
+                        ? 'bg-[#bce8c2] text-[#141517] border border-[#1eb814]/40 shadow-2xs hover:bg-[#d4f5dc]'
                         : day.isToday
-                        ? 'bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-slate-300 dark:text-zinc-600'
-                        : 'bg-slate-100/50 dark:bg-zinc-800/30 text-slate-300 dark:text-zinc-700'
+                        ? 'bg-[#d4f5dc]/35 dark:bg-white/10 border border-[#bce8c2] dark:border-white/15 text-slate-400 dark:text-zinc-400 hover:border-[#1eb814]'
+                        : 'bg-slate-100/70 dark:bg-white/[0.04] text-slate-300 dark:text-zinc-600 hover:bg-slate-200/70 dark:hover:bg-white/10'
                     }`}
                   >
                     {isDone ? (
-                      <CheckCircle2 className="w-3 h-3 stroke-[2.5]" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#1eb814] stroke-[2.75]" />
                     ) : (
                       <Circle className="w-1.5 h-1.5" />
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -151,52 +172,69 @@ export const HabitConsistencyRadar: React.FC<HabitConsistencyRadarProps> = ({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-zinc-500 pt-2 border-t border-slate-100 dark:border-zinc-800/60">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded bg-emerald-500" />
+        <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-zinc-400 pt-2 border-t border-slate-100 dark:border-white/10">
+          <div className="flex items-center gap-1.5 font-bold">
+            <span className="w-2.5 h-2.5 rounded-md bg-[#bce8c2] border border-[#1eb814]/50" />
             <span>{isAr ? 'مكتمل' : 'Fulfilled'}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded bg-slate-200 dark:bg-zinc-800" />
+          <div className="flex items-center gap-1.5 font-medium">
+            <span className="w-2.5 h-2.5 rounded-md bg-slate-200 dark:bg-white/10" />
             <span>{isAr ? 'مستمر / قادم' : 'Pending'}</span>
           </div>
-          <div className="flex items-center gap-1 font-mono text-slate-700 dark:text-zinc-300 font-bold">
-            <Calendar className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+          <button
+            type="button"
+            onClick={handleInteractiveTap}
+            className="flex items-center gap-1 font-mono text-[#141517] dark:text-[#bce8c2] font-bold hover:underline cursor-pointer"
+          >
+            <Calendar className="w-3 h-3 text-[#1eb814]" />
             <span>{todayDate}</span>
-          </div>
+          </button>
         </div>
       </div>
 
-      {/* Streak Protection Stats Banner */}
+      {/* Streak Protection Stats Banner (100% Interactive Pastel Bento Pills) */}
       <div className="grid grid-cols-3 gap-2 pt-1 text-center font-mono">
-        <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800/80">
-          <span className="text-[10px] text-slate-400 dark:text-zinc-500 block">
+        <button
+          type="button"
+          onClick={handleInteractiveTap}
+          className="p-2.5 rounded-2xl bg-[#fde6d8] text-[#141517] border border-[#ff5500]/20 hover:brightness-98 active:scale-95 transition-all cursor-pointer shadow-2xs"
+        >
+          <span className="text-[10px] text-[#141517]/70 font-sans font-bold block">
             {isAr ? 'الشعلة' : 'Streak'}
           </span>
-          <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 flex items-center justify-center gap-1">
-            <Flame className="w-3.5 h-3.5 fill-emerald-500" />
+          <span className="text-sm font-black text-[#141517] flex items-center justify-center gap-1 mt-0.5">
+            <Flame className="w-3.5 h-3.5 text-[#ff5500] fill-[#ff5500]" />
             {streakDays}
           </span>
-        </div>
+        </button>
 
-        <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800/80">
-          <span className="text-[10px] text-slate-400 dark:text-zinc-500 block">
+        <button
+          type="button"
+          onClick={handleInteractiveTap}
+          className="p-2.5 rounded-2xl bg-[#e2defc] text-[#141517] border border-[#5448e8]/20 hover:brightness-98 active:scale-95 transition-all cursor-pointer shadow-2xs"
+        >
+          <span className="text-[10px] text-[#141517]/70 font-sans font-bold block">
             {isAr ? 'الدروع' : 'Shields'}
           </span>
-          <span className="text-sm font-bold text-sky-700 dark:text-sky-400">
+          <span className="text-sm font-black text-[#141517] block mt-0.5">
             {streakShields} 🛡️
           </span>
-        </div>
+        </button>
 
-        <div className="p-2 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800/80">
-          <span className="text-[10px] text-slate-400 dark:text-zinc-500 block">
+        <button
+          type="button"
+          onClick={handleInteractiveTap}
+          className="p-2.5 rounded-2xl bg-[#d4f5dc] text-[#141517] border border-[#1eb814]/25 hover:brightness-98 active:scale-95 transition-all cursor-pointer shadow-2xs"
+        >
+          <span className="text-[10px] text-[#141517]/70 font-sans font-bold block">
             {isAr ? 'النقاط' : 'Points'}
           </span>
-          <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+          <span className="text-sm font-black text-[#141517] block mt-0.5">
             {totalPoints} ✨
           </span>
-        </div>
+        </button>
       </div>
     </div>
   );
 };
+

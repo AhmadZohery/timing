@@ -102,7 +102,12 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 bg-white dark:bg-[#12131A] border border-cyan-300/40 dark:border-cyan-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isAr ? 'خزانة النماذج الفكرية والمعارف الحياتية' : 'Mental Models & Life Wisdom Vault'}
+        className="relative z-10 bg-white dark:bg-[#12131A] border border-cyan-300/40 dark:border-cyan-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+      >
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-cyan-200/50 dark:border-white/[0.08] bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -132,7 +137,8 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
               soundSynth.playTactileClick();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
+            aria-label={isAr ? 'إغلاق' : 'Close'}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -160,7 +166,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                   soundSynth.playTactileClick();
                   setSelectedCategory(cat.id);
                 }}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1 cursor-pointer active:scale-95 ${
                   selectedCategory === cat.id
                     ? 'bg-cyan-600 text-white shadow-xs'
                     : 'bg-white dark:bg-zinc-800 text-slate-600 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 hover:border-cyan-400'
@@ -205,8 +211,9 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleCopy(item)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors"
+                        className="min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors cursor-pointer"
                         title={isAr ? 'نسخ الفكرة' : 'Copy'}
+                        aria-label={isAr ? 'نسخ الفكرة' : 'Copy'}
                       >
                         {copiedId === item.id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
                       </button>
@@ -214,12 +221,13 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                       <button
                         type="button"
                         onClick={() => toggleBookmark(item.id)}
-                        className={`p-1.5 rounded-lg transition-colors ${
+                        className={`min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center p-1.5 rounded-lg transition-colors cursor-pointer ${
                           isBookmarked
                             ? 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950/40'
                             : 'text-slate-400 hover:text-cyan-600'
                         }`}
                         title={isAr ? 'حفظ في المفضلة' : 'Bookmark'}
+                        aria-label={isAr ? 'حفظ في المفضلة' : 'Bookmark'}
                       >
                         <Bookmark className="w-4 h-4 fill-current" />
                       </button>
@@ -228,10 +236,10 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
 
                   {/* Title & Core Summary */}
                   <div className="mb-3">
-                    <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-1">
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mb-1 select-text">
                       {item.titleAr}
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 leading-relaxed font-medium">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-zinc-300 leading-relaxed font-medium select-text">
                       {item.summaryAr}
                     </p>
                   </div>
@@ -239,7 +247,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                   {/* Practical Action Banner */}
                   <div className="p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/5 dark:from-emerald-950/30 dark:to-teal-950/10 border border-emerald-300/60 dark:border-emerald-700/50 flex items-start gap-2.5 text-xs text-emerald-950 dark:text-emerald-200">
                     <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <p className="leading-relaxed">
+                    <p className="leading-relaxed select-text">
                       <span className="font-bold text-emerald-800 dark:text-emerald-300">{isAr ? 'التطبيق العملي اليوم:' : 'Action:'} </span>
                       {item.practicalActionAr}
                     </p>
@@ -266,7 +274,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                           <span>🔍</span>
                           <span>{isAr ? 'الشرح العلمي والمنطقي:' : 'Deep Explanation:'}</span>
                         </h4>
-                        <p className="text-slate-600 dark:text-zinc-300 leading-relaxed ps-5">
+                        <p className="text-slate-600 dark:text-zinc-300 leading-relaxed ps-5 select-text">
                           {item.detailedExplanationAr}
                         </p>
                       </div>
@@ -275,7 +283,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                         <span className="font-bold text-slate-900 dark:text-zinc-100 block mb-0.5">
                           {isAr ? '🌱 مثال حي من واقع الحياة:' : 'Real-life Example:'}
                         </span>
-                        <p className="text-[11px] text-slate-600 dark:text-zinc-400">
+                        <p className="text-[11px] text-slate-600 dark:text-zinc-400 select-text">
                           {item.realLifeExampleAr}
                         </p>
                       </div>

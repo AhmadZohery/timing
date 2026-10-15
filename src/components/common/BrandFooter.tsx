@@ -1,87 +1,133 @@
-import React from 'react';
-import { ExternalLink, ShieldCheck, Zap, Sparkles, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, RefreshCw, ArrowUp } from 'lucide-react';
+import { soundSynth } from '../../services/soundSynthesizer';
+import { haptic } from '../../services/vibrationService';
 
 interface BrandFooterProps {
   language?: 'ar' | 'en';
 }
 
+const INSPIRING_QUOTES = [
+  {
+    textAr: '«أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ» — قليلٌ متصل خيرٌ من كثيرٍ منقطع، فاصبر وأبشر.',
+    textEn: '“The most beloved deeds to Allah are the most consistent, even if small.” Keep going.',
+    authorAr: 'هديٌ نبويٌّ شريف',
+  },
+  {
+    textAr: '«عَلَى قَدْرِ أَهْلِ العَزْمِ تَأْتِي العَزَائِمُ» — خطوتك الصادقة اليوم تصنع مجدك غداً بإذن الله.',
+    textEn: '“Greatness comes in proportion to resolve.” Your honest step today builds tomorrow.',
+    authorAr: 'أبو الطيب المتنبي',
+  },
+  {
+    textAr: '«مَنْ بَارَكَ اللَّهُ لَهُ فِي وَقْتِهِ، أَنْجَزَ فِي السَّاعَةِ مَا لَا يُنْجِزُهُ غَيْرُهُ فِي أَيَّامٍ» — استعن بالله ولا تعجز.',
+    textEn: '“When Allah blesses your time, an hour yields what days cannot.” Seek help in Allah.',
+    authorAr: 'حكمة السلف',
+  },
+  {
+    textAr: '«إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ» — جدّد نيتك في كل عملٍ دنيوي لينقلب في ميزانك طاعةً وأجراً.',
+    textEn: '“Actions are judged by intentions.” Renew your intention to elevate every daily task.',
+    authorAr: 'قبس من النبوة',
+  },
+  {
+    textAr: '«وَاصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ» — كل جهدٍ تبذله اليوم محفوظٌ عند ربٍّ كريم.',
+    textEn: '“Be patient, for Allah never wastes the reward of those who do good.”',
+    authorAr: 'سورة هود • ١١٥',
+  },
+  {
+    textAr: '«لَا تَسْتَوْحِشُوا طَرِيقَ الْحَقِّ لِقِلَّةِ السَّالِكِينَ» — ثباتك على وِردك وإنجازك هو الفوز الحقيقي.',
+    textEn: '“Stay steadfast on the path of excellence; consistency is the true victory.”',
+    authorAr: 'إشراقة إيمانية',
+  },
+];
+
 export const BrandFooter: React.FC<BrandFooterProps> = ({ language = 'ar' }) => {
   const isAr = language === 'ar';
+  const [quoteIdx, setQuoteIdx] = useState<number>(() => {
+    const dayOfYear = Math.floor(Date.now() / 86400000);
+    return dayOfYear % INSPIRING_QUOTES.length;
+  });
+
+  const activeQuote = INSPIRING_QUOTES[quoteIdx] || INSPIRING_QUOTES[0];
+
+  const handleNextQuote = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setQuoteIdx((prev) => (prev + 1) % INSPIRING_QUOTES.length);
+  };
+
+  const handleScrollTop = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <footer className="w-full mt-10 pt-8 pb-12 border-t border-slate-200/80 dark:border-zinc-800/80 bg-gradient-to-b from-transparent via-slate-50/50 to-slate-100/80 dark:via-zinc-950/40 dark:to-zinc-900/60 backdrop-blur-xs transition-colors">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center space-y-6">
-        
-        {/* Brand & Subdomain Header Pill */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-black tracking-wide">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
-            <span>{isAr ? 'منظومة مِضمار المتكاملة • Midmar LifeOS' : 'Midmar Life Operating System'}</span>
+    <footer className="w-full pt-2 pb-4 select-none">
+      <div className="max-w-3xl mx-auto">
+        <div
+          onClick={handleNextQuote}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleNextQuote();
+            }
+          }}
+          title={isAr ? 'اضغط لإشراقة وحكمة تشجيعية جديدة' : 'Tap for a new inspiring quote'}
+          className="rounded-[24px] bg-[#141517] text-white px-4 py-3.5 border border-white/10 shadow-md flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-all"
+        >
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#1eb814] to-emerald-700 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="min-w-0 flex-1 text-start">
+              <p
+                dir={isAr ? 'rtl' : 'ltr'}
+                lang={isAr ? 'ar' : 'en'}
+                className="text-sm sm:text-base font-bold text-amber-100 font-quran leading-[2.2] tashkeel-text"
+              >
+                {isAr ? activeQuote.textAr : activeQuote.textEn}
+              </p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-[10px] font-bold text-[#bce8c2]">
+                  ✦ {activeQuote.authorAr}
+                </span>
+                <span className="text-[10px] text-zinc-500">
+                  • {isAr ? 'اضغط لتجديد الحكمة' : 'Tap for next'}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <a
-            href="https://fikradm.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-emerald-600 dark:hover:bg-emerald-400 dark:hover:text-zinc-950 text-xs font-black transition-all active:scale-95 shadow-xs cursor-pointer group"
-          >
-            <span>FikraDM.com</span>
-            <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </a>
-        </div>
-
-        {/* Feature & Security Badges Deck */}
-        <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/80 dark:bg-zinc-900/80 border border-slate-200/60 dark:border-zinc-800 shadow-2xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>{isAr ? 'خصوصية مطلقة وتشفير محلي (Local-First)' : 'Local-First Privacy & Encryption'}</span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextQuote();
+              }}
+              aria-label={isAr ? 'حكمة أخرى' : 'Next quote'}
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleScrollTop();
+              }}
+              aria-label={isAr ? 'العودة لأعلى الصفحة' : 'Back to top'}
+              title={isAr ? 'العودة لأعلى الصفحة' : 'Back to top'}
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/80 dark:bg-zinc-900/80 border border-slate-200/60 dark:border-zinc-800 shadow-2xs">
-            <Zap className="w-3.5 h-3.5 text-amber-500" />
-            <span>{isAr ? 'جاهز للعمل بدون إنترنت (Offline PWA)' : 'PWA & Offline Ready'}</span>
-          </div>
         </div>
-
-        {/* Official Royal Copyright Line */}
-        <div className="space-y-1.5">
-          <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-zinc-200">
-            {isAr ? (
-              <>
-                كافة الحقوق محفوظة © {new Date().getFullYear()} لمؤسسة{' '}
-                <a
-                  href="https://fikradm.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 dark:text-emerald-400 font-black hover:underline cursor-pointer"
-                >
-                  فكرة دي إم (FikraDM.com)
-                </a>
-              </>
-            ) : (
-              <>
-                All Rights Reserved © {new Date().getFullYear()} by{' '}
-                <a
-                  href="https://fikradm.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 dark:text-emerald-400 font-black hover:underline cursor-pointer"
-                >
-                  FikraDM.com
-                </a>
-              </>
-            )}
-          </p>
-          
-          <p className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center justify-center gap-1.5">
-            <span>
-              {isAr
-                ? 'صُممت المنظومة وطُوّرت بعناية فائقة لتعزيز الإنتاجية والانضباط والإيقاع الحيوي'
-                : 'Designed and crafted for peak productivity, discipline & circadian mastery'}
-            </span>
-            <Heart className="w-3 h-3 text-rose-500 inline fill-rose-500/20" />
-          </p>
-        </div>
-
       </div>
     </footer>
   );
