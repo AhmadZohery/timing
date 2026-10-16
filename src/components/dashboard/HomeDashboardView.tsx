@@ -1240,7 +1240,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             },
             {
               id: 'growth',
-              badge: `${currentLangObj.flag} ${isAr ? 'اللغات والحكمة' : 'Growth'}`,
+              badge: isAr ? 'اللغات والحكمة' : 'Growth',
               badgeBg: 'bg-habit-flame-ink text-white',
               cardBg: 'bento-3d-amber border-white/50 dark:border-amber-500/25',
               title: isAr ? 'اللغات والشعر' : 'Languages & Wisdom',
