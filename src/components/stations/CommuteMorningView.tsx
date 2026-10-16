@@ -421,7 +421,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
       </div>
 
       {/* Book Insight / Quote of the Day Capture — Habitline Soft Amber Surface */}
-      <div className="p-5 rounded-[28px] bg-[#fde6d8]/75 dark:bg-amber-950/45 border border-amber-400/30 dark:border-amber-500/25 space-y-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="bento-3d-amber p-5 rounded-[28px] border border-amber-400/30 dark:border-amber-500/25 space-y-3.5">
         <div className="flex items-center justify-between">
           <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
             <div className="w-7 h-7 rounded-xl bg-habit-flame-ink text-white flex items-center justify-center shadow-2xs">

@@ -795,7 +795,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                 </div>
 
                 {/* Ambient Focus Acoustics (Zero-Cloud Web Audio) — Soft Lavender */}
-                <div className="p-4 rounded-[22px] bg-[#e2defc]/65 dark:bg-indigo-950/40 border border-indigo-400/25 space-y-2.5 text-start">
+                <div className="bento-3d-lavender p-4 rounded-[22px] border border-indigo-400/25 space-y-2.5 text-start">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="flex items-center gap-1.5 text-zinc-900 dark:text-zinc-100">
                       <Waves className="w-3.5 h-3.5 text-[#5448e8]" />
@@ -848,7 +848,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
                 </div>
 
                 {/* Urge Surfing Trigger Button (Anti-Craving ACT Therapy) — Habitline Soft Rose */}
-                <div className="p-4 rounded-[22px] bg-[#fce2e6]/80 dark:bg-rose-950/45 border border-rose-400/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="bento-3d-rose p-4 rounded-[22px] border border-rose-400/30 flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-xs text-rose-950 dark:text-rose-200">
                     <Waves className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>
@@ -965,7 +965,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
 
           {/* Phase 2: One-Sec Friction Breathing Pause — Habitline Soft Rose */}
           {phase === 'ONE_SEC_FRICTION' && (
-            <div className="p-8 rounded-[28px] bg-[#fce2e6]/80 dark:bg-rose-950/45 border border-rose-400/30 text-center space-y-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <div className="bento-3d-rose p-8 rounded-[28px] border border-rose-400/30 text-center space-y-5">
               <div className="inline-flex p-3.5 rounded-2xl bg-rose-500 text-white animate-pulse shadow-md">
                 <Wind className="w-8 h-8" />
               </div>
@@ -992,7 +992,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
 
           {/* Phase 3: Social Media Break (15 min) with Coffee Badge — Habitline Soft Amber */}
           {phase === 'SOCIAL_BREAK' && (
-            <div className="p-6 rounded-[28px] bg-[#fde6d8]/80 dark:bg-amber-950/45 border border-amber-400/35 text-center space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <div className="bento-3d-amber p-6 rounded-[28px] border border-amber-400/35 text-center space-y-6">
               <div className="flex items-center justify-center gap-2 text-amber-950 dark:text-amber-200 font-bold text-sm">
                 <Coffee className="w-5 h-5 text-[#ff5500]" />
                 <span>{t('social_break_title')}</span>

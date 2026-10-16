@@ -142,7 +142,7 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
       )}
 
       {/* 2. Today's Strategic Anchor Micro-Step */}
-      <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-3.5 shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-[26px] surface-card-3d border border-slate-200/90 dark:border-white/10 space-y-3.5 transition-colors">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#bce8c2] text-[#bce8c2] dark:text-[#141517] shadow-2xs">
@@ -347,7 +347,7 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
       </div>
 
       {/* 4. Goals Velocity Quick Preview */}
-      <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-3.5 shadow-sm transition-colors">
+      <div className="p-4 sm:p-5 rounded-[26px] surface-card-3d border border-slate-200/90 dark:border-white/10 space-y-3.5 transition-colors">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#d4f5dc] text-[#d4f5dc] dark:text-[#141517] shadow-2xs">
@@ -407,7 +407,7 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
       </div>
 
       {/* 5. Saturday Buffer Health Card */}
-      <div className="p-4 sm:p-5 rounded-[26px] bg-[#fde6d8]/45 dark:bg-[#141517] border border-[#fde6d8] dark:border-[#fde6d8]/20 space-y-3 shadow-sm transition-colors">
+      <div className="bento-3d-amber p-4 sm:p-5 rounded-[26px] border border-[#fde6d8] dark:border-[#fde6d8]/20 space-y-3 transition-colors">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-2xl bg-[#141517] dark:bg-[#fde6d8] text-[#fde6d8] dark:text-[#141517] shadow-2xs">

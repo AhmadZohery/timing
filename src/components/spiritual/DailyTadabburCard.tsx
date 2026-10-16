@@ -82,7 +82,7 @@ export const DailyTadabburCard: React.FC<DailyTadabburCardProps> = ({
   };
 
   return (
-    <div className="w-full rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 shadow-sm p-4 sm:p-6 space-y-5 transition-all">
+    <div className="w-full rounded-[26px] surface-card-3d border border-slate-200/90 dark:border-white/10 p-4 sm:p-6 space-y-5 transition-all">
       {/* Top Header & Day Navigation */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-100 dark:border-white/10">
         <div className="flex items-center gap-3">

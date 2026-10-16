@@ -519,6 +519,16 @@ html[lang="ar"] :is(.text-\[10px\], .text-\[11px\], .text-xs).font-bold {
     box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.85), inset 0 -3px 6px 0 rgba(217, 119, 6, 0.12), 0 14px 30px -8px rgba(217, 119, 6, 0.28);
   }
 
+  .bento-3d-sky {
+    background: linear-gradient(145deg, #eaf7ff 0%, #c9e8fb 100%);
+    box-shadow: inset 0 2px 0 0 rgba(255, 255, 255, 0.9), inset 0 -3px 6px 0 rgba(2, 132, 199, 0.09), 0 14px 30px -8px rgba(2, 120, 154, 0.2);
+  }
+
+  html.dark .bento-3d-sky {
+    background: linear-gradient(145deg, rgba(7, 89, 133, 0.6) 0%, rgba(8, 47, 73, 0.92) 100%);
+    box-shadow: inset 0 1px 0 0 rgba(125, 211, 252, 0.35), 0 14px 32px -8px rgba(14, 165, 233, 0.28);
+  }
+
   .mihrab-emerald-arch {
     background: radial-gradient(85% 95% at 50% 0%, rgba(30, 184, 20, 0.3) 0%, rgba(6, 78, 59, 0.97) 72%, #042f2e 100%);
     border: 1.5px solid rgba(251, 191, 36, 0.5);
@@ -616,6 +626,34 @@ html[lang="ar"] :is(.text-\[10px\], .text-\[11px\], .text-xs).font-bold {
   html.dark .surface-card-3d {
     background: linear-gradient(180deg, #1b1c1f 0%, #141517 100%);
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 26px -10px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Bottom sheets (stations map, sanctuary, ...): soft tinted light surface / obsidian with an amber dawn on the top edge */
+  .sheet-surface {
+    background: linear-gradient(180deg, #f9fafb 0%, #eceef2 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.95), 0 -24px 60px -16px rgba(20, 21, 23, 0.4);
+  }
+  html.dark .sheet-surface {
+    background:
+      radial-gradient(70% 28% at 50% 0%, rgba(251, 191, 36, 0.13) 0%, transparent 100%),
+      linear-gradient(180deg, #17181a 0%, #0f1011 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.16), 0 -24px 60px -16px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Header dropdown menus */
+  .menu-surface {
+    background: linear-gradient(180deg, #ffffff 0%, #f4f4f2 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.95), 0 24px 60px -14px rgba(20, 21, 23, 0.34);
+  }
+  html.dark .menu-surface {
+    background: linear-gradient(180deg, #1b1c1f 0%, #121315 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.14), 0 24px 60px -14px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Floating command dock: glassy obsidian with a faint golden rim */
+  .dock-obsidian {
+    background: linear-gradient(180deg, rgba(29, 30, 33, 0.95) 0%, rgba(15, 16, 17, 0.96) 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.16), 0 0 0 1px rgba(251, 191, 36, 0.1), 0 20px 50px rgba(0, 0, 0, 0.42);
   }
 }
 

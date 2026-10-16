@@ -331,7 +331,7 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
 
   return (
     <div
-      className={`rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 shadow-sm p-4 sm:p-5 space-y-3.5 transition-all ${className}`}
+      className={`rounded-[26px] surface-card-3d border border-slate-200/90 dark:border-white/10 p-4 sm:p-5 space-y-3.5 transition-all ${className}`}
       dir="rtl"
     >
       {/* Top Banner: Next Best Action & Current Time Dial */}

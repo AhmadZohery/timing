@@ -1035,11 +1035,11 @@ export const Header: React.FC<HeaderProps> = ({
                   onTouchStart={() => setShowControlCenter(false)}
                 />
                 <div
-                  className="absolute end-0 top-full mt-2.5 z-50 w-[312px] sm:w-[348px] rounded-[28px] bg-[#f7f7f7] dark:bg-[#141517] border border-zinc-200/90 dark:border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.28)] p-3 space-y-2.5 animate-fade-in"
+                  className="absolute end-0 top-full mt-2.5 z-50 w-[312px] sm:w-[348px] rounded-[28px] menu-surface border border-zinc-200/90 dark:border-white/10 p-3 space-y-2.5 animate-fade-in"
                   style={{ maxHeight: '84vh', overflowY: 'auto' }}
                 >
                   {/* Obsidian Hero Profile & Live Status Card */}
-                  <div className="rounded-[22px] bg-[#141517] dark:bg-zinc-900 text-white p-3.5 border border-white/10 space-y-2.5 shadow-md">
+                  <div className="rounded-[22px] celestial-obsidian-stage text-white p-3.5 border border-white/10 space-y-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#1eb814] to-emerald-400 p-0.5 shrink-0">
@@ -1112,7 +1112,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           handlePanicClick();
                         }}
-                        className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#fce2e6] dark:bg-rose-950/50 text-rose-950 dark:text-rose-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
+                        className="bento-3d-rose bento-press flex items-center gap-1.5 p-2.5 rounded-2xl text-rose-950 dark:text-rose-200 text-xs font-bold cursor-pointer transition-transform"
                       >
                         <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                         <span className="truncate">{t('panic_button')}</span>
@@ -1142,7 +1142,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onOpenBufferModal();
                         }}
-                        className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#e0f2fe] dark:bg-sky-950/50 text-sky-950 dark:text-sky-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
+                        className="bento-3d-sky bento-press flex items-center gap-1.5 p-2.5 rounded-2xl text-sky-950 dark:text-sky-200 text-xs font-bold cursor-pointer transition-transform"
                       >
                         <Clock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
                         <span className="truncate">{language === 'ar' ? 'صندوق التأجيل' : 'Buffer'} {pendingBufferCount > 0 && `(${pendingBufferCount})`}</span>
@@ -1156,7 +1156,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenSleepRest();
                           }}
-                          className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#e2defc] dark:bg-indigo-950/50 text-indigo-950 dark:text-indigo-200 text-xs font-bold cursor-pointer active:scale-95 transition-transform"
+                          className="bento-3d-lavender bento-press flex items-center gap-1.5 p-2.5 rounded-2xl text-indigo-950 dark:text-indigo-200 text-xs font-bold cursor-pointer transition-transform"
                         >
                           <Moon className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'بروتوكول النوم' : 'Sleep'}</span>
@@ -1197,7 +1197,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             promptInstall();
                           }}
-                          className="flex items-center gap-1.5 p-2.5 rounded-2xl bg-[#d4f5dc] dark:bg-emerald-950/50 text-zinc-900 dark:text-emerald-200 text-xs font-bold col-span-2 justify-center cursor-pointer"
+                          className="bento-3d-mint bento-press flex items-center gap-1.5 p-2.5 rounded-2xl text-zinc-900 dark:text-emerald-200 text-xs font-bold col-span-2 justify-center cursor-pointer"
                         >
                           <Download className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span>{t('install_app_btn')}</span>
@@ -1219,7 +1219,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenCourses();
                           }}
-                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#e2defc]/80 dark:bg-indigo-950/50 hover:bg-[#e2defc] text-zinc-900 dark:text-indigo-200 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
+                          className="bento-3d-lavender bento-press flex items-center gap-2 p-2.5 rounded-2xl hover:text-zinc-900 dark:text-indigo-200 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
                           <GraduationCap className="w-4 h-4 text-indigo-700 dark:text-indigo-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'محراب المذاكرة ومسار الكورسات (AI) 📚' : 'AI Course Study Roadmap 📚'}</span>
@@ -1232,7 +1232,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenArchiveModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#d4f5dc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-mint bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Calendar className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{t('history_archive')}</span>
@@ -1246,7 +1246,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenEvaluationModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#fde6d8]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-amber bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Trophy className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'التقييم الدوري' : 'Evaluation'}</span>
@@ -1259,7 +1259,7 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowControlCenter(false);
                           onOpenGoalsModal();
                         }}
-                        className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#e0f2fe]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                        className="bento-3d-sky bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                       >
                         <Target className="w-3.5 h-3.5 text-sky-500 shrink-0" />
                         <span className="truncate">{t('goals_velocity')}</span>
@@ -1272,7 +1272,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenRewardsModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-[#fde6d8]/75 dark:bg-amber-950/40 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-amber bento-press flex items-center gap-2 p-2 rounded-xl hover:text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Gift className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'متجر المكافآت' : 'Rewards Store'}</span>
@@ -1286,7 +1286,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenPrideTicket();
                           }}
-                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#d4f5dc]/80 dark:bg-emerald-950/40 hover:bg-[#bce8c2] text-zinc-900 dark:text-emerald-200 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
+                          className="bento-3d-mint bento-press flex items-center gap-2 p-2.5 rounded-2xl hover:text-zinc-900 dark:text-emerald-200 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
                           <Ticket className="w-4 h-4 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تذكرة إنجاز اليوم (Pride Ticket)' : 'Daily Pride Ticket'}</span>
@@ -1308,7 +1308,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenAiCoach();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#e2defc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-lavender bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Lightbulb className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                           <span className="truncate">{t('ai_coach_title')}</span>
@@ -1322,7 +1322,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenHabitModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#d4f5dc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-mint bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <PlusCircle className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'إضافة عبادة/عادة' : 'Add Habit'}</span>
@@ -1336,7 +1336,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenOnboardingWizard();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#fde6d8]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-amber bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تخصيص مجالك' : 'Domain'}</span>
@@ -1350,7 +1350,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenPrayerLocation();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:bg-[#d4f5dc]/60 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-mint bento-press flex items-center gap-2 p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 hover:text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <MapPin className="w-3.5 h-3.5 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'مواقيت وموقع الصلاة' : 'Prayer Location'}</span>
@@ -1364,7 +1364,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenSmartTasbih();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-[#d4f5dc]/65 dark:bg-teal-950/30 hover:bg-[#bce8c2] text-zinc-900 dark:text-teal-300 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-mint bento-press flex items-center gap-2 p-2 rounded-xl hover:text-zinc-900 dark:text-teal-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Disc className="w-4 h-4 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'مسبحة الأذكار الذكية' : 'Digital Tasbih'}</span>
@@ -1378,7 +1378,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenWirdModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-[#d4f5dc]/65 dark:bg-emerald-950/30 hover:bg-[#bce8c2] text-zinc-900 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-mint bento-press flex items-center gap-2 p-2 rounded-xl hover:text-zinc-900 dark:text-emerald-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <BookOpen className="w-4 h-4 text-[#1eb814] shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'الورد القرآني' : 'Quran Wird'}</span>
@@ -1392,7 +1392,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenLifestyleModal();
                           }}
-                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#e0f2fe]/80 dark:bg-sky-950/30 hover:bg-[#e0f2fe] text-zinc-900 dark:text-sky-300 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
+                          className="bento-3d-sky bento-press flex items-center gap-2 p-2.5 rounded-2xl hover:text-zinc-900 dark:text-sky-300 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
                           <Compass className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'نمط الحياة وخريطة المحطات' : 'Lifestyle Flow'}</span>
@@ -1406,7 +1406,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenArabicPoetry();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-[#fde6d8]/75 dark:bg-amber-950/30 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-amber bento-press flex items-center gap-2 p-2 rounded-xl hover:text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Scroll className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'ديوان الشعر العربي' : 'Classical Poetry'}</span>
@@ -1420,7 +1420,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenLifeWisdom();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-[#e2defc]/75 dark:bg-indigo-950/30 hover:bg-[#e2defc] text-zinc-900 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-lavender bento-press flex items-center gap-2 p-2 rounded-xl hover:text-zinc-900 dark:text-indigo-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <Lightbulb className="w-4 h-4 text-indigo-700 dark:text-indigo-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'منارة الحكمة' : 'Life Wisdom'}</span>
@@ -1434,7 +1434,7 @@ export const Header: React.FC<HeaderProps> = ({
                             setShowControlCenter(false);
                             onOpenNiyyahModal();
                           }}
-                          className="flex items-center gap-2 p-2.5 rounded-2xl bg-[#fde6d8]/80 dark:bg-amber-950/30 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
+                          className="bento-3d-amber bento-press flex items-center gap-2 p-2.5 rounded-2xl hover:text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start col-span-2"
                         >
                           <Compass className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'محراب استحضار وتجديد النوايا' : 'Niyyah Sanctuary'}</span>
@@ -1497,7 +1497,7 @@ export const Header: React.FC<HeaderProps> = ({
                             soundSynth.playTactileClick();
                             onOpenPinModal();
                           }}
-                          className="flex items-center gap-2 p-2 rounded-xl bg-[#fde6d8]/75 dark:bg-amber-500/15 hover:bg-[#fde6d8] text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
+                          className="bento-3d-amber bento-press flex items-center gap-2 p-2 rounded-xl hover:text-zinc-900 dark:text-amber-300 text-xs font-bold transition-colors cursor-pointer text-start"
                         >
                           <KeyRound className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           <span className="truncate">{language === 'ar' ? 'تغيير الـ PIN 🔑' : 'Change PIN 🔑'}</span>

@@ -220,7 +220,7 @@ export const MizanMuhasabahCard: React.FC<{
   };
 
   return (
-    <div className="p-4 sm:p-6 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-4 shadow-sm transition-all">
+    <div className="p-4 sm:p-6 rounded-[26px] surface-card-3d border border-slate-200/90 dark:border-white/10 space-y-4 transition-all">
       {/* Header Bar */}
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-3.5">
         <div className="flex items-center gap-3">

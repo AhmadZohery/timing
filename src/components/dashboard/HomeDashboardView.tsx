@@ -2000,7 +2000,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Card 1: Adhkar (Habitline Amber Pastel) */}
-              <div className="p-4 rounded-[24px] bg-[#fde6d8]/75 dark:bg-amber-950/35 border border-amber-300/50 dark:border-amber-800/40 flex flex-col justify-between space-y-3">
+              <div className="bento-3d-amber p-4 rounded-[24px] border border-amber-300/50 dark:border-amber-800/40 flex flex-col justify-between space-y-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="w-9 h-9 rounded-full bg-white/80 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shadow-2xs">
@@ -2040,7 +2040,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </div>
 
               {/* Card 2: Surah Al-Mulk (Habitline Lavender Pastel) */}
-              <div className="p-4 rounded-[24px] bg-[#e2defc]/80 dark:bg-indigo-950/35 border border-indigo-300/50 dark:border-indigo-800/40 flex flex-col justify-between space-y-3">
+              <div className="bento-3d-lavender p-4 rounded-[24px] border border-indigo-300/50 dark:border-indigo-800/40 flex flex-col justify-between space-y-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="w-9 h-9 rounded-full bg-white/80 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shadow-2xs">
@@ -2064,7 +2064,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </div>
 
               {/* Card 3: Sunnah Fasting (Habitline Mint Pastel) */}
-              <div className="p-4 rounded-[24px] bg-[#d4f5dc]/80 dark:bg-emerald-950/35 border border-emerald-300/50 dark:border-emerald-800/40 flex flex-col justify-between space-y-3">
+              <div className="bento-3d-mint p-4 rounded-[24px] border border-emerald-300/50 dark:border-emerald-800/40 flex flex-col justify-between space-y-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="w-9 h-9 rounded-full bg-white/80 dark:bg-emerald-500/20 text-[#1eb814] dark:text-emerald-300 flex items-center justify-center shadow-2xs">
@@ -2088,7 +2088,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </div>
 
               {/* Card 4: Qiyam & Nawafil (Habitline Rose Pastel) */}
-              <div className="p-4 rounded-[24px] bg-[#fce2e6]/80 dark:bg-rose-950/35 border border-rose-300/50 dark:border-rose-800/40 flex flex-col justify-between space-y-3">
+              <div className="bento-3d-rose p-4 rounded-[24px] border border-rose-300/50 dark:border-rose-800/40 flex flex-col justify-between space-y-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="w-9 h-9 rounded-full bg-white/80 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 flex items-center justify-center shadow-2xs">
@@ -2149,7 +2149,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         <div id="section-wisdom" className="space-y-4 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Arabic Classical Poetry Card (Habitline Amber Bento) */}
-        <div className="rounded-[28px] bg-[#fde6d8]/75 dark:bg-amber-950/35 border border-amber-300/60 dark:border-amber-800/40 p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bento-3d-amber rounded-[28px] border border-amber-300/60 dark:border-amber-800/40 p-5 sm:p-6 flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -2194,7 +2194,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         </div>
 
         {/* Dynamic Daily Wisdom & Mental Models Card (Habitline Sky/Lavender Bento) */}
-        <div className="rounded-[28px] bg-[#e0f2fe]/80 dark:bg-sky-950/35 border border-sky-300/60 dark:border-sky-800/40 p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bento-3d-sky rounded-[28px] border border-sky-300/60 dark:border-sky-800/40 p-5 sm:p-6 flex flex-col justify-between space-y-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-3">
@@ -2509,7 +2509,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
         {/* Featured Word Hero Glance (Habitline Lavender Card) */}
         {featuredWord && (
-          <div className="p-4 sm:p-5 rounded-[24px] bg-[#e2defc]/65 dark:bg-indigo-950/30 border border-indigo-300/50 dark:border-indigo-900/40 flex flex-col gap-3 shadow-2xs">
+          <div className="bento-3d-lavender p-4 sm:p-5 rounded-[24px] border border-indigo-300/50 dark:border-indigo-900/40 flex flex-col gap-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
                 <div className="flex flex-col gap-1 shrink-0">

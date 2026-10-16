@@ -76,7 +76,7 @@ export const HabitConsistencyRadar: React.FC<HabitConsistencyRadarProps> = ({
   };
 
   return (
-    <div className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200/90 dark:border-white/10 space-y-4 shadow-sm transition-all">
+    <div className="p-4 sm:p-5 rounded-[26px] surface-card-3d border border-slate-200/90 dark:border-white/10 space-y-4 transition-all">
       {/* Header with Obsidian (#141517) Accent */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">

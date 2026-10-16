@@ -572,7 +572,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
     <div className="space-y-5 transition-colors duration-200">
       {/* Survival Mode MVD Banner */}
       {isSurvival && (
-        <div className="p-4 sm:p-5 rounded-[26px] bg-[#fde6d8] dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-700/50 text-[#141517] dark:text-amber-100 flex items-start justify-between gap-3 shadow-xs animate-fade-in">
+        <div className="bento-3d-amber p-4 sm:p-5 rounded-[26px] border border-amber-300/80 dark:border-amber-700/50 text-[#141517] dark:text-amber-100 flex items-start justify-between gap-3 animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="p-2.5 rounded-2xl bg-[#141517] text-[#fde6d8] shrink-0 shadow-sm">
               <Shield className="w-5 h-5" />
@@ -648,7 +648,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
       {/* Sunday Rest Oasis Card */}
       {rhythm.isRestDay && (
-        <div className="p-5 rounded-[26px] bg-[#d4f5dc]/70 dark:bg-emerald-950/30 border border-[#bce8c2] dark:border-emerald-800/60 shadow-xs space-y-3">
+        <div className="bento-3d-mint p-5 rounded-[26px] border border-[#bce8c2] dark:border-emerald-800/60 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
               <div className="p-2.5 rounded-2xl bg-[#141517] text-[#bce8c2] shrink-0 mt-0.5 shadow-sm">
@@ -694,7 +694,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
 
       {/* Saturday Half-Day Sprint Card */}
       {rhythm.isHalfDay && (
-        <div className="p-4 sm:p-5 rounded-[26px] bg-[#fde6d8]/80 dark:bg-amber-950/30 border border-amber-300/70 dark:border-amber-800/60 shadow-xs flex items-center justify-between gap-3">
+        <div className="bento-3d-amber p-4 sm:p-5 rounded-[26px] border border-amber-300/70 dark:border-amber-800/60 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-[#141517] text-[#fde6d8] shrink-0 shadow-sm">
               <Sun className="w-5 h-5" />

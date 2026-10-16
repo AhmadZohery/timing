@@ -684,7 +684,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
           {activeTab === 'alarms' && (
             <div className="space-y-4 animate-fade-in">
               {/* Smart Voice & Natural Input (Soft Lavender #e2defc Bento) */}
-              <div className="p-4 rounded-[26px] bg-[#e2defc] dark:bg-indigo-950/50 border border-indigo-300/70 dark:border-indigo-500/30 space-y-2.5 shadow-2xs">
+              <div className="bento-3d-lavender p-4 rounded-[26px] border border-indigo-300/70 dark:border-indigo-500/30 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
                     <Zap className="w-4 h-4 text-[#5448e8] dark:text-indigo-400" />

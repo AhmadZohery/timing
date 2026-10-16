@@ -697,7 +697,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
       </div>
 
       {/* Physical Niyyah Consecration Bar — Habitline Soft Lavender Surface */}
-      <div className="p-4 rounded-[28px] bg-[#e2defc]/80 dark:bg-indigo-950/45 border border-indigo-400/25 dark:border-indigo-500/25 flex flex-wrap items-center justify-between gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="bento-3d-lavender p-4 rounded-[28px] border border-indigo-400/25 dark:border-indigo-500/25 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-2xl bg-[#5448e8] text-white flex items-center justify-center shrink-0 shadow-xs">
             <Compass className="w-4 h-4" />
@@ -877,7 +877,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-3 p-4 rounded-[22px] bg-[#fde6d8]/75 dark:bg-amber-950/40 border border-amber-400/30 text-center">
+          <div className="bento-3d-amber grid grid-cols-3 gap-3 p-4 rounded-[22px] border border-amber-400/30 text-center">
             <div>
               <span className="text-[10px] text-zinc-600 dark:text-zinc-400 block font-sans">الخطوات المقدرة</span>
               <span className="text-lg font-mono font-bold text-[#ff5500] dark:text-orange-400 tabular-nums">
@@ -899,7 +899,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           </div>
 
           {/* NEAT 100-Pace Spark Trigger */}
-          <div className="p-4 rounded-[22px] bg-[#d4f5dc]/75 dark:bg-emerald-950/40 border border-[#1eb814]/25 flex items-center justify-between gap-3">
+          <div className="bento-3d-mint p-4 rounded-[22px] border border-[#1eb814]/25 flex items-center justify-between gap-3">
             <div className="space-y-0.5">
               <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-950 dark:text-emerald-200">
                 <Zap className="w-4 h-4 text-[#ff5500] fill-[#ff5500]" />
@@ -992,7 +992,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
       {movementCategory === 'gym' && (
         <>
           {/* Anti-Couch Inertia & 3-Step Friction Destroyer Protocol — Habitline Soft Amber Surface */}
-          <div className="p-5 sm:p-6 rounded-[28px] bg-[#fde6d8]/75 dark:bg-amber-950/45 border border-amber-400/30 space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+          <div className="bento-3d-amber p-5 sm:p-6 rounded-[28px] border border-amber-400/30 space-y-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-2xl bg-habit-flame-ink text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Zap className="w-5 h-5" />
@@ -1211,7 +1211,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
 
           {/* Spinal Axial Loading Guard (حارس التحميل المحوري للعمود الفقري) — Habitline Soft Rose */}
           {spinalCheck.isSevere && (
-            <div className="p-4 sm:p-5 rounded-[28px] bg-[#fce2e6]/85 dark:bg-rose-950/45 border border-rose-400/40 text-zinc-950 dark:text-rose-100 text-xs flex items-start gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] animate-in fade-in">
+            <div className="bento-3d-rose p-4 sm:p-5 rounded-[28px] border border-rose-400/40 text-zinc-950 dark:text-rose-100 text-xs flex items-start gap-3.5 animate-in fade-in">
               <div className="w-10 h-10 rounded-2xl bg-rose-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <ShieldAlert className="w-5 h-5" />
               </div>
@@ -1459,7 +1459,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
       )}
 
       {/* Endorphin & Post-Workout Mood Booster Rating — Habitline Soft Amber */}
-      <div className="p-4 sm:p-5 rounded-[28px] bg-[#fde6d8]/75 dark:bg-amber-950/45 border border-amber-400/30 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="bento-3d-amber p-4 sm:p-5 rounded-[28px] border border-amber-400/30 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-habit-flame-ink text-white flex items-center justify-center shadow-2xs">
             <Smile className="w-4 h-4" />

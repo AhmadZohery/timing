@@ -113,7 +113,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
         aria-label={isAr ? 'منصة التحكم التنفيذية العائمة' : 'Floating Command Dock'}
         className="lg:hidden fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] inset-x-3 sm:inset-x-8 max-w-md mx-auto z-40 transition-all duration-300"
       >
-        <div className="relative rounded-[28px] bg-[#141517]/95 backdrop-blur-2xl border border-white/12 p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.38)] flex items-center justify-between gap-1 select-none">
+        <div className="relative rounded-[28px] dock-obsidian backdrop-blur-2xl border border-white/12 p-1.5 flex items-center justify-between gap-1 select-none">
           {/* TAB 1: 🏠 الرئيسية (Home Sanctuary) */}
           <button
             type="button"
@@ -328,7 +328,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-              className="relative z-10 w-full max-h-[86vh] bg-[#f5f6f8] dark:bg-[#141517] rounded-t-[36px] border-t border-zinc-200 dark:border-white/10 shadow-2xl p-5 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+              className="relative z-10 w-full max-h-[86vh] sheet-surface rounded-t-[36px] border-t border-zinc-200/80 dark:border-white/10 p-5 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
             >
               {/* Drag Handle & Header */}
               <div className="flex flex-col items-center">
@@ -355,7 +355,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               </div>
 
               {/* Habitline Obsidian Progress & Persona Card */}
-              <div className="rounded-[26px] bg-[#141517] dark:bg-zinc-900 text-white p-4 border border-white/10 flex items-center justify-between gap-3">
+              <div className="rounded-[26px] celestial-obsidian-stage text-white p-4 border border-white/10 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-xl shrink-0">
                     {personaConfig.avatarEmoji}
@@ -564,7 +564,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-              className="relative z-10 w-full max-h-[86vh] bg-[#f5f6f8] dark:bg-[#141517] rounded-t-[36px] border-t border-zinc-200 dark:border-white/10 shadow-2xl p-5 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+              className="relative z-10 w-full max-h-[86vh] sheet-surface rounded-t-[36px] border-t border-zinc-200/80 dark:border-white/10 p-5 space-y-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
             >
               {/* Sheet Drag Handle & Header */}
               <div className="flex flex-col items-center">
@@ -606,7 +606,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     setIsSpiritualSheetOpen(false);
                     onOpenWirdModal?.();
                   }}
-                  className="flex items-center justify-between p-4 rounded-[24px] bg-[#d4f5dc] dark:bg-emerald-950/60 border border-[#22c55e]/40 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
+                  className="bento-3d-mint bento-press flex items-center justify-between p-4 rounded-[24px] border border-[#22c55e]/40 text-start transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-11 h-11 rounded-full bg-habit-green-ink text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -635,7 +635,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     setIsSpiritualSheetOpen(false);
                     onOpenAdhkarModal?.();
                   }}
-                  className="flex items-center justify-between p-4 rounded-[24px] bg-[#e2defc] dark:bg-indigo-950/60 border border-indigo-400/40 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
+                  className="bento-3d-lavender bento-press flex items-center justify-between p-4 rounded-[24px] border border-indigo-400/40 text-start transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-11 h-11 rounded-full bg-[#5448e8] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -699,7 +699,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     setIsSpiritualSheetOpen(false);
                     onOpenSmartTasbih?.();
                   }}
-                  className="flex items-center justify-between p-4 rounded-[24px] bg-[#fce2e6] dark:bg-rose-950/60 border border-rose-400/40 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
+                  className="bento-3d-rose bento-press flex items-center justify-between p-4 rounded-[24px] border border-rose-400/40 text-start transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-11 h-11 rounded-full bg-[#e11d48] text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -728,7 +728,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     setIsSpiritualSheetOpen(false);
                     onOpenFaithAudio?.();
                   }}
-                  className="flex items-center justify-between p-4 rounded-[24px] bg-[#fde6d8] dark:bg-amber-950/60 border border-amber-400/40 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
+                  className="bento-3d-amber bento-press flex items-center justify-between p-4 rounded-[24px] border border-amber-400/40 text-start transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-11 h-11 rounded-full bg-habit-flame-ink text-white flex items-center justify-center shrink-0 shadow-xs">
