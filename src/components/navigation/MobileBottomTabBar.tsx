@@ -173,7 +173,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
               <span
                 className={`absolute -top-1.5 -end-3 px-1 py-0.2 rounded-full text-[8.5px] font-mono font-bold leading-none ${
                   completedStations.length > 0
-                    ? 'bg-[#1eb814] text-white'
+                    ? 'bg-habit-green-ink text-white'
                     : isStationActive
                     ? 'bg-zinc-900 text-white'
                     : 'bg-white/15 text-zinc-300'
@@ -196,7 +196,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                 haptic.vibrateSprintCelebration();
                 setIsSpiritualSheetOpen(true);
               }}
-              className="group relative w-12 h-12 rounded-[20px] bg-[#1eb814] hover:bg-[#199e10] text-white flex flex-col items-center justify-center shadow-[0_8px_24px_rgba(30,184,20,0.45)] ring-4 ring-[#141517] tap-spring active:scale-90 transition-transform cursor-pointer overflow-hidden"
+              className="group relative w-12 h-12 rounded-[20px] bg-habit-green-ink hover:bg-habit-green-ink-deep text-white flex flex-col items-center justify-center shadow-[0_8px_24px_rgba(30,184,20,0.45)] ring-4 ring-[#141517] tap-spring active:scale-90 transition-transform cursor-pointer overflow-hidden"
               title={isAr ? 'محراب السكينة والقرآن والأذكار' : 'Spiritual Sanctuary'}
             >
               <svg
@@ -442,9 +442,9 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                         <div
                           className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
                             isCompleted
-                              ? 'bg-[#1eb814] text-white'
+                              ? 'bg-habit-green-ink text-white'
                               : isActive
-                              ? 'bg-[#ff5500] text-white'
+                              ? 'bg-habit-flame-ink text-white'
                               : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
                           }`}
                         >
@@ -571,7 +571,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                 <div className="w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 mb-3" />
                 <div className="w-full flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-full bg-[#1eb814] text-white flex items-center justify-center shadow-sm">
+                    <span className="w-10 h-10 rounded-full bg-habit-green-ink text-white flex items-center justify-center shadow-sm">
                       <BookOpen className="w-5 h-5" />
                     </span>
                     <div>
@@ -609,7 +609,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                   className="flex items-center justify-between p-4 rounded-[24px] bg-[#d4f5dc] dark:bg-emerald-950/60 border border-[#22c55e]/40 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-full bg-[#1eb814] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-11 h-11 rounded-full bg-habit-green-ink text-white flex items-center justify-center shrink-0 shadow-xs">
                       <BookOpen className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
@@ -621,7 +621,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[#1eb814] text-white text-[11px] font-bold shrink-0">
+                  <span className="px-3 py-1 rounded-full bg-habit-green-ink text-white text-[11px] font-bold shrink-0">
                     {todayLog?.quranWirdDone ? (isAr ? 'اليوم ✓' : 'Done ✓') : (isAr ? 'فتح ←' : 'Open →')}
                   </span>
                 </button>
@@ -731,7 +731,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                   className="flex items-center justify-between p-4 rounded-[24px] bg-[#fde6d8] dark:bg-amber-950/60 border border-amber-400/40 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-full bg-[#ea580c] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-11 h-11 rounded-full bg-habit-flame-ink text-white flex items-center justify-center shrink-0 shadow-xs">
                       <Headphones className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
@@ -743,7 +743,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full bg-[#ea580c] text-white text-[11px] font-bold shrink-0">
+                  <span className="px-3 py-1 rounded-full bg-habit-flame-ink text-white text-[11px] font-bold shrink-0">
                     {isAr ? 'استماع ←' : 'Listen →'}
                   </span>
                 </button>

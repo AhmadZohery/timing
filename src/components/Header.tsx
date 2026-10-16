@@ -1016,7 +1016,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className={`w-10 h-10 sm:w-auto sm:min-h-[38px] flex items-center justify-center gap-1.5 sm:px-3.5 py-1.5 rounded-full border text-xs font-bold transition-all cursor-pointer shadow-xs ${
                 showControlCenter
-                  ? 'bg-[#1eb814] text-white border-[#1eb814] shadow-emerald-600/20 ring-2 ring-emerald-500/20'
+                  ? 'bg-habit-green-ink text-white border-[#1eb814] shadow-emerald-600/20 ring-2 ring-emerald-500/20'
                   : 'bg-white/10 sm:bg-[#141517] dark:bg-white/10 border-white/10 sm:border-[#141517] dark:border-white/10 text-white hover:opacity-90'
               }`}
               title={language === 'ar' ? 'مركز التحكم والإنتاجية' : 'LifeOS Control Center'}
@@ -1092,7 +1092,7 @@ export const Header: React.FC<HeaderProps> = ({
                           <Bell className="w-3.5 h-3.5 text-[#bce8c2]" />
                           <span>{language === 'ar' ? 'مركز المنبهات والأذان والإشعارات' : 'Alarms, Adhan & Notifications'}</span>
                         </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1eb814] text-white">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-habit-green-ink text-white">
                           {language === 'ar' ? 'فتح ←' : 'Open →'}
                         </span>
                       </button>
@@ -1127,7 +1127,7 @@ export const Header: React.FC<HeaderProps> = ({
                         }}
                         className={`flex items-center gap-1.5 p-2.5 rounded-2xl text-xs font-bold cursor-pointer active:scale-95 transition-all ${
                           isSurvival
-                            ? 'bg-[#ff5500] text-white shadow-xs'
+                            ? 'bg-habit-flame-ink text-white shadow-xs'
                             : 'bg-[#fde6d8] dark:bg-amber-950/50 text-amber-950 dark:text-amber-200'
                         }`}
                       >

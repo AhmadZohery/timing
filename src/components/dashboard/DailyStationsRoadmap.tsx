@@ -305,7 +305,7 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
                 <div
                   className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 relative ${
                     isCompleted
-                      ? 'bg-[#1eb814] text-white shadow-2xs'
+                      ? 'bg-habit-green-ink text-white shadow-2xs'
                       : isSelected
                       ? 'bg-white/15 dark:bg-zinc-900/15 text-white dark:text-zinc-900'
                       : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200/80 dark:border-white/10'
@@ -403,7 +403,7 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
             className={`min-h-[44px] px-4 py-2 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 ${
               isSelectedCompleted
                 ? 'bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                : 'bg-[#141517] hover:bg-zinc-800 dark:bg-[#1eb814] dark:hover:bg-emerald-500 text-white shadow-sm'
+                : 'bg-[#141517] hover:bg-zinc-800 dark:bg-habit-green-ink dark:hover:bg-emerald-500 text-white shadow-sm'
             }`}
           >
             <span>

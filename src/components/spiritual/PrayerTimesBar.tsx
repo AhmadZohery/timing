@@ -550,7 +550,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
               <span className="text-xs sm:text-sm font-bold text-white truncate">
                 {isAr ? `القادمة: ${nextPrayer.arabicName}` : `Next: ${nextPrayer.arabicName}`}
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-[#ff5500] text-white font-mono text-[10px] font-bold shrink-0 shadow-2xs">
+              <span className="px-2 py-0.5 rounded-full bg-habit-flame-ink text-white font-mono text-[10px] font-bold shrink-0 shadow-2xs">
                 {hoursRemaining > 0
                   ? isAr
                     ? `بعد ${hoursRemaining}س ${minsRemaining}د`
@@ -671,7 +671,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             }}
             className={`h-8 px-2.5 rounded-full border text-[11px] font-bold flex items-center gap-1 cursor-pointer active:scale-95 transition-all ${
               isExtrasExpanded
-                ? 'bg-[#1eb814] text-white border-[#1eb814] shadow-2xs'
+                ? 'bg-habit-green-ink text-white border-[#1eb814] shadow-2xs'
                 : 'bg-white/10 hover:bg-white/15 border-white/15 text-white'
             }`}
             title={isAr ? 'النوافل، قيام الليل، القضاء، والأذكار' : 'Sunnah, Night Vigil & Dhikr'}
@@ -891,10 +891,10 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                 }}
                 className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all cursor-pointer active:scale-90 ${
                   isDone
-                    ? 'bg-[#1eb814] text-white shadow-sm ring-2 ring-white/60 dark:ring-black/30'
+                    ? 'bg-habit-green-ink text-white shadow-sm ring-2 ring-white/60 dark:ring-black/30'
                     : isNext
-                    ? 'bg-[#ff5500] hover:bg-[#e04800] text-white shadow-md ring-2 ring-white/30'
-                    : 'bg-white/90 dark:bg-zinc-900/90 hover:bg-[#1eb814] hover:text-white text-zinc-700 dark:text-zinc-200 border border-black/10 dark:border-white/15 shadow-2xs'
+                    ? 'bg-habit-flame-ink hover:bg-habit-flame-ink-deep text-white shadow-md ring-2 ring-white/30'
+                    : 'bg-white/90 dark:bg-zinc-900/90 hover:bg-habit-green-ink hover:text-white text-zinc-700 dark:text-zinc-200 border border-black/10 dark:border-white/15 shadow-2xs'
                 }`}
                 title={
                   isDone
@@ -995,7 +995,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           }}
           className={`px-3 py-2 rounded-[16px] border text-xs font-bold flex items-center justify-between gap-1.5 cursor-pointer active:scale-95 transition-all ${
             isExtrasExpanded && sanctuaryTab === 'tasbih'
-              ? 'bg-[#1eb814] text-white border-[#1eb814]'
+              ? 'bg-habit-green-ink text-white border-[#1eb814]'
               : 'bg-[#d4f5dc]/75 dark:bg-emerald-950/30 border-emerald-300/60 dark:border-emerald-500/20 text-emerald-950 dark:text-emerald-200 hover:bg-[#d4f5dc]'
           }`}
         >

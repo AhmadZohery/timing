@@ -836,7 +836,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
                     </span>
                   )}
                   {cat.id === 'downloaded' && offlineAudioService.getDownloadedEpisodes().length > 0 && (
-                    <span className="ms-0.5 text-[9px] px-1.5 py-0.2 rounded-full bg-[#1eb814] text-white font-mono font-bold">
+                    <span className="ms-0.5 text-[9px] px-1.5 py-0.2 rounded-full bg-habit-green-ink text-white font-mono font-bold">
                       {offlineAudioService.getDownloadedEpisodes().length}
                     </span>
                   )}

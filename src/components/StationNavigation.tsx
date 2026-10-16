@@ -129,7 +129,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
             <span className="text-xs font-bold text-white truncate">
               {currentMeta ? (isAr ? currentMeta.titleAr : currentMeta.titleEn) : ''}
             </span>
-            <span className="px-2 py-0.5 rounded-full bg-[#ff5500] text-white text-[10px] font-mono font-bold shrink-0">
+            <span className="px-2 py-0.5 rounded-full bg-habit-flame-ink text-white text-[10px] font-mono font-bold shrink-0">
               <bdi dir="ltr">{currentIndex + 1}/{stationIds.length}</bdi>
             </span>
             {isCompleted && (
@@ -142,7 +142,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
           <button
             type="button"
             onClick={() => handleSelect(nextStation)}
-            className="h-9 px-3.5 rounded-full bg-[#1eb814] hover:bg-[#199d10] text-white text-xs font-bold shrink-0 flex items-center gap-1 active:scale-95 transition-all cursor-pointer shadow-xs"
+            className="h-9 px-3.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white text-xs font-bold shrink-0 flex items-center gap-1 active:scale-95 transition-all cursor-pointer shadow-xs"
             title={isAr ? 'المحطة التالية' : 'Next Station'}
           >
             <span className="max-w-[78px] sm:max-w-[110px] truncate">
@@ -213,9 +213,9 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
                         <div
                           className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs ${
                             isAct
-                              ? 'bg-[#ff5500] text-white'
+                              ? 'bg-habit-flame-ink text-white'
                               : isComp
-                              ? 'bg-[#1eb814] text-white'
+                              ? 'bg-habit-green-ink text-white'
                               : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400'
                           }`}
                         >
@@ -268,7 +268,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
               <div
                 className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                   currentStation === 'HOME'
-                    ? 'bg-[#1eb814] text-white'
+                    ? 'bg-habit-green-ink text-white'
                     : 'bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500'
                 }`}
               >
@@ -308,9 +308,9 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
                   <div
                     className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                       isActive
-                        ? 'bg-[#ff5500] text-white'
+                        ? 'bg-habit-flame-ink text-white'
                         : isComp
-                        ? 'bg-[#1eb814] text-white'
+                        ? 'bg-habit-green-ink text-white'
                         : 'bg-zinc-100 dark:bg-zinc-800/60 text-zinc-500'
                     }`}
                   >
@@ -340,7 +340,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
               if (nextStation) handleSelect(nextStation);
               else handleSelect('HOME');
             }}
-            className="w-10 h-10 rounded-2xl bg-[#1eb814] hover:bg-[#199d10] text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-xs active:scale-95"
+            className="w-10 h-10 rounded-2xl bg-habit-green-ink hover:bg-habit-green-ink-deep text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-xs active:scale-95"
             title={isAr ? 'المحطة التالية ›' : 'Next Station ›'}
           >
             <NextChevron className="w-4 h-4" />

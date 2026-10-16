@@ -1349,7 +1349,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
                     todayLog?.quranWirdDone
                       ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-[#1eb814] hover:text-white'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'إتمام صفحة من الورد القرآني (+25 XP)' : 'Complete Quran Wird (+25 XP)'}
                 >
@@ -1434,7 +1434,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
                     isAdhkarDoneToday
                       ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-[#1eb814] hover:text-white'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل الأذكار فوراً (+20 XP)' : 'Complete Adhkar (+20 XP)'}
                 >
@@ -1620,7 +1620,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
                     todayLog?.surahMulkDone
                       ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-[#1eb814] hover:text-white'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل قراءة سورة الملك فوراً (+30 XP)' : '1-Tap log Surah Mulk (+30 XP)'}
                 >
@@ -1696,7 +1696,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
                     todayLog?.fastingDone
                       ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-[#1eb814] hover:text-white'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل صيام اليوم فوراً (+25 XP)' : '1-Tap log Fasting (+25 XP)'}
                 >

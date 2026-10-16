@@ -712,7 +712,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   return (
     <div className="flex flex-col h-[92vh] sm:h-[86vh] max-h-[860px] w-full bg-[#141517] text-white rounded-[32px] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.75)] border border-white/12 relative">
       {/* 1. Impeccable Habitline Obsidian Studio Header */}
-      <div className="p-4 sm:p-5 bg-[#141517] border-b border-white/10 flex items-center justify-between gap-3 shrink-0 relative overflow-hidden">
+      <div className="celestial-obsidian-stage p-4 sm:p-5 border-b border-white/10 flex items-center justify-between gap-3 shrink-0 relative overflow-hidden">
         <div className="pointer-events-none absolute -top-12 -end-12 w-40 h-40 rounded-full bg-[#bce8c2]/10 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-12 -start-12 w-36 h-36 rounded-full bg-[#e2defc]/10 blur-2xl" />
 

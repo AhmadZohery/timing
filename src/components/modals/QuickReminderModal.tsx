@@ -584,7 +584,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                     className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
                       notifPerm === 'granted'
                         ? 'bg-[#bce8c2] text-zinc-950'
-                        : 'bg-[#ff5500] text-white'
+                        : 'bg-habit-flame-ink text-white'
                     }`}
                   >
                     {notifPerm === 'granted'
@@ -761,7 +761,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                         setCategory(nlpPreview.category);
                         setRecurrence(nlpPreview.recurrence);
                       }}
-                      className="px-3 py-1.5 rounded-full bg-[#1eb814] text-white font-bold text-[11px] shrink-0 cursor-pointer active:scale-95 transition-transform"
+                      className="px-3 py-1.5 rounded-full bg-habit-green-ink text-white font-bold text-[11px] shrink-0 cursor-pointer active:scale-95 transition-transform"
                     >
                       {isAr ? 'اعتماد ⚡' : 'Apply ⚡'}
                     </button>
@@ -885,7 +885,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting || !title.trim()}
-                  className="w-full py-3 px-4 rounded-full bg-[#1eb814] hover:bg-[#199d10] disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[#1eb814]/25 active:scale-98"
+                  className="w-full py-3 px-4 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-[#1eb814]/25 active:scale-98"
                 >
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                   <span>{isAr ? 'حفظ وتفعيل المنبه الذكي 🔔' : 'Save & Schedule Smart Alarm 🔔'}</span>
@@ -964,7 +964,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                             onClick={() => handleToggleEnabled(rem)}
                             className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
                               rem.enabled
-                                ? 'bg-[#1eb814] text-white shadow-2xs'
+                                ? 'bg-habit-green-ink text-white shadow-2xs'
                                 : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
                             }`}
                             title={rem.enabled ? 'تفعيل/تعطيل' : 'تفعيل'}
@@ -1017,7 +1017,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                     <button
                       type="button"
                       onClick={handleRequestBrowserPermission}
-                      className="px-3 py-1.5 rounded-full bg-[#ff5500] text-white text-xs font-bold cursor-pointer active:scale-95 transition-transform shrink-0"
+                      className="px-3 py-1.5 rounded-full bg-habit-flame-ink text-white text-xs font-bold cursor-pointer active:scale-95 transition-transform shrink-0"
                     >
                       {isAr ? 'تفعيل الإذن 🔔' : 'Allow 🔔'}
                     </button>
@@ -1028,7 +1028,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                   <button
                     type="button"
                     onClick={handleSendInstantNotification}
-                    className="py-2.5 px-3.5 rounded-2xl bg-[#1eb814] hover:bg-[#199d10] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all shadow-sm"
+                    className="py-2.5 px-3.5 rounded-2xl bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all shadow-sm"
                   >
                     <Bell className="w-4 h-4" />
                     <span>{isAr ? 'إرسال إشعار فوري الآن 🔔' : 'Send Instant Alert Now 🔔'}</span>
@@ -1129,7 +1129,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                   </div>
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                      adhanEnabled ? 'bg-[#1eb814] text-white' : 'bg-zinc-200 dark:bg-zinc-800'
+                      adhanEnabled ? 'bg-habit-green-ink text-white' : 'bg-zinc-200 dark:bg-zinc-800'
                     }`}
                   >
                     <Check className="w-4 h-4 stroke-[2.5]" />
@@ -1197,7 +1197,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
                           <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 ${
                               isSelected
-                                ? 'bg-[#ff5500] text-white'
+                                ? 'bg-habit-flame-ink text-white'
                                 : 'bg-zinc-200 dark:bg-zinc-800 text-transparent'
                             }`}
                           >

@@ -932,7 +932,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                   }}
                   className={`py-1.5 px-3.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0 active:scale-95 ${
                     focusMode === 'custom' && customMinutes === prayerSprintMinutes
-                      ? 'bg-[#1eb814] text-white font-black'
+                      ? 'bg-habit-green-ink text-white font-black'
                       : 'bg-[#141517] text-[#bce8c2] hover:opacity-90'
                   }`}
                 >
@@ -1185,7 +1185,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                   {isAr ? 'حصاد اليوم' : 'Done Today'}
                 </span>
               </div>
-              <span className="w-6 h-6 rounded-full bg-[#1eb814] text-white text-xs font-mono font-bold flex items-center justify-center">
+              <span className="w-6 h-6 rounded-full bg-habit-green-ink text-white text-xs font-mono font-bold flex items-center justify-center">
                 {completedTasksCount}
               </span>
             </div>
@@ -1395,7 +1395,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
                       className="cursor-pointer shrink-0 transition-transform active:scale-90"
                     >
                       {task.completed ? (
-                        <span className="w-5 h-5 rounded-full bg-[#1eb814] text-white flex items-center justify-center shadow-2xs">
+                        <span className="w-5 h-5 rounded-full bg-habit-green-ink text-white flex items-center justify-center shadow-2xs">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                         </span>
                       ) : (

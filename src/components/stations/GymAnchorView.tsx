@@ -1343,7 +1343,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                               onClick={() =>
                                 handleUpdateSet(ex.id, idx, 'weight', Number((set.weight + 1.25).toFixed(2)))
                               }
-                              className="px-1 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 hover:bg-[#ff5500] hover:text-white text-[9px] font-mono font-bold transition-colors cursor-pointer tabular-nums"
+                              className="px-1 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 hover:bg-habit-flame-ink hover:text-white text-[9px] font-mono font-bold transition-colors cursor-pointer tabular-nums"
                               title="+1.25kg"
                             >
                               +1.2
@@ -1353,7 +1353,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                               onClick={() =>
                                 handleUpdateSet(ex.id, idx, 'weight', Number((set.weight + 2.5).toFixed(2)))
                               }
-                              className="px-1 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 hover:bg-[#ff5500] hover:text-white text-[9px] font-mono font-bold transition-colors cursor-pointer tabular-nums"
+                              className="px-1 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 hover:bg-habit-flame-ink hover:text-white text-[9px] font-mono font-bold transition-colors cursor-pointer tabular-nums"
                               title="+2.5kg"
                             >
                               +2.5

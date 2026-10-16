@@ -699,7 +699,7 @@ export function App() {
           onClick={() => setRewardToast(null)}
           className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-[#141517]/95 dark:bg-white/95 border border-white/15 dark:border-zinc-200 text-white dark:text-zinc-950 text-xs font-bold shadow-[0_14px_35px_rgba(20,21,23,0.35)] backdrop-blur-xl animate-fade-in flex items-center gap-2.5 max-w-[92vw] sm:max-w-md text-center cursor-pointer active:scale-95 transition-transform"
         >
-          <span className="w-5 h-5 rounded-full bg-[#1eb814] text-white flex items-center justify-center text-[11px] shrink-0 shadow-xs">
+          <span className="w-5 h-5 rounded-full bg-habit-green-ink text-white flex items-center justify-center text-[11px] shrink-0 shadow-xs">
             ✓
           </span>
           <span className=" leading-snug">{rewardToast}</span>
