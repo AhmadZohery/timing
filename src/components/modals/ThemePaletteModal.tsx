@@ -49,7 +49,7 @@ export const ThemePaletteModal: React.FC<ThemePaletteModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-xl flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-xl flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 shrink-0 bg-gradient-to-r from-amber-50/50 via-transparent to-purple-50/30 dark:from-amber-950/20 dark:to-purple-950/10">
           <div className="flex items-center gap-3">

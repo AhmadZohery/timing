@@ -479,7 +479,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
       {(() => {
         const todayTadabbur = getDailyTadabburItem(0);
         return (
-          <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+          <div className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-2xl bg-[#d4f5dc] dark:bg-emerald-950/60 text-[#1eb814] dark:text-emerald-300 border border-[#1eb814]/25 flex items-center justify-center shrink-0 mt-0.5">
                 <Heart className="w-5 h-5 fill-[#1eb814]/20" />
@@ -528,7 +528,7 @@ export const CommuteMorningView: React.FC<CommuteMorningViewProps> = ({
       />
 
       {/* Completion & Transition Bar — Habitline Pill CTA */}
-      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">{t('station_1_finish')}</h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">

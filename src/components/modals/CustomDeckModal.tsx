@@ -135,7 +135,7 @@ export const CustomDeckModal: React.FC<CustomDeckModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden">
         {/* Modal Header */}
         <div className="p-6 border-b border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
           <div className="flex items-center gap-3">

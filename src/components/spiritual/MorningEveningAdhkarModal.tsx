@@ -263,7 +263,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
         role="dialog"
         aria-modal="true"
         aria-label="أذكار الصباح والمساء"
-        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-amber-900/40 shadow-2xl flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
+        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl modal-surface border border-slate-200 dark:border-amber-900/40 flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -159,7 +159,7 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl max-h-[92vh] rounded-2xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl max-h-[92vh] rounded-2xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-900/60">
           <div className="flex items-center gap-3">

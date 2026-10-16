@@ -21,7 +21,7 @@ export const BatteryGuideModal: React.FC<BatteryGuideModalProps> = ({ isOpen, on
         className="fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md cursor-pointer"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-md rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 space-y-5 shadow-2xl transition-colors">
+      <div className="relative z-10 w-full max-w-md rounded-2xl modal-surface border border-slate-200 dark:border-zinc-800 p-6 space-y-5 transition-colors">
         <button
           onClick={onClose}
           className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer`}

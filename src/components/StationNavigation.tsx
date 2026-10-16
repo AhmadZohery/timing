@@ -172,7 +172,7 @@ export const StationNavigation: React.FC<StationNavigationProps> = ({
               transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
               className="lg:hidden overflow-hidden"
             >
-              <div className="p-3 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-xl space-y-2.5">
+              <div className="p-3 rounded-[24px] surface-card-3d border border-zinc-200/80 dark:border-white/10 shadow-xl space-y-2.5">
                 <div className="flex items-center justify-between px-1">
                   <span className="text-xs font-bold text-zinc-900 dark:text-white">
                     {isAr ? '🧭 التنقل السريع بين المحطات (٨ محطات)' : '🧭 Quick Station Switcher'}

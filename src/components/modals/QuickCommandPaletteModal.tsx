@@ -618,7 +618,7 @@ const QuickCommandPaletteModalContent: React.FC<QuickCommandPaletteModalProps> =
     >
       <div
         dir="rtl"
-        className="w-full max-w-2xl bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-all"
+        className="w-full max-w-2xl modal-surface rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col max-h-[85vh] transition-all"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >

@@ -140,7 +140,7 @@ export const WirdCustomizerModal: React.FC<WirdCustomizerModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 shrink-0 bg-gradient-to-r from-emerald-50/50 via-transparent to-amber-50/30 dark:from-emerald-950/20 dark:to-amber-950/10">
           <div className="flex items-center gap-3">

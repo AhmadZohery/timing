@@ -159,7 +159,7 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
         }}
       />
       <div
-        className="relative z-10 w-full max-w-3xl max-h-[92vh] flex flex-col bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden text-slate-900 dark:text-zinc-100"
+        className="relative z-10 w-full max-w-3xl max-h-[92vh] flex flex-col modal-surface rounded-3xl border border-slate-200 dark:border-zinc-800 overflow-hidden text-slate-900 dark:text-zinc-100"
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         {/* Top Floating Glow Accent */}
@@ -686,7 +686,7 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
       {redeemingReward && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
           <div
-            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl border border-emerald-300 dark:border-emerald-800 p-6 shadow-2xl space-y-4 text-center"
+            className="w-full max-w-md modal-surface rounded-3xl border border-emerald-300 dark:border-emerald-800 p-6 space-y-4 text-center"
             dir={isRTL ? 'rtl' : 'ltr'}
           >
             <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-3xl shadow-inner animate-bounce">

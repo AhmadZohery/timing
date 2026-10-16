@@ -298,7 +298,7 @@ export const LanguageQuizModal: React.FC<LanguageQuizModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg max-h-[92vh] rounded-3xl bg-white dark:bg-[#13141F] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-5 sm:p-7 space-y-4 animate-scale-in text-slate-900 dark:text-white overflow-y-auto cursor-default"
+        className="w-full max-w-lg max-h-[92vh] rounded-3xl modal-surface border border-slate-200 dark:border-white/[0.08] p-5 sm:p-7 space-y-4 animate-scale-in text-slate-900 dark:text-white overflow-y-auto cursor-default"
         onClick={(e) => e.stopPropagation()}
         dir={isAr ? 'rtl' : 'ltr'}
       >

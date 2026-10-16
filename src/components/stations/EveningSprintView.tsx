@@ -309,7 +309,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
       {/* 6-Mode Universal Selector & Audio/OLED controls */}
       <div className="space-y-2.5">
         <div className="overflow-x-auto pb-1 scrollbar-none">
-          <div className="flex items-center gap-1.5 p-1.5 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-xs w-max min-w-full">
+          <div className="flex items-center gap-1.5 p-1.5 rounded-[24px] surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs w-max min-w-full">
             <button
               type="button"
               onClick={() => setMode('LANGUAGE_MASTERY')}
@@ -700,7 +700,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
           )}
 
           {mode === 'OUTREACH' ? (
-            <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-[#e2defc] dark:bg-indigo-950/60 text-[#7c3aed] flex items-center justify-center">
@@ -859,7 +859,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
       )}
 
       {/* Completion & Next Station — Habitline Pill CTA */}
-      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">{t('station_4_heading')}</h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -950,7 +950,7 @@ export const EveningSprintView: React.FC<EveningSprintViewProps> = ({
       {/* Non-Blocking Focus Core Penalty Confirmation Modal */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-sm rounded-[28px] bg-white dark:bg-[#141517] border border-rose-300 dark:border-rose-900/60 p-6 space-y-4 shadow-2xl animate-scale-in text-start">
+          <div className="w-full max-w-sm rounded-[28px] modal-surface border border-rose-300 dark:border-rose-900/60 p-6 space-y-4 animate-scale-in text-start">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#fce2e6] text-rose-700 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-5 h-5" />

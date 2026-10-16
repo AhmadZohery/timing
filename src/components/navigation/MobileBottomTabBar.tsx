@@ -757,7 +757,7 @@ export const MobileBottomTabBar: React.FC<MobileBottomTabBarProps> = ({
                     setIsSpiritualSheetOpen(false);
                     onOpenPrayerLocation?.();
                   }}
-                  className="flex items-center justify-between p-4 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
+                  className="flex items-center justify-between p-4 rounded-[24px] surface-card-3d border border-zinc-200/80 dark:border-white/10 text-start tap-spring active:scale-[0.98] transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-11 h-11 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center shrink-0 shadow-xs">

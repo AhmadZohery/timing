@@ -190,7 +190,7 @@ ${worshipTxt}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl max-h-[92vh] rounded-3xl bg-white dark:bg-[#131520] border border-slate-200 dark:border-white/[0.12] shadow-2xl flex flex-col overflow-hidden animate-scale-in"
+        className="w-full max-w-2xl max-h-[92vh] rounded-3xl modal-surface border border-slate-200 dark:border-white/[0.12] flex flex-col overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
         dir={isAr ? 'rtl' : 'ltr'}
       >

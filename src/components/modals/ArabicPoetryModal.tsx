@@ -116,7 +116,7 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label={isAr ? 'ديوان الحكمة والشعر العربي المشروح' : 'Classical Arabic Poetry & Wisdom Diwan'}
-        className="relative z-10 bg-white dark:bg-[#12131A] border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+        className="relative z-10 modal-surface border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl flex flex-col overflow-hidden"
       >
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-amber-200/50 dark:border-white/[0.08] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between">

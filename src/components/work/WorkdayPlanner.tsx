@@ -1599,7 +1599,7 @@ export const WorkdayPlanner: React.FC<WorkdayPlannerProps> = ({
       {/* Urge Control Wave Overlay Modal */}
       {isUrgeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-md p-6 rounded-[26px] bg-white dark:bg-[#141517] border border-sky-300 dark:border-zinc-800 text-center space-y-5 shadow-2xl relative overflow-hidden">
+          <div className="w-full max-w-md p-6 rounded-[26px] modal-surface border border-sky-300 dark:border-zinc-800 text-center space-y-5 relative overflow-hidden">
             {/* Box Breathing Circle (4s Inhale -> 4s Hold -> 4s Exhale -> 4s Rest) */}
             {(() => {
               const cycleSec = (60 - urgeSeconds) % 16;

@@ -520,7 +520,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   return (
     <div
       id="section-prayers"
-      className={`rounded-[30px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-[0_10px_34px_rgba(0,0,0,0.05)] dark:shadow-black/30 p-4 sm:p-5 space-y-3.5 transition-all ${className}`}
+      className={`rounded-[30px] surface-card-3d border border-zinc-200/80 dark:border-white/10 shadow-[0_10px_34px_rgba(0,0,0,0.05)] dark:shadow-black/30 p-4 sm:p-5 space-y-3.5 transition-all ${className}`}
     >
       {/* ============================================================ */}
       {/* 1. HABITLINE OBSIDIAN NEXT-PRAYER HERO BANNER + CONTROLS     */}
@@ -2006,7 +2006,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
             {/* Centered Pop-up Modal */}
             <div
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] sm:w-[440px] max-h-[92vh] overflow-y-auto bg-white dark:bg-[#181A24] border border-slate-200 dark:border-white/[0.12] rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 animate-scale-in text-xs"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] sm:w-[440px] max-h-[92vh] overflow-y-auto modal-surface border border-slate-200 dark:border-white/[0.12] rounded-3xl p-5 sm:p-6 space-y-4 animate-scale-in text-xs"
               dir={isAr ? 'rtl' : 'ltr'}
             >
               {/* Header */}

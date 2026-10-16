@@ -90,7 +90,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col max-h-[92dvh] overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col max-h-[92dvh] overflow-hidden">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50 shrink-0">
           <div className="flex items-center gap-2.5">

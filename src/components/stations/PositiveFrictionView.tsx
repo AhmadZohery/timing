@@ -158,7 +158,7 @@ export const PositiveFrictionView: React.FC<PositiveFrictionViewProps> = ({
       </div>
 
       {/* Interactive Dopamine Breathing Regulator — Crisp White Habitline Bento */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col items-center justify-center text-center space-y-5">
+      <div className="p-6 sm:p-8 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col items-center justify-center text-center space-y-5">
         <div className="space-y-1">
           <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-zinc-100">
             {isAr ? 'دائرة التنفس الصندوقي لتهدئة الجهاز العصبي' : 'Box Breathing Nervous Reset'}
@@ -200,7 +200,7 @@ export const PositiveFrictionView: React.FC<PositiveFrictionViewProps> = ({
       </div>
 
       {/* Conscious Decision Branching — Habitline Pastel Action Grid */}
-      <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4">
+      <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
         <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 text-center">
           {isAr ? 'سؤال الوعي والنية: ما هي خطوتك التالية؟' : 'Conscious Intent: What is your next move?'}
         </h4>

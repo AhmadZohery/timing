@@ -448,7 +448,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
       </div>
 
       {/* Work Mode Switcher Tabs — Habitline Segmented Pill Bar */}
-      <div className="flex items-center gap-1.5 p-1.5 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-1.5 p-1.5 rounded-[24px] surface-card-3d border border-zinc-200/80 dark:border-white/10">
         <button
           onClick={() => {
             soundSynth.playTactileClick();
@@ -576,7 +576,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
       ) : workViewMode === 'learning_tracker' ? (
         <div className="space-y-3">
           {/* Subtabs for Learning: AI Courses Roadmap vs Focus Timer & Reflection */}
-          <div className="flex items-center gap-1.5 p-1.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 max-w-md shadow-2xs">
+          <div className="flex items-center gap-1.5 p-1.5 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10 max-w-md shadow-2xs">
             <button
               type="button"
               onClick={() => {
@@ -640,7 +640,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
           {phase === 'LEARNING_SPRINT' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
               {/* Sprint Timer Column — Crisp White Habitline Bento */}
-              <div className="lg:col-span-6 p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-center space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              <div className="lg:col-span-6 p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 text-center space-y-6">
                 <div className="space-y-1">
                   <span className="text-xs text-[#5448e8] dark:text-indigo-400 font-bold uppercase tracking-wider">
                     {t('timer_learning_label')}
@@ -879,7 +879,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
               </div>
 
               {/* Single Target Sprint Task & 3 Checkpoints Column — Crisp White & Soft Mint */}
-              <div className="lg:col-span-6 p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              <div className="lg:col-span-6 p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-xl bg-[#d4f5dc] dark:bg-emerald-950/60 text-[#1eb814] flex items-center justify-center">
                     <Target className="w-4 h-4" />
@@ -1027,7 +1027,7 @@ export const WorkMicroSprintView: React.FC<WorkMicroSprintViewProps> = ({
       )}
 
       {/* Station Completion Bar — Habitline Pill CTA */}
-      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">{t('station_2_heading')}</h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">

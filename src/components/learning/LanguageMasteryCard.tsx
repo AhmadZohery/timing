@@ -1389,7 +1389,7 @@ export const LanguageMasteryCard: React.FC<LanguageMasteryCardProps> = ({
       {/* Add Custom Word Modal */}
       {isAddWordOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-white dark:bg-[#151722] border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl space-y-4 animate-scale-up">
+          <div className="relative w-full max-w-md rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-6 space-y-4 animate-scale-up">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">

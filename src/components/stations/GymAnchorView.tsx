@@ -603,7 +603,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
       </div>
 
       {/* 7 Movement Categories Segmented Tab Strip — Habitline Pill Strip */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none p-1.5 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none p-1.5 rounded-[24px] surface-card-3d border border-zinc-200/80 dark:border-white/10">
         <button
           type="button"
           onClick={() => handleSelectMovementCat('gym')}
@@ -784,7 +784,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
 
       {/* Movement View: Home Calisthenics */}
       {movementCategory === 'home' && (
-        <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+        <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="text-xl">🏠</span>
@@ -845,7 +845,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
 
       {/* Movement View: Outdoor Walk */}
       {movementCategory === 'walk' && (
-        <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+        <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🚶</span>
             <div>
@@ -937,7 +937,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
 
       {/* Movement View: Mobility & Posture */}
       {movementCategory === 'mobility' && (
-        <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+        <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
           <div className="flex items-center gap-2.5">
             <span className="text-xl">🧘</span>
             <div>
@@ -1068,7 +1068,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           </div>
 
           {/* Routine Selector Tabs — Crisp White Habitline Bento */}
-          <div className="p-4 sm:p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-3 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+          <div className="p-4 sm:p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3">
             <h3 className="text-xs font-bold text-zinc-950 dark:text-zinc-100">
               {t('routine_select_title')}
             </h3>
@@ -1245,7 +1245,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
               return (
                 <div
                   key={ex.id}
-                  className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"
+                  className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3.5"
                 >
                   <div className="flex items-center justify-between pb-2.5 border-b border-zinc-100 dark:border-zinc-800">
                     <div className="flex items-center gap-2">
@@ -1490,7 +1490,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
       </div>
 
       {/* Completion & Next Station — Habitline Pill CTA */}
-      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">{t('station_3_heading')}</h4>
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">

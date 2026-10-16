@@ -67,7 +67,7 @@ export const ScheduleAnomalyModal: React.FC<ScheduleAnomalyModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative z-10 w-full max-w-md rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden flex flex-col">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 via-white dark:via-zinc-900 to-white dark:to-zinc-900">
           <div className="flex items-center gap-2.5">

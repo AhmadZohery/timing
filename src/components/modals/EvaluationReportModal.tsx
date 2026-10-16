@@ -483,7 +483,7 @@ ${actionText}`;
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative z-10 w-full max-w-2xl modal-surface border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Top Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-l from-emerald-50/70 via-white to-white dark:from-emerald-950/20 dark:via-zinc-900 dark:to-zinc-900">
           <div className="flex items-center gap-3">

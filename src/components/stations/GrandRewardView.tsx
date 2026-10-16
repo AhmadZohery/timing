@@ -132,7 +132,7 @@ export const GrandRewardView: React.FC<GrandRewardViewProps> = ({
       </div>
 
       {/* Main Celebration Showcase Surface */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-center space-y-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-colors duration-200">
+      <div className="p-6 sm:p-8 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 text-center space-y-6 transition-colors duration-200">
         {/* Trophy Icon */}
         <div className="relative inline-flex items-center justify-center">
           <div className="w-24 h-24 rounded-[28px] bg-[#d4f5dc] dark:bg-emerald-500/15 border-2 border-[#1eb814]/40 flex items-center justify-center text-[#1eb814] dark:text-emerald-400 animate-subtle-float shadow-lg shadow-[#1eb814]/15">

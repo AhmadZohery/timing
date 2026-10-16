@@ -550,7 +550,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-4 sm:p-6 md:p-8 space-y-6 shadow-2xl max-h-[92dvh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-4 sm:p-6 md:p-8 space-y-6 max-h-[92dvh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <button
           onClick={onClose}
           className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer`}

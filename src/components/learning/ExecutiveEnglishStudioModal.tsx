@@ -1006,7 +1006,7 @@ export const ExecutiveEnglishStudioModal: React.FC<ExecutiveEnglishStudioModalPr
       />
 
       <div
-        className="relative z-10 w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 shadow-2xl overflow-hidden font-sans"
+        className="relative z-10 w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden font-sans"
         dir={isAr ? 'rtl' : 'ltr'}
       >
         {/* Header Bar */}

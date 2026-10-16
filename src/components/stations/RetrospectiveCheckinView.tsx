@@ -351,7 +351,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
           </div>
 
           {/* Tomorrow Morning Non-Negotiable Anchor Task (Ivy Lee Method) — Crisp White Bento */}
-          <div className="p-5 sm:p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-3 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+          <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3">
             <div className="space-y-1">
               <h3 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-[#141517] dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center shadow-2xs">
@@ -421,7 +421,7 @@ export const RetrospectiveCheckinView: React.FC<RetrospectiveCheckinViewProps> =
       </div>
 
       {/* Save & Complete Actions — Habitline Pill CTA */}
-      <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <button
           onClick={handleSave}
           className="tap-spring py-2.5 px-5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95 self-start sm:self-center"

@@ -106,7 +106,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label={isAr ? 'خزانة النماذج الفكرية والمعارف الحياتية' : 'Mental Models & Life Wisdom Vault'}
-        className="relative z-10 bg-white dark:bg-[#12131A] border border-cyan-300/40 dark:border-cyan-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+        className="relative z-10 modal-surface border border-cyan-300/40 dark:border-cyan-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl flex flex-col overflow-hidden"
       >
         {/* Header */}
         <div className="p-4 sm:p-6 border-b border-cyan-200/50 dark:border-white/[0.08] bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent flex items-center justify-between">

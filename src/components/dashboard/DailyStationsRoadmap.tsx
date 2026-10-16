@@ -220,7 +220,7 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
 
   return (
     <div
-      className={`rounded-[30px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 p-4 sm:p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] space-y-4 relative overflow-hidden transition-all ${className}`}
+      className={`rounded-[30px] surface-card-3d border border-zinc-200/80 dark:border-white/10 p-4 sm:p-5 space-y-4 relative overflow-hidden transition-all ${className}`}
     >
       {/* 1. Header Bar: Title, Persona Badge, and Velocity Progress */}
       <div className="flex items-center justify-between gap-2 flex-wrap relative z-10">

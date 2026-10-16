@@ -1252,7 +1252,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
           }}
         >
           <div
-            className="w-full max-w-md rounded-[26px] bg-white dark:bg-[#141517] border border-slate-200 dark:border-white/15 shadow-2xl overflow-hidden flex flex-col cursor-default"
+            className="w-full max-w-md rounded-[26px] modal-surface border border-slate-200 dark:border-white/15 overflow-hidden flex flex-col cursor-default"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

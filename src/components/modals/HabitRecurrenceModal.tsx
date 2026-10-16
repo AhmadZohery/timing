@@ -112,7 +112,7 @@ export const HabitRecurrenceModal: React.FC<HabitRecurrenceModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full sm:max-w-lg bg-white dark:bg-zinc-900 border-t sm:border border-slate-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full sm:max-w-lg modal-surface border-t sm:border border-slate-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
           <div className="flex items-center gap-2.5">

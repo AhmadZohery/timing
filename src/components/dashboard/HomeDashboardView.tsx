@@ -1203,7 +1203,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             <button
               type="button"
               onClick={onOpenLifestyleModal}
-              className="px-3 py-1.5 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 cursor-pointer shadow-2xs"
             >
               {isAr ? 'تخصيص النمط ⚙️' : 'Persona ⚙️'}
             </button>
@@ -1793,14 +1793,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenSmartTasbih('tasbih')}
-                className="px-3.5 py-2 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
               >
                 📿 {isAr ? 'المسبحة الذكية' : 'Smart Tasbih'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsWeeklyReportOpen(true)}
-                className="px-3.5 py-2 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
               >
                 📊 {isAr ? 'حصاد الأسبوع' : 'Weekly Report'}
               </button>
@@ -1808,7 +1808,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <button
                   type="button"
                   onClick={onOpenPanic}
-                  className="px-3.5 py-2 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                  className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
                 >
                   ⚡ {isAr ? 'قاعدة الدقيقتين' : '2-Min Rule'}
                 </button>
@@ -1816,7 +1816,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsAnomalyModalOpen(true)}
-                className="px-3.5 py-2 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
               >
                 🛡️ {isAr ? 'توثيق ظرف طارئ' : 'Streak Shield'}
               </button>
@@ -1976,7 +1976,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           />
 
           {/* Spiritual Devotions & Sunnah 4-Card Habitline Bento */}
-          <div className="rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
+          <div className="rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2.5">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-[#141517] dark:bg-emerald-500/20 text-[#bce8c2] dark:text-emerald-300 flex items-center justify-center font-bold text-lg shrink-0 shadow-xs">
@@ -2291,7 +2291,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ============================================================ */}
       {activeQuickSection === 'growth' && (
         <div id="section-sports" className="scroll-mt-20">
-      <div className="rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
+      <div className="rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#ff5500] flex items-center justify-center font-bold text-base shrink-0">
@@ -2384,7 +2384,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ============================================================ */}
       {activeQuickSection === 'growth' && (
         <div id="section-languages" className="scroll-mt-20">
-      <div className="rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
+      <div className="rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
         {/* Header: Title, Language Switcher & Stats */}
         <div className="flex items-center justify-between flex-wrap gap-2.5">
           <div className="flex items-center gap-3">
@@ -2667,7 +2667,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ============================================================ */}
       {activeQuickSection === 'stations' && (
         <div id="section-circadian" className="scroll-mt-20">
-      <div className="rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
+      <div className="rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 p-4 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] space-y-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-[#141517] text-[#fde6d8] flex items-center justify-center font-bold text-base shrink-0">
             ☀️
@@ -2736,7 +2736,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           onClick={() => setIsReadMoreWisdomOpen(false)}
         >
           <div
-            className="w-full max-w-lg bg-white dark:bg-[#12131A] border border-cyan-400/40 dark:border-cyan-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+            className="w-full max-w-lg modal-surface border border-cyan-400/40 dark:border-cyan-500/30 rounded-3xl p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.08]">

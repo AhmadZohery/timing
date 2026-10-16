@@ -1214,7 +1214,7 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
             onClick={() => setIsAiModalOpen(false)}
           />
           <div
-            className="relative z-10 w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative z-10 w-full max-w-lg rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto"
             dir={isAr ? 'rtl' : 'ltr'}
           >
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
@@ -1361,7 +1361,7 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
             onClick={() => setIsManualModalOpen(false)}
           />
           <div
-            className="relative z-10 w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative z-10 w-full max-w-md rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-5 space-y-4 max-h-[90vh] overflow-y-auto"
             dir={isAr ? 'rtl' : 'ltr'}
           >
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">

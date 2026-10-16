@@ -592,6 +592,31 @@ html[lang="ar"] :is(.text-\[10px\], .text-\[11px\], .text-xs).font-bold {
 
   /* Current-prayer marker ping on the arc */
   .arc-ping { transform-box: fill-box; transform-origin: center; animation: arc-ping 2.4s ease-out infinite; }
+
+  /* ===== App-wide surfaces: dialogs + neutral cards share the same tactile depth ===== */
+  .modal-surface {
+    background: linear-gradient(180deg, #ffffff 0%, #fafaf9 100%);
+    box-shadow:
+      inset 0 1.5px 0 0 rgba(255, 255, 255, 0.95),
+      0 0 0 1px rgba(20, 21, 23, 0.06),
+      0 32px 80px -16px rgba(20, 21, 23, 0.38);
+  }
+  html.dark .modal-surface {
+    background: linear-gradient(180deg, #17181a 0%, #0f1011 100%);
+    box-shadow:
+      inset 0 1.5px 0 0 rgba(255, 255, 255, 0.14),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 32px 80px -16px rgba(0, 0, 0, 0.7);
+  }
+
+  .surface-card-3d {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfa 100%);
+    box-shadow: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.95), 0 10px 26px -10px rgba(20, 21, 23, 0.16);
+  }
+  html.dark .surface-card-3d {
+    background: linear-gradient(180deg, #1b1c1f 0%, #141517 100%);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 26px -10px rgba(0, 0, 0, 0.55);
+  }
 }
 
 @keyframes wave-bar { from { transform: scaleY(0.35); } to { transform: scaleY(1); } }

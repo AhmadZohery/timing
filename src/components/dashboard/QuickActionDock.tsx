@@ -42,7 +42,7 @@ export const QuickActionDock: React.FC<QuickActionDockProps> = ({
       dir={isAr ? 'rtl' : 'ltr'}
     >
       {/* 1. Quick +1 Quran Page with Hasanat Multiplier & Customizer */}
-      <div className="min-h-[54px] flex items-center justify-between rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 shadow-xs overflow-hidden">
+      <div className="min-h-[54px] flex items-center justify-between rounded-2xl surface-card-3d border border-zinc-200/80 dark:border-white/10 shadow-xs overflow-hidden">
         <button
           type="button"
           onClick={() => {

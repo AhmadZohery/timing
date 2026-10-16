@@ -54,7 +54,7 @@ export const BufferQueueModal: React.FC<BufferQueueModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-3xl rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}

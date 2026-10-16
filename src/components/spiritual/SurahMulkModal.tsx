@@ -155,7 +155,7 @@ export const SurahMulkModal: React.FC<SurahMulkModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-label="سورة الملك"
-        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-indigo-900/60 shadow-2xl flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
+        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl modal-surface border border-slate-200 dark:border-indigo-900/60 flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

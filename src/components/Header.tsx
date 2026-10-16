@@ -1100,7 +1100,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Quick Action Strip (Habitline Pastel Bento Tiles) */}
-                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-2 shadow-2xs">
+                  <div className="p-2.5 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-2 shadow-2xs">
                     <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
                       {language === 'ar' ? 'أوضاع الطوارئ والوصول السريع' : 'Quick Modes & Controls'}
                     </span>
@@ -1207,7 +1207,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Category 1: Analytics & Productivity */}
-                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
+                  <div className="p-2.5 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
                     <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
                       {language === 'ar' ? 'الإنتاجية والمسارات والتقارير' : 'Productivity & Analytics'}
                     </span>
@@ -1296,7 +1296,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Category 2: Guidance & Spiritual */}
-                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
+                  <div className="p-2.5 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
                     <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
                       {language === 'ar' ? 'التوجيه والعادات والروحانيات' : 'Guidance & Spiritual'}
                     </span>
@@ -1444,7 +1444,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Category 3: System & Tools */}
-                  <div className="p-2.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
+                  <div className="p-2.5 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-1.5 shadow-2xs">
                     <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 px-1 block">
                       {language === 'ar' ? 'أدوات النظام والمظهر' : 'System & Themes'}
                     </span>
@@ -1607,7 +1607,7 @@ export const Header: React.FC<HeaderProps> = ({
               setIsPinModalOpen(false);
             }}
           />
-          <div className="relative z-10 w-full max-w-xl rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-zinc-800 p-5 sm:p-7 shadow-2xl flex flex-col max-h-[85vh]">
+          <div className="relative z-10 w-full max-w-xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-5 sm:p-7 flex flex-col max-h-[85vh]">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-zinc-800 shrink-0">
               <div className="flex items-center gap-2.5">

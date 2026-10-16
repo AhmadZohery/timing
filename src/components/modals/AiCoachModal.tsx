@@ -357,7 +357,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full sm:max-w-2xl max-h-[92vh] sm:max-h-[85vh] bg-white dark:bg-zinc-950 rounded-t-3xl sm:rounded-2xl border-t sm:border border-slate-200 dark:border-zinc-800 shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative z-10 w-full sm:max-w-2xl max-h-[92vh] sm:max-h-[85vh] modal-surface rounded-t-3xl sm:rounded-2xl border-t sm:border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
         {/* Top Drag Indicator on Mobile */}
         <div className="w-12 h-1.5 rounded-full bg-slate-300 dark:bg-zinc-700 mx-auto mt-2.5 sm:hidden" />
 

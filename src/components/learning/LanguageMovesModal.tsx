@@ -421,7 +421,7 @@ export const LanguageMovesModal: React.FC<LanguageMovesModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl max-h-[92vh] rounded-3xl bg-white dark:bg-[#12131A] border border-slate-200 dark:border-white/[0.08] p-5 sm:p-7 shadow-2xl space-y-4 animate-scale-in text-slate-900 dark:text-white overflow-y-auto cursor-default"
+        className="w-full max-w-2xl max-h-[92vh] rounded-3xl modal-surface border border-slate-200 dark:border-white/[0.08] p-5 sm:p-7 space-y-4 animate-scale-in text-slate-900 dark:text-white overflow-y-auto cursor-default"
         onClick={(e) => e.stopPropagation()}
         dir={isAr ? 'rtl' : 'ltr'}
       >

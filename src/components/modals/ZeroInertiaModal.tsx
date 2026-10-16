@@ -98,7 +98,7 @@ export const ZeroInertiaModal: React.FC<ZeroInertiaModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-md rounded-2xl bg-white dark:bg-zinc-900 border border-rose-200 dark:border-rose-500/40 p-6 space-y-5 shadow-2xl">
+      <div className="relative z-10 w-full max-w-md rounded-2xl modal-surface border border-rose-200 dark:border-rose-500/40 p-6 space-y-5">
         {/* Close Button */}
         <button
           onClick={onClose}

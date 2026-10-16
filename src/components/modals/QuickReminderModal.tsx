@@ -795,7 +795,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
               {/* Create Reminder Bento Form */}
               <form
                 onSubmit={handleCreateReminder}
-                className="p-4 sm:p-5 rounded-[26px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+                className="p-4 sm:p-5 rounded-[26px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
               >
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
@@ -1172,7 +1172,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
               </div>
 
               {/* Muadhin Selector Cards */}
-              <div className="p-4 rounded-[26px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-3">
+              <div className="p-4 rounded-[26px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-zinc-900 dark:text-white">
                     {isAr ? '🎙️ اختر صوت المؤذن المفضل ومعاينته:' : '🎙️ Choose & Preview Muadhin Voice:'}
@@ -1228,7 +1228,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
               </div>
 
               {/* Spiritual Chime Selector */}
-              <div className="p-4 rounded-[26px] bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-white/10 space-y-2.5">
+              <div className="p-4 rounded-[26px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-2.5">
                 <span className="text-xs font-bold text-zinc-900 dark:text-white block">
                   {isAr ? '🔔 نغمة الرنين الروحي والتنبيهات السريعة:' : '🔔 Spiritual Chime & Quick Alert Tone:'}
                 </span>
