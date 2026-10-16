@@ -216,9 +216,21 @@ class GymFaithAudioService {
       }
       if (typeof isPlaying === 'boolean') {
         updates.isPlaying = isPlaying;
+        // Real playback proves any earlier failure is over: drop the stale error banner
+        if (isPlaying && this.state.hasError) {
+          updates.hasError = false;
+          updates.errorMessage = null;
+        }
       }
       this.updateState(updates);
       this.saveResumePoint();
+    }
+  }
+
+  /** Surface a YouTube playback failure (removed / embedding disabled) in the shared error banner. */
+  public reportYouTubeError(message: string) {
+    if (this.state.mediaType === 'youtube') {
+      this.updateState({ isPlaying: false, isLoading: false, hasError: true, errorMessage: message });
     }
   }
 

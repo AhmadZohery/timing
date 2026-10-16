@@ -11,19 +11,33 @@ declare global {
   }
 }
 
+/** Give up waiting for the IFrame API after this long (offline / blocked) instead of polling forever. */
+const MAX_API_WAIT_MS = 30000;
+
 /**
  * Persistent Global YouTube Audio Host
  * Mounts at App root level so YouTube audio playback continues uninterrupted
  * when modals close, when stations switch, or when navigating anywhere in the app.
+ *
+ * Reliability model:
+ *  - ONE player instance is created and then re-used via loadVideoById (the IFrame API replaces
+ *    the target element with an iframe and destroy() removes it, so "destroy + new Player(sameId)"
+ *    silently fails). A fresh target element is created only when a brand-new player is needed.
+ *  - Player callbacks are guarded by a generation counter tied to the player, not to React effect
+ *    runs, so toggling YouTube <-> MP3 never leaves a live player with dead event handlers.
+ *  - Unplayable videos (removed / embedding disabled) skip to the next episode instead of freezing.
  */
 export const PersistentYouTubeHost: React.FC = () => {
   const [audioState, setAudioState] = useState<GymFaithAudioState>(() =>
     gymFaithAudio.getState()
   );
   const audioStateRef = useRef<GymFaithAudioState>(audioState);
+  const hostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
-  const progressTimerRef = useRef<any>(null);
-  const currentVideoIdRef = useRef<string | null>(null);
+  const readyRef = useRef(false);
+  const genRef = useRef(0);
+  const loadedVideoRef = useRef<string | null>(null);
+  const retriedVideoRef = useRef<string | null>(null);
 
   useEffect(() => {
     return gymFaithAudio.subscribe((state) => {
@@ -49,39 +63,62 @@ export const PersistentYouTubeHost: React.FC = () => {
     }
   }, [isYouTube, videoId]);
 
-  // 2. Initialize or re-cue player when videoId changes
+  // 2. Create the player once, then switch / resume it as the requested video changes
   useEffect(() => {
-    if (!isYouTube || !videoId) return;
-
-    if (currentVideoIdRef.current === videoId && playerRef.current) {
-      // Same video already loaded, ensure playback
-      if (audioStateRef.current.isPlaying) {
-        try {
-          playerRef.current.playVideo();
-        } catch {}
-      }
+    if (!isYouTube || !videoId) {
+      // YouTube is no longer the active source: make sure it is silent (MP3 / other channel took over)
+      try {
+        if (readyRef.current) playerRef.current?.pauseVideo();
+      } catch {}
       return;
     }
 
-    currentVideoIdRef.current = videoId;
-    let destroyed = false;
+    let cancelled = false;
+    const startedAt = Date.now();
+    const startSeconds = () => Math.max(0, audioStateRef.current.currentTime || 0);
 
-    const initPlayer = () => {
-      if (destroyed) return;
-      if (!window.YT || !window.YT.Player) {
-        setTimeout(initPlayer, 200);
-        return;
+    const reportError = (err: any) => {
+      const code = Number(err?.data);
+      const p = playerRef.current;
+      const current = loadedVideoRef.current;
+      // 5 = HTML5 player glitch: retry the same video once before giving up
+      if (code === 5 && current && retriedVideoRef.current !== current) {
+        retriedVideoRef.current = current;
+        try {
+          p?.loadVideoById({ videoId: current, startSeconds: startSeconds() });
+          return;
+        } catch {}
       }
+      let cur = 0;
+      try {
+        cur = p?.getCurrentTime?.() || 0;
+      } catch {}
+      gymFaithAudio.updateYouTubeProgress(cur, undefined, false);
+      // 100 / 101 / 150 = removed or embedding disabled: skip to the next episode rather than freezing
+      if (gymFaithAudio.hasNextEpisode()) {
+        gymFaithAudio.playNextEpisode();
+      } else {
+        gymFaithAudio.reportYouTubeError('تعذّر تشغيل هذا المقطع (محذوف أو غير مسموح بتشغيله خارج يوتيوب). جرّب مقطعًا آخر.');
+      }
+    };
+
+    const createPlayer = () => {
+      const wrapper = hostRef.current;
+      if (!wrapper || !window.YT?.Player) return;
+
+      // The API swaps its target element for an iframe, so every new player needs a fresh target.
+      wrapper.textContent = '';
+      const target = document.createElement('div');
+      target.className = 'w-full h-full';
+      wrapper.appendChild(target);
+
+      const gen = ++genRef.current;
+      readyRef.current = false;
+      loadedVideoRef.current = videoId;
+      retriedVideoRef.current = null;
 
       try {
-        if (playerRef.current) {
-          try {
-            playerRef.current.destroy();
-          } catch {}
-          playerRef.current = null;
-        }
-
-        playerRef.current = new window.YT.Player('midmar-global-yt-iframe', {
+        playerRef.current = new window.YT.Player(target, {
           videoId,
           playerVars: {
             autoplay: 1,
@@ -93,8 +130,8 @@ export const PersistentYouTubeHost: React.FC = () => {
           },
           events: {
             onReady: (event: any) => {
-              if (destroyed) return;
-              // Register bridge with gymFaithAudio
+              if (gen !== genRef.current) return;
+              readyRef.current = true;
               gymFaithAudio.registerYouTubeBridge({
                 play: () => {
                   try {
@@ -123,87 +160,133 @@ export const PersistentYouTubeHost: React.FC = () => {
                 },
               });
 
-              const latestState = audioStateRef.current;
-              if (latestState.currentTime > 0) {
-                event.target.seekTo(latestState.currentTime, true);
+              const latest = audioStateRef.current;
+              // The requested video may have changed while the player was still booting
+              if (latest.youtubeVideoId && latest.youtubeVideoId !== loadedVideoRef.current) {
+                loadedVideoRef.current = latest.youtubeVideoId;
+                event.target.loadVideoById({
+                  videoId: latest.youtubeVideoId,
+                  startSeconds: Math.max(0, latest.currentTime || 0),
+                });
+              } else if (latest.currentTime > 0) {
+                event.target.seekTo(latest.currentTime, true);
               }
-              event.target.setPlaybackRate(latestState.playbackRate);
-              event.target.setVolume(Math.round(latestState.volume * 100));
+              event.target.setPlaybackRate(latest.playbackRate);
+              event.target.setVolume(Math.round(latest.volume * 100));
               event.target.playVideo();
             },
             onStateChange: (event: any) => {
-              if (destroyed) return;
+              if (gen !== genRef.current) return;
               // 1 = PLAYING, 2 = PAUSED, 0 = ENDED, 3 = BUFFERING
+              const p = playerRef.current;
               if (event.data === 1) {
-                const dur = playerRef.current?.getDuration() || 0;
-                const cur = playerRef.current?.getCurrentTime() || 0;
+                const dur = p?.getDuration() || 0;
+                const cur = p?.getCurrentTime() || 0;
                 gymFaithAudio.updateYouTubeProgress(cur, dur, true);
               } else if (event.data === 2) {
-                const cur = playerRef.current?.getCurrentTime() || 0;
+                const cur = p?.getCurrentTime() || 0;
                 gymFaithAudio.updateYouTubeProgress(cur, undefined, false);
               } else if (event.data === 0) {
-                // Video ended, auto-next episode if in series
-                gymFaithAudio.playNextEpisode();
+                // Video ended: auto-advance inside a series, otherwise settle in the paused state
+                if (!gymFaithAudio.playNextEpisode()) {
+                  const dur = p?.getDuration() || 0;
+                  gymFaithAudio.updateYouTubeProgress(dur, undefined, false);
+                }
               }
             },
             onError: (err: any) => {
+              if (gen !== genRef.current) return;
               console.warn('Persistent YouTube Player error:', err);
+              reportError(err);
             },
           },
         });
       } catch (e) {
+        playerRef.current = null;
         console.warn('Failed to construct Persistent YT.Player:', e);
       }
     };
 
-    initPlayer();
+    const attach = () => {
+      if (cancelled) return;
 
-    // Polling interval for live scrubber progress sync
-    progressTimerRef.current = setInterval(() => {
-      if (playerRef.current && isYouTube) {
+      // Re-use a ready player: switch the video in place, or just resume the same one
+      if (playerRef.current && readyRef.current) {
         try {
-          const state = playerRef.current.getPlayerState();
-          if (state === 1) {
-            const cur = playerRef.current.getCurrentTime() || 0;
-            const dur = playerRef.current.getDuration() || 0;
-            gymFaithAudio.updateYouTubeProgress(cur, dur, true);
+          if (loadedVideoRef.current !== videoId) {
+            loadedVideoRef.current = videoId;
+            retriedVideoRef.current = null;
+            playerRef.current.loadVideoById({ videoId, startSeconds: startSeconds() });
+          } else if (audioStateRef.current.isPlaying) {
+            playerRef.current.playVideo();
           }
         } catch {}
+        return;
       }
-    }, 600);
+
+      // Player is still booting: onReady will pick up the latest requested video
+      if (playerRef.current) return;
+
+      if (!window.YT || !window.YT.Player) {
+        if (Date.now() - startedAt > MAX_API_WAIT_MS) return;
+        setTimeout(attach, 250);
+        return;
+      }
+      createPlayer();
+    };
+
+    attach();
 
     return () => {
-      destroyed = true;
-      if (progressTimerRef.current) {
-        clearInterval(progressTimerRef.current);
-      }
+      cancelled = true;
     };
   }, [isYouTube, videoId]);
 
-  // Clean teardown when component completely unmounts from app root
+  // 3. Live scrubber sync (single timer for the host lifetime, only works while YouTube is active)
   useEffect(() => {
+    const timer = setInterval(() => {
+      const p = playerRef.current;
+      if (!p || !readyRef.current || audioStateRef.current.mediaType !== 'youtube') return;
+      try {
+        if (p.getPlayerState() === 1) {
+          const cur = p.getCurrentTime() || 0;
+          const dur = p.getDuration() || 0;
+          gymFaithAudio.updateYouTubeProgress(cur, dur, true);
+        }
+      } catch {}
+    }, 600);
+    return () => clearInterval(timer);
+  }, []);
+
+  // 4. Clean teardown when the host completely unmounts from the app root
+  useEffect(() => {
+    const generation = genRef;
     return () => {
+      generation.current++;
+      readyRef.current = false;
       gymFaithAudio.registerYouTubeBridge(null);
       if (playerRef.current) {
         try {
           playerRef.current.destroy();
         } catch {}
+        playerRef.current = null;
       }
+      loadedVideoRef.current = null;
     };
   }, []);
 
-  // When YouTube is NOT active, keep hidden.
-  // When YouTube is active, keep offscreen (audio-only) or docked.
+  // Audio-only mode keeps a real 200x200 player parked off-screen: browsers throttle or pause
+  // embedded players that are 1px / fully hidden, which was cutting the audio.
   return (
     <div
       aria-hidden="true"
       className={
         isYouTube && !audioState.isAudioOnlyMode
           ? 'fixed z-40 bottom-24 end-4 w-72 h-44 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/40 bg-black'
-          : 'fixed -bottom-[9999px] -right-[9999px] w-1 h-1 opacity-0 pointer-events-none'
+          : 'fixed top-0 -left-[9999px] w-[200px] h-[200px] opacity-0 pointer-events-none'
       }
     >
-      <div id="midmar-global-yt-iframe" className="w-full h-full" />
+      <div ref={hostRef} className="w-full h-full" />
     </div>
   );
 };

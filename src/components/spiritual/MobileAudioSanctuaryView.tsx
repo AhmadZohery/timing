@@ -722,17 +722,17 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-bold text-white truncate">
+              <h2 className="text-sm sm:text-base font-bold text-white line-clamp-2 leading-[1.7]">
                 {isAr ? 'استوديو أثير الوعي والدروس الإيمانية' : 'Midmar Faith & Awareness Audio Studio'}
               </h2>
               <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#bce8c2]/15 text-[#bce8c2] border border-[#bce8c2]/30">
                 {isAr ? '✓ موثق ومفحوص 100%' : '100% Verified Audio'}
               </span>
             </div>
-            <p className="text-[11px] text-zinc-400 mt-0.5 truncate">
+            <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-2 leading-[1.8]">
               {isAr
-                ? 'تشغيل فوري مستقر بدون تقطيع • سلاسل علمية، خطب، وتلاوات خاشعة'
-                : 'Instant uninterrupted streaming • Authentic series, khutbahs & recitations'}
+                ? 'تشغيل فوري مستقر بدون تقطيع'
+                : 'Instant, uninterrupted streaming'}
             </p>
           </div>
         </div>
@@ -845,7 +845,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
             </div>
 
             {/* Horizontal Category Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 -mx-1 px-1">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 -mx-3.5 px-3.5 scroll-px-3.5 snap-x">
               {categories.map((cat) => {
                 const isActive = activeCategory === cat.id;
                 return (
@@ -857,7 +857,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       haptic.vibrateLight();
                       setActiveCategory(cat.id as any);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
+                    className={`snap-start min-h-[36px] px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
                       isActive
                         ? 'bg-[#fde6d8] text-zinc-950 border-[#fde6d8] shadow-xs'
                         : 'bg-white/[0.05] hover:bg-white/[0.09] text-zinc-300 border-white/[0.08]'
@@ -905,8 +905,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     onClick={() => handleTogglePlayTrack(track)}
                     className={`p-3 sm:p-3.5 rounded-[22px] transition-all flex items-center justify-between gap-3 cursor-pointer border ${
                       isPlayingThis
-                        ? 'bg-[#bce8c2] text-zinc-950 border-[#1eb814]/40 shadow-md'
-                        : 'bg-[#1b1d22] hover:bg-[#22252b] text-white border-white/[0.08]'
+                        ? 'bg-[#bce8c2] text-zinc-950 border-[#1eb814]/50 shadow-[0_0_0_1px_rgba(30,184,20,0.35),0_12px_30px_-8px_rgba(30,184,20,0.5)]'
+                        : 'bg-gradient-to-b from-[#1e2025] to-[#16171b] hover:from-[#23262c] hover:to-[#1a1c20] text-white border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_22px_-12px_rgba(0,0,0,0.8)]'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -929,7 +929,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span
-                            className={`text-xs sm:text-sm font-bold truncate max-w-[215px] sm:max-w-md ${
+                            className={`text-xs sm:text-sm font-bold line-clamp-2 leading-[1.75] max-w-[210px] sm:max-w-md ${
                               isPlayingThis ? 'text-zinc-950' : 'text-white'
                             }`}
                           >
@@ -949,10 +949,10 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                           >
                             {track.sheikhAr}
                           </span>
-                          <span>•</span>
-                          <span className="font-mono text-[10px] tabular-nums">
+                          <span aria-hidden="true" className="w-1 h-1 rounded-full bg-current opacity-40 shrink-0" />
+                          <bdi dir="ltr" className="font-mono text-[10px] tabular-nums">
                             {track.durationFormatted}
-                          </span>
+                          </bdi>
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                               isPlayingThis
@@ -972,7 +972,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                         type="button"
                         onClick={(e) => toggleFavorite(track.id, e)}
                         aria-label={isAr ? 'مفضلة' : 'Favorite'}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                        className={`touch-target w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                           isFav
                             ? isPlayingThis
                               ? 'text-rose-700 bg-rose-950/15'
@@ -988,10 +988,10 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       <button
                         type="button"
                         aria-label={isPlayingThis ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-sm ${
+                        className={`touch-target w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95 ${
                           isPlayingThis
-                            ? 'bg-zinc-950 text-[#bce8c2]'
-                            : 'bg-white/10 hover:bg-[#bce8c2] hover:text-zinc-950 text-white border border-white/10'
+                            ? 'bg-zinc-950 text-[#bce8c2] shadow-sm'
+                            : 'bg-habit-green-ink hover:bg-habit-green-ink-deep text-white shadow-[0_8px_18px_-6px_rgba(30,184,20,0.65)]'
                         }`}
                       >
                         {isPlayingThis ? (
@@ -1104,7 +1104,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                           {series.icon}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-bold text-white truncate max-w-[220px] sm:max-w-md">
+                          <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-[1.75] max-w-[220px] sm:max-w-md">
                             {series.titleAr}
                           </h4>
                           <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-0.5">
@@ -1163,7 +1163,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
                                   <div className="min-w-0">
                                     <div
-                                      className={`text-xs sm:text-sm font-bold truncate max-w-[205px] sm:max-w-sm ${
+                                      className={`text-xs sm:text-sm font-bold line-clamp-2 leading-[1.75] max-w-[205px] sm:max-w-sm ${
                                         isEpSelected ? 'text-zinc-950' : 'text-white'
                                       }`}
                                     >
