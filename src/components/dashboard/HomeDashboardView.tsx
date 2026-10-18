@@ -347,28 +347,43 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       autoSuggestWakeup: true,
     };
     const nextAns = { ...currentAns, ...patch };
+    const wStart = nextAns.workStartHour ?? 9;
+    const wEnd = nextAns.workEndHour ?? 17;
+    const woStart = nextAns.workoutStartHour ?? 18;
+    const workWindowStr = `${String(wStart).padStart(2, '0')}:00 - ${String(wEnd).padStart(2, '0')}:00`;
+    const workoutWindowStr =
+      woStart === -1 || nextAns.workoutPreference === 'none_rest'
+        ? isAr ? 'يوم راحة / مرن' : 'Rest / Flexible'
+        : `${String(woStart).padStart(2, '0')}:00 - ${String(Math.min(23, woStart + 1)).padStart(2, '0')}:30`;
+    const prevOverrides = userState?.settings?.stationCustomOverrides || {};
     await db.user_state.update('current_user', {
       'settings.dailyRoutineAnswers': nextAns,
+      'settings.stationCustomOverrides': {
+        ...prevOverrides,
+        WORK_MICRO_SPRINT: {
+          ...prevOverrides.WORK_MICRO_SPRINT,
+          customSubtitle: workWindowStr,
+        },
+        GYM_ANCHOR: {
+          ...prevOverrides.GYM_ANCHOR,
+          customSubtitle: workoutWindowStr,
+        },
+      },
     });
-    if (nextAns.workStartHour !== undefined || nextAns.workEndHour !== undefined || nextAns.workoutStartHour !== undefined) {
-      const wStart = nextAns.workStartHour ?? 9;
-      const wEnd = nextAns.workEndHour ?? 17;
-      const woStart = nextAns.workoutStartHour ?? 18;
-      scheduleService.savePreferences({
-        workStartTime: `${String(wStart).padStart(2, '0')}:00`,
-        workDurationHours: Math.max(1, wEnd - wStart),
-        sportsPreferredTime:
-          woStart >= 5 && woStart < 11
-            ? 'morning'
-            : woStart >= 20
-            ? 'night'
-            : 'evening',
-      });
-    }
+    scheduleService.savePreferences({
+      workStartTime: `${String(wStart).padStart(2, '0')}:00`,
+      workDurationHours: Math.max(1, wEnd - wStart),
+      sportsPreferredTime:
+        woStart >= 5 && woStart < 11
+          ? 'morning'
+          : woStart >= 20
+          ? 'night'
+          : 'evening',
+    });
     onRewardToast(
       isAr
-        ? '⏰ تم تحديث مواعيد العمل والرياضة بنجاح!'
-        : '⏰ Work & workout schedule updated!'
+        ? '⏰ تم تحديث مواعيد العمل والرياضة في جميع المحطات بنجاح!'
+        : '⏰ Work & workout schedule updated across all stations!'
     );
   };
 
@@ -845,7 +860,6 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const triggerPrayerModal = (specificPrayer?: PrayerKey) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
-    setActiveQuickSection('today');
     const order: PrayerKey[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
     const fallbackPrayer =
       order.find((p) => !prayersDoneMap[p]) ||
@@ -860,11 +874,6 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         : 'isha');
     const targetPrayer = specificPrayer || fallbackPrayer;
     setExternalTriggerPrayer({ prayer: targetPrayer, nonce: Date.now() });
-    setTimeout(() => {
-      document
-        .getElementById('section-prayers')
-        ?.scrollIntoView({ behavior: reduceMotionPref ? 'auto' : 'smooth', block: 'center' });
-    }, 60);
   };
 
   const activatePrayers = () => {
@@ -1467,7 +1476,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   setActiveQuickSection(stack.id);
                   const targetSectionId =
                     stack.id === 'today'
-                      ? 'section-prayers'
+                      ? 'section-routine'
                       : stack.id === 'stations'
                       ? 'section-roadmap'
                       : stack.id === 'spiritual'
@@ -1510,19 +1519,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       {/* ================================================================= */}
       {/* TAB 1: TODAY'S ROUTINE & PRAYERS (mobile-image.png & dashboard-07) */}
       {/* ================================================================= */}
-      {activeQuickSection === 'today' && (
-        <div className="space-y-4 animate-fade-in">
-          {/* 1.1 Official 5-Prayer Strip */}
-          <PrayerTimesBar
-            todayLog={todayLog}
-            userState={userState}
-            onOpenLocationModal={onOpenLocationModal}
-            onRewardToast={onRewardToast}
-            onOpenSmartTasbih={onOpenSmartTasbih}
-            externalTriggerPrayer={externalTriggerPrayer}
-          />
-
-          {/* 1.2 "Today's routine" (روتين اليوم) — Exact mobile-image.png & dashboard-07.png */}
+      <div className={activeQuickSection === 'today' ? 'space-y-4 animate-fade-in' : 'hidden'}>
+          {/* 1.1 "Today's routine" (روتين اليوم) — Primary 6 Clean 1-Tap Habit Cards First */}
           <div id="section-routine" className="space-y-2.5">
             {/* Section Header with Context-Aware AI Next-Best-Action Pill */}
             <div className="flex items-center justify-between gap-2 px-1 flex-wrap">
@@ -2085,6 +2083,16 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             </div>
           </div>
 
+          {/* 1.2 Official 5-Prayer Strip & Detailed Khushu Logger */}
+          <PrayerTimesBar
+            todayLog={todayLog}
+            userState={userState}
+            onOpenLocationModal={onOpenLocationModal}
+            onRewardToast={onRewardToast}
+            onOpenSmartTasbih={onOpenSmartTasbih}
+            externalTriggerPrayer={externalTriggerPrayer}
+          />
+
           {/* ============================================================== */}
           {/* 1.3 MOTIVATING 3-CARD DAILY HIGHLIGHTS BENTO (ومضات اليوم)      */}
           {/* Instant 1-tap access to Daily Ayah, Vocab Word & Mental Model  */}
@@ -2182,8 +2190,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </button>
             </div>
           </div>
-        </div>
-      )}
+      </div>
 
       {/* ============================================================ */}
       {/* TAB 2: STATIONS, COURSES & COPILOT (🧭 المحطات)               */}

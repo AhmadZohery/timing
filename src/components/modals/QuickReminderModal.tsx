@@ -215,7 +215,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
           const reg = await navigator.serviceWorker.getRegistration();
           if (reg) {
             await reg.showNotification(
-              isAr ? 'مِضمار LifeOS — التنبيهات تعمل بنجاح 🔔' : 'Midmar LifeOS — Notifications Active 🔔',
+              isAr ? 'مِضمار — التنبيهات تعمل بنجاح 🔔' : 'Midmar — Notifications Active 🔔',
               {
                 body: isAr
                   ? 'هذا إشعار فوري يؤكد جاهزية منبهات الصلاة والأذكار والمهام على جهازك.'
@@ -227,7 +227,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
             );
           } else {
             new Notification(
-              isAr ? 'مِضمار LifeOS — التنبيهات تعمل بنجاح 🔔' : 'Midmar LifeOS — Notifications Active 🔔',
+              isAr ? 'مِضمار — التنبيهات تعمل بنجاح 🔔' : 'Midmar — Notifications Active 🔔',
               {
                 body: isAr
                   ? 'هذا إشعار فوري يؤكد جاهزية منبهات الصلاة والأذكار والمهام على جهازك.'

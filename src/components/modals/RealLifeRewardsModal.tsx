@@ -668,7 +668,7 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
         {/* Modal Footer */}
         <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-zinc-800/80 bg-slate-50/80 dark:bg-zinc-950/80 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
           <span>
-            {isAr ? 'نظام الحوافز الواقعية — Midmar LifeOS' : 'Midmar Real-Life Rewards'}
+            {isAr ? 'نظام الحوافز الواقعية — مِضمار' : 'Midmar Real-Life Rewards'}
           </span>
           <button
             onClick={() => {

@@ -1031,7 +1031,7 @@ export const Header: React.FC<HeaderProps> = ({
                   ? 'bg-habit-green-ink text-white border-[#1eb814] shadow-emerald-600/20 ring-2 ring-emerald-500/20'
                   : 'bg-white/10 sm:bg-[#141517] dark:bg-white/10 border-white/10 sm:border-[#141517] dark:border-white/10 text-white hover:opacity-90'
               }`}
-              title={language === 'ar' ? 'مركز التحكم والإنتاجية' : 'LifeOS Control Center'}
+              title={language === 'ar' ? 'مركز التحكم والإنتاجية' : 'Midmar Control Center'}
             >
               <SlidersHorizontal className={`w-4 h-4 sm:w-3.5 sm:h-3.5 ${showControlCenter ? 'text-white' : 'text-[#bce8c2]'}`} />
               <span className="hidden sm:inline">{language === 'ar' ? 'مركز التحكم' : 'Control Center'}</span>

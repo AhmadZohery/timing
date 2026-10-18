@@ -376,7 +376,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
     const quran = await db.quran_progress.toArray();
     const book = await db.book_progress.toArray();
 
-    let md = `# Midmar LifeOS - Markdown Archives & Daily Logs\n`;
+    let md = `# مِضمار (Midmar) - Markdown Archives & Daily Logs\n`;
     md += `Export Date: ${new Date().toISOString()}\n\n`;
     md += `## 🌟 Habit & Operating Statistics\n`;
     md += `- Current Streak: ${userState?.streakDays || 0} days\n`;

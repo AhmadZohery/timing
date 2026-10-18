@@ -65,7 +65,7 @@ export const LIFESTYLE_PERSONAS: Record<LifestylePersonaId, LifestylePersonaConf
         titleEn: 'Deep Work Sprints',
         shortLabelAr: 'العمل',
         shortLabelEn: 'Work',
-        shortTime: '09:00 - 13:00',
+        shortTime: '09:00 - 17:00',
         descriptionAr: 'أشواط تركيز مكثفة ومنتجة بلا مقاطعة.',
         descriptionEn: 'High-leverage focus work blocks.',
         icon: Briefcase,
@@ -95,7 +95,7 @@ export const LIFESTYLE_PERSONAS: Record<LifestylePersonaId, LifestylePersonaConf
         titleEn: 'Gym Anchor',
         shortLabelAr: 'الرياضة',
         shortLabelEn: 'Gym',
-        shortTime: '17:00 - 18:30',
+        shortTime: '18:00 - 19:30',
         descriptionAr: 'تمرين القوة البدنية وتحرير الإندورفين.',
         descriptionEn: 'Physical workout and endorphin release.',
         icon: Dumbbell,
@@ -1112,30 +1112,50 @@ export function calculateSmartDailySchedule(
     cookingSummary = `فترة الطهي وإعداد الوجبات: ${win} • لمدة تقريبية ${dur} دقيقة`;
   }
 
-  // 5. Workout Summary & Overrides
-  let workoutSummary = 'التمارين البدنية المعتادة';
-  const stationOverrides: Partial<Record<StationId, StationCustomOverride>> = {};
+  // 5. Workout & Work Hours Summary & Overrides
+  const wStart = answers.workStartHour ?? 9;
+  const wEnd = answers.workEndHour ?? 17;
+  const workWindowStr = `${String(wStart).padStart(2, '0')}:00 - ${String(wEnd).padStart(2, '0')}:00`;
 
-  if (answers.workoutPreference === 'none_rest') {
+  const rawWorkoutHour =
+    answers.workoutStartHour !== undefined && answers.workoutStartHour >= 0
+      ? answers.workoutStartHour
+      : Math.max(18, wEnd + 1);
+  const workoutWindowStr =
+    answers.workoutStartHour === -1
+      ? 'يوم راحة / مرن'
+      : `${String(rawWorkoutHour).padStart(2, '0')}:00 - ${String(Math.min(23, rawWorkoutHour + 1)).padStart(2, '0')}:30`;
+
+  let workoutSummary = `التمارين البدنية في موعدك المختار (${workoutWindowStr})`;
+  const stationOverrides: Partial<Record<StationId, StationCustomOverride>> = {
+    WORK_MICRO_SPRINT: {
+      customSubtitle: workWindowStr,
+    },
+    GYM_ANCHOR: {
+      customSubtitle: workoutWindowStr,
+    },
+  };
+
+  if (answers.workoutPreference === 'none_rest' || answers.workoutStartHour === -1) {
     workoutSummary = 'راحة واستجمام وعناية ذاتية (بدون رفع أثقال أو جيم)';
     stationOverrides.GYM_ANCHOR = {
       customTitle: 'واحة الراحة والاسترخاء والعناية الذاتية',
       customShortLabel: 'الراحة والسكينة',
-      customSubtitle: '16:00 - 17:30',
+      customSubtitle: workoutWindowStr,
     };
   } else if (answers.workoutPreference === 'home_calisthenics') {
-    workoutSummary = 'تمارين لياقة منزلية وتمدد خفيف (15-30 دقيقة في البيت)';
+    workoutSummary = `تمارين لياقة منزلية وتمدد خفيف (${workoutWindowStr})`;
     stationOverrides.GYM_ANCHOR = {
       customTitle: 'التمارين المنزلية وتمدد وتنشيط الجسم',
       customShortLabel: 'لياقة منزلية',
-      customSubtitle: '16:30 - 17:30',
+      customSubtitle: workoutWindowStr,
     };
   } else if (answers.workoutPreference === 'outdoor_walk') {
-    workoutSummary = 'مشي في الهواء الطلق واستنشاق الأكسجين';
+    workoutSummary = `مشي في الهواء الطلق واستنشاق الأكسجين (${workoutWindowStr})`;
     stationOverrides.GYM_ANCHOR = {
       customTitle: 'المشي في الهواء الطلق وتصفية الذهن',
       customShortLabel: 'المشي والتأمل',
-      customSubtitle: '17:00 - 18:00',
+      customSubtitle: workoutWindowStr,
     };
   }
 
@@ -1149,31 +1169,28 @@ export function calculateSmartDailySchedule(
     stationOverrides.WORK_MICRO_SPRINT = {
       customTitle: 'إدارة شؤون المنزل وفترة الطهي الصحي',
       customShortLabel: 'البيت والطهي',
-      customSubtitle: '09:00 - 13:00',
+      customSubtitle: workWindowStr,
     };
   } else if (answers.activityType === 'dedicated_learning') {
     stationOverrides.WORK_MICRO_SPRINT = {
       customTitle: 'جلسات التعلم الذاتي والمتابعة لما أتعلمه',
       customShortLabel: 'مسار التعلم',
-      customSubtitle: '09:00 - 13:00',
+      customSubtitle: workWindowStr,
     };
   } else if (answers.activityType === 'remote_teacher') {
     stationOverrides.WORK_MICRO_SPRINT = {
       customTitle: 'جلسات التدريس والشرح والعمل المرن',
       customShortLabel: 'التدريس والتحضير',
-      customSubtitle: 'مواعيد مرنة',
+      customSubtitle: workWindowStr,
     };
   }
 
   const stationTimeSlots: Record<string, string> = {
-    COMMUTE_MORNING: `${suggestedWakeupTime} - 08:00`,
-    WORK_MICRO_SPRINT:
-      answers.activityType === 'office_job'
-        ? `${answers.workStartHour || 9}:00 - ${answers.workEndHour || 17}:00`
-        : '09:00 - 13:00',
-    GYM_ANCHOR: '16:30 - 18:00',
-    EVENING_SPRINT: '18:30 - 20:30',
-    RETROSPECTIVE_CHECKIN: '21:00 - 22:00',
+    COMMUTE_MORNING: `${suggestedWakeupTime} - ${String(wStart).padStart(2, '0')}:00`,
+    WORK_MICRO_SPRINT: workWindowStr,
+    GYM_ANCHOR: workoutWindowStr,
+    EVENING_SPRINT: `${String(Math.min(22, rawWorkoutHour + 2)).padStart(2, '0')}:00 - 21:30`,
+    RETROSPECTIVE_CHECKIN: '21:30 - 22:30',
     GRAND_REWARD_STATE: `${suggestedBedtime}+`,
   };
 

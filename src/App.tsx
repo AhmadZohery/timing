@@ -633,7 +633,7 @@ export function App() {
 
       {/* Dedicated Apple-Tier Live Capsule Bar ("الشريط الحكيم") */}
       {/* Placed in its own dedicated clear zone: zero floating overlap, zero obstruction */}
-      <div className="w-full flex justify-center py-2 px-3 relative z-20">
+      <div className="w-full flex justify-center py-2 px-3 empty:hidden relative z-20">
         <DynamicIslandHub
           currentStation={activeStation}
           userState={userState}

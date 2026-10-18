@@ -152,7 +152,7 @@ export const WeeklyBarakahReportModal: React.FC<WeeklyBarakahReportModalProps> =
           : `🕌 Prayers: ${weeklyData.totalPrayersOnTime} on-time (${weeklyData.totalPrayersInGroup} in congregation)\n📖 Quran Wird: ${weeklyData.totalQuranPages} pages (~${weeklyData.totalHasanat.toLocaleString()} estimated Hasanat)`);
 
     const text = isAr
-      ? `📊 بطاقة حصاد البركة الأسبوعي من «مِضمار» (LifeOS)
+      ? `📊 بطاقة حصاد البركة الأسبوعي من «مِضمار»
 👤 نمط المسار: ${persona.titleAr}
 🔥 شعلة الاستمرارية: ${streakDays} أيام متواصلة (دروع حماية: ${shields})
 💎 مؤشر نقاء وبركة الأسبوع: ${weeklyData.barakahIndex}%
@@ -165,7 +165,7 @@ ${worshipTxt}
 
 «اللَّهُمَّ بَارِكْ لَنَا فِي أَوْقَاتِنَا وَأَعْمَالِنَا وَسَعْيِنَا»
 #مِضمار #إتقان_وبركة`
-      : `📊 Weekly Barakah & Velocity Harvest Report (Midmar LifeOS)
+      : `📊 Weekly Barakah & Velocity Harvest Report (Midmar)
 👤 Lifestyle Persona: ${persona.titleEn}
 🔥 Consistency Streak: ${streakDays} days active (Shields: ${shields})
 💎 Weekly Barakah Index: ${weeklyData.barakahIndex}%
@@ -176,7 +176,7 @@ ${worshipTxt}
 🏋️ Strength & Movement: ${weeklyData.totalWorkouts} workout sessions
 🌙 Rest & Recovery: ${weeklyData.avgSleep} hrs avg sleep / night
 
-#Midmar #LifeOS #Barakah`;
+#Midmar #Barakah`;
 
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);

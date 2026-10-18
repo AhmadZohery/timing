@@ -492,7 +492,7 @@ ${actionText}`;
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white">
-                {isAr ? 'لوحة التقييم الدوري والتحفيز' : 'LifeOS Scorecard & Motivation'}
+                {isAr ? 'لوحة التقييم الدوري والتحفيز' : 'Midmar Scorecard & Motivation'}
               </h2>
               <p className="text-[11px] text-slate-300">
                 {isAr ? 'مؤشر توازن الحياة الحقيقي، تقارير الأسبوع والشهر، والتوجيه الذكي' : 'Daily, weekly & monthly holistic performance'}

@@ -74,7 +74,7 @@ export const DailyPrideTicketModal: React.FC<DailyPrideTicketModalProps> = ({
     ? `🌿 الركيزة الإيمانية: مستمرة بحمد الله وفضله (سرائر بين العبد وربه 🤍)`
     : `🕌 الصلوات المكتوبة: ${onTimePrayers}/5 في وقتها\n📖 الورد القرآني: ${quranPages} صفحة (${wirdPreset.titleAr})`;
 
-  const ticketText = `🎫 بطاقة حصاد اليوم من مِضمار (LifeOS)
+  const ticketText = `🎫 بطاقة حصاد اليوم من مِضمار
 📅 ${todayStr}
 👤 نمط المسار: ${persona.titleAr}
 

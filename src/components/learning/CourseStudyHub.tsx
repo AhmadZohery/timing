@@ -516,7 +516,7 @@ export const CourseStudyHub: React.FC<CourseStudyHubProps> = ({
 🎯 الحصة اليومية الموصى بها: ${activeMetrics.recommendedDailyUnits}
 ⏳ الموعد المستهدف: ${activeCourse.targetEndDate}
 🚀 الوتيرة الحالية: ${activeMetrics.currentPaceStatus === 'ahead' ? `متقدم بفائض (+${activeMetrics.surplusUnits})` : activeMetrics.currentPaceStatus === 'behind' ? `متأخر بمتراكم (-${activeMetrics.backlogUnits})` : 'على المسار بدقة'}
-- تم التخطيط عبر مِضمار (LifeOS)`;
+- تم التخطيط عبر مِضمار`;
 
     navigator.clipboard.writeText(summaryText);
     setIsCopied(true);
