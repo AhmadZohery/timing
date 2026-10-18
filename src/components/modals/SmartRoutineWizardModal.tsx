@@ -44,6 +44,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
         workoutPreference: 'gym_iron',
         workStartHour: 9,
         workEndHour: 17,
+        workoutStartHour: 18,
         targetSleepHours: 7,
         autoSuggestWakeup: true,
         customWakeupTime: '05:00',
@@ -75,7 +76,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
       });
     }
 
-    onRewardToast?.('🌟 تم اعتماد روتينك الذكي بنجاح وتحديث جميع محطات يومك!');
+    onRewardToast?.('🌟 تم اعتماد مواعيد العمل والرياضة والروتين اليومي بنجاح!');
     onClose();
   };
 
@@ -90,19 +91,19 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col max-h-[92dvh] overflow-hidden">
-        {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-slate-50/50 dark:bg-zinc-900/50 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+      <div className="relative z-10 w-full max-w-2xl rounded-[28px] modal-surface border border-white/15 flex flex-col max-h-[92dvh] overflow-hidden shadow-2xl">
+        {/* Header — Unified Hybrid 3D Celestial Stage */}
+        <div className="celestial-obsidian-stage text-white p-4 sm:p-5 border-b border-white/10 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-300/30 text-amber-300 flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-                المُعالج الذكي لبناء روتينك اليومي 🧭
+              <h2 className="text-sm sm:text-base font-bold text-white">
+                ضبط مواعيد العمل والرياضة والروتين اليومي 🧭
               </h2>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                أجب على أسئلة سريعة لنقترح لك جدولاً متناغماً تماماً مع واقعك ومواقيت الصلاة
+              <p className="text-[11px] text-zinc-300">
+                صمّم جدول يومك حسب مواعيد دوامك وراحتك ليتكيف التطبيق معك تلقائياً
               </p>
             </div>
           </div>
@@ -110,7 +111,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -137,17 +138,93 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
 
         {/* Content Body */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1">
-          {/* STEP 1: Activity & Life Nature */}
+          {/* STEP 1: Activity & Life Nature + Work Start/End Hours */}
           {step === 1 && (
             <div className="space-y-4 animate-fade-in">
               <div>
                 <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <span>1️⃣</span>
-                  <span>ما هي طبيعة نشاطك ويومك الأساسي؟</span>
+                  <span>طبيعة يومك ومواعيد العمل أو الدراسة ⏰</span>
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  اختر النمط الأقرب ليومك الحالي لنكيف المحطات والمفردات معك
+                  حدد نمطك وساعات دوامك حتى لا يقترح التطبيق وقت الرياضة أثناء انشغالك بالعمل
                 </p>
+              </div>
+
+              {/* Work Start & End Hours Quick Selector */}
+              <div className="p-4 rounded-2xl bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 dark:text-zinc-200 mb-1.5">
+                      🌅 بداية العمل / التركيز:
+                    </label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[
+                        { h: 7, label: '7 ص' },
+                        { h: 8, label: '8 ص' },
+                        { h: 9, label: '9 ص' },
+                        { h: 10, label: '10 ص' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.h}
+                          type="button"
+                          onClick={() => {
+                            soundSynth.playTactileClick();
+                            setAnswers({ ...answers, workStartHour: opt.h });
+                          }}
+                          className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            (answers.workStartHour ?? 9) === opt.h
+                              ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                              : 'bg-white/85 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 dark:text-zinc-200 mb-1.5">
+                      🌇 نهاية ساعات العمل:
+                    </label>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[
+                        { h: 15, label: '3 م' },
+                        { h: 16, label: '4 م' },
+                        { h: 17, label: '5 م' },
+                        { h: 18, label: '6 م' },
+                        { h: 19, label: '7 م' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.h}
+                          type="button"
+                          onClick={() => {
+                            soundSynth.playTactileClick();
+                            const nextWorkoutH =
+                              answers.workoutStartHour !== undefined &&
+                              answers.workoutStartHour >= (answers.workStartHour ?? 9) &&
+                              answers.workoutStartHour < opt.h
+                                ? Math.min(21, opt.h + 1)
+                                : answers.workoutStartHour;
+                            setAnswers({
+                              ...answers,
+                              workEndHour: opt.h,
+                              workoutStartHour: nextWorkoutH,
+                            });
+                          }}
+                          className={`py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            (answers.workEndHour ?? 17) === opt.h
+                              ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                              : 'bg-white/85 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -160,7 +237,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
                   },
                   {
                     id: 'freelance_remote',
-                    title: 'مستقل / صانع محتوى (Freelancer)',
+                    title: 'مستقل / عمل حر (Freelancer)',
                     desc: 'مواعيد عمل مرنة ومنزلية مع تسليم مشاريع للعملاء',
                     icon: '💻',
                   },
@@ -184,7 +261,7 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
                   },
                   {
                     id: 'seeking_flexible',
-                    title: 'متفرغ حالياً / باحث عن شغف (بدون وظيفة)',
+                    title: 'متفرغ حالياً / باحث عن شغف',
                     desc: 'تنظيم اليوم والصلوات والمهارات الشخصية دون ضغط وظيفي',
                     icon: '🕊️',
                   },
@@ -476,6 +553,38 @@ export const SmartRoutineWizardModal: React.FC<SmartRoutineWizardModalProps> = (
                   );
                 })}
               </div>
+
+              {answers.workoutPreference !== 'none_rest' && (
+                <div className="p-4 rounded-2xl bento-3d-amber border border-amber-300/60 dark:border-amber-800/40 space-y-2.5">
+                  <label className="block text-xs font-bold text-slate-900 dark:text-amber-100">
+                    ⏰ ما هو الموعد المناسب لرياضتك اليومية؟ (خارج ساعات عملك)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { h: 6, label: '🌅 صباحاً (6:00 ص)' },
+                      { h: Math.max(18, (answers.workEndHour ?? 17) + 1), label: `🌇 بعد العمل (${Math.max(18, (answers.workEndHour ?? 17) + 1) - 12}:00 م)` },
+                      { h: 20, label: '🌙 مساءً (8:00 م)' },
+                      { h: 21, label: '🌌 ليلاً (9:00 م)' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.h}
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setAnswers({ ...answers, workoutStartHour: opt.h });
+                        }}
+                        className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          (answers.workoutStartHour ?? 18) === opt.h
+                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                            : 'bg-white/85 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 border border-amber-200/70 dark:border-zinc-700'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

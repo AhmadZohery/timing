@@ -35,9 +35,9 @@ export const ANOMALY_REASONS = [
 export const DEFAULT_SCHEDULE_PREFERENCES: UserSchedulePreferences = {
   wakeTime: '05:00',
   sleepTime: '23:00',
-  workStartTime: '08:30',
-  workDurationHours: 4,
-  sportsPreferredTime: 'afternoon',
+  workStartTime: '09:00',
+  workDurationHours: 8,
+  sportsPreferredTime: 'evening',
   weeklySportsPlan: {
     mon: 'gym',
     tue: 'boxing',

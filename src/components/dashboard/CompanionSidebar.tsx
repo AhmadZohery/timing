@@ -135,8 +135,8 @@ export const CompanionSidebar: React.FC<CompanionSidebarProps> = ({
             </div>
             <span>{isAr ? 'لوحة التقييم الدوري والتحفيز 📊' : 'Evaluation & Scorecard 📊'}</span>
           </div>
-          <span className="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-[#e2defc] text-[#141517]">
-            LifeOS
+          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#e2defc] text-[#141517]">
+            {isAr ? 'حصادك' : 'Report'}
           </span>
         </button>
       )}

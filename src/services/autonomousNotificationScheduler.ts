@@ -503,6 +503,9 @@ class AutonomousNotificationScheduler {
       // ----------------------------------------------------
       if (settings?.scheduleStationRemindersEnabled ?? true) {
         const schedulePrefs = scheduleService.getPreferences();
+        const routineAns = userState?.settings?.dailyRoutineAnswers;
+        const userWorkStart = routineAns?.workStartHour ?? 9;
+        const userWorkEnd = routineAns?.workEndHour ?? 17;
 
         const scheduleDays = [
           { date: now, dateStr: todayDateStr },
@@ -510,11 +513,13 @@ class AutonomousNotificationScheduler {
         ];
 
         for (const sd of scheduleDays) {
-          // Work sprint start
-          if (schedulePrefs.workStartTime) {
-            const [wH, wM] = schedulePrefs.workStartTime.split(':').map(Number);
+          // Work sprint start (respects user's configured workStartHour)
+          if (routineAns?.activityType !== 'student' || routineAns?.workStartHour !== undefined || schedulePrefs.workStartTime) {
+            const [prefH, prefM] = (schedulePrefs.workStartTime || '09:00').split(':').map(Number);
+            const wH = routineAns?.workStartHour !== undefined ? routineAns.workStartHour : (prefH || 9);
+            const wM = routineAns?.workStartHour !== undefined ? 0 : (prefM || 0);
             const workStartTime = new Date(sd.date);
-            workStartTime.setHours(wH || 8, wM || 30, 0, 0);
+            workStartTime.setHours(wH, wM, 0, 0);
             if (workStartTime.getTime() > now.getTime()) {
               alarms.push({
                 id: `station_work_${sd.dateStr}`,
@@ -528,29 +533,38 @@ class AutonomousNotificationScheduler {
             }
           }
 
-          // Sports / Gym Anchor
-          const sportHour =
-            schedulePrefs.sportsPreferredTime === 'morning'
-              ? 7
-              : schedulePrefs.sportsPreferredTime === 'evening'
-              ? 18
-              : schedulePrefs.sportsPreferredTime === 'night'
-              ? 20
-              : 16;
-          const sportTime = new Date(sd.date);
-          sportTime.setHours(sportHour, 30, 0, 0);
-          if (sportTime.getTime() > now.getTime()) {
-            const plannedSport = scheduleService.getSportForDay(sd.date);
-            if (plannedSport !== 'rest') {
-              alarms.push({
-                id: `station_gym_${sd.dateStr}`,
-                title: `🏋️‍♂️ موعد شحذ الجسد والرياضة (${plannedSport})`,
-                body: 'حان موعد محطة اللياقة وتجديد النشاط.. الرياضة وقود صفائك الذهني ودرع صحتك.',
-                timestampMs: sportTime.getTime(),
-                tag: 'station-gym',
-                url: '/?station=GYM_ANCHOR',
-                icon: DEFAULT_ALARM_ICON,
-              });
+          // Sports / Gym Anchor (respects user's workoutStartHour and NEVER fires during work hours!)
+          const isRestPref = routineAns?.workoutPreference === 'none_rest' || routineAns?.workoutStartHour === -1;
+          if (!isRestPref) {
+            let sportHour =
+              routineAns?.workoutStartHour !== undefined && routineAns.workoutStartHour >= 0
+                ? routineAns.workoutStartHour
+                : schedulePrefs.sportsPreferredTime === 'morning'
+                ? 6
+                : schedulePrefs.sportsPreferredTime === 'night'
+                ? 20
+                : Math.max(18, userWorkEnd + 1);
+
+            // Safety guard: if sportHour falls inside active work hours, push it to 1 hour after workEndHour
+            if (sportHour >= userWorkStart && sportHour < userWorkEnd) {
+              sportHour = Math.min(22, userWorkEnd + 1);
+            }
+
+            const sportTime = new Date(sd.date);
+            sportTime.setHours(sportHour, 0, 0, 0);
+            if (sportTime.getTime() > now.getTime()) {
+              const plannedSport = scheduleService.getSportForDay(sd.date);
+              if (plannedSport !== 'rest') {
+                alarms.push({
+                  id: `station_gym_${sd.dateStr}`,
+                  title: `🏋️‍♂️ موعد شحذ الجسد والرياضة (${plannedSport})`,
+                  body: 'حان موعد محطة اللياقة وتجديد النشاط بعد يومك.. الرياضة وقود صفائك الذهني ودرع صحتك.',
+                  timestampMs: sportTime.getTime(),
+                  tag: 'station-gym',
+                  url: '/?station=GYM_ANCHOR',
+                  icon: DEFAULT_ALARM_ICON,
+                });
+              }
             }
           }
 

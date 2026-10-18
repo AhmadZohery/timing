@@ -524,7 +524,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
         )}
       </AnimatePresence>
 
-      <div className={`relative z-50 ${hasActiveMobileLiveEvent ? 'flex' : 'hidden lg:flex'} justify-center w-full px-2`}>
+      <div className={`relative z-50 ${hasActiveMobileLiveEvent ? 'flex py-1.5' : currentStation !== 'HOME' ? 'hidden lg:flex lg:py-1.5' : 'hidden'} justify-center w-full px-2`}>
         {/* Precision Stately Jewel Capsule - Proportionately Sized (~320-350px) with Zero Bloat */}
         <motion.div
           ref={containerRef}
@@ -705,7 +705,7 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-gradient-to-tr from-emerald-400 to-teal-300" />
                   </span>
                   <span className="text-[11px] font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-amber-200 uppercase tracking-wider font-mono">
-                    {isAr ? 'الجزيرة الحية • مضمار Live' : 'LifeOS Dynamic Sanctuary'}
+                    {isAr ? 'مِضمار • البوصلة الحية' : 'Midmar Live Sanctuary'}
                   </span>
                 </div>
 

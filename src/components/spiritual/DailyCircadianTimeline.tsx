@@ -74,6 +74,14 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
   const isLearner = routineAns?.activityType === 'dedicated_learning' || userState?.settings?.lifestylePersona === 'dedicated_learner';
   const isRemoteTeacher = routineAns?.activityType === 'remote_teacher' || userState?.settings?.lifestylePersona === 'remote_teacher_flexible';
 
+  const workStartH = routineAns?.workStartHour ?? 9;
+  const workEndH = routineAns?.workEndHour ?? 17;
+  const workoutStartH =
+    routineAns?.workoutStartHour !== undefined && routineAns.workoutStartHour >= 0
+      ? routineAns.workoutStartHour
+      : Math.max(18, workEndH);
+  const fmtH = (h: number) => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? '30' : '00'}`;
+
   const phases: CircadianPhase[] = [
     {
       id: 'fajr_morning',
@@ -81,9 +89,9 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       subtitle: routineAns?.commuteMinutes && routineAns.commuteMinutes > 0
         ? `صلاة الفجر، أذكار الصباح، والمواصلات (${routineAns.commuteMinutes} دقيقة)`
         : 'صلاة الفجر، أذكار الصباح، ورد سورة البقرة والسكينة المنزلية',
-      timeRange: '05:00 - 08:30',
+      timeRange: `05:00 - ${fmtH(workStartH)}`,
       startHour: 5,
-      endHour: 8.5,
+      endHour: workStartH,
       icon: Sunrise,
       accentColor: 'text-[#fef3c7] bg-[#141517] border-[#141517]',
       cardSurface: 'bg-[#fef3c7] text-[#141517] border-amber-300/70',
@@ -101,7 +109,7 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
         ? 'جلسات التعلم الذاتي وبناء المهارات'
         : isRemoteTeacher
         ? 'الحصص والتدريس التفاعلي المرن'
-        : 'التركيز والعمل العميق',
+        : 'ساعات العمل والتركيز العميق',
       subtitle: rhythm.isRestDay
         ? 'استجمام وتجديد الطاقة وحماية مسار الراحة'
         : rhythm.isHalfDay
@@ -112,10 +120,10 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
         ? 'دراسة الموضوع المختار، حل التطبيقات وتوثيق الفوائد'
         : isRemoteTeacher
         ? 'شرح الدروس للطلاب، إعداد المناهج والمتابعة'
-        : 'جلسات العمل ذات الأولوية القصوى والإنتاجية',
-      timeRange: '08:30 - 12:30',
-      startHour: 8.5,
-      endHour: 12.5,
+        : 'أشواط التركيز العميق وإنجاز أولويات العمل في موعدك المحدد',
+      timeRange: `${fmtH(workStartH)} - ${fmtH(workEndH)}`,
+      startHour: workStartH,
+      endHour: workEndH,
       icon: rhythm.isRestDay ? Coffee : Briefcase,
       accentColor: 'text-[#e0f2fe] bg-[#141517] border-[#141517]',
       cardSurface: 'bg-[#e0f2fe] text-[#141517] border-sky-300/70',
@@ -124,11 +132,11 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
     },
     {
       id: 'dhuhr_recovery',
-      title: 'الظهر والقيلولة النبوية',
-      subtitle: 'صلاة الظهر، قيلولة الـ 20 دقيقة لاستعادة النشاط',
-      timeRange: '12:30 - 15:30',
+      title: 'استراحة الظهيرة وتجديد الطاقة',
+      subtitle: 'صلاة الظهر، استراحة قصيرة أو قيلولة لاستعادة صفاء الذهن أثناء اليوم',
+      timeRange: '12:30 - 13:30',
       startHour: 12.5,
-      endHour: 15.5,
+      endHour: 13.5,
       icon: Coffee,
       accentColor: 'text-[#bce8c2] bg-[#141517] border-[#141517]',
       cardSurface: 'bg-[#bce8c2] text-[#141517] border-[#1eb814]/30',
@@ -136,23 +144,23 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
     },
     {
       id: 'afternoon_gym',
-      title: routineAns?.workoutPreference === 'none_rest'
-        ? 'العصر والاسترخاء والعناية الذاتية'
+      title: routineAns?.workoutPreference === 'none_rest' || routineAns?.workoutStartHour === -1
+        ? 'ما بعد العمل والاسترخاء الذاتي'
         : routineAns?.workoutPreference === 'home_calisthenics'
-        ? 'العصر واللياقة المنزلية'
+        ? 'وقت اللياقة المنزلية وتجديد النشاط'
         : routineAns?.workoutPreference === 'outdoor_walk'
-        ? 'العصر والمشي وتجديد الهواء'
-        : 'العصر وتجديد الإندورفين',
-      subtitle: routineAns?.workoutPreference === 'none_rest'
-        ? 'صلاة العصر، جلسة راحة وشاي هادئ وعناية شخصية'
+        ? 'وقت المشي وتجديد الهواء'
+        : 'وقت الرياضة وتجديد النشاط بعد العمل',
+      subtitle: routineAns?.workoutPreference === 'none_rest' || routineAns?.workoutStartHour === -1
+        ? 'استراحة ما بعد العمل، جلسة هادئة وعناية شخصية'
         : routineAns?.workoutPreference === 'home_calisthenics'
-        ? 'صلاة العصر، تمارين لياقة وتمدد خفيف في البيت'
+        ? 'تمارين لياقة وتمدد خفيف في البيت في الموعد المناسب لك'
         : routineAns?.workoutPreference === 'outdoor_walk'
-        ? 'صلاة العصر، مشي وتصفية الذهن واستنشاق الأكسجين'
-        : 'صلاة العصر، التمارين البدنية، وجلسات المساء',
-      timeRange: '15:30 - 18:30',
-      startHour: 15.5,
-      endHour: 18.5,
+        ? 'مشي وتصفية الذهن واستنشاق الأكسجين بعد انتهاء العمل'
+        : 'التمارين البدنية وشحذ الطاقة في الموعد المخصص لرياضتك',
+      timeRange: `${fmtH(workoutStartH)} - ${fmtH(Math.min(22, workoutStartH + 1.5))}`,
+      startHour: workoutStartH,
+      endHour: Math.min(22, workoutStartH + 1.5),
       icon: Zap,
       accentColor: 'text-[#fde6d8] bg-[#141517] border-[#141517]',
       cardSurface: 'bg-[#fde6d8] text-[#141517] border-[#ff5500]/25',
@@ -160,11 +168,11 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
     },
     {
       id: 'maghrib_reflection',
-      title: 'المغرب والمراجعة اليومية',
-      subtitle: 'صلاة المغرب، تدوين الفكرة الذهبية وإنجازات اليوم',
-      timeRange: '18:30 - 20:30',
-      startHour: 18.5,
-      endHour: 20.5,
+      title: 'المساء والمراجعة اليومية',
+      subtitle: 'تدوين الفكرة الذهبية وإنجازات اليوم والجلوس مع الأهل',
+      timeRange: '19:30 - 21:00',
+      startHour: 19.5,
+      endHour: 21.0,
       icon: Sunset,
       accentColor: 'text-[#fce2e6] bg-[#141517] border-[#141517]',
       cardSurface: 'bg-[#fce2e6] text-[#141517] border-rose-300/70',
@@ -285,7 +293,7 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       };
     }
 
-    if (currentTimeDec >= 9 && currentTimeDec < 13) {
+    if (currentTimeDec >= workStartH && currentTimeDec < workEndH) {
       if (rhythm.isRestDay) {
         return {
           title: `استجمام وتجديد الطاقة (${rhythm.dayNameAr})`,
@@ -296,9 +304,23 @@ export const DailyCircadianTimeline: React.FC<DailyCircadianTimelineProps> = ({
       }
       return {
         title: rhythm.isHalfDay ? `نصف يوم عمل ذكي (${rhythm.dayNameAr})` : 'جلسة عمل وتركيز عميق (Deep Work Session)',
-        detail: rhythm.isHalfDay ? 'إنجاز أهم مهمتين فقط لإنهاء يومك مبكراً' : 'أنجز أولويتك الكبرى اليوم قبل استنزاف طاقتك الإدراكية',
+        detail: rhythm.isHalfDay ? 'إنجاز أهم مهمتين فقط لإنهاء يومك مبكراً' : 'أنجز أولويتك الكبرى اليوم خلال ساعات عملك المحددة',
         cta: 'بدء جلسة العمل ⚡',
         action: () => onSelectStation('WORK_MICRO_SPRINT'),
+      };
+    }
+
+    if (
+      routineAns?.workoutPreference !== 'none_rest' &&
+      routineAns?.workoutStartHour !== -1 &&
+      currentTimeDec >= workoutStartH &&
+      currentTimeDec < workoutStartH + 2
+    ) {
+      return {
+        title: 'مرساة النشاط البدني وتجديد الطاقة',
+        detail: 'حان الموعد المخصص لرياضتك اليومية بعد انتهاء ساعات العمل',
+        cta: 'بدء محطة الرياضة 🏋️',
+        action: () => onSelectStation('GYM_ANCHOR'),
       };
     }
 

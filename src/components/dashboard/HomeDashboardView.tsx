@@ -57,7 +57,7 @@ import { ActiveStudyCourseWidget } from './ActiveStudyCourseWidget';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
 import { getHijriDateDetails } from '../../utils/prayerCalculator';
-import { awardSpiritualHabitPoints } from '../../utils/gamification';
+import { awardSpiritualHabitPoints, getBiologicalDate, upsertDailyLog } from '../../utils/gamification';
 import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
 import { FridayKahfModal } from '../spiritual/FridayKahfModal';
 import { FlexibleQuranTrackerModal } from '../spiritual/FlexibleQuranTrackerModal';
@@ -313,8 +313,75 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     );
   };
 
-  // Determine biological time of day
-  const isFajrMorning = currentHour >= 4 && currentHour < 8;
+  // Personalized Work & Workout Schedule Engine (never interrupts work hours with Gym!)
+  const routineAns = userState?.settings?.dailyRoutineAnswers;
+  const userWorkStartHour = routineAns?.workStartHour ?? 9;
+  const userWorkEndHour = routineAns?.workEndHour ?? 17;
+  const userWorkoutStartHour =
+    routineAns?.workoutStartHour !== undefined
+      ? routineAns.workoutStartHour
+      : Math.max(18, userWorkEndHour);
+
+  const [isQuickScheduleOpen, setIsQuickScheduleOpen] = useState(false);
+
+  const todayBioDate = getBiologicalDate();
+  const activeManualOverride: StationId | null =
+    routineAns?.manualStationOverride && routineAns.manualStationOverride.date === todayBioDate
+      ? routineAns.manualStationOverride.stationId
+      : null;
+
+  const handleSaveScheduleConfig = async (patch: Partial<NonNullable<UserState['settings']['dailyRoutineAnswers']>>) => {
+    soundSynth.playCompletionChime();
+    haptic.vibrateLight();
+    const currentAns = userState?.settings?.dailyRoutineAnswers || {
+      activityType: 'office_job' as const,
+      commuteMinutes: 0,
+      cooksFood: false,
+      cookingWindow: 'pre_dhuhr' as const,
+      cookingMinutes: 60,
+      workoutPreference: 'gym_iron' as const,
+      workStartHour: 9,
+      workEndHour: 17,
+      workoutStartHour: 18,
+      targetSleepHours: 7,
+      autoSuggestWakeup: true,
+    };
+    const nextAns = { ...currentAns, ...patch };
+    await db.user_state.update('current_user', {
+      'settings.dailyRoutineAnswers': nextAns,
+    });
+    if (nextAns.workStartHour !== undefined || nextAns.workEndHour !== undefined || nextAns.workoutStartHour !== undefined) {
+      const wStart = nextAns.workStartHour ?? 9;
+      const wEnd = nextAns.workEndHour ?? 17;
+      const woStart = nextAns.workoutStartHour ?? 18;
+      scheduleService.savePreferences({
+        workStartTime: `${String(wStart).padStart(2, '0')}:00`,
+        workDurationHours: Math.max(1, wEnd - wStart),
+        sportsPreferredTime:
+          woStart >= 5 && woStart < 11
+            ? 'morning'
+            : woStart >= 20
+            ? 'night'
+            : 'evening',
+      });
+    }
+    onRewardToast(
+      isAr
+        ? '⏰ تم تحديث مواعيد العمل والرياضة بنجاح!'
+        : '⏰ Work & workout schedule updated!'
+    );
+  };
+
+  // Determine biological & personalized time windows
+  const isFajrMorning = currentHour >= 4 && currentHour < userWorkStartHour;
+  const isWorkWindow = currentHour >= userWorkStartHour && currentHour < userWorkEndHour;
+  const isNoonBreak = currentHour === 12 || currentHour === 13;
+  const isWorkoutWindow =
+    routineAns?.workoutPreference !== 'none_rest' &&
+    userWorkoutStartHour !== -1 &&
+    !isWorkWindow &&
+    currentHour >= userWorkoutStartHour &&
+    currentHour < userWorkoutStartHour + 2;
   const isForenoon = currentHour >= 8 && currentHour < 12;
   const isNoon = currentHour >= 12 && currentHour < 15;
   const isAsr = currentHour >= 15 && currentHour < 18;
@@ -328,7 +395,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       if (isFajrMorning) return `صباح النور والبركة${nameSuffix}`;
       if (isForenoon) return `طاب يومك وبورك مسعاك${nameSuffix}`;
       if (isNoon) return `ظهيرة موفقة ومفعمة بالإنجاز${nameSuffix}`;
-      if (isAsr) return `مساء الهمة والنشاط${nameSuffix}`;
+      if (isAsr) return `مساء الهمة والتركيز${nameSuffix}`;
       if (isMaghrib) return `مساء الطمأنينة وحصاد الإنجاز${nameSuffix}`;
       return `ليلة هادئة ومباركة${nameSuffix}`;
     }
@@ -336,25 +403,25 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     if (isFajrMorning) return `Good morning & barakah${nameSuffix}`;
     if (isForenoon) return `High momentum & focus${nameSuffix}`;
     if (isNoon) return `Productive afternoon & steady flow${nameSuffix}`;
-    if (isAsr) return `Vibrant evening & energy${nameSuffix}`;
+    if (isAsr) return `Focused afternoon & steady flow${nameSuffix}`;
     if (isMaghrib) return `Peaceful dusk & reflection${nameSuffix}`;
     return `Serene & restful night${nameSuffix}`;
   }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, activeProfile?.name, isAr]);
 
-  // Eloquent motivational message
+  // Eloquent motivational message respecting user's work & workout schedule
   const motivationalMessage = useMemo(() => {
     if (isAr) {
       if (isFajrMorning) {
         return 'أقبل عليك يومٌ جديد كصفحة بيضاء ناصعة لم يُكتب فيها إلا توكلك على الله. ابدأ بورد القرآن العظيم وأذكار الصباح، فمن بدأ يومه بالله كفاه الله سائر أمره.';
       }
-      if (isForenoon) {
-        return 'أنت الآن في ذروة النشاط الذهني؛ ركّز في أهدافك الكبرى، وادخل شوط التركيز الأول دون مشتتات. ساعةٌ من التركيز التام تسبق يوماً من التردد.';
+      if (isWorkWindow) {
+        if (isNoonBreak) {
+          return 'تفيأ ظلال صلاة الظهر واسترح قليلاً لتجديد صفاء الذهن، ثم واصل ساعات عملك وإنتاجيتك بهمة عالية وتركيز متزن.';
+        }
+        return `أنت الآن ضمن ساعات عملك وتركيزك (${userWorkStartHour}:00 – ${userWorkEndHour}:00)؛ ركّز في أولوياتك الكبرى وأنجز مهامك في أشواط تركيز عميقة دون تشتت.`;
       }
-      if (isNoon) {
-        return 'تفيأ ظلال صلاة الظهر وسِنة القيلولة النبوية (20 دقيقة)؛ فإنها تفرغ الإجهاد الإدراكي وتجدد صفاء الذهن لمواصلة السعي بهمة عالية.';
-      }
-      if (isAsr) {
-        return 'حافظ على صلاة العصر فإنها الصلاة الوسطى، ثم اشحن همتك في الجيم مستمعاً لأثير السيرة النبوية وبطولات الصحابة؛ فالمؤمن القوي أحب إلى الله.';
+      if (isWorkoutWindow) {
+        return 'انتهت ساعات العمل وحان موعد شحذ الجسد وتجديد النشاط البدني؛ انطلق لتمرينك مستمعاً لأثير السيرة النبوية فالمؤمن القوي أحب إلى الله.';
       }
       if (isMaghrib) {
         return 'اقترب اليوم من ختامه؛ دوّن فكرتك الذهبية وإنجازاتك، واحمد الله على التوفيق والسداد، واستعد لمراجعة اليوم.';
@@ -363,24 +430,21 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     }
 
     if (isFajrMorning) {
-      return 'A pristine new day unfolds. Anchor your morning in the Quran and daily remembrance; whoever begins their day with Allah finds all their affairs guided and sustained.';
+      return 'A pristine new day unfolds. Anchor your morning in the Quran and daily remembrance; whoever begins their day with Allah finds all their affairs guided.';
     }
-    if (isForenoon) {
-      return 'You are in your prime cognitive window. Zero in on your highest-leverage goal and enter your first deep work sprint without distraction. One hour of pure focus outweighs a full day of hesitation.';
+    if (isWorkWindow) {
+      return `You are in your scheduled work & focus window (${userWorkStartHour}:00 – ${userWorkEndHour}:00). Zero in on your highest-leverage priorities without distraction.`;
     }
-    if (isNoon) {
-      return 'Pause under the shade of Dhuhr prayer and a restorative 20-minute sunnah power nap. It resets cognitive bandwidth for relentless afternoon execution.';
-    }
-    if (isAsr) {
-      return 'Preserve Asr, the middle prayer, then charge your vitality in training while tuning into inspiring prophetic history. A strong believer is beloved to Allah.';
+    if (isWorkoutWindow) {
+      return 'Work hours are complete—time to recharge your physical vitality and tune into inspiring prophetic history.';
     }
     if (isMaghrib) {
-      return 'The day winds down into harvest. Capture your golden insights, express gratitude for breakthroughs granted, and prepare for a mindful evening sprint.';
+      return 'The day winds down into harvest. Capture your golden insights, express gratitude for breakthroughs granted, and prepare for a mindful evening.';
     }
-    return 'Release the weights of the day. Recite Surah Al-Mulk to protect and illuminate the night, glorify your Lord, and step into restorative sleep with a peaceful heart.';
-  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, isAr]);
+    return 'Release the weights of the day. Recite Surah Al-Mulk to illuminate the night, glorify your Lord, and step into restorative sleep.';
+  }, [isFajrMorning, isWorkWindow, isNoonBreak, isWorkoutWindow, isMaghrib, userWorkStartHour, userWorkEndHour, isAr]);
 
-  // Current suggested Station based on real hour
+  // Current suggested Station based on personalized work/workout schedule or 1-tap manual override
   const currentSuggestedStation = useMemo((): {
     id: StationId;
     title: string;
@@ -390,56 +454,37 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
     badge: string;
     badgeColor: string;
   } => {
-    if (isFajrMorning) {
-      return {
-        id: 'COMMUTE_MORNING',
-        title: isAr ? 'ورد الصباح وتلاوة القرآن الكريم' : 'Morning Quran & Sunnah Wird',
-        description: isAr
-          ? 'قراءة وِرد اليوم من سورة البقرة، أذكار الصباح، وحرز التوحيد (100 مرة).'
-          : 'Read daily Quran portion, morning fortress adhkar, and 100x tawheed protection shield.',
-        cta: isAr ? 'انطلق إلى محطة القرآن الكريم 📖' : 'Enter Quran Station 📖',
-        icon: BookOpen,
-        badge: isAr ? 'المحطة 1 • نافذة الصباح الباكر' : 'Station 1 • Early Morning Window',
-        badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
-      };
-    }
-    if (isForenoon || isNoon) {
-      return {
-        id: 'WORK_MICRO_SPRINT',
-        title: isAr ? 'شوط التركيز والعمل العميق' : 'Deep Work & Focus Sprint',
-        description: isAr
-          ? 'إنجاز المهام ذات الأولوية القصوى، وتفعيل مؤقت التركيز (20 دقيقة) بلا مقاطعة.'
-          : 'Crush high-priority tasks and activate the 20-minute zero-interruption focus sprint.',
-        cta: isAr ? 'انطلق إلى شوط التركيز ⚡' : 'Start Focus Sprint ⚡',
-        icon: Briefcase,
-        badge: isAr ? 'المحطة 2 • ذروة الإنتاجية والإتقان' : 'Station 2 • Peak Productivity Window',
-        badgeColor: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
-      };
-    }
-    if (isAsr) {
+    const buildGymStation = (isManual = false) => {
       const movementCat =
         (typeof window !== 'undefined'
           ? localStorage.getItem('midmar_movement_cat')
           : 'gym') || 'gym';
+      const badgeLabel = isManual
+        ? isAr
+          ? 'تحديد يدوي • محطة الرياضة والنشاط'
+          : 'Manual Mode • Sport Anchor'
+        : isAr
+        ? `موعد الرياضة المفضل (${userWorkoutStartHour > 12 ? `${userWorkoutStartHour - 12} م` : `${userWorkoutStartHour} ص`})`
+        : 'Scheduled Workout Window';
 
       if (movementCat === 'combat') {
         return {
-          id: 'GYM_ANCHOR',
+          id: 'GYM_ANCHOR' as StationId,
           title: isAr
             ? '🥊 جولات الملاكمة والفنون القتالية مع السيرة'
             : 'Boxing & Combat Sports with Faith Stream',
           description: isAr
-            ? 'مؤقت الجولات الاحترافي (ملاكمة / موي تاي / جيوجيتسو) مع أثير السيرة النبوية وبطولات الصحابة.'
+            ? 'مؤقت الجولات الاحترافي مع أثير السيرة النبوية وبطولات الصحابة.'
             : 'Pro round timer & combat drills with prophetic biography stream.',
           cta: isAr ? 'انطلق إلى حلبة النزال 🥊' : 'Enter Combat Arena 🥊',
           icon: Dumbbell,
-          badge: isAr ? 'المحطة 3 • حلبة القوة والشجاعة' : 'Station 3 • Combat Arena',
+          badge: badgeLabel,
           badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
         };
       }
       if (movementCat === 'football') {
         return {
-          id: 'GYM_ANCHOR',
+          id: 'GYM_ANCHOR' as StationId,
           title: isAr
             ? '⚽ مباراة كرة القدم والبادل واللياقة'
             : 'Football & Padel Match Tracker',
@@ -448,13 +493,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             : 'Track goals, assists, match intensity and physical performance.',
           cta: isAr ? 'انطلق إلى سجل المباراة ⚽' : 'Track Match ⚽',
           icon: Dumbbell,
-          badge: isAr ? 'المحطة 3 • مرساة اللياقة والمباريات' : 'Station 3 • Match Fitness',
+          badge: badgeLabel,
           badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
         };
       }
       if (movementCat === 'fitness_class') {
         return {
-          id: 'GYM_ANCHOR',
+          id: 'GYM_ANCHOR' as StationId,
           title: isAr
             ? '🔥 كلاس فيتنس وتدريب جماعي مكثف'
             : 'High-Intensity Fitness Class',
@@ -463,50 +508,129 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             : 'Cardio conditioning, calories burning and high energy faith stream.',
           cta: isAr ? 'انطلق إلى كلاس الفيتنس 🔥' : 'Start Fitness Class 🔥',
           icon: Dumbbell,
-          badge: isAr ? 'المحطة 3 • حرق ودهون وهمة' : 'Station 3 • High Conditioning',
+          badge: badgeLabel,
           badgeColor: 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30',
         };
       }
-
       return {
-        id: 'GYM_ANCHOR',
+        id: 'GYM_ANCHOR' as StationId,
         title: isAr
           ? '🏋️ النشاط البدني وأثير السيرة النبوية (الجيم)'
           : 'Strength Training & Faith Stream (Gym)',
         description: isAr
-          ? 'صلاة العصر، تمارين الأوزان، وشحن العزيمة مع أثير السيرة النبوية والهمم العالية.'
-          : 'Afternoon prayer, weightlifting routines & inspiring prophetic history.',
+          ? 'تمارين القوة واللياقة وشحن العزيمة مع أثير السيرة النبوية في موعدك المحدد.'
+          : 'Weightlifting routines & inspiring prophetic history at your scheduled time.',
         cta: isAr ? 'انطلق إلى الجيم مع السيرة النبوية 🎙️' : 'Start Gym with Faith Stream 🎙️',
         icon: Dumbbell,
-        badge: isAr ? 'المحطة 3 • مرساة القوة والهمة' : 'Station 3 • Strength Anchor',
+        badge: badgeLabel,
         badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
       };
-    }
-    if (isMaghrib) {
-      return {
-        id: 'EVENING_SPRINT',
-        title: isAr ? 'شوط المساء والتعلم الذاتي' : 'Evening Sprint & Lifelong Learning',
-        description: isAr
-          ? 'صلاة المغرب، مشاريعك وتطلعاتك الشخصية، والقراءة والمطالعة النافعة.'
-          : 'Maghrib prayer, personal high-leverage projects, and reflective reading.',
-        cta: isAr ? 'انطلق إلى شوط المساء 💻' : 'Launch Evening Sprint 💻',
-        icon: Laptop,
-        badge: isAr ? 'المحطة 4 • جلسة البناء والتعلم' : 'Station 4 • Creative Build Session',
-        badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
-      };
-    }
-    return {
-      id: 'RETROSPECTIVE_CHECKIN',
+    };
+
+    const buildWorkStation = (isManual = false) => ({
+      id: 'WORK_MICRO_SPRINT' as StationId,
+      title: isAr ? 'شوط التركيز والعمل العميق' : 'Deep Work & Focus Sprint',
+      description: isAr
+        ? 'إنجاز المهام ذات الأولوية القصوى، وتفعيل مؤقت التركيز (20 دقيقة) بلا مقاطعة.'
+        : 'Crush high-priority tasks and activate the 20-minute zero-interruption focus sprint.',
+      cta: isAr ? 'انطلق إلى شوط التركيز ⚡' : 'Start Focus Sprint ⚡',
+      icon: Briefcase,
+      badge: isManual
+        ? isAr
+          ? 'تحديد يدوي • وضع العمل والتركيز الآن'
+          : 'Manual Mode • Deep Work Active'
+        : isAr
+        ? `ساعات العمل والتركيز (${userWorkStartHour}:00 - ${userWorkEndHour}:00)`
+        : `Work & Focus Window (${userWorkStartHour}:00 - ${userWorkEndHour}:00)`,
+      badgeColor: 'bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30',
+    });
+
+    const buildMorningStation = (isManual = false) => ({
+      id: 'COMMUTE_MORNING' as StationId,
+      title: isAr ? 'ورد الصباح وتلاوة القرآن الكريم' : 'Morning Quran & Sunnah Wird',
+      description: isAr
+        ? 'قراءة وِرد اليوم من سورة البقرة، أذكار الصباح، وحرز التوحيد (100 مرة).'
+        : 'Read daily Quran portion, morning fortress adhkar, and 100x tawheed protection shield.',
+      cta: isAr ? 'انطلق إلى محطة القرآن الكريم 📖' : 'Enter Quran Station 📖',
+      icon: BookOpen,
+      badge: isManual
+        ? isAr
+          ? 'تحديد يدوي • محطة الصباح والقرآن'
+          : 'Manual Mode • Morning Wird'
+        : isAr
+        ? 'المحطة 1 • نافذة الصباح الباكر'
+        : 'Station 1 • Early Morning Window',
+      badgeColor: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+    });
+
+    const buildEveningStation = (isManual = false) => ({
+      id: 'EVENING_SPRINT' as StationId,
+      title: isAr ? 'شوط المساء والتعلم الذاتي' : 'Evening Sprint & Lifelong Learning',
+      description: isAr
+        ? 'مشاريعك وتطلعاتك الشخصية، تطوير المهارات، والقراءة والمطالعة النافعة.'
+        : 'Personal high-leverage projects, skill building, and reflective reading.',
+      cta: isAr ? 'انطلق إلى شوط المساء 💻' : 'Launch Evening Sprint 💻',
+      icon: Laptop,
+      badge: isManual
+        ? isAr
+          ? 'تحديد يدوي • شوط المساء والتعلم'
+          : 'Manual Mode • Evening Sprint'
+        : isAr
+        ? 'المحطة 4 • جلسة البناء والتعلم'
+        : 'Station 4 • Creative Build Session',
+      badgeColor: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    });
+
+    const buildRetrospectiveStation = (isManual = false) => ({
+      id: 'RETROSPECTIVE_CHECKIN' as StationId,
       title: isAr ? 'مراجعة اليوم وسكينة الليل' : 'Daily Retrospective & Night Serenity',
       description: isAr
         ? 'تدوين الفكرة الذهبية، تقييم الإنجاز، سورة الملك، وأذكار النوم والاستشفاء.'
         : 'Capture the golden nugget, evaluate progress, recite Surah Mulk, and sleep adhkar.',
       cta: isAr ? 'انطلق إلى مراجعة اليوم 📊' : 'Start Retrospective 📊',
       icon: CheckCircle2,
-      badge: isAr ? 'المحطة 5 • تفريغ الذهن والاستشفاء' : 'Station 5 • Cognitive Download & Recovery',
+      badge: isManual
+        ? isAr
+          ? 'تحديد يدوي • مراجعة اليوم والسكينة'
+          : 'Manual Mode • Retrospective'
+        : isAr
+        ? 'المحطة 5 • تفريغ الذهن والاستشفاء'
+        : 'Station 5 • Cognitive Download & Recovery',
       badgeColor: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
-    };
-  }, [isFajrMorning, isForenoon, isNoon, isAsr, isMaghrib, isAr]);
+    });
+
+    // 1. Honor 1-Tap Manual Station Override for today if set by the user
+    if (activeManualOverride === 'WORK_MICRO_SPRINT') return buildWorkStation(true);
+    if (activeManualOverride === 'GYM_ANCHOR') return buildGymStation(true);
+    if (activeManualOverride === 'COMMUTE_MORNING') return buildMorningStation(true);
+    if (activeManualOverride === 'EVENING_SPRINT') return buildEveningStation(true);
+    if (activeManualOverride === 'RETROSPECTIVE_CHECKIN') return buildRetrospectiveStation(true);
+
+    // 2. Otherwise follow the user's personalized Work & Workout schedule
+    if (isWorkoutWindow) {
+      return buildGymStation(false);
+    }
+    if (isWorkWindow) {
+      return buildWorkStation(false);
+    }
+    if (isFajrMorning) {
+      return buildMorningStation(false);
+    }
+    if (currentHour >= userWorkEndHour && currentHour < 20) {
+      return buildEveningStation(false);
+    }
+    return buildRetrospectiveStation(false);
+  }, [
+    activeManualOverride,
+    isWorkoutWindow,
+    isWorkWindow,
+    isFajrMorning,
+    currentHour,
+    userWorkStartHour,
+    userWorkEndHour,
+    userWorkoutStartHour,
+    isAr,
+  ]);
 
   const streakDays = userState?.streakDays || 0;
   const totalPoints = userState?.totalPoints || 0;
@@ -813,27 +937,46 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             </button>
           </div>
 
-          <button
-            type="button"
-            onClick={onOpenMonthlyEvaluation || onOpenEvaluation}
-            className="touch-target h-9 px-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-[11px] font-semibold text-white flex items-center gap-1.5 cursor-pointer transition-all shrink-0"
-          >
-            <TargetIcon className="w-3.5 h-3.5 text-amber-300" aria-hidden="true" />
-            <span>{isAr ? 'تحديات الشهر' : 'Monthly Goals'}</span>
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsQuickScheduleOpen(true);
+              }}
+              title={isAr ? 'ضبط مواعيد العمل والرياضة أو تغيير المحطة الحالية' : 'Customize work & workout hours'}
+              className="touch-target h-9 px-3 rounded-full bg-amber-400/15 hover:bg-amber-400/25 border border-amber-300/35 text-[11px] font-bold text-amber-200 flex items-center gap-1.5 cursor-pointer transition-all shrink-0"
+            >
+              <span>⏰</span>
+              <span>{isAr ? 'مواعيدي' : 'My Schedule'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenMonthlyEvaluation || onOpenEvaluation}
+              className="touch-target h-9 px-3 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-[11px] font-semibold text-white flex items-center gap-1.5 cursor-pointer transition-all shrink-0"
+            >
+              <TargetIcon className="w-3.5 h-3.5 text-amber-300" aria-hidden="true" />
+              <span>{isAr ? 'تحديات الشهر' : 'Monthly Goals'}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Desktop Dignified Greeting */}
-        <div className="hidden sm:block space-y-1">
-          <h1 className="text-xl sm:text-2xl font-bold text-white">{greeting}</h1>
-          <p className="text-xs text-zinc-400 leading-relaxed max-w-3xl">{motivationalMessage}</p>
+        {/* Dignified Greeting & Personalized Status (Visible on both Mobile & Desktop) */}
+        <div className="space-y-0.5">
+          <h1 className="text-lg sm:text-2xl font-bold text-white">{greeting}</h1>
+          <p className="text-[11px] sm:text-xs text-zinc-300/90 leading-relaxed max-w-3xl line-clamp-2 sm:line-clamp-none">
+            {motivationalMessage}
+          </p>
         </div>
 
-        {/* Celestial Prayer Arc — sun/moon path across the five prayers */}
+        {/* Celestial Prayer Arc — photorealistic 3D sun/moon observatory across the five prayers */}
         <CelestialPrayerArc
           now={now}
           doneMap={prayersDoneMap}
           isAr={isAr}
+          userState={userState}
           onSelectPrayer={(p) => triggerPrayerModal(p)}
         />
 
@@ -940,33 +1083,49 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           )}
         </AnimatePresence>
 
-        {/* Integrated 1-Tap Current Station Launch Pill inside the Dark Stage */}
-        <button
-          type="button"
-          onClick={() => {
-            soundSynth.playTactileClick();
-            haptic.vibrateLight();
-            onSelectStation(currentSuggestedStation.id);
-          }}
-          className="w-full max-w-[94%] mx-auto p-2 sm:p-2.5 rounded-[28px] bg-gradient-to-b from-[#1a8f35] to-[#0e5a24] hover:brightness-110 border border-emerald-300/30 shadow-[0_8px_22px_-6px_rgba(30,184,20,0.5)] flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.97] text-start"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-full bg-habit-green-ink text-white flex items-center justify-center shrink-0 shadow-md ring-1 ring-habit-green/40">
-              <currentSuggestedStation.icon className="w-[18px] h-[18px]" />
+        {/* Integrated 1-Tap Current Station Launch Pill + Schedule Customizer inside the Dark Stage */}
+        <div className="w-full max-w-[96%] mx-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              onSelectStation(currentSuggestedStation.id);
+            }}
+            className="flex-1 min-w-0 p-2 sm:p-2.5 rounded-[28px] bg-gradient-to-b from-[#1a8f35] to-[#0e5a24] hover:brightness-110 border border-emerald-300/30 shadow-[0_8px_22px_-6px_rgba(30,184,20,0.5)] flex items-center justify-between gap-2.5 transition-all cursor-pointer active:scale-[0.98] text-start"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-full bg-habit-green-ink text-white flex items-center justify-center shrink-0 shadow-md ring-1 ring-habit-green/40">
+                <currentSuggestedStation.icon className="w-[18px] h-[18px]" />
+              </div>
+              <div className="min-w-0">
+                <span className="block text-[10px] sm:text-[11px] font-semibold text-emerald-100 leading-[1.6] truncate">
+                  {currentSuggestedStation.badge}
+                </span>
+                <span className="block text-xs sm:text-sm font-bold text-white leading-snug line-clamp-1">
+                  {currentSuggestedStation.title}
+                </span>
+              </div>
             </div>
-            <div className="min-w-0">
-              <span className="block text-[11px] font-semibold text-emerald-100 leading-[1.7]">
-                {currentSuggestedStation.badge}
-              </span>
-              <span className="block text-sm font-bold text-white leading-snug line-clamp-2 text-balance">
-                {currentSuggestedStation.title}
-              </span>
-            </div>
-          </div>
-          <span className="px-3.5 py-1.5 rounded-full bg-white text-zinc-950 text-xs font-bold shrink-0 shadow-sm">
-            {isAr ? 'ابدأ الآن ←' : 'Start →'}
-          </span>
-        </button>
+            <span className="px-3 py-1.5 rounded-full bg-white text-zinc-950 text-xs font-bold shrink-0 shadow-sm">
+              {isAr ? 'ابدأ الآن ←' : 'Start →'}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setIsQuickScheduleOpen(true);
+            }}
+            title={isAr ? 'تغيير المحطة الحالية أو ضبط مواعيد العمل والرياضة' : 'Change current station or adjust schedule'}
+            className="h-12 px-3 rounded-[22px] bg-white/10 hover:bg-white/20 border border-white/15 text-[11px] font-bold text-amber-200 flex flex-col items-center justify-center leading-tight shrink-0 cursor-pointer active:scale-95 transition-all"
+          >
+            <span>⚙️</span>
+            <span className="text-[10px]">{isAr ? 'تغيير' : 'Mode'}</span>
+          </button>
+        </div>
       </div>
 
       {/* ================================================================= */}
@@ -1306,6 +1465,19 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
                   setActiveQuickSection(stack.id);
+                  const targetSectionId =
+                    stack.id === 'today'
+                      ? 'section-prayers'
+                      : stack.id === 'stations'
+                      ? 'section-roadmap'
+                      : stack.id === 'spiritual'
+                      ? 'section-spiritual'
+                      : 'section-wisdom';
+                  setTimeout(() => {
+                    document
+                      .getElementById(targetSectionId)
+                      ?.scrollIntoView({ behavior: reduceMotionPref ? 'auto' : 'smooth', block: 'start' });
+                  }, 60);
                 }}
                 className={`relative p-3.5 rounded-[24px] border text-start transition-all cursor-pointer ${
                   stack.cardBg
@@ -1534,7 +1706,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </span>
               </div>
 
-              {/* Habit 3: Deep Work Micro-Sprint (20m) */}
+              {/* Habit 3: Deep Work Micro-Sprint (20m) — Dual 1-Tap Check + Open Station */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
@@ -1547,15 +1719,42 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
                 }`}
               >
-                <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (isWorkSprintDone) {
+                      onSelectStation('WORK_MICRO_SPRINT');
+                      return;
+                    }
+                    triggerHabitConfetti(e);
+                    soundSynth.playStreakMilestoneChime();
+                    haptic.vibrateSprintCelebration();
+                    const nextCompleted: StationId[] = [...(completedStations as StationId[]), 'WORK_MICRO_SPRINT'];
+                    await upsertDailyLog(todayBioDate, {
+                      completedStations: nextCompleted,
+                      pointsEarned: (todayLog?.pointsEarned || 0) + 15,
+                    });
+                    if (userState) {
+                      await db.user_state.update('current_user', {
+                        totalPoints: (userState.totalPoints || 0) + 15,
+                      });
+                    }
+                    onRewardToast(
+                      isAr
+                        ? '⚡ أحسنت! تم توثيق شوط التركيز والعمل العميق (+15 نقطة)'
+                        : '⚡ Focus Sprint logged (+15 XP)!'
+                    );
+                  }}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
                     isWorkSprintDone
                       ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
                   }`}
+                  title={isAr ? 'تسجيل إتمام شوط التركيز فوراً (+15 XP)' : '1-Tap log Focus Sprint (+15 XP)'}
                 >
                   <Check className="w-4 h-4 stroke-[2.5]" />
-                </div>
+                </button>
 
                 <div className="min-w-0 flex-1">
                   <span className="block text-sm font-bold text-zinc-900 dark:text-white truncate">
@@ -1585,7 +1784,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </span>
               </div>
 
-              {/* Habit 4: Daily Physical & Sport Anchor */}
+              {/* Habit 4: Daily Physical & Sport Anchor — Dual 1-Tap Check + Open Station */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
@@ -1598,15 +1797,42 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
                 }`}
               >
-                <div
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (isGymDone) {
+                      onSelectStation('GYM_ANCHOR');
+                      return;
+                    }
+                    triggerHabitConfetti(e);
+                    soundSynth.playStreakMilestoneChime();
+                    haptic.vibrateSprintCelebration();
+                    const nextCompleted: StationId[] = [...(completedStations as StationId[]), 'GYM_ANCHOR'];
+                    await upsertDailyLog(todayBioDate, {
+                      completedStations: nextCompleted,
+                      pointsEarned: (todayLog?.pointsEarned || 0) + 20,
+                    });
+                    if (userState) {
+                      await db.user_state.update('current_user', {
+                        totalPoints: (userState.totalPoints || 0) + 20,
+                      });
+                    }
+                    onRewardToast(
+                      isAr
+                        ? '🏋️ عاش! تم توثيق مرساة النشاط البدني والرياضة (+20 نقطة)'
+                        : '🏋️ Sport Anchor logged (+20 XP)!'
+                    );
+                  }}
+                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
                     isGymDone
                       ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
                   }`}
+                  title={isAr ? 'تسجيل إتمام التمرين الرياضي فوراً (+20 XP)' : '1-Tap log Sport Anchor (+20 XP)'}
                 >
                   <Check className="w-4 h-4 stroke-[2.5]" />
-                </div>
+                </button>
 
                 <div className="min-w-0 flex-1">
                   <span className="block text-sm font-bold text-zinc-900 dark:text-white truncate">
@@ -2965,6 +3191,247 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           onRewardToast={onRewardToast}
           todayLog={todayLog}
         />
+      )}
+
+      {/* 1-Tap Quick Work & Workout Schedule + Active Station Override Modal */}
+      {isQuickScheduleOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setIsQuickScheduleOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg modal-surface border border-white/15 rounded-[28px] overflow-hidden max-h-[92vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="celestial-obsidian-stage text-white p-5 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-300/35 flex items-center justify-center text-2xl shrink-0">
+                  ⏰
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {isAr ? 'ضبط مواعيدك اليومية والوضع الحالي' : 'My Daily Schedule & Active Mode'}
+                  </h3>
+                  <p className="text-[11px] text-zinc-300">
+                    {isAr
+                      ? 'خصّص مواعيد عملك ورياضتك أو غيّر محطتك الحالية بضغطة واحدة'
+                      : 'Customize your work & workout hours or switch active mode'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuickScheduleOpen(false)}
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 overflow-y-auto text-xs">
+              {/* 1. Instant Manual Station Mode Switcher */}
+              <div className="p-4 rounded-[22px] bento-3d-mint border border-emerald-300/60 dark:border-emerald-800/40 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-zinc-900 dark:text-white text-xs sm:text-sm">
+                    {isAr ? '⚡ ما هو وضعك الحالي الآن؟ (تبديل فوري)' : '⚡ What is your mode right now?'}
+                  </span>
+                  {activeManualOverride && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSaveScheduleConfig({
+                          manualStationOverride: undefined,
+                        })
+                      }
+                      className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 text-emerald-900 cursor-pointer"
+                    >
+                      {isAr ? 'إعادة للوضع التلقائي 🔄' : 'Auto Mode 🔄'}
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    {
+                      id: 'WORK_MICRO_SPRINT' as StationId,
+                      label: isAr ? '💼 أنا في العمل / المذاكرة الآن' : '💼 At Work / Studying Now',
+                    },
+                    {
+                      id: 'GYM_ANCHOR' as StationId,
+                      label: isAr ? '🏋️ وقت الرياضة والنشاط الآن' : '🏋️ Workout Time Now',
+                    },
+                    {
+                      id: 'COMMUTE_MORNING' as StationId,
+                      label: isAr ? '🌅 ورد الصباح والقرآن' : '🌅 Morning Wird',
+                    },
+                    {
+                      id: 'EVENING_SPRINT' as StationId,
+                      label: isAr ? '💻 شوط المساء والتعلم' : '💻 Evening Sprint',
+                    },
+                  ].map((mode) => {
+                    const isCurrent = currentSuggestedStation.id === mode.id;
+                    return (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={async () => {
+                          await handleSaveScheduleConfig({
+                            manualStationOverride: {
+                              stationId: mode.id,
+                              date: todayBioDate,
+                            },
+                          });
+                          setIsQuickScheduleOpen(false);
+                        }}
+                        className={`p-2.5 rounded-2xl border text-start font-bold transition-all cursor-pointer active:scale-95 ${
+                          isCurrent
+                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 border-transparent shadow-sm'
+                            : 'bg-white/85 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border-emerald-200/70 dark:border-zinc-700'
+                        }`}
+                      >
+                        {mode.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 2. Work Start & End Hours */}
+              <div className="p-4 rounded-[22px] bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 space-y-3">
+                <span className="font-bold text-zinc-900 dark:text-white block text-xs sm:text-sm">
+                  {isAr ? '💼 مواعيد ساعات العمل أو الدراسة الرسمية:' : '💼 Official Work / Study Hours:'}
+                </span>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    {isAr ? 'بداية العمل:' : 'Work Starts:'}
+                  </label>
+                  <div className="grid grid-cols-5 gap-1.5">
+                    {[
+                      { h: 7, l: '7 ص' },
+                      { h: 8, l: '8 ص' },
+                      { h: 9, l: '9 ص' },
+                      { h: 10, l: '10 ص' },
+                      { h: 11, l: '11 ص' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.h}
+                        type="button"
+                        onClick={() => handleSaveScheduleConfig({ workStartHour: opt.h })}
+                        className={`py-2 rounded-xl font-bold transition-all cursor-pointer ${
+                          userWorkStartHour === opt.h
+                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                            : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
+                        }`}
+                      >
+                        {opt.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    {isAr ? 'نهاية العمل (لن يزعجك التطبيق بالرياضة قبل هذا الوقت):' : 'Work Ends:'}
+                  </label>
+                  <div className="grid grid-cols-6 gap-1.5">
+                    {[
+                      { h: 14, l: '2 م' },
+                      { h: 15, l: '3 م' },
+                      { h: 16, l: '4 م' },
+                      { h: 17, l: '5 م' },
+                      { h: 18, l: '6 م' },
+                      { h: 19, l: '7 م' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.h}
+                        type="button"
+                        onClick={() => {
+                          const nextWorkout =
+                            userWorkoutStartHour >= userWorkStartHour && userWorkoutStartHour < opt.h
+                              ? Math.min(21, opt.h + 1)
+                              : userWorkoutStartHour;
+                          handleSaveScheduleConfig({
+                            workEndHour: opt.h,
+                            workoutStartHour: nextWorkout,
+                          });
+                        }}
+                        className={`py-2 rounded-xl font-bold transition-all cursor-pointer ${
+                          userWorkEndHour === opt.h
+                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                            : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
+                        }`}
+                      >
+                        {opt.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Preferred Workout Hour */}
+              <div className="p-4 rounded-[22px] bento-3d-amber border border-amber-300/60 dark:border-amber-800/40 space-y-2.5">
+                <span className="font-bold text-zinc-900 dark:text-white block text-xs sm:text-sm">
+                  {isAr ? '🏋️ الموعد اليومي المفضل للرياضة:' : '🏋️ Preferred Daily Workout Time:'}
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {[
+                    { h: 6, l: isAr ? '🌅 صباحاً (6:00 ص)' : '🌅 Morning (6 AM)' },
+                    { h: 17, l: isAr ? '🌤️ عصراً (5:00 م)' : '🌤️ 5:00 PM' },
+                    { h: 18, l: isAr ? '🌇 بعد العمل (6:00 م)' : '🌇 6:00 PM' },
+                    { h: 19, l: isAr ? '🌆 المغرب (7:00 م)' : '🌆 7:00 PM' },
+                    { h: 20, l: isAr ? '🌙 مساءً (8:00 م)' : '🌙 8:00 PM' },
+                    { h: -1, l: isAr ? '☕ بدون رياضة / راحة' : '☕ Rest / No Gym' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.h}
+                      type="button"
+                      onClick={() =>
+                        handleSaveScheduleConfig({
+                          workoutStartHour: opt.h,
+                          workoutPreference: opt.h === -1 ? 'none_rest' : (routineAns?.workoutPreference === 'none_rest' ? 'gym_iron' : (routineAns?.workoutPreference || 'gym_iron')),
+                        })
+                      }
+                      className={`py-2 px-2.5 rounded-xl font-bold transition-all cursor-pointer ${
+                        userWorkoutStartHour === opt.h
+                          ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                          : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-amber-200/70 dark:border-zinc-700'
+                      }`}
+                    >
+                      {opt.l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex items-center justify-between gap-2.5 pt-1">
+                {onOpenLifestyleModal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsQuickScheduleOpen(false);
+                      onOpenLifestyleModal();
+                    }}
+                    className="px-4 py-2.5 rounded-full surface-card-3d border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-zinc-200 font-bold text-xs cursor-pointer"
+                  >
+                    {isAr ? 'تخصيص المحطات المتقدم ⚙️' : 'Advanced Stations ⚙️'}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsQuickScheduleOpen(false)}
+                  className="ms-auto px-6 py-2.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs shadow-md cursor-pointer active:scale-95 transition-transform"
+                >
+                  {isAr ? 'تم الحفظ ✓' : 'Done ✓'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

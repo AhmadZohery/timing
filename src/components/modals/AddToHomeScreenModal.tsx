@@ -42,54 +42,42 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({
         onClick={onClose}
       />
       <div 
-        className="relative z-10 w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all max-h-[92vh] flex flex-col"
+        className="relative z-10 w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transform transition-all max-h-[92vh] flex flex-col"
         dir="rtl"
       >
-        {/* Mobile Pull Handle */}
-        <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full" />
-        </div>
-
-        {/* Header with Close */}
-        <div className="flex items-center justify-between px-6 pt-3 pb-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-              تجربة مستخدم أسرع وأسلس
+        {/* Celestial Obsidian 3D Header */}
+        <div className="celestial-obsidian-stage px-6 pt-5 pb-6 text-white relative">
+          <div className="flex items-center justify-between mb-4">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-[11px] font-bold text-amber-300">
+              <Sparkles className="w-3.5 h-3.5" />
+              تطبيق الشاشة الكاملة
             </span>
+            <button
+              onClick={handleDismissLater}
+              className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              title="إغلاق"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button
-            onClick={handleDismissLater}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="إغلاق مؤقت"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0">
+              مِ
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-white leading-tight">
+                ثبّت «مِضمار» على جهازك
+              </h3>
+              <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                افتح مِضمار بضغطة واحدة وبشاشة كاملة يعمل فوراً حتى بدون إنترنت.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Content Body */}
-        <div className="px-6 pb-6 pt-2 overflow-y-auto space-y-5">
-          {/* App Icon Presentation */}
-          <div className="flex flex-col items-center text-center">
-            <div className="relative mb-3">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 to-amber-500 p-1 shadow-xl shadow-emerald-500/25 flex items-center justify-center">
-                <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex flex-col items-center justify-center">
-                  <span className="text-2xl">⚡</span>
-                  <span className="text-[11px] font-black tracking-tight text-slate-800 dark:text-white mt-0.5">مضمار</span>
-                </div>
-              </div>
-              <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white p-1 rounded-full shadow-md">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
-            </div>
-
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
-              أضف أيقونة «مضمار» لشاشتك الرئيسية
-            </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed max-w-xs">
-              لفتح التطبيق فوراً بشاشة كاملة مثل التطبيقات الأصلية، مع سرعة فائقة وعمل كامل بدون إنترنت!
-            </p>
-          </div>
+        <div className="px-6 pb-6 pt-5 overflow-y-auto space-y-4">
 
           {/* iOS Specific Instructions */}
           {pwaState.isIos ? (

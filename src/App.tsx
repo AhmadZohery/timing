@@ -286,28 +286,8 @@ export function App() {
     setIsSmartTasbihOpen(true);
   };
 
-  // Progressive Web App Install Detection
+  // Progressive Web App Install Detection (available manually from Header menu — no intrusive auto-popup on launch)
   const pwaState = usePwaInstall();
-
-  // Gentle automatic A2HS prompt on mobile if not standalone and not dismissed
-  useEffect(() => {
-    if (pwaState.shouldPrompt) {
-      const timer = setTimeout(() => {
-        setIsA2hsModalOpen(true);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [pwaState.shouldPrompt]);
-
-  // First-time Onboarding Wizard if user profile has not finished onboarding
-  useEffect(() => {
-    if (activeProfile && activeProfile.onboardingCompleted !== true) {
-      const seen = localStorage.getItem('midmar_onboarding_wizard_seen') === 'true';
-      if (!seen) {
-        setIsOnboardingModalOpen(true);
-      }
-    }
-  }, [activeProfile]);
 
   // Central System Heartbeat: Prayer, Circadian Sleep, and Accountability in a single coordinated loop
   useEffect(() => {

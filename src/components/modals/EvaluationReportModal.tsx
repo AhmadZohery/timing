@@ -607,7 +607,7 @@ ${actionText}`;
               <div className="space-y-2 pt-1">
                 <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                   <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>{isAr ? 'تفصيل أركان الحياة الأربعة (LifeOS Pillars):' : 'Four Pillars Balance Matrix:'}</span>
+                  <span>{isAr ? 'تفصيل أركان التوازن اليومي الأربعة:' : 'Four Pillars Balance Matrix:'}</span>
                 </span>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

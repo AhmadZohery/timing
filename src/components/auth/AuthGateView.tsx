@@ -235,12 +235,12 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#08090d] flex items-center justify-center text-amber-400 font-mono text-xs">
+      <div className="min-h-screen bg-[#08090d] flex items-center justify-center text-amber-400 font-bold text-xs">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-spin">
             <Lock className="w-5 h-5 text-amber-400" />
           </div>
-          <span>جاري التحقق من أمان المنظومة...</span>
+          <span>جاري فتح مساحتك الخاصة...</span>
         </div>
       </div>
     );
@@ -249,23 +249,23 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
   return (
     <div
       dir={isRTL ? 'rtl' : 'ltr'}
-      className="min-h-screen w-full bg-gradient-to-br from-[#06070a] via-[#0d0f17] to-[#121524] text-slate-100 flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden select-none"
+      className="min-h-screen w-full celestial-obsidian-stage text-slate-100 flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden select-none"
     >
       {/* Ambient background glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] bg-amber-500/[0.04] dark:bg-amber-500/[0.03] blur-3xl rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[300px] h-[300px] bg-emerald-500/[0.03] blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] bg-amber-500/[0.06] blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[300px] h-[300px] bg-indigo-500/[0.05] blur-3xl rounded-full pointer-events-none" />
 
       {/* Top Bar: Brand and Language Toggle */}
       <header className="relative z-10 w-full max-w-md mx-auto flex items-center justify-between pt-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-black flex items-center justify-center font-black text-sm shadow-md shadow-amber-500/20">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-black flex items-center justify-center font-black text-base shadow-md shadow-amber-500/20">
             مِ
           </div>
           <div>
-            <h1 className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+            <h1 className="text-base font-black tracking-tight text-white flex items-center gap-2">
               <span>مِضمار</span>
-              <span className="text-[10px] font-mono text-amber-400 font-normal px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/20">
-                LifeOS
+              <span className="text-[10px] font-bold text-amber-300 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/25">
+                {isAr ? 'رفيق يومك' : 'Daily Companion'}
               </span>
             </h1>
           </div>
@@ -286,7 +286,7 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
 
       {/* Main Authentication Card */}
       <main className="relative z-10 w-full max-w-md mx-auto my-auto py-6">
-        <div className="rounded-3xl bg-[#11131e]/90 border border-amber-500/20 shadow-2xl backdrop-blur-xl p-6 sm:p-8 space-y-6">
+        <div className="rounded-3xl bg-[#11131e]/90 border border-amber-500/25 shadow-2xl backdrop-blur-xl p-6 sm:p-8 space-y-6">
           {/* Card Header Icon & Title */}
           <div className="text-center space-y-2">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 via-amber-500/10 to-transparent border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
@@ -296,21 +296,21 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               {authMode === 'register'
                 ? isAr
-                  ? 'إنشاء حساب مستخدم جديد'
-                  : 'Create New Account'
+                  ? 'أهلاً بك في مِضمار'
+                  : 'Welcome to Midmar'
                 : isAr
-                ? 'تسجيل الدخول الآمن'
-                : 'Secure Access Gateway'}
+                ? 'مرحباً بعودتك'
+                : 'Welcome Back'}
             </h2>
 
-            <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+            <p className="text-xs text-slate-300 max-w-xs mx-auto leading-relaxed">
               {authMode === 'register'
                 ? isAr
-                  ? 'سجّل حسابك لتأمين بياناتك والبدء في إدارة يومك ومحطاتك الإنتاجية'
-                  : 'Register your account to manage your day and productivity stations'
+                  ? 'أنشئ حسابك المحلي لحفظ صلواتك وعاداتك ومهامك بأمان تام على جهازك'
+                  : 'Create your local account to organize your prayers, habits, and daily focus'
                 : isAr
-                ? 'المنظومة محمية ومقفلة. أدخل بيانات المرور الخاصة بك لفك القفل والوصول للمحطات'
-                : 'System is encrypted and locked. Enter your credentials to unlock your workspace'}
+                ? 'سجّل دخولك لمتابعة صلواتك، محطات تركيزك، وعاداتك اليومية'
+                : 'Sign in to continue your daily prayers, focus stations, and habits'}
             </p>
           </div>
 
@@ -784,10 +784,10 @@ export const AuthGateView: React.FC<AuthGateViewProps> = ({ onAuthenticated }) =
             فكرة دي إم (FikraDM.com)
           </a>
         </div>
-        <div className="text-[10px] text-slate-600">
+        <div className="text-[10px] text-slate-500">
           {isAr
-            ? 'منظومة مِضمار (Midmar LifeOS) لإدارة الإيقاع الحيوي والإنتاجية'
-            : 'Midmar LifeOS • Circadian Mastery & Peak Productivity Platform'}
+            ? 'مِضمار • رفيق يومك للصلوات والتركيز والعادات'
+            : 'Midmar • Your Daily Companion for Prayers, Focus & Habits'}
         </div>
       </footer>
     </div>

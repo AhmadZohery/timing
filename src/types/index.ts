@@ -535,6 +535,11 @@ export interface DailyRoutineAnswers {
   workoutPreference: 'gym_iron' | 'home_calisthenics' | 'outdoor_walk' | 'none_rest';
   workStartHour?: number; // e.g. 9
   workEndHour?: number; // e.g. 17
+  workoutStartHour?: number; // e.g. 6 (morning), 18 (after work), 20 (evening), -1 (rest/none)
+  manualStationOverride?: {
+    stationId: StationId;
+    date: string;
+  };
   targetSleepHours: number; // default 7
   autoSuggestWakeup: boolean;
   customWakeupTime?: string; // e.g. "05:00"

@@ -3,8 +3,8 @@ export type Language = 'ar' | 'en';
 export const translations = {
   ar: {
     app_name: 'مِضمار',
-    app_subtitle: 'نظام إدارة الحياة والإنتاجية',
-    life_os: 'LifeOS',
+    app_subtitle: 'رفيق يومك للصلوات والتركيز والعادات',
+    life_os: 'رفيق يومك',
     streak_days: 'أيام الاستمرارية (الشعلة)',
     shields_count: 'دروع حماية الشعلة',
     total_points: 'مجموع النقاط اليومية',
@@ -415,8 +415,8 @@ export const translations = {
 
   en: {
     app_name: 'Midmar',
-    app_subtitle: 'Dignified Life & Productivity Operating System',
-    life_os: 'LifeOS',
+    app_subtitle: 'Prayers, Focus & Daily Habits Companion',
+    life_os: 'Companion',
     streak_days: 'Active Streak Days',
     shields_count: 'Streak Shields',
     total_points: 'Total Daily Points',
