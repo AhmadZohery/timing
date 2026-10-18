@@ -258,6 +258,102 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     badgeAr: '🏰 حصن منيع',
     icon: '📖',
   },
+  {
+    id: 'track_quran_imran_maher',
+    titleAr: 'سورة آل عمران كاملة بتلاوة ندية خاشعة من الحرم المكي',
+    titleEn: 'Surah Aal-Imran - Maher Al-Muaiqly',
+    sheikhAr: 'الشيخ د. ماهر المعيقلي',
+    sheikhEn: 'Maher Al-Muaiqly',
+    category: 'quran',
+    audioUrl: 'https://server12.mp3quran.net/maher/003.mp3',
+    durationFormatted: '64:20',
+    badgeAr: '🕋 الزهراوان',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_taha_husary',
+    titleAr: 'سورة طه كاملة بالمصحف المرتل المتقن لسكينة الفؤاد',
+    titleEn: 'Surah Taha - Mahmoud Khalil Al-Husary',
+    sheikhAr: 'الشيخ محمود خليل الحصري',
+    sheikhEn: 'Mahmoud Khalil Al-Husary',
+    category: 'quran',
+    audioUrl: 'https://server13.mp3quran.net/husr/020.mp3',
+    durationFormatted: '29:40',
+    badgeAr: '👑 ترتيل متقن',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_yaseen_minshawi',
+    titleAr: 'سورة يس كاملة بنبرة خاشعة تهز القلوب',
+    titleEn: 'Surah Yaseen - Mohamed Siddiq Al-Minshawi',
+    sheikhAr: 'الشيخ محمد صديق المنشاوي',
+    sheikhEn: 'Mohamed Siddiq Al-Minshawi',
+    category: 'quran',
+    audioUrl: 'https://server10.mp3quran.net/minsh/036.mp3',
+    durationFormatted: '17:45',
+    badgeAr: '💖 قلب القرآن',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_furqan_qatami',
+    titleAr: 'سورة الفرقان (وعباد الرحمن الذين يمشون على الأرض هوناً)',
+    titleEn: 'Surah Al-Furqan - Nasser Al-Qatami',
+    sheikhAr: 'الشيخ ناصر القطامي',
+    sheikhEn: 'Nasser Al-Qatami',
+    category: 'quran',
+    audioUrl: 'https://server6.mp3quran.net/qtm/025.mp3',
+    durationFormatted: '16:50',
+    badgeAr: '🌟 صفات عباد الرحمن',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_luqman_dosari',
+    titleAr: 'سورة لقمان ووصايا الحكمة التربوية الخالدة',
+    titleEn: 'Surah Luqman - Yasser Al-Dosari',
+    sheikhAr: 'الشيخ د. ياسر الدوسري',
+    sheikhEn: 'Yasser Al-Dosari',
+    category: 'quran',
+    audioUrl: 'https://server11.mp3quran.net/yasser/031.mp3',
+    durationFormatted: '10:40',
+    badgeAr: '🧭 وصايا لقمان',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_qaf_hudhaify',
+    titleAr: 'سورة ق كاملة بترتيل مهيب من رحاب المسجد النبوي',
+    titleEn: 'Surah Qaf - Ali Al-Hudhaify',
+    sheikhAr: 'الشيخ علي بن عبد الرحمن الحذيفي',
+    sheikhEn: 'Ali Al-Hudhaify',
+    category: 'quran',
+    audioUrl: 'https://server9.mp3quran.net/hthfi/050.mp3',
+    durationFormatted: '08:50',
+    badgeAr: '🕌 ترتيل نبوي',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_hashr_shuraim',
+    titleAr: 'سورة الحشر وخواتيمها المباركة (لو أنزلنا هذا القرآن على جبل)',
+    titleEn: 'Surah Al-Hashr - Saud Al-Shuraim',
+    sheikhAr: 'الشيخ د. سعود الشريم',
+    sheikhEn: 'Saud Al-Shuraim',
+    category: 'quran',
+    audioUrl: 'https://server7.mp3quran.net/shur/059.mp3',
+    durationFormatted: '09:15',
+    badgeAr: '✨ أسماء الله الحسنى',
+    icon: '📖',
+  },
+  {
+    id: 'track_quran_muzammil_afasy',
+    titleAr: 'سورة المزمل وزاد قيام الليل والتركيز الروحي',
+    titleEn: 'Surah Al-Muzzammil - Mishary Alafasy',
+    sheikhAr: 'الشيخ مشاري راشد العفاسي',
+    sheikhEn: 'Mishary Rashid Alafasy',
+    category: 'quran',
+    audioUrl: 'https://server8.mp3quran.net/afs/073.mp3',
+    durationFormatted: '04:35',
+    badgeAr: '🌙 قيام الليل',
+    icon: '📖',
+  },
 
   // --- 3. أذكار الصباح والمساء والرقية الشرعية ---
   {
@@ -311,6 +407,18 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     icon: '💖',
   },
   {
+    id: 'track_tazkiyah_tawbah_uthaymeen',
+    titleAr: 'شرح رياض الصالحين: باب التوبة وشروط الأوبة الصادقة إلى الله',
+    titleEn: 'Riyad as-Salihin: Sincere Repentance',
+    sheikhAr: 'الشيخ محمد بن صالح العثيمين',
+    sheikhEn: 'Sheikh Ibn Uthaymeen',
+    category: 'tazkiyah',
+    audioUrl: 'https://archive.org/download/ben1-130/0002.mp3',
+    durationFormatted: '29:45',
+    badgeAr: '🌿 باب التوبة',
+    icon: '💖',
+  },
+  {
     id: 'track_tazkiyah_sabr',
     titleAr: 'شرح رياض الصالحين: باب الصبر وفقه الابتلاء والاحتساب',
     titleEn: 'Riyad as-Salihin: Patience & Trials in Life',
@@ -345,6 +453,30 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     durationFormatted: '37:40',
     badgeAr: '📖 تدبر عميق',
     icon: '🌱',
+  },
+  {
+    id: 'track_tazkiyah_haj_istiqamah',
+    titleAr: 'أريد أن أستقيم ولكن: علاج عقبات الطريق إلى الله',
+    titleEn: 'I Want to Be Steadfast: Overcoming Obstacles',
+    sheikhAr: 'الشيخ محمد سيد حاج (رحمه الله)',
+    sheikhEn: 'Sheikh Mohamed Sayed Haj',
+    category: 'tazkiyah',
+    audioUrl: 'https://archive.org/download/Mohamed-Sayed-Hajj/%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%86%20%D8%A7%D8%B3%D8%AA%D9%82%D9%8A%D9%85%20%D9%88%D9%84%D9%83%D9%86.mp3',
+    durationFormatted: '51:20',
+    badgeAr: '🕊️ فقه الاستقامة',
+    icon: '🕊️',
+  },
+  {
+    id: 'track_tazkiyah_amjad_hudaybiyyah',
+    titleAr: 'فقه النفوس والتسليم لحكمة الله من أحداث صلح الحديبية',
+    titleEn: 'Soul Submission & Wisdom in Hudaybiyyah',
+    sheikhAr: 'الشيخ أمجد سمير',
+    sheikhEn: 'Sheikh Amjad Samir',
+    category: 'tazkiyah',
+    audioUrl: 'https://archive.org/download/media-way2allah-_3780/bnwd_alslh_alhdebea_alshekh_ahmd_smer_h17_-_knaa_alnde_alfdaeaea.mp3',
+    durationFormatted: '33:15',
+    badgeAr: '🌿 فقه النفس',
+    icon: '🌿',
   },
 
   // --- 5. دورة تأسيس البيت المسلم والزواج (م. أيمن عبد الرحيم) ---
@@ -421,6 +553,18 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     icon: '🧠',
   },
   {
+    id: 'track_ayman_waay_02',
+    titleAr: 'تأسيس وعي المسلم (2): قراءة التاريخ وسنن النهوض الحضاري',
+    titleEn: 'Foundations of Muslim Awareness (2): History & Revival',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'mindset',
+    audioUrl: 'https://archive.org/download/Establishing_contemporary_Muslim_awareness/02.mp3',
+    durationFormatted: '52:10',
+    badgeAr: '🧭 سنن النهوض',
+    icon: '🧠',
+  },
+  {
     id: 'track_ayman_history_01',
     titleAr: 'مدخل إلى علم النفس وسيكولوجية الجماهير وبناء العقل المستقل',
     titleEn: 'Psychology of Masses & Independent Thinking',
@@ -471,6 +615,18 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     icon: '📖',
   },
   {
+    id: 'track_tarefe_qadar_02',
+    titleAr: 'الإيمان بالقدر وحكمة الله في خلقه وأمره وطمأنينة القلب',
+    titleEn: 'Faith in Divine Decree & Wisdom',
+    sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
+    sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
+    category: 'mindset',
+    audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/002.mp3',
+    durationFormatted: '38:15',
+    badgeAr: '🛡️ فقه القدر',
+    icon: '🌟',
+  },
+  {
     id: 'track_tarefe_3azama_01',
     titleAr: 'عظمة الله جل جلاله والافتقار إليه في الشدائد والفتن',
     titleEn: 'The Greatness of Allah',
@@ -516,7 +672,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: ch.sheikhEn,
     category: 'radio' as const,
     audioUrl: ch.streamUrl,
-    durationFormatted: 'بث مباشر',
+    durationFormatted: 'بث مباشر 24/7',
     badgeAr: ch.badgeAr,
     icon: ch.icon || '📻',
     isLive: true,
@@ -544,20 +700,21 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   >('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('midmar_audio_favs') || '[]');
-    } catch {
-      return [];
-    }
-  });
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => gymFaithAudio.getFavorites());
+  const [customSeriesList, setCustomSeriesList] = useState<FaithAudioSeries[]>(() =>
+    gymFaithAudio.getCustomSeries()
+  );
 
   // Sleep Timer State
   const [sleepSecondsLeft, setSleepSecondsLeft] = useState<number | null>(null);
   const [isSleepModalOpen, setIsSleepModalOpen] = useState(false);
 
   useEffect(() => {
-    const unsub = gymFaithAudio.subscribe(setAudioState);
+    const unsub = gymFaithAudio.subscribe((st) => {
+      setAudioState(st);
+      setFavoriteIds(gymFaithAudio.getFavorites());
+      setCustomSeriesList(gymFaithAudio.getCustomSeries());
+    });
     return () => unsub();
   }, []);
 
@@ -578,21 +735,40 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     return () => clearInterval(timer);
   }, [sleepSecondsLeft, isAr, onRewardToast]);
 
+  // Combine VERIFIED_FAITH_TRACKS with any custom tracks added by the user
+  const allCombinedTracks = useMemo<MobileAudioTrack[]>(() => {
+    const customTracks: MobileAudioTrack[] = customSeriesList.flatMap((s) =>
+      s.episodes.map((ep) => ({
+        id: ep.id,
+        titleAr: ep.titleAr,
+        titleEn: ep.titleEn,
+        sheikhAr: s.sheikhAr,
+        sheikhEn: s.sheikhEn,
+        category: 'mindset' as const,
+        audioUrl: ep.audioUrl,
+        durationFormatted: ep.durationFormatted || 'درس خاص',
+        badgeAr: '🌟 مضاف خاص',
+        icon: s.icon || '🎙️',
+      }))
+    );
+    return [...customTracks, ...VERIFIED_FAITH_TRACKS];
+  }, [customSeriesList]);
+
   const categories = useMemo(() => [
-    { id: 'all', label: isAr ? '✨ الكل' : 'All', count: VERIFIED_FAITH_TRACKS.length },
+    { id: 'all', label: isAr ? '✨ الكل' : 'All', count: allCombinedTracks.length },
     { id: 'favorites', label: isAr ? '💖 المفضلة' : 'Favorites', count: favoriteIds.length },
-    { id: 'zawaj', label: isAr ? '🏡 البيت المسلم' : 'Marriage & Home', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'zawaj').length },
-    { id: 'mindset', label: isAr ? '🧠 فكر ووعي' : 'Mindset', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'mindset').length },
-    { id: 'siyra', label: isAr ? '🕌 السيرة النبوية' : 'Seerah', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'siyra').length },
-    { id: 'khutbah', label: isAr ? '🎙️ خطب ومواعظ' : 'Khutbahs', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'khutbah').length },
-    { id: 'quran', label: isAr ? '📖 تلاوات خاشعة' : 'Recitations', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'quran').length },
-    { id: 'adhkar', label: isAr ? '🌸 أذكار ورقية' : 'Adhkar', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'adhkar').length },
-    { id: 'tazkiyah', label: isAr ? '💖 تزكية ورقائق' : 'Tazkiyah', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'tazkiyah').length },
-    { id: 'radio', label: isAr ? '📻 إذاعات حية' : 'Live Radios', count: VERIFIED_FAITH_TRACKS.filter(t => t.category === 'radio').length },
-  ], [isAr, favoriteIds]);
+    { id: 'quran', label: isAr ? '📖 تلاوات خاشعة' : 'Recitations', count: allCombinedTracks.filter(t => t.category === 'quran').length },
+    { id: 'radio', label: isAr ? '📻 إذاعات حية 24/7' : 'Live Radios', count: allCombinedTracks.filter(t => t.category === 'radio').length },
+    { id: 'tazkiyah', label: isAr ? '💖 تزكية ورقائق' : 'Tazkiyah', count: allCombinedTracks.filter(t => t.category === 'tazkiyah').length },
+    { id: 'mindset', label: isAr ? '🧠 فكر ووعي' : 'Mindset', count: allCombinedTracks.filter(t => t.category === 'mindset').length },
+    { id: 'siyra', label: isAr ? '🕌 السيرة النبوية' : 'Seerah', count: allCombinedTracks.filter(t => t.category === 'siyra').length },
+    { id: 'khutbah', label: isAr ? '🎙️ خطب ومواعظ' : 'Khutbahs', count: allCombinedTracks.filter(t => t.category === 'khutbah').length },
+    { id: 'zawaj', label: isAr ? '🏡 البيت المسلم' : 'Marriage & Home', count: allCombinedTracks.filter(t => t.category === 'zawaj').length },
+    { id: 'adhkar', label: isAr ? '🌸 أذكار ورقية' : 'Adhkar', count: allCombinedTracks.filter(t => t.category === 'adhkar').length },
+  ], [isAr, favoriteIds, allCombinedTracks]);
 
   const filteredTracks = useMemo(() => {
-    return VERIFIED_FAITH_TRACKS.filter((track) => {
+    return allCombinedTracks.filter((track) => {
       const matchCat =
         activeCategory === 'all'
           ? true
@@ -607,7 +783,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         track.badgeAr.toLowerCase().includes(q);
       return matchCat && matchSearch;
     });
-  }, [activeCategory, searchQuery, favoriteIds]);
+  }, [activeCategory, searchQuery, favoriteIds, allCombinedTracks]);
 
   const currentScholar = useMemo(() => {
     return (
@@ -618,8 +794,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   }, [selectedScholarId]);
 
   const scholarSeriesList = useMemo(() => {
-    return FAITH_AUDIO_SERIES.filter((s) => s.scholarId === currentScholar.id);
-  }, [currentScholar]);
+    return gymFaithAudio.getAllSeries().filter((s) => s.scholarId === currentScholar.id);
+  }, [currentScholar, customSeriesList]);
 
   const handlePlayScholarEpisode = (series: FaithAudioSeries, episode: FaithAudioEpisode) => {
     soundSynth.playTactileClick();
@@ -676,13 +852,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     e.stopPropagation();
     soundSynth.playTactileClick();
     haptic.vibrateLight();
-    setFavoriteIds((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      try {
-        localStorage.setItem('midmar_audio_favs', JSON.stringify(next));
-      } catch {}
-      return next;
-    });
+    gymFaithAudio.toggleFavorite(id);
+    setFavoriteIds(gymFaithAudio.getFavorites());
   };
 
   const handleSpeedCycle = () => {

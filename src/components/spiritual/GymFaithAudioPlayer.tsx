@@ -300,7 +300,7 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
   const handleCycleSpeed = () => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
-    const speeds = [1, 1.25, 1.5];
+    const speeds = [1, 1.25, 1.5, 2];
     const nextIdx = (speeds.indexOf(audioState.playbackRate) + 1) % speeds.length;
     gymFaithAudio.setPlaybackRate(speeds[nextIdx]);
   };
@@ -323,13 +323,13 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
 
   return (
     <div
-      className={`rounded-[26px] bg-[#141517] text-white border border-white/10 p-4 sm:p-5 shadow-md space-y-4 relative overflow-hidden transition-all ${className}`}
+      className={`rounded-[28px] bg-gradient-to-br from-[#121418] via-[#15181e] to-[#0f1315] text-white border border-white/12 p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.45)] space-y-4 relative overflow-hidden transition-all ${className}`}
     >
-      {/* Subtle Ambient Radial Glow */}
-      <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#e2defc]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-[#bce8c2]/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Studio Ambient Radial Glows */}
+      <div className="absolute -top-16 -right-16 w-56 h-56 bg-[#bce8c2]/12 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-[#fde6d8]/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* 1. Track Identity & Library CTA */}
+      {/* 1. Studio Header: Vinyl/Acoustic Disc + Track Identity + Library CTA */}
       <div className="flex items-center justify-between gap-3 relative z-10">
         {/* Right (RTL Start): Artwork + Titles with Thumb-Friendly Click Area */}
         <div
@@ -340,39 +340,40 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
               onOpenFullModal();
             }
           }}
-          className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer group select-none"
-          title={isAr ? 'انقر لفتح المحراب الصوتي الشامل (40+ درساً)' : 'Click to open Sanctuary (40+ lessons)'}
+          className="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer group select-none"
+          title={isAr ? 'انقر لفتح استوديو الأثير الكامل (65+ مادة صوتية وإذاعة)' : 'Click to open Full Audio Studio (65+)'}
         >
           <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 border shadow-xs relative overflow-hidden group-hover:scale-105 transition-transform ${
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 border shadow-md relative overflow-hidden group-hover:scale-105 transition-transform ${
               audioState.isPlaying
-                ? 'bg-[#bce8c2] text-[#141517] border-[#1eb814]/40 ring-2 ring-[#bce8c2]/40'
-                : 'bg-[#e2defc] text-[#141517] border-[#e2defc]/50'
+                ? 'bg-gradient-to-br from-[#bce8c2] to-[#86efac] text-[#141517] border-[#1eb814]/50 ring-2 ring-[#bce8c2]/40'
+                : 'bg-gradient-to-br from-[#232730] to-[#181a20] text-[#fde6d8] border-white/15'
             }`}
           >
-            {audioState.mode === 'series' ? '🎙️' : currentChannel.icon || '🎙️'}
+            <span>{audioState.mode === 'series' ? '🎙️' : currentChannel.icon || '🎙️'}</span>
             {audioState.isPlaying && (
               <div className="absolute inset-x-0 bottom-1 flex items-end justify-center gap-0.5 h-3 px-1 pointer-events-none">
-                <span className="w-0.5 bg-[#1eb814] rounded-full animate-bounce h-2" />
-                <span className="w-0.5 bg-[#141517] rounded-full animate-pulse h-3" />
-                <span className="w-0.5 bg-[#1eb814] rounded-full animate-bounce h-1.5" />
+                <span className="w-0.5 bg-[#141517] rounded-full animate-bounce h-2.5" />
+                <span className="w-0.5 bg-[#1eb814] rounded-full animate-pulse h-3" />
+                <span className="w-0.5 bg-[#141517] rounded-full animate-bounce h-1.5" />
+                <span className="w-0.5 bg-[#1eb814] rounded-full animate-pulse h-2.5" />
               </div>
             )}
           </div>
 
           <div className="min-w-0 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#e2defc] text-[#141517]">
+              <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-[#fde6d8] text-[#141517]">
                 {audioState.mode === 'series'
-                  ? (isAr ? 'أثير الوعي والدروس' : 'Faith Stream')
+                  ? (isAr ? '✨ أثير السلاسل والدروس' : 'Faith Series')
                   : (isAr ? currentChannel.badgeAr : currentChannel.badgeEn)}
               </span>
-              <span className="text-[11px] text-zinc-300 font-bold truncate">
+              <span className="text-[11px] text-[#bce8c2] font-bold truncate">
                 {audioState.currentSheikhAr}
               </span>
               {audioState.resumePoint && !audioState.isPlaying && (
-                <span className="text-[10px] font-black text-[#141517] bg-[#fde6d8] px-2.5 py-0.5 rounded-full hidden xs:inline-block">
-                  {isAr ? `نقطة التوقف: ${formatSeconds(audioState.resumePoint.currentTime)}` : `Resume: ${formatSeconds(audioState.resumePoint.currentTime)}`}
+                <span className="text-[10px] font-black text-[#141517] bg-[#e2defc] px-2.5 py-0.5 rounded-full hidden xs:inline-block">
+                  {isAr ? `استئناف من ${formatSeconds(audioState.resumePoint.currentTime)}` : `Resume: ${formatSeconds(audioState.resumePoint.currentTime)}`}
                 </span>
               )}
             </div>
@@ -392,11 +393,11 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
                 haptic.vibrateLight();
                 onOpenFullModal();
               }}
-              className="px-3.5 py-2 rounded-full bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517] text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0"
-              title={isAr ? 'فتح المحراب الصوتي الكامل (40+ درساً)' : 'Open Full Sanctuary'}
+              className="px-3.5 py-2 rounded-full bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517] text-xs font-black shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0"
+              title={isAr ? 'فتح استوديو الأثير الكامل (65+ مادة صوتية)' : 'Open Full Audio Studio (65+)'}
             >
-              <span>🎙️</span>
-              <span>{isAr ? 'المكتبة (40+)' : 'Library (40+)'}</span>
+              <span>🎧</span>
+              <span>{isAr ? 'استوديو الأثير (65+)' : 'Studio (65+)'}</span>
             </button>
           )}
 
@@ -411,6 +412,40 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
             </button>
           )}
         </div>
+      </div>
+
+      {/* 1.5 One-Tap Quick Station & Mood Switcher Strip */}
+      <div className="relative z-10 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+        {[
+          { id: 'makkah_quran_radio', labelAr: '🕋 تلاوات خاشعة', labelEn: 'Quran Live' },
+          { id: 'minshawi_radio', labelAr: '🌙 المنشاوي', labelEn: 'Minshawi' },
+          { id: 'husary_radio', labelAr: '📖 الحصري', labelEn: 'Husary' },
+          { id: 'tafseer_radio', labelAr: '💡 إذاعة التفسير', labelEn: 'Tafsir Radio' },
+          { id: 'seerah_radio', labelAr: '⚔️ إذاعة السيرة', labelEn: 'Seerah Radio' },
+          { id: 'ruqyah_radio', labelAr: '🛡️ الرقية والسكينة', labelEn: 'Ruqyah' },
+          { id: 'hamas_tarateel', labelAr: '🦁 ياسر الدوسري', labelEn: 'Al-Dosari' },
+        ].map((preset) => {
+          const isActivePreset =
+            audioState.mode === 'channel' && audioState.currentChannelId === preset.id;
+          return (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                gymFaithAudio.setChannel(preset.id, true);
+              }}
+              className={`px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 border ${
+                isActivePreset
+                  ? 'bg-[#fde6d8] text-[#141517] border-[#fde6d8] shadow-xs'
+                  : 'bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 border-white/10'
+              }`}
+            >
+              {isAr ? preset.labelAr : preset.labelEn}
+            </button>
+          );
+        })}
       </div>
 
       {/* 2. Compact Scrubber Progress Bar */}
@@ -546,8 +581,8 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
         </button>
       </div>
 
-      {/* 4. Series Drawer Toggle with Tactile Pill Button */}
-      <div className="relative z-10 flex items-center justify-center pt-0.5">
+      {/* 4. Series Drawer Toggle + Quick Quote Button */}
+      <div className="relative z-10 flex items-center justify-center gap-2 pt-0.5 flex-wrap">
         <button
           type="button"
           onClick={() => {
@@ -556,8 +591,19 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
           }}
           className="text-[11px] font-black text-[#141517] bg-[#e2defc] hover:bg-[#d4f5dc] flex items-center gap-1.5 transition-all py-1.5 px-4 rounded-full cursor-pointer min-h-[34px] active:scale-95 shadow-2xs"
         >
-          <span>{isAr ? (isSeriesListOpen ? 'طي قائمة السلاسل' : 'تصفح قائمة السلاسل هنا') : (isSeriesListOpen ? 'Hide series' : 'Browse series here')}</span>
+          <span>{isAr ? (isSeriesListOpen ? 'طي موسوعة السلاسل والشيوخ' : 'تصفح الشيوخ والسلاسل والإذاعات (22 شيخاً)') : (isSeriesListOpen ? 'Hide series' : 'Browse scholars & series')}</span>
           {isSeriesListOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            soundSynth.playTactileClick();
+            setShowQuoteCard((prev) => !prev);
+          }}
+          className="text-[11px] font-bold text-[#fde6d8] bg-white/10 hover:bg-white/15 py-1.5 px-3.5 rounded-full cursor-pointer min-h-[34px] transition-all"
+        >
+          ⚔️ {isAr ? 'موقف عزيمة من السيرة' : 'Seerah Grit Quote'}
         </button>
       </div>
 

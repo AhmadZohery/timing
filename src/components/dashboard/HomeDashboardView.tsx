@@ -18,6 +18,9 @@ import {
   Volume2,
   Globe,
   ChevronDown,
+  Play,
+  Pause,
+  Headphones,
 } from 'lucide-react';
 import type { DailyLog, UserState, StationId, UserProfile } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
@@ -55,6 +58,7 @@ import { FastingReminderModal } from '../spiritual/FastingReminderModal';
 import { NawafilGuideModal, type NafilaTab } from '../spiritual/NawafilGuideModal';
 import { ActiveStudyCourseWidget } from './ActiveStudyCourseWidget';
 import { ChessTacticalLabModal } from '../modals/ChessTacticalLabModal';
+import { BookReadingSanctuaryModal } from '../modals/BookReadingSanctuaryModal';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
 import { getHijriDateDetails } from '../../utils/prayerCalculator';
@@ -131,9 +135,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   }, []);
   const currentHour = now.getHours();
 
-  const [faithPlaying, setFaithPlaying] = useState(false);
+  const [faithAudioState, setFaithAudioState] = useState(() => gymFaithAudio.getState());
+  const faithPlaying = Boolean(faithAudioState.isPlaying);
   useEffect(() => {
-    const unsubscribe = gymFaithAudio.subscribe((s) => setFaithPlaying(Boolean(s.isPlaying)));
+    const unsubscribe = gymFaithAudio.subscribe((s) => setFaithAudioState(s));
     return () => {
       unsubscribe();
     };
@@ -325,6 +330,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
   const [isQuickScheduleOpen, setIsQuickScheduleOpen] = useState(false);
   const [isChessLabOpen, setIsChessLabOpen] = useState(false);
+  const [isBookSanctuaryOpen, setIsBookSanctuaryOpen] = useState(false);
 
   const todayBioDate = getBiologicalDate();
   const activeManualOverride: StationId | null =
@@ -1334,8 +1340,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </button>
         </div>
 
-        {/* Amber focus sprint dial + prophetic audio waveform */}
-        <div className="bento-3d-amber col-span-2 lg:col-span-6 rounded-[28px] border border-white/50 dark:border-amber-500/25 p-4 flex items-center gap-4">
+        {/* Amber focus sprint dial + Interactive Atheer Acoustic Studio Deck */}
+        <div className="bento-3d-amber col-span-2 lg:col-span-6 rounded-[28px] border border-white/50 dark:border-amber-500/25 p-3.5 sm:p-4 flex items-center gap-3.5">
           <button
             type="button"
             onClick={() => {
@@ -1343,10 +1349,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               haptic.vibrateLight();
               onSelectStation('WORK_MICRO_SPRINT');
             }}
-            className="bento-press relative w-24 h-24 shrink-0 rounded-full bg-white/70 dark:bg-white/10 flex items-center justify-center cursor-pointer"
+            className="bento-press relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-full bg-white/75 dark:bg-white/10 flex items-center justify-center cursor-pointer shadow-2xs"
             aria-label={isAr ? 'ابدأ شوط التركيز 20 دقيقة' : 'Start the 20-minute focus sprint'}
           >
-            <svg className="absolute inset-0 w-24 h-24 -rotate-90 overflow-visible" viewBox="0 0 100 100" aria-hidden="true">
+            <svg className="absolute inset-0 w-full h-full -rotate-90 overflow-visible" viewBox="0 0 100 100" aria-hidden="true">
               <GlowRing
                 r={44}
                 width={6}
@@ -1358,52 +1364,128 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               />
             </svg>
             <span className="relative flex flex-col items-center text-amber-950 dark:text-amber-100">
-              <bdi dir="ltr" className="text-3xl font-bold tabular-nums leading-none">20</bdi>
-              <span className="text-xs font-semibold leading-[1.6] mt-0.5">{isAr ? 'دقيقة' : 'min'}</span>
+              <bdi dir="ltr" className="text-2xl sm:text-3xl font-bold tabular-nums leading-none">20</bdi>
+              <span className="text-[11px] font-semibold leading-[1.6] mt-0.5">{isAr ? 'دقيقة' : 'min'}</span>
             </span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              if (onOpenFaithAudio) onOpenFaithAudio();
-              else onSelectStation('GYM_ANCHOR');
-            }}
-            className="touch-target flex-1 min-w-0 min-h-[44px] flex flex-col items-stretch gap-1.5 cursor-pointer text-start"
-            aria-pressed={faithPlaying}
-            aria-label={
-              isAr
-                ? faithPlaying
-                  ? 'أثير السيرة النبوية يعمل الآن: اضغط للفتح'
-                  : 'افتح أثير السيرة النبوية'
-                : faithPlaying
-                ? 'Prophetic audio is playing: tap to open'
-                : 'Open prophetic audio'
-            }
-          >
-            <span dir="ltr" className="flex items-center justify-center gap-[3px] h-14" aria-hidden="true">
-              {WAVE_BARS.map((h, i) => (
-                <span
-                  key={i}
-                  className={`wave-bar w-[2px] shrink-0 rounded-full bg-amber-900/80 dark:bg-amber-300/80 ${
-                    faithPlaying ? 'wave-bar-play' : 'opacity-60'
-                  }`}
-                  style={
-                    {
-                      height: h,
-                      '--d': `${900 + (i % 5) * 130}ms`,
-                      '--dl': `-${i * 70}ms`,
-                    } as React.CSSProperties
-                  }
-                />
-              ))}
-            </span>
-            <span className="text-xs font-bold text-amber-950 dark:text-amber-100 text-center">
-              {isAr ? 'أثير السيرة النبوية' : 'Prophetic audio'}
-            </span>
-          </button>
+          {/* Interactive Atheer Broadcast Studio Deck */}
+          <div className="flex-1 min-w-0 rounded-[22px] bg-[#141517] text-white p-3 border border-white/12 shadow-md flex flex-col justify-between gap-2 relative overflow-hidden">
+            <div className="pointer-events-none absolute -top-8 -end-8 w-24 h-24 rounded-full bg-[#bce8c2]/15 blur-xl" />
+
+            {/* Top Row: Play/Pause + Track Metadata + Waveform */}
+            <div className="flex items-center justify-between gap-2.5 relative z-10">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  gymFaithAudio.togglePlay();
+                }}
+                aria-label={faithPlaying ? (isAr ? 'إيقاف الأثير مؤقتاً' : 'Pause Audio') : (isAr ? 'تشغيل الأثير فوراً' : 'Play Audio')}
+                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer active:scale-90 transition-all shadow-sm ${
+                  faithPlaying
+                    ? 'bg-[#fde6d8] text-[#141517] ring-2 ring-amber-400/50'
+                    : 'bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517]'
+                }`}
+              >
+                {faithPlaying ? (
+                  <Pause className="w-4 h-4 fill-current" />
+                ) : (
+                  <Play className="w-4 h-4 fill-current ms-0.5" />
+                )}
+              </button>
+
+              <div
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  if (onOpenFaithAudio) onOpenFaithAudio();
+                  else onSelectStation('GYM_ANCHOR');
+                }}
+                className="min-w-0 flex-1 cursor-pointer text-start"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#bce8c2]/20 text-[#bce8c2]">
+                    {faithPlaying ? (isAr ? '🔊 يعمل الآن' : '🔊 Live') : (isAr ? '🎙️ استوديو الأثير' : '🎙️ Atheer')}
+                  </span>
+                  <span className="text-[10px] font-bold text-zinc-400 truncate">
+                    {faithAudioState.currentSheikhAr}
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-white truncate mt-0.5">
+                  {faithAudioState.currentTitleAr || (isAr ? 'أثير السيرة والتلاوات الخاشعة' : 'Prophetic & Quran Audio')}
+                </p>
+              </div>
+
+              {/* Compact Animated Spectrum */}
+              <span dir="ltr" className="hidden sm:flex items-center justify-center gap-[2px] h-8 px-1 shrink-0" aria-hidden="true">
+                {WAVE_BARS.slice(10, 24).map((h, i) => (
+                  <span
+                    key={i}
+                    className={`wave-bar w-[2px] shrink-0 rounded-full bg-[#bce8c2] ${
+                      faithPlaying ? 'wave-bar-play' : 'opacity-45'
+                    }`}
+                    style={
+                      {
+                        height: Math.max(6, Math.round(h * 0.55)),
+                        '--d': `${900 + (i % 5) * 130}ms`,
+                        '--dl': `-${i * 70}ms`,
+                      } as React.CSSProperties
+                    }
+                  />
+                ))}
+              </span>
+            </div>
+
+            {/* Bottom Row: 1-Tap Quick Station Switchers + Open 65+ Studio Modal */}
+            <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-white/10 relative z-10 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-1 shrink-0">
+                {[
+                  { id: 'makkah_quran_radio', label: isAr ? '🕋 تلاوات' : 'Quran' },
+                  { id: 'seerah_radio', label: isAr ? '⚔️ السيرة' : 'Seerah' },
+                  { id: 'tafseer_radio', label: isAr ? '💡 تفسير' : 'Tafsir' },
+                ].map((st) => {
+                  const activeSt =
+                    faithAudioState.mode === 'channel' && faithAudioState.currentChannelId === st.id;
+                  return (
+                    <button
+                      key={st.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        gymFaithAudio.setChannel(st.id, true);
+                      }}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer ${
+                        activeSt
+                          ? 'bg-[#fde6d8] text-[#141517]'
+                          : 'bg-white/10 hover:bg-white/20 text-zinc-300'
+                      }`}
+                    >
+                      {st.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  if (onOpenFaithAudio) onOpenFaithAudio();
+                  else onSelectStation('GYM_ANCHOR');
+                }}
+                className="px-2.5 py-0.5 rounded-full bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517] text-[10px] font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+              >
+                <Headphones className="w-3 h-3" />
+                <span>{isAr ? 'المكتبة (65+)' : 'Studio (65+)'}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Notification permission nudge: slim row below the hero content, never above the fold */}
@@ -2057,6 +2139,18 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
+                  setIsBookSanctuaryOpen(true);
+                }}
+                className="px-3.5 py-2 rounded-full bg-habit-green-ink text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
+              >
+                <span>📚</span>
+                <span>{isAr ? 'مكتبة القراءة والكتب' : 'Book Reading Shelf'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
                   setIsChessLabOpen(true);
                 }}
                 className="px-3.5 py-2 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
@@ -2108,8 +2202,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           />
 
           {/* ============================================================== */}
-          {/* 1.3 MOTIVATING 3-CARD DAILY HIGHLIGHTS BENTO (ومضات اليوم)      */}
-          {/* Instant 1-tap access to Vocab Word, Mental Model & Chess Lab   */}
+          {/* 1.3 MOTIVATING 4-CARD DAILY HIGHLIGHTS BENTO (ومضات اليوم)      */}
+          {/* Instant 1-tap access to Vocab, Wisdom, Chess Lab & Books       */}
           {/* ============================================================== */}
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between px-1">
@@ -2117,11 +2211,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 {isAr ? 'ومضات وإلهام اليوم' : 'Daily Highlights'}
               </h2>
               <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
-                {isAr ? 'تغذية العقل واللسان والتركيز التكتيكي' : 'Mind, Language & Tactical Focus'}
+                {isAr ? 'الكتب، اللغات، نماذج التفكير، والتركيز التكتيكي' : 'Books, Language, Models & Chess'}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               {/* Highlight 1: Word of the Day with 1-Tap Audio & Quiz Modal (Soft Lavender #e2defc) */}
               <div
                 onClick={() => {
@@ -2233,6 +2327,40 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
                 <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-300 flex items-center justify-between">
                   <span>{isAr ? 'افتح الرقعة التفاعلية والخطط' : 'Open Board & Plans'}</span>
+                  <span>{isAr ? '←' : '→'}</span>
+                </span>
+              </button>
+
+              {/* Highlight 4: Book Reading Sanctuary & Daily Page Logger (Soft Rose/Gold) */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setIsBookSanctuaryOpen(true);
+                }}
+                className="bento-3d-rose p-4 rounded-[24px] border border-white/50 dark:border-rose-500/25 text-start flex flex-col justify-between gap-2.5 cursor-pointer active:scale-[0.98] transition-all"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#a824e0] text-white text-[10px] font-bold">
+                      📚 {isAr ? 'محراب القراءة' : 'Reading Shelf'}
+                    </span>
+                    <span className="text-[10px] font-bold text-rose-950 dark:text-rose-200">
+                      {isAr ? '+15 XP للصفحات' : '+15 XP'}
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                    {isAr ? 'رف الكتب والورد القرائي اليومي' : 'Bookshelf & Daily Pages Tracker'}
+                  </p>
+                  <p className="text-[11px] text-zinc-700 dark:text-rose-100/80 line-clamp-1">
+                    {isAr
+                      ? 'تتبع الصفحات (+5/+10 ص)، مؤقت قراءة هادئ، ودفتر الفوائد والاقتباسات'
+                      : 'Log pages read, focus timer, and book quotes vault'}
+                  </p>
+                </div>
+                <span className="text-[11px] font-bold text-rose-900 dark:text-rose-300 flex items-center justify-between">
+                  <span>{isAr ? 'افتح رف الكتب وسجّل صفحاتك' : 'Open Bookshelf'}</span>
                   <span>{isAr ? '←' : '→'}</span>
                 </span>
               </button>
@@ -3493,6 +3621,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       <ChessTacticalLabModal
         isOpen={isChessLabOpen}
         onClose={() => setIsChessLabOpen(false)}
+        isAr={isAr}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Book Reading Sanctuary & Daily Page Tracker Modal */}
+      <BookReadingSanctuaryModal
+        isOpen={isBookSanctuaryOpen}
+        onClose={() => setIsBookSanctuaryOpen(false)}
         isAr={isAr}
         onRewardToast={onRewardToast}
       />
