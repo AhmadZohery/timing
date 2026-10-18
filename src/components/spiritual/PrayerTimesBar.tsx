@@ -694,7 +694,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 1.5 CLICKABLE 12-RAK'AH SUNNAH RAWATIB ("HOUSE IN JANNAH")   */}
+      {/* 1.5 ARCHITECTURAL 12-RAK'AH SUNNAH RAWATIB & FARD PROGRESS   */}
       {/* ============================================================ */}
       <button
         type="button"
@@ -704,35 +704,64 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           setNawafilModalTab('rawatib');
           setIsNawafilModalOpen(true);
         }}
-        className="w-full rounded-[20px] bg-gradient-to-r from-[#e2defc]/85 via-[#d4f5dc]/85 to-[#fde6d8]/85 dark:from-indigo-950/50 dark:via-emerald-950/50 dark:to-amber-950/50 border border-indigo-200/70 dark:border-white/10 px-3.5 py-2.5 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition-all text-start"
+        className="w-full rounded-[20px] bg-zinc-100/85 dark:bg-zinc-900/80 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/80 border border-zinc-200/90 dark:border-white/10 px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all text-start shadow-2xs"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm shrink-0">🕌</span>
-          <span className="text-[11px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">
-            {isAr
-              ? `بيت في الجنة (السنن الرواتب): ${totalSunnahRakatsCompleted}/12 ركعة`
-              : `12 Sunnah Rawatib: ${totalSunnahRakatsCompleted}/12 Rak'ahs`}
+        <div className="flex items-center justify-between sm:justify-start gap-2.5 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-7 h-7 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3c-3.5 3-6 6.5-6 10v8h12v-8c0-3.5-2.5-7-6-10Z" />
+                <path d="M9 21v-5a3 3 0 0 1 6 0v5" />
+                <path d="M12 2v1" />
+              </svg>
+            </span>
+            <div className="min-w-0">
+              <span className="block text-[11px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">
+                {isAr
+                  ? 'بيت في الجنة • السنن الرواتب المؤكدة'
+                  : 'House in Jannah • 12 Sunnah Rawatib'}
+              </span>
+            </div>
+          </div>
+
+          <span className="sm:hidden text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-0.5 rounded-full shrink-0">
+            {isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5 Fard`}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="w-16 sm:w-24 h-2 rounded-full bg-white/80 dark:bg-zinc-800 overflow-hidden p-0.5">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[#5448e8] to-[#1eb814] transition-all duration-500"
-              style={{ width: `${Math.min(100, Math.round((totalSunnahRakatsCompleted / 12) * 100))}%` }}
-            />
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
+          {/* 12 Segmented Pearl Blocks for 12 Rak'ahs */}
+          <div className="flex items-center gap-1 flex-1 sm:flex-initial" title={isAr ? `${totalSunnahRakatsCompleted} من 12 ركعة سنة راتبة` : `${totalSunnahRakatsCompleted}/12 Rak'ahs`}>
+            {Array.from({ length: 12 }).map((_, idx) => {
+              const isFilled = idx < totalSunnahRakatsCompleted;
+              return (
+                <span
+                  key={idx}
+                  className={`h-2 flex-1 sm:w-2.5 sm:flex-initial rounded-full transition-all duration-300 ${
+                    isFilled
+                      ? 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.45)]'
+                      : 'bg-zinc-300/80 dark:bg-zinc-700/70'
+                  }`}
+                />
+              );
+            })}
           </div>
-          <span className="text-[10px] font-bold text-indigo-950 dark:text-indigo-200 bg-white/80 dark:bg-white/10 px-2 py-0.5 rounded-full">
-            {isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5`}
+
+          <span className="text-[11px] font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0">
+            <bdi dir="ltr">{totalSunnahRakatsCompleted}/12</bdi> {isAr ? 'ركعة' : 'R'}
+          </span>
+
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-0.5 rounded-full shrink-0">
+            <span>{isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5 Fard`}</span>
           </span>
         </div>
       </button>
 
       {/* ============================================================ */}
-      {/* 2. GENIUS 5-COLUMN CIRCADIAN PASTEL PRAYER CARDS             */}
-      {/* Tap card = Full Sunnah/Status Modal | Tap check = 1-Tap Log! */}
+      {/* 2. ARCHITECTURAL 5-COLUMN MIHRAB HOROLOGY PRAYER DECK        */}
+      {/* Tap card = Full Sunnah/Status Modal | Tap button = 1-Tap Log */}
       {/* ============================================================ */}
-      <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
         {prayerCards.map((p) => {
           const record = prayers[p.name];
           const isDone = Boolean(
@@ -753,29 +782,6 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           const sunnahLogged =
             (record?.sunnahQabliyahRakats || 0) + (record?.sunnahBadiyahRakats || 0);
 
-          // Motivating Circadian Pastel Identity per Prayer when pending
-          const pendingCircadianStyle =
-            p.name === 'fajr'
-              ? 'bg-[#e0f2fe] dark:bg-sky-950/45 border-sky-300/70 dark:border-sky-500/25 text-sky-950 dark:text-sky-100'
-              : p.name === 'dhuhr'
-              ? 'bg-[#fef3c7] dark:bg-amber-950/45 border-amber-300/70 dark:border-amber-500/25 text-amber-950 dark:text-amber-100'
-              : p.name === 'asr'
-              ? 'bg-[#ffedd5] dark:bg-orange-950/45 border-orange-300/70 dark:border-orange-500/25 text-orange-950 dark:text-orange-100'
-              : p.name === 'maghrib'
-              ? 'bg-[#fce2e6] dark:bg-rose-950/45 border-rose-300/70 dark:border-rose-500/25 text-rose-950 dark:text-rose-100'
-              : 'bg-[#e2defc] dark:bg-indigo-950/45 border-indigo-300/70 dark:border-indigo-500/25 text-indigo-950 dark:text-indigo-100';
-
-          const prayerEmoji =
-            p.name === 'fajr'
-              ? '🌅'
-              : p.name === 'dhuhr'
-              ? '☀️'
-              : p.name === 'asr'
-              ? '🌤️'
-              : p.name === 'maghrib'
-              ? '🌇'
-              : '🌙';
-
           const statusMicroLabel = isDone
             ? record?.status === 'in_group'
               ? isAr
@@ -783,30 +789,100 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                 : 'Group ★'
               : record?.status === 'on_time'
               ? isAr
-                ? 'في الوقت ✓'
-                : 'On time ✓'
+                ? 'في الوقت'
+                : 'On time'
               : isAr
               ? 'تمت ✓'
               : 'Done ✓'
             : p.name === 'fajr'
             ? isAr
-              ? '+٢ سنة'
-              : '+2 Sunnah'
+              ? '٢ سنة'
+              : '2 Sunnah'
             : p.name === 'dhuhr'
             ? isAr
-              ? '+٦ سنن'
-              : '+6 Sunnah'
+              ? '٦ سنن'
+              : '6 Sunnah'
             : p.name === 'asr'
             ? isAr
-              ? '+٤ سنن'
-              : '+4 Sunnah'
+              ? '٤ سنن'
+              : '4 Sunnah'
             : p.name === 'maghrib'
             ? isAr
-              ? '+٢ سنة'
-              : '+2 Sunnah'
+              ? '٢ سنة'
+              : '2 Sunnah'
             : isAr
-            ? '+٢ ووتر'
-            : '+2 & Witr';
+            ? '٢ + وتر'
+            : '2 + Witr';
+
+          // Bespoke Celestial SVG Icon per prayer (replaces cartoon OS emojis)
+          const renderCelestialSvg = () => {
+            const iconClass = `w-4 h-4 transition-transform duration-300 group-hover:scale-110 ${
+              isDone
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : isNext
+                ? 'text-amber-400'
+                : 'text-zinc-500 dark:text-zinc-400'
+            }`;
+            if (p.name === 'fajr') {
+              return (
+                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v4" />
+                  <path d="m4.93 10.93 1.41 1.41" />
+                  <path d="M2 18h2" />
+                  <path d="M20 18h2" />
+                  <path d="m19.07 10.93-1.41 1.41" />
+                  <path d="M22 22H2" />
+                  <path d="M8 18a4 4 0 0 1 8 0" />
+                </svg>
+              );
+            }
+            if (p.name === 'dhuhr') {
+              return (
+                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2" />
+                  <path d="M12 20v2" />
+                  <path d="m4.93 4.93 1.41 1.41" />
+                  <path d="m17.66 17.66 1.41 1.41" />
+                  <path d="M2 12h2" />
+                  <path d="M20 12h2" />
+                  <path d="m6.34 17.66-1.41 1.41" />
+                  <path d="m19.07 4.93-1.41 1.41" />
+                </svg>
+              );
+            }
+            if (p.name === 'asr') {
+              return (
+                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 3v1" />
+                  <path d="M12 20v1" />
+                  <path d="M3 12h1" />
+                  <path d="M20 12h1" />
+                  <path d="m18.364 5.636-.707.707" />
+                  <path d="m6.343 17.657-.707.707" />
+                </svg>
+              );
+            }
+            if (p.name === 'maghrib') {
+              return (
+                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 10V2" />
+                  <path d="m4.93 10.93 1.41 1.41" />
+                  <path d="M2 18h2" />
+                  <path d="M20 18h2" />
+                  <path d="m19.07 10.93-1.41 1.41" />
+                  <path d="M22 22H2" />
+                  <path d="M16 18a4 4 0 0 0-8 0" />
+                </svg>
+              );
+            }
+            return (
+              <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            );
+          };
 
           return (
             <div
@@ -824,29 +900,40 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                   handleOpenPrayerModal(p.name);
                 }
               }}
-              className={`group relative py-3 px-1.5 sm:p-3.5 rounded-[24px] border transition-all duration-200 flex flex-col items-center justify-between text-center gap-1.5 cursor-pointer select-none active:scale-95 ${
+              className={`group relative py-3 px-1.5 sm:p-3.5 rounded-[22px] border transition-all duration-200 flex flex-col items-center justify-between text-center gap-2 cursor-pointer select-none active:scale-95 overflow-hidden ${
                 isDone
-                  ? 'bg-gradient-to-b from-[#d4f5dc] to-[#bce8c2] dark:from-emerald-950/80 dark:to-emerald-900/60 border-[#1eb814]/50 text-zinc-900 dark:text-emerald-100 shadow-xs'
+                  ? 'bg-gradient-to-b from-emerald-500/15 via-emerald-500/10 to-emerald-600/5 dark:from-emerald-950/75 dark:via-emerald-900/40 dark:to-zinc-900/90 border-emerald-500/45 dark:border-emerald-500/40 text-zinc-900 dark:text-emerald-50 shadow-2xs'
                   : isNext
-                  ? 'bg-[#141517] dark:bg-white border-[#ff5500] text-white dark:text-zinc-950 ring-2 ring-[#ff5500]/60 shadow-lg scale-[1.03]'
-                  : `${pendingCircadianStyle} hover:scale-[1.01]`
+                  ? 'bg-gradient-to-b from-[#14181f] via-[#122220] to-[#11151a] border-emerald-500/60 text-white ring-1 ring-emerald-500/35 shadow-[0_8px_24px_rgba(16,185,129,0.18)]'
+                  : 'bg-zinc-50/90 dark:bg-zinc-900/65 hover:bg-zinc-100/90 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-900 dark:text-zinc-100'
               }`}
               title={
                 isAr
-                  ? `${p.title} (${timeFormatted}) — اضغط للتفاصيل والسنن، أو اضغط الدائرة للتسجيل الفوري`
-                  : `${p.title} (${timeFormatted}) — Tap card for details or circle for 1-tap log`
+                  ? `${p.title} (${timeFormatted}) — اضغط للسنن والتفاصيل، أو اضغط الزر السفلي للتوثيق الفوري`
+                  : `${p.title} (${timeFormatted}) — Tap card for details or button for 1-tap log`
               }
             >
-              {/* Top Celestial Icon + Prayer Name */}
-              <div className="flex flex-col items-center gap-0.5 w-full">
-                <span className="text-xs leading-none">{prayerEmoji}</span>
+              {/* Subtle top architectural accent bar for active or completed prayer */}
+              {(isNext || isDone) && (
                 <span
-                  className={`text-xs font-bold truncate w-full leading-tight ${
+                  className={`absolute top-0 inset-x-3 h-0.5 rounded-full ${
+                    isDone ? 'bg-emerald-500' : 'bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-400'
+                  }`}
+                />
+              )}
+
+              {/* Top Celestial SVG Icon + Prayer Name */}
+              <div className="flex flex-col items-center gap-1 w-full">
+                <div className="h-5 flex items-center justify-center">
+                  {renderCelestialSvg()}
+                </div>
+                <span
+                  className={`text-xs sm:text-[13px] font-bold truncate w-full leading-tight ${
                     isDone
-                      ? 'text-zinc-950 dark:text-emerald-100'
+                      ? 'text-emerald-950 dark:text-emerald-100'
                       : isNext
-                      ? 'text-white dark:text-zinc-950'
-                      : 'text-zinc-900 dark:text-white'
+                      ? 'text-white'
+                      : 'text-zinc-900 dark:text-zinc-100'
                   }`}
                 >
                   {p.title}
@@ -855,18 +942,18 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
               {/* Prayer Time (Tabular Mono) */}
               <span
-                className={`text-[11px] sm:text-xs font-mono font-bold tabular-nums leading-none ${
+                className={`text-[11px] sm:text-xs font-mono font-bold tabular-nums leading-none px-2 py-0.5 rounded-md ${
                   isDone
-                    ? 'text-emerald-950 dark:text-emerald-200'
+                    ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/10'
                     : isNext
-                    ? 'text-amber-300 dark:text-amber-600'
-                    : 'text-zinc-700 dark:text-zinc-300'
+                    ? 'text-amber-300 bg-white/10'
+                    : 'text-zinc-600 dark:text-zinc-400 bg-zinc-200/60 dark:bg-white/5'
                 }`}
               >
                 <bdi dir="ltr">{timeDigits}</bdi>
               </span>
 
-              {/* 1-Tap Instant Log Button (Independent Click Action!) */}
+              {/* 1-Tap Instant Log Button (Crystal-clear distinction between Done vs Next vs Pending!) */}
               <button
                 type="button"
                 onClick={async (e) => {
@@ -901,42 +988,53 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                 }}
                 className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all cursor-pointer active:scale-90 ${
                   isDone
-                    ? 'bg-habit-green-ink text-white shadow-sm ring-2 ring-white/60 dark:ring-black/30'
+                    ? 'bg-[#1eb814] text-white shadow-sm ring-2 ring-emerald-500/30'
                     : isNext
-                    ? 'bg-habit-flame-ink hover:bg-habit-flame-ink-deep text-white shadow-md ring-2 ring-white/30'
-                    : 'bg-white/90 dark:bg-zinc-900/90 hover:bg-habit-green-ink hover:text-white text-zinc-700 dark:text-zinc-200 border border-black/10 dark:border-white/15 shadow-2xs'
+                    ? 'bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white border-2 border-emerald-400/80 shadow-sm'
+                    : 'bg-white dark:bg-zinc-800/90 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 text-zinc-400 dark:text-zinc-500 border border-zinc-300 dark:border-zinc-700'
                 }`}
                 title={
                   isDone
                     ? isAr
-                      ? 'تعديل حالة الصلاة والسنن'
-                      : 'Edit Prayer & Sunnah'
+                      ? 'تم توثيق الصلاة ✓ (اضغط لتعديل الحالة أو السنن)'
+                      : 'Prayer logged ✓ (Tap to edit)'
                     : isAr
-                    ? `تسجيل فوري لصلاة ${p.title} في جماعة مع السنن (+30 XP)`
+                    ? `توثيق فوري لصلاة ${p.title} في جماعة مع السنن (+30 XP)`
                     : `1-Tap log ${p.title} in group (+30 XP)`
                 }
               >
                 {isDone ? (
                   <Check className="w-4 h-4 stroke-[2.8]" />
-                ) : (
-                  <Check className="w-3.5 h-3.5 stroke-[2.5] opacity-75 group-hover:opacity-100" />
+                ) : isNext ? (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping group-hover:hidden" />
+                ) : null}
+                {!isDone && (
+                  <Check
+                    className={`w-3.5 h-3.5 stroke-[2.5] transition-opacity ${
+                      isNext ? 'hidden group-hover:block' : 'opacity-0 group-hover:opacity-100'
+                    }`}
+                  />
                 )}
               </button>
 
               {/* Micro Status / Sunnah Tag */}
               <span
-                className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full truncate max-w-full leading-none ${
+                className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full truncate max-w-full leading-none ${
                   isDone
-                    ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
+                    ? 'bg-emerald-500/20 text-emerald-900 dark:text-emerald-200'
                     : isNext
-                    ? 'bg-white/15 text-amber-200 dark:bg-zinc-200 dark:text-zinc-800'
-                    : 'bg-white/65 dark:bg-black/25 text-zinc-700 dark:text-zinc-300'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    : 'bg-zinc-200/75 dark:bg-white/5 text-zinc-600 dark:text-zinc-400'
                 }`}
               >
                 {isDone && sunnahLogged > 0
                   ? isAr
                     ? `${statusMicroLabel} +${sunnahLogged}س`
                     : `${statusMicroLabel} +${sunnahLogged}S`
+                  : isNext && !isDone
+                  ? isAr
+                    ? 'القادمة • ' + statusMicroLabel
+                    : 'Next • ' + statusMicroLabel
                   : statusMicroLabel}
               </span>
             </div>
@@ -945,10 +1043,10 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 2.5 ALWAYS-VISIBLE 1-TAP NAWAFIL & DHIKR QUICK CHIPS         */}
+      {/* 2.5 UNIFIED ARCHITECTURAL NAWAFIL & DHIKR QUICK TILES        */}
       {/* ============================================================ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
-        {/* Chip 1: Salat Al-Dhuha */}
+        {/* Tile 1: Salat Al-Dhuha */}
         <button
           type="button"
           onClick={() => {
@@ -957,19 +1055,33 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             setNawafilModalTab('dhuha');
             setIsNawafilModalOpen(true);
           }}
-          className={`px-3 py-2 rounded-[16px] border text-xs font-bold flex items-center justify-between gap-1.5 cursor-pointer active:scale-95 transition-all ${
+          className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             todayLog?.dhuhaDone
-              ? 'bg-[#bce8c2] dark:bg-emerald-950/70 border-[#1eb814]/50 text-zinc-900 dark:text-emerald-100'
-              : 'bg-[#fef3c7]/70 dark:bg-amber-950/30 border-amber-300/60 dark:border-amber-500/20 text-amber-950 dark:text-amber-200 hover:bg-[#fef3c7]'
+              ? 'bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/40 text-emerald-950 dark:text-emerald-100'
+              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
           }`}
         >
-          <span className="truncate">☀️ {isAr ? 'صلاة الضحى' : 'Dhuha Prayer'}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/80 dark:bg-black/30 font-mono shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+            </span>
+            <span className="truncate">{isAr ? 'صلاة الضحى' : 'Dhuha Prayer'}</span>
+          </div>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ${
+              todayLog?.dhuhaDone
+                ? 'bg-[#1eb814] text-white'
+                : 'bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300'
+            }`}
+          >
             {todayLog?.dhuhaDone ? '✓' : '+15'}
           </span>
         </button>
 
-        {/* Chip 2: Qiyam Al-Layl */}
+        {/* Tile 2: Qiyam Al-Layl */}
         <button
           type="button"
           onClick={() => {
@@ -978,19 +1090,32 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             setNawafilModalTab('qiyam');
             setIsNawafilModalOpen(true);
           }}
-          className={`px-3 py-2 rounded-[16px] border text-xs font-bold flex items-center justify-between gap-1.5 cursor-pointer active:scale-95 transition-all ${
+          className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             todayLog?.qiyamNightDone
-              ? 'bg-[#bce8c2] dark:bg-emerald-950/70 border-[#1eb814]/50 text-zinc-900 dark:text-emerald-100'
-              : 'bg-[#e2defc]/75 dark:bg-indigo-950/30 border-indigo-300/60 dark:border-indigo-500/20 text-indigo-950 dark:text-indigo-200 hover:bg-[#e2defc]'
+              ? 'bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/40 text-emerald-950 dark:text-emerald-100'
+              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
           }`}
         >
-          <span className="truncate">🌌 {isAr ? 'قيام الليل' : 'Night Vigil'}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/80 dark:bg-black/30 font-mono shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            </span>
+            <span className="truncate">{isAr ? 'قيام الليل' : 'Night Vigil'}</span>
+          </div>
+          <span
+            className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ${
+              todayLog?.qiyamNightDone
+                ? 'bg-[#1eb814] text-white'
+                : 'bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300'
+            }`}
+          >
             {todayLog?.qiyamNightDone ? '✓' : '+30'}
           </span>
         </button>
 
-        {/* Chip 3: Post-Prayer Tasbih & Dhikr */}
+        {/* Tile 3: Post-Prayer Tasbih & Dhikr */}
         <button
           type="button"
           onClick={() => {
@@ -1003,19 +1128,24 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
               setIsExtrasExpanded(true);
             }
           }}
-          className={`px-3 py-2 rounded-[16px] border text-xs font-bold flex items-center justify-between gap-1.5 cursor-pointer active:scale-95 transition-all ${
+          className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             isExtrasExpanded && sanctuaryTab === 'tasbih'
-              ? 'bg-habit-green-ink text-white border-[#1eb814]'
-              : 'bg-[#d4f5dc]/75 dark:bg-emerald-950/30 border-emerald-300/60 dark:border-emerald-500/20 text-emerald-950 dark:text-emerald-200 hover:bg-[#d4f5dc]'
+              ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-[#141517] dark:border-white'
+              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
           }`}
         >
-          <span className="truncate">📿 {isAr ? 'ختام الصلاة' : 'Post-Prayer'}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/80 dark:bg-black/30 text-zinc-900 dark:text-white font-mono shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            </span>
+            <span className="truncate">{isAr ? 'ختام الصلاة' : 'Post-Prayer'}</span>
+          </div>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 font-mono font-bold shrink-0">
             33×3
           </span>
         </button>
 
-        {/* Chip 4: Qadaa Missed Prayers Log */}
+        {/* Tile 4: Qadaa Missed Prayers Log */}
         <button
           type="button"
           onClick={() => {
@@ -1028,14 +1158,19 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
               setIsExtrasExpanded(true);
             }
           }}
-          className={`px-3 py-2 rounded-[16px] border text-xs font-bold flex items-center justify-between gap-1.5 cursor-pointer active:scale-95 transition-all ${
+          className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             isExtrasExpanded && sanctuaryTab === 'qadaa'
-              ? 'bg-[#141517] text-white border-[#141517]'
-              : 'bg-[#fce2e6]/75 dark:bg-rose-950/30 border-rose-300/60 dark:border-rose-500/20 text-rose-950 dark:text-rose-200 hover:bg-[#fce2e6]'
+              ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-[#141517] dark:border-white'
+              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
           }`}
         >
-          <span className="truncate">🗓️ {isAr ? 'سجل القضاء' : 'Qadaa Log'}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/80 dark:bg-black/30 text-zinc-900 dark:text-white font-mono shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-6 h-6 rounded-lg bg-zinc-500/15 text-zinc-600 dark:text-zinc-400 flex items-center justify-center shrink-0">
+              <RotateCcw className="w-3.5 h-3.5" />
+            </span>
+            <span className="truncate">{isAr ? 'سجل القضاء' : 'Qadaa Log'}</span>
+          </div>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 font-bold shrink-0">
             {isAr ? 'فوائت' : 'Track'}
           </span>
         </button>
