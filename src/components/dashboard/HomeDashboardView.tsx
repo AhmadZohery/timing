@@ -997,10 +997,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           onSelectPrayer={(p) => triggerPrayerModal(p)}
         />
 
-        {/* 7-Day Horizontal Week Calendar Strip (Interactive Day Inspector) */}
-        <div className="grid grid-cols-7 gap-0 pt-1">
+        {/* 7-Day Horizontal Week Calendar Strip (Interactive Day Inspector with 5-Prayer Constellation Dots) */}
+        <div className="grid grid-cols-7 gap-1 sm:gap-1.5 pt-1">
           {weekDaysStrip.map((day) => {
             const isSelectedDay = selectedWeekDateStr === day.dateStr;
+            const isFutureDay = day.dateStr > todayBioDate;
             return (
               <button
                 key={day.dateStr}
@@ -1017,27 +1018,55 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 className="flex flex-col items-center gap-1.5 group cursor-pointer select-none rounded-2xl min-h-[44px] px-0 focus-visible:outline-offset-4"
                 title={
                   isAr
-                    ? `اضغط لعرض حصاد يوم ${day.dayLabel} (${day.dateStr})`
-                    : `Tap to inspect ${day.dayLabel} (${day.dateStr})`
+                    ? `اضغط لعرض حصاد يوم ${day.dayLabel} (${day.dateStr}) • ${day.prayersDoneCount}/5 صلوات`
+                    : `Tap to inspect ${day.dayLabel} (${day.dateStr}) • ${day.prayersDoneCount}/5 prayers`
                 }
               >
                 <div
-                  className={`relative w-full max-w-[2.5rem] h-11 sm:h-12 rounded-2xl flex items-center justify-center text-xs sm:text-sm font-bold tabular-nums transition-all ${
+                  className={`relative w-full max-w-[2.65rem] h-12 sm:h-13 rounded-2xl flex flex-col items-center justify-center gap-1 text-xs sm:text-sm font-bold tabular-nums transition-all ${
                     isSelectedDay
-                      ? 'bg-gradient-to-b from-[#1fb23a] to-[#0d7a2a] text-white ring-2 ring-emerald-300 shadow-lg scale-105'
+                      ? 'bg-gradient-to-b from-[#1fb23a] to-[#0d7a2a] text-white ring-2 ring-amber-300 shadow-[0_8px_20px_rgba(34,197,94,0.4)] scale-105'
                       : day.isToday
-                      ? 'bg-gradient-to-b from-[#16a34a] to-[#0b6b27] text-white ring-2 ring-white/80 ring-offset-1 ring-offset-[#101113] shadow-lg scale-105'
+                      ? 'bg-gradient-to-b from-[#16a34a] via-[#117a33] to-[#0b5622] text-white ring-2 ring-amber-300/90 ring-offset-1 ring-offset-[#101113] shadow-[0_8px_22px_rgba(245,158,11,0.3)] scale-105'
                       : day.hasActivity
-                      ? 'bg-gradient-to-b from-emerald-700/80 to-emerald-900/90 text-white border border-emerald-400/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]'
-                      : 'bg-gradient-to-b from-emerald-800/70 to-emerald-950/90 border border-emerald-400/25 text-emerald-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] group-hover:from-emerald-700/70'
+                      ? 'bg-gradient-to-b from-emerald-700/85 to-emerald-950/95 text-white border border-emerald-400/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]'
+                      : isFutureDay
+                      ? 'bg-white/[0.04] hover:bg-white/[0.09] border border-white/10 text-zinc-300/80'
+                      : 'bg-white/[0.07] hover:bg-white/[0.12] border border-white/15 text-zinc-200'
                   }`}
                 >
-                  <span>{day.dayNumber}</span>
+                  <span className="leading-none">{day.dayNumber}</span>
 
-                  {/* Green Checkmark Badge on Completed Days */}
+                  {/* 5 Micro Prayer Constellation Dots (reflecting 5 daily prayers) */}
+                  <div className="flex items-center gap-[2px]" aria-hidden="true">
+                    {[0, 1, 2, 3, 4].map((dotIdx) => {
+                      const dotFilled = dotIdx < day.prayersDoneCount;
+                      return (
+                        <span
+                          key={dotIdx}
+                          className={`w-1 h-1 rounded-full transition-colors ${
+                            dotFilled
+                              ? day.isToday || isSelectedDay
+                                ? 'bg-amber-300 shadow-[0_0_4px_#fcd34d]'
+                                : 'bg-emerald-300'
+                              : 'bg-white/20'
+                          }`}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Gold/Emerald Checkmark Seal on Active Past Days */}
                   {day.hasActivity && !day.isToday && !isSelectedDay && (
-                    <span className="absolute -top-0.5 -end-0.5 w-4 h-4 rounded-full bg-[#22c55e] text-zinc-950 flex items-center justify-center shadow-xs">
+                    <span className="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white ring-1 ring-amber-300/60 flex items-center justify-center shadow-xs">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </span>
+                  )}
+
+                  {/* Crown Dot on Today */}
+                  {day.isToday && (
+                    <span className="absolute -top-1 px-1.5 py-[0.5px] rounded-full bg-amber-400 text-zinc-950 text-[7px] font-black leading-tight shadow-2xs">
+                      {isAr ? 'اليوم' : 'NOW'}
                     </span>
                   )}
                 </div>
@@ -1045,10 +1074,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 <span
                   className={`text-[11px] leading-[1.7] whitespace-nowrap ${
                     isSelectedDay
-                      ? 'text-[#22c55e] font-bold'
+                      ? 'text-amber-300 font-bold'
                       : day.isToday
                       ? 'text-white font-bold'
-                      : 'text-white/60 font-medium'
+                      : day.hasActivity
+                      ? 'text-emerald-200/90 font-semibold'
+                      : 'text-white/50 font-medium'
                   }`}
                 >
                   {day.dayLabel}
@@ -1624,17 +1655,18 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </button>
             </div>
 
-            {/* Clean 1-Tap Habit Cards (3D Mint when done, 3D Tactile Surface when pending) */}
-            <div className="space-y-2.5">
-              {/* Habit 1: Daily Quran Wird */}
+            {/* Architectural 2-Column Bento Habit Cards (Distinct Domain Atmospheres & Jewel Medallions) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {/* Habit 1: Daily Quran Wird (Sacred Emerald Manuscript Theme) */}
               <div
                 onClick={handleOpenQuranTracker}
-                className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                className={`group relative overflow-hidden rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   todayLog?.quranWirdDone
-                    ? 'bento-3d-mint border-[#22c55e]/50'
-                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
+                    ? 'bento-3d-mint border-[#22c55e]/60 shadow-[0_8px_20px_-6px_rgba(34,197,94,0.25)]'
+                    : 'bg-gradient-to-l from-emerald-500/[0.07] via-teal-500/[0.03] to-white dark:from-emerald-950/40 dark:via-zinc-900/90 dark:to-zinc-900 border-emerald-400/35 dark:border-emerald-500/25 hover:border-emerald-500/50 shadow-2xs'
                 }`}
               >
+                <span className="w-1.5 self-stretch rounded-full bg-gradient-to-b from-emerald-400 to-teal-600 shrink-0" />
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -1652,14 +1684,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                       if (res.message) onRewardToast(res.message);
                     }
                   }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 border ${
                     todayLog?.quranWirdDone
-                      ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
+                      ? 'bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white border-amber-300/60 shadow-sm'
+                      : 'bg-emerald-500/15 dark:bg-emerald-500/20 border-emerald-500/35 text-emerald-700 dark:text-emerald-300 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'إتمام صفحة من الورد القرآني (+25 XP)' : 'Complete Quran Wird (+25 XP)'}
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <Check className="w-4 h-4 stroke-[2.8]" />
                 </button>
 
                 <div className="min-w-0 flex-1">
@@ -1676,7 +1708,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     className={`block text-xs truncate mt-0.5 ${
                       todayLog?.quranWirdDone
                         ? 'text-zinc-700 dark:text-emerald-200/80'
-                        : 'text-zinc-500 dark:text-zinc-400'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     {isAr
@@ -1686,10 +1718,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border ${
                     todayLog?.quranWirdDone
-                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
+                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200 border-emerald-500/30'
+                      : 'bg-emerald-500/15 text-emerald-900 dark:text-emerald-300 border-emerald-500/25'
                   }`}
                 >
                   {todayLog?.quranWirdDone
@@ -1697,20 +1729,21 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                       ? 'اليوم ✓'
                       : 'Today ✓'
                     : isAr
-                    ? `ص ${currentWirdPages}`
-                    : `p.${currentWirdPages}`}
+                    ? `📖 ص ${currentWirdPages}`
+                    : `📖 p.${currentWirdPages}`}
                 </span>
               </div>
 
-              {/* Habit 2: Morning / Evening Adhkar */}
+              {/* Habit 2: Morning / Evening Adhkar (Solar Amber / Twilight Theme) */}
               <div
                 onClick={() => handleOpenAdhkar(isMorningTime ? 'morning' : 'evening')}
-                className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                className={`group relative overflow-hidden rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isAdhkarDoneToday
-                    ? 'bento-3d-mint border-[#22c55e]/50'
-                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
+                    ? 'bento-3d-mint border-[#22c55e]/60 shadow-[0_8px_20px_-6px_rgba(34,197,94,0.25)]'
+                    : 'bg-gradient-to-l from-amber-500/[0.08] via-orange-500/[0.03] to-white dark:from-amber-950/40 dark:via-zinc-900/90 dark:to-zinc-900 border-amber-400/40 dark:border-amber-500/25 hover:border-amber-500/50 shadow-2xs'
                 }`}
               >
+                <span className="w-1.5 self-stretch rounded-full bg-gradient-to-b from-amber-400 to-orange-500 shrink-0" />
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -1734,14 +1767,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                           : 'Adhkar recorded (+20 pts)')
                     );
                   }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 border ${
                     isAdhkarDoneToday
-                      ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
+                      ? 'bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white border-amber-300/60 shadow-sm'
+                      : 'bg-amber-500/15 dark:bg-amber-500/20 border-amber-500/35 text-amber-700 dark:text-amber-300 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل الأذكار فوراً (+20 XP)' : 'Complete Adhkar (+20 XP)'}
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <Check className="w-4 h-4 stroke-[2.8]" />
                 </button>
 
                 <div className="min-w-0 flex-1">
@@ -1758,7 +1791,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     className={`block text-xs truncate mt-0.5 ${
                       isAdhkarDoneToday
                         ? 'text-zinc-700 dark:text-emerald-200/80'
-                        : 'text-zinc-500 dark:text-zinc-400'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     {isAr
@@ -1768,10 +1801,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border ${
                     isAdhkarDoneToday
-                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200 border-emerald-500/30'
+                      : 'bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/25'
                   }`}
                 >
                   {isAdhkarDoneToday
@@ -1788,19 +1821,20 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </span>
               </div>
 
-              {/* Habit 3: Deep Work Micro-Sprint (20m) — Dual 1-Tap Check + Open Station */}
+              {/* Habit 3: Deep Work Micro-Sprint (20m) (Electric Indigo Focus Theme) */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
                   onSelectStation('WORK_MICRO_SPRINT');
                 }}
-                className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                className={`group relative overflow-hidden rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isWorkSprintDone
-                    ? 'bento-3d-mint border-[#22c55e]/50'
-                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
+                    ? 'bento-3d-mint border-[#22c55e]/60 shadow-[0_8px_20px_-6px_rgba(34,197,94,0.25)]'
+                    : 'bg-gradient-to-l from-sky-500/[0.08] via-indigo-500/[0.03] to-white dark:from-sky-950/40 dark:via-zinc-900/90 dark:to-zinc-900 border-sky-400/40 dark:border-sky-500/25 hover:border-sky-500/50 shadow-2xs'
                 }`}
               >
+                <span className="w-1.5 self-stretch rounded-full bg-gradient-to-b from-sky-400 to-indigo-600 shrink-0" />
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -1828,14 +1862,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                         : '⚡ Focus Sprint logged (+15 XP)!'
                     );
                   }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 border ${
                     isWorkSprintDone
-                      ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
+                      ? 'bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white border-amber-300/60 shadow-sm'
+                      : 'bg-sky-500/15 dark:bg-sky-500/20 border-sky-500/35 text-sky-700 dark:text-sky-300 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل إتمام شوط التركيز فوراً (+15 XP)' : '1-Tap log Focus Sprint (+15 XP)'}
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <Check className="w-4 h-4 stroke-[2.8]" />
                 </button>
 
                 <div className="min-w-0 flex-1">
@@ -1846,7 +1880,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     className={`block text-xs truncate mt-0.5 ${
                       isWorkSprintDone
                         ? 'text-zinc-700 dark:text-emerald-200/80'
-                        : 'text-zinc-500 dark:text-zinc-400'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     {isAr
@@ -1856,29 +1890,30 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border ${
                     isWorkSprintDone
-                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-sky-500/15 text-sky-800 dark:text-sky-300'
+                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200 border-emerald-500/30'
+                      : 'bg-sky-500/15 text-sky-900 dark:text-sky-300 border-sky-500/25'
                   }`}
                 >
                   {isWorkSprintDone ? (isAr ? 'اليوم ✓' : 'Today ✓') : isAr ? '٢٠ د ⚡' : '20m ⚡'}
                 </span>
               </div>
 
-              {/* Habit 4: Daily Physical & Sport Anchor — Dual 1-Tap Check + Open Station */}
+              {/* Habit 4: Daily Physical & Sport Anchor (Kinetic Flame Athletic Theme) */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
                   onSelectStation('GYM_ANCHOR');
                 }}
-                className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                className={`group relative overflow-hidden rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   isGymDone
-                    ? 'bento-3d-mint border-[#22c55e]/50'
-                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
+                    ? 'bento-3d-mint border-[#22c55e]/60 shadow-[0_8px_20px_-6px_rgba(34,197,94,0.25)]'
+                    : 'bg-gradient-to-l from-orange-500/[0.08] via-amber-500/[0.03] to-white dark:from-orange-950/40 dark:via-zinc-900/90 dark:to-zinc-900 border-orange-400/40 dark:border-orange-500/25 hover:border-orange-500/50 shadow-2xs'
                 }`}
               >
+                <span className="w-1.5 self-stretch rounded-full bg-gradient-to-b from-[#ff5500] to-amber-500 shrink-0" />
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -1906,14 +1941,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                         : '🏋️ Sport Anchor logged (+20 XP)!'
                     );
                   }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 border ${
                     isGymDone
-                      ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
+                      ? 'bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white border-amber-300/60 shadow-sm'
+                      : 'bg-orange-500/15 dark:bg-orange-500/20 border-orange-500/35 text-[#ff5500] dark:text-orange-300 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل إتمام التمرين الرياضي فوراً (+20 XP)' : '1-Tap log Sport Anchor (+20 XP)'}
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <Check className="w-4 h-4 stroke-[2.8]" />
                 </button>
 
                 <div className="min-w-0 flex-1">
@@ -1924,7 +1959,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     className={`block text-xs truncate mt-0.5 ${
                       isGymDone
                         ? 'text-zinc-700 dark:text-emerald-200/80'
-                        : 'text-zinc-500 dark:text-zinc-400'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     {isAr
@@ -1934,29 +1969,30 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border ${
                     isGymDone
-                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
+                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200 border-emerald-500/30'
+                      : 'bg-orange-500/15 text-orange-900 dark:text-orange-300 border-orange-500/25'
                   }`}
                 >
                   {isGymDone ? (isAr ? 'اليوم ✓' : 'Today ✓') : isAr ? 'الأطلس المصور 🏋️' : 'Visual Gym 🏋️'}
                 </span>
               </div>
 
-              {/* Habit 5: Surah Al-Mulk (Night Protection) — Dual 1-Tap Check + Reader Modal */}
+              {/* Habit 5: Surah Al-Mulk (Night Protection) (Starlit Royal Violet Theme) */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
                   setIsHomeSurahMulkOpen(true);
                 }}
-                className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                className={`group relative overflow-hidden rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   todayLog?.surahMulkDone
-                    ? 'bento-3d-mint border-[#22c55e]/50'
-                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
+                    ? 'bento-3d-mint border-[#22c55e]/60 shadow-[0_8px_20px_-6px_rgba(34,197,94,0.25)]'
+                    : 'bg-gradient-to-l from-indigo-500/[0.08] via-purple-500/[0.04] to-white dark:from-indigo-950/45 dark:via-zinc-900/90 dark:to-zinc-900 border-indigo-400/40 dark:border-indigo-500/25 hover:border-indigo-500/50 shadow-2xs'
                 }`}
               >
+                <span className="w-1.5 self-stretch rounded-full bg-gradient-to-b from-indigo-500 to-purple-600 shrink-0" />
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -1974,14 +2010,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     );
                     if (res.message) onRewardToast(res.message);
                   }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 border ${
                     todayLog?.surahMulkDone
-                      ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
+                      ? 'bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white border-amber-300/60 shadow-sm'
+                      : 'bg-indigo-500/15 dark:bg-indigo-500/20 border-indigo-500/35 text-indigo-700 dark:text-indigo-300 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل قراءة سورة الملك فوراً (+30 XP)' : '1-Tap log Surah Mulk (+30 XP)'}
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <Check className="w-4 h-4 stroke-[2.8]" />
                 </button>
 
                 <div className="min-w-0 flex-1">
@@ -1992,7 +2028,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     className={`block text-xs truncate mt-0.5 ${
                       todayLog?.surahMulkDone
                         ? 'text-zinc-700 dark:text-emerald-200/80'
-                        : 'text-zinc-500 dark:text-zinc-400'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     {isAr ? '٣٠ آية تشفع لصاحبها وتنير ليلته • اضغط للقراءة' : '30 verses before sleep • Tap to read'}
@@ -2000,10 +2036,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border ${
                     todayLog?.surahMulkDone
-                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-indigo-500/15 text-indigo-800 dark:text-indigo-300'
+                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200 border-emerald-500/30'
+                      : 'bg-indigo-500/15 text-indigo-900 dark:text-indigo-300 border-indigo-500/25'
                   }`}
                 >
                   {todayLog?.surahMulkDone
@@ -2016,19 +2052,20 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </span>
               </div>
 
-              {/* Habit 6: Sunnah Fasting — Dual 1-Tap Check + Schedule Modal */}
+              {/* Habit 6: Sunnah Fasting (Sacred Rose-Gold & Alabaster Theme) */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
                   setIsFastingModalOpen(true);
                 }}
-                className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                className={`group relative overflow-hidden rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                   todayLog?.fastingDone
-                    ? 'bento-3d-mint border-[#22c55e]/50'
-                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
+                    ? 'bento-3d-mint border-[#22c55e]/60 shadow-[0_8px_20px_-6px_rgba(34,197,94,0.25)]'
+                    : 'bg-gradient-to-l from-rose-500/[0.07] via-amber-500/[0.03] to-white dark:from-rose-950/35 dark:via-zinc-900/90 dark:to-zinc-900 border-rose-400/35 dark:border-rose-500/25 hover:border-rose-500/50 shadow-2xs'
                 }`}
               >
+                <span className="w-1.5 self-stretch rounded-full bg-gradient-to-b from-rose-400 to-amber-500 shrink-0" />
                 <button
                   type="button"
                   onClick={async (e) => {
@@ -2046,14 +2083,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     );
                     if (res.message) onRewardToast(res.message);
                   }}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 cursor-pointer transition-all active:scale-90 border ${
                     todayLog?.fastingDone
-                      ? 'bg-habit-green-ink text-white shadow-2xs'
-                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:bg-habit-green-ink hover:text-white'
+                      ? 'bg-gradient-to-br from-[#22c55e] to-[#15803d] text-white border-amber-300/60 shadow-sm'
+                      : 'bg-rose-500/15 dark:bg-rose-500/20 border-rose-500/35 text-rose-700 dark:text-rose-300 hover:bg-habit-green-ink hover:text-white'
                   }`}
                   title={isAr ? 'تسجيل صيام اليوم فوراً (+25 XP)' : '1-Tap log Fasting (+25 XP)'}
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <Check className="w-4 h-4 stroke-[2.8]" />
                 </button>
 
                 <div className="min-w-0 flex-1">
@@ -2064,7 +2101,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     className={`block text-xs truncate mt-0.5 ${
                       todayLog?.fastingDone
                         ? 'text-zinc-700 dark:text-emerald-200/80'
-                        : 'text-zinc-500 dark:text-zinc-400'
+                        : 'text-zinc-600 dark:text-zinc-400'
                     }`}
                   >
                     {hijriInfo.isWhiteDay
@@ -2078,10 +2115,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 border ${
                     todayLog?.fastingDone
-                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300'
+                      ? 'bg-[#1eb814]/20 text-emerald-950 dark:text-emerald-200 border-emerald-500/30'
+                      : 'bg-rose-500/15 text-rose-900 dark:text-rose-300 border-rose-500/25'
                   }`}
                 >
                   {todayLog?.fastingDone
@@ -2102,20 +2139,20 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     haptic.vibrateLight();
                     setIsFridayModalOpen(true);
                   }}
-                  className={`rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
+                  className={`md:col-span-2 rounded-[22px] p-4 border flex items-center justify-between gap-3 cursor-pointer transition-all active:scale-[0.99] ${
                     todayLog?.surahKahfDone
                       ? 'bento-3d-mint border-[#22c55e]/50'
                       : 'bento-3d-amber border-amber-300/60 dark:border-amber-700/50'
                   }`}
                 >
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                    className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
                       todayLog?.surahKahfDone
                         ? 'bg-habit-green-ink text-white'
                         : 'bg-amber-500 text-white'
                     }`}
                   >
-                    <Check className="w-4 h-4 stroke-[2.5]" />
+                    <Check className="w-4 h-4 stroke-[2.8]" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="block text-sm font-bold text-zinc-900 dark:text-white truncate">
@@ -2132,7 +2169,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               )}
             </div>
 
-            {/* Clean Single-Row Quick Tools & Sport Switcher Pills */}
+            {/* Tactile Instrument Capsules Strip */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
               <button
                 type="button"
@@ -2141,7 +2178,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   haptic.vibrateLight();
                   setIsBookSanctuaryOpen(true);
                 }}
-                className="px-3.5 py-2 rounded-full bg-habit-green-ink text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-full bg-gradient-to-r from-[#1eb814] to-emerald-700 text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
               >
                 <span>📚</span>
                 <span>{isAr ? 'مكتبة القراءة والكتب' : 'Book Reading Shelf'}</span>
@@ -2161,32 +2198,37 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenSmartTasbih('khitam_salah')}
-                className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                className="px-3.5 py-2 rounded-full bg-gradient-to-r from-emerald-500/15 to-teal-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-950 dark:text-emerald-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform flex items-center gap-1.5"
               >
-                📿 {isAr ? 'المسبحة الذكية' : 'Smart Tasbih'}
+                <span>📿</span>
+                <span>{isAr ? 'المسبحة الذكية' : 'Smart Tasbih'}</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-[10px] font-mono">33×3</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsWeeklyReportOpen(true)}
-                className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                className="px-3.5 py-2 rounded-full bg-gradient-to-r from-indigo-500/15 to-purple-500/10 border border-indigo-500/30 text-xs font-bold text-indigo-950 dark:text-indigo-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform flex items-center gap-1.5"
               >
-                📊 {isAr ? 'حصاد الأسبوع' : 'Weekly Report'}
+                <span>📊</span>
+                <span>{isAr ? 'حصاد الأسبوع' : 'Weekly Report'}</span>
               </button>
               {onOpenPanic && (
                 <button
                   type="button"
                   onClick={onOpenPanic}
-                  className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                  className="px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/35 text-xs font-bold text-amber-950 dark:text-amber-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform flex items-center gap-1.5"
                 >
-                  ⚡ {isAr ? 'قاعدة الدقيقتين' : '2-Min Rule'}
+                  <span>⚡</span>
+                  <span>{isAr ? 'قاعدة الدقيقتين' : '2-Min Rule'}</span>
                 </button>
               )}
               <button
                 type="button"
                 onClick={() => setIsAnomalyModalOpen(true)}
-                className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
+                className="px-3.5 py-2 rounded-full bg-gradient-to-r from-rose-500/15 to-pink-500/10 border border-rose-500/30 text-xs font-bold text-rose-950 dark:text-rose-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform flex items-center gap-1.5"
               >
-                🛡️ {isAr ? 'توثيق ظرف طارئ' : 'Streak Shield'}
+                <span>🛡️</span>
+                <span>{isAr ? 'توثيق ظرف طارئ' : 'Streak Shield'}</span>
               </button>
             </div>
           </div>

@@ -695,6 +695,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
       {/* ============================================================ */}
       {/* 1.5 ARCHITECTURAL 12-RAK'AH SUNNAH RAWATIB & FARD PROGRESS   */}
+      {/* Grouped by Prayer (2 Fajr • 4+2 Dhuhr • 2 Maghrib • 2 Isha)  */}
       {/* ============================================================ */}
       <button
         type="button"
@@ -704,349 +705,526 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           setNawafilModalTab('rawatib');
           setIsNawafilModalOpen(true);
         }}
-        className="w-full rounded-[20px] bg-zinc-100/85 dark:bg-zinc-900/80 hover:bg-zinc-200/60 dark:hover:bg-zinc-800/80 border border-zinc-200/90 dark:border-white/10 px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all text-start shadow-2xs"
+        className="w-full rounded-[22px] bg-gradient-to-r from-emerald-950/[0.05] via-amber-500/[0.07] to-emerald-950/[0.05] dark:from-zinc-900/95 dark:via-emerald-950/35 dark:to-zinc-900/95 hover:from-emerald-500/12 hover:to-amber-500/12 border border-emerald-600/25 dark:border-emerald-500/30 px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all text-start shadow-2xs"
       >
         <div className="flex items-center justify-between sm:justify-start gap-2.5 min-w-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="w-7 h-7 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3c-3.5 3-6 6.5-6 10v8h12v-8c0-3.5-2.5-7-6-10Z" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/25 to-emerald-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2c-4 3.5-7 7.5-7 11.5V21h14v-7.5C19 9.5 16 5.5 12 2Z" />
                 <path d="M9 21v-5a3 3 0 0 1 6 0v5" />
-                <path d="M12 2v1" />
               </svg>
             </span>
             <div className="min-w-0">
               <span className="block text-[11px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">
                 {isAr
-                  ? 'بيت في الجنة • السنن الرواتب المؤكدة'
-                  : 'House in Jannah • 12 Sunnah Rawatib'}
+                  ? 'قصر في الجنة • ١٢ ركعة سنة راتبة مؤكدة'
+                  : 'Palace in Jannah • 12 Sunnah Rawatib'}
+              </span>
+              <span className="block text-[10px] text-zinc-600 dark:text-zinc-400 truncate">
+                {isAr ? '٢ الفجر • ٤+٢ الظهر • ٢ المغرب • ٢ العشاء' : '2 Fajr • 4+2 Dhuhr • 2 Maghrib • 2 Isha'}
               </span>
             </div>
           </div>
 
-          <span className="sm:hidden text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-0.5 rounded-full shrink-0">
+          <span className="sm:hidden text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
             {isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5 Fard`}
           </span>
         </div>
 
         <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
-          {/* 12 Segmented Pearl Blocks for 12 Rak'ahs */}
-          <div className="flex items-center gap-1 flex-1 sm:flex-initial" title={isAr ? `${totalSunnahRakatsCompleted} من 12 ركعة سنة راتبة` : `${totalSunnahRakatsCompleted}/12 Rak'ahs`}>
+          {/* 12 Archway Dome Jewels for 12 Rak'ahs (Grouped 2 | 6 | 2 | 2) */}
+          <div
+            className="flex items-center gap-1 flex-1 sm:flex-initial"
+            title={isAr ? `${totalSunnahRakatsCompleted} من 12 ركعة سنة راتبة` : `${totalSunnahRakatsCompleted}/12 Rak'ahs`}
+          >
             {Array.from({ length: 12 }).map((_, idx) => {
               const isFilled = idx < totalSunnahRakatsCompleted;
+              const isGroupDivider = idx === 1 || idx === 7 || idx === 9;
               return (
-                <span
-                  key={idx}
-                  className={`h-2 flex-1 sm:w-2.5 sm:flex-initial rounded-full transition-all duration-300 ${
-                    isFilled
-                      ? 'bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.45)]'
-                      : 'bg-zinc-300/80 dark:bg-zinc-700/70'
-                  }`}
-                />
+                <React.Fragment key={idx}>
+                  <span
+                    className={`h-3 flex-1 sm:w-2.5 sm:flex-initial rounded-t-full rounded-b-xs transition-all duration-300 ${
+                      isFilled
+                        ? 'bg-gradient-to-t from-emerald-600 via-emerald-400 to-amber-300 shadow-[0_0_8px_rgba(16,185,129,0.55)] scale-y-110'
+                        : 'bg-zinc-300/85 dark:bg-zinc-700/75'
+                    }`}
+                  />
+                  {isGroupDivider && (
+                    <span className="w-0.5 h-2 rounded-full bg-amber-500/40 dark:bg-amber-400/30 shrink-0 mx-0.5" />
+                  )}
+                </React.Fragment>
               );
             })}
           </div>
 
-          <span className="text-[11px] font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0">
-            <bdi dir="ltr">{totalSunnahRakatsCompleted}/12</bdi> {isAr ? 'ركعة' : 'R'}
+          <span className="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-300 shrink-0">
+            <bdi dir="ltr">{totalSunnahRakatsCompleted}/12</bdi>
           </span>
 
-          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2.5 py-0.5 rounded-full shrink-0">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
             <span>{isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5 Fard`}</span>
           </span>
         </div>
       </button>
 
       {/* ============================================================ */}
-      {/* 2. ARCHITECTURAL 5-COLUMN MIHRAB HOROLOGY PRAYER DECK        */}
-      {/* Tap card = Full Sunnah/Status Modal | Tap button = 1-Tap Log */}
+      {/* 2. CELESTIAL MIHRAB HOROLOGY GALLERY (5 ARCHWAY PORTALS)     */}
+      {/* Rich Circadian Sky Canvases + Sculpted Mihrab + Jewel Seal   */}
       {/* ============================================================ */}
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
-        {prayerCards.map((p) => {
-          const record = prayers[p.name];
-          const isDone = Boolean(
-            record &&
-              (record.status === 'on_time' ||
-                record.status === 'in_group' ||
-                record.status === 'late' ||
-                record.status === 'excused')
-          );
-          const isJumuah = p.isJumuah;
-          const isNext =
-            nextPrayer.arabicName === p.title || (isJumuah && nextPrayer.arabicName.includes('الجمعة'));
+      <div className="relative py-1">
+        {/* Continuous Celestial Solar-Lunar Horizon Thread connecting all 5 Mihrab Portals */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[54%] inset-x-3 -translate-y-1/2 h-[3px] rounded-full bg-gradient-to-r from-indigo-500/40 via-amber-400/60 via-orange-500/50 via-rose-500/55 to-purple-600/45 z-0 shadow-[0_0_12px_rgba(251,191,36,0.3)]"
+        />
 
-          const timeFormatted = formatPrayerTime(p.timeDate, isAr);
-          const timeParts = timeFormatted.split(' ');
-          const timeDigits = timeParts[0] || timeFormatted;
-
-          const sunnahLogged =
-            (record?.sunnahQabliyahRakats || 0) + (record?.sunnahBadiyahRakats || 0);
-
-          const statusMicroLabel = isDone
-            ? record?.status === 'in_group'
-              ? isAr
-                ? 'جماعة ★'
-                : 'Group ★'
-              : record?.status === 'on_time'
-              ? isAr
-                ? 'في الوقت'
-                : 'On time'
-              : isAr
-              ? 'تمت ✓'
-              : 'Done ✓'
-            : p.name === 'fajr'
-            ? isAr
-              ? '٢ سنة'
-              : '2 Sunnah'
-            : p.name === 'dhuhr'
-            ? isAr
-              ? '٦ سنن'
-              : '6 Sunnah'
-            : p.name === 'asr'
-            ? isAr
-              ? '٤ سنن'
-              : '4 Sunnah'
-            : p.name === 'maghrib'
-            ? isAr
-              ? '٢ سنة'
-              : '2 Sunnah'
-            : isAr
-            ? '٢ + وتر'
-            : '2 + Witr';
-
-          // Bespoke Celestial SVG Icon per prayer (replaces cartoon OS emojis)
-          const renderCelestialSvg = () => {
-            const iconClass = `w-4 h-4 transition-transform duration-300 group-hover:scale-110 ${
-              isDone
-                ? 'text-emerald-600 dark:text-emerald-400'
-                : isNext
-                ? 'text-amber-400'
-                : 'text-zinc-500 dark:text-zinc-400'
-            }`;
-            if (p.name === 'fajr') {
-              return (
-                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2v4" />
-                  <path d="m4.93 10.93 1.41 1.41" />
-                  <path d="M2 18h2" />
-                  <path d="M20 18h2" />
-                  <path d="m19.07 10.93-1.41 1.41" />
-                  <path d="M22 22H2" />
-                  <path d="M8 18a4 4 0 0 1 8 0" />
-                </svg>
-              );
-            }
-            if (p.name === 'dhuhr') {
-              return (
-                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2" />
-                  <path d="M12 20v2" />
-                  <path d="m4.93 4.93 1.41 1.41" />
-                  <path d="m17.66 17.66 1.41 1.41" />
-                  <path d="M2 12h2" />
-                  <path d="M20 12h2" />
-                  <path d="m6.34 17.66-1.41 1.41" />
-                  <path d="m19.07 4.93-1.41 1.41" />
-                </svg>
-              );
-            }
-            if (p.name === 'asr') {
-              return (
-                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 3v1" />
-                  <path d="M12 20v1" />
-                  <path d="M3 12h1" />
-                  <path d="M20 12h1" />
-                  <path d="m18.364 5.636-.707.707" />
-                  <path d="m6.343 17.657-.707.707" />
-                </svg>
-              );
-            }
-            if (p.name === 'maghrib') {
-              return (
-                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 10V2" />
-                  <path d="m4.93 10.93 1.41 1.41" />
-                  <path d="M2 18h2" />
-                  <path d="M20 18h2" />
-                  <path d="m19.07 10.93-1.41 1.41" />
-                  <path d="M22 22H2" />
-                  <path d="M16 18a4 4 0 0 0-8 0" />
-                </svg>
-              );
-            }
-            return (
-              <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-              </svg>
+        <div className="relative z-10 grid grid-cols-5 gap-1.5 sm:gap-2.5">
+          {prayerCards.map((p) => {
+            const record = prayers[p.name];
+            const isDone = Boolean(
+              record &&
+                (record.status === 'on_time' ||
+                  record.status === 'in_group' ||
+                  record.status === 'late' ||
+                  record.status === 'excused')
             );
-          };
+            const isJumuah = p.isJumuah;
+            const isNext =
+              nextPrayer.arabicName === p.title || (isJumuah && nextPrayer.arabicName.includes('الجمعة'));
 
-          return (
-            <div
-              key={p.name}
-              role="button"
-              tabIndex={0}
-              onClick={() => {
-                soundSynth.playTactileClick();
-                haptic.vibrateLight();
-                handleOpenPrayerModal(p.name);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleOpenPrayerModal(p.name);
-                }
-              }}
-              className={`group relative py-3 px-1.5 sm:p-3.5 rounded-[22px] border transition-all duration-200 flex flex-col items-center justify-between text-center gap-2 cursor-pointer select-none active:scale-95 overflow-hidden ${
-                isDone
-                  ? 'bg-gradient-to-b from-emerald-500/15 via-emerald-500/10 to-emerald-600/5 dark:from-emerald-950/75 dark:via-emerald-900/40 dark:to-zinc-900/90 border-emerald-500/45 dark:border-emerald-500/40 text-zinc-900 dark:text-emerald-50 shadow-2xs'
-                  : isNext
-                  ? 'bg-gradient-to-b from-[#14181f] via-[#122220] to-[#11151a] border-emerald-500/60 text-white ring-1 ring-emerald-500/35 shadow-[0_8px_24px_rgba(16,185,129,0.18)]'
-                  : 'bg-zinc-50/90 dark:bg-zinc-900/65 hover:bg-zinc-100/90 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-900 dark:text-zinc-100'
-              }`}
-              title={
-                isAr
-                  ? `${p.title} (${timeFormatted}) — اضغط للسنن والتفاصيل، أو اضغط الزر السفلي للتوثيق الفوري`
-                  : `${p.title} (${timeFormatted}) — Tap card for details or button for 1-tap log`
+            const timeFormatted = formatPrayerTime(p.timeDate, isAr);
+            const timeParts = timeFormatted.split(' ');
+            const timeDigits = timeParts[0] || timeFormatted;
+
+            const sunnahLogged =
+              (record?.sunnahQabliyahRakats || 0) + (record?.sunnahBadiyahRakats || 0);
+
+            // Compact, zero-truncation bottom label
+            const statusMicroLabel = isDone
+              ? record?.status === 'in_group'
+                ? isAr
+                  ? 'جماعة ★'
+                  : 'Group ★'
+                : record?.status === 'on_time'
+                ? isAr
+                  ? 'في الوقت ✓'
+                  : 'On time ✓'
+                : isAr
+                ? 'تمت ✓'
+                : 'Done ✓'
+              : p.name === 'fajr'
+              ? isAr
+                ? '٢ سنة'
+                : '2 Sunnah'
+              : p.name === 'dhuhr'
+              ? isAr
+                ? '٦ سنن'
+                : '6 Sunnah'
+              : p.name === 'asr'
+              ? isAr
+                ? '٤ سنن'
+                : '4 Sunnah'
+              : p.name === 'maghrib'
+              ? isAr
+                ? '٢ سنة'
+                : '2 Sunnah'
+              : isAr
+              ? '٢ + وتر'
+              : '2 + Witr';
+
+            // Rich Atmospheric Circadian Sky Palette per prayer (No more sterile white/gray rectangles!)
+            const circadianPendingSurface =
+              p.name === 'fajr'
+                ? 'bg-gradient-to-b from-[#e0e7ff] via-[#fce7f3]/80 to-[#f5f3ff] dark:from-[#171c3a] dark:via-[#291736] dark:to-[#121320] border-indigo-300/90 dark:border-indigo-500/35'
+                : p.name === 'dhuhr'
+                ? 'bg-gradient-to-b from-[#fef3c7] via-[#e0f2fe]/75 to-[#fffbeb] dark:from-[#2e2210] dark:via-[#152636] dark:to-[#14161d] border-amber-300/90 dark:border-amber-500/35'
+                : p.name === 'asr'
+                ? 'bg-gradient-to-b from-[#ffedd5] via-[#fef3c7]/80 to-[#fff7ed] dark:from-[#331b11] dark:via-[#271b11] dark:to-[#151418] border-orange-300/90 dark:border-orange-500/35'
+                : p.name === 'maghrib'
+                ? 'bg-gradient-to-b from-[#ffe4e6] via-[#f3e8ff]/80 to-[#fff1f2] dark:from-[#341328] dark:via-[#231433] dark:to-[#13131f] border-rose-300/90 dark:border-rose-500/35'
+                : 'bg-gradient-to-b from-[#e0e7ff] via-[#ede9fe]/85 to-[#f1f5f9] dark:from-[#0f172a] dark:via-[#1e1b4b] dark:to-[#111322] border-indigo-300/90 dark:border-indigo-500/35';
+
+            const circadianNextHeroSurface =
+              p.name === 'fajr'
+                ? 'bg-gradient-to-b from-[#0f172a] via-[#261a47] to-[#3b1238] border-amber-300/80 ring-2 ring-indigo-400/50 shadow-[0_14px_30px_-6px_rgba(99,102,241,0.55)]'
+                : p.name === 'dhuhr'
+                ? 'bg-gradient-to-b from-[#1c1917] via-[#362610] to-[#122229] border-amber-300/85 ring-2 ring-amber-400/55 shadow-[0_14px_30px_-6px_rgba(245,158,11,0.5)]'
+                : p.name === 'asr'
+                ? 'bg-gradient-to-b from-[#23140e] via-[#3d1e10] to-[#1b1412] border-amber-300/85 ring-2 ring-orange-400/55 shadow-[0_14px_30px_-6px_rgba(249,115,22,0.5)]'
+                : p.name === 'maghrib'
+                ? 'bg-gradient-to-b from-[#1a0f26] via-[#3d1431] to-[#131c24] border-amber-300/85 ring-2 ring-rose-400/55 shadow-[0_14px_30px_-6px_rgba(244,63,94,0.5)]'
+                : 'bg-gradient-to-b from-[#090d18] via-[#17203d] to-[#231942] border-amber-300/80 ring-2 ring-indigo-400/55 shadow-[0_14px_30px_-6px_rgba(129,140,248,0.55)]';
+
+            const celestialIconAccent = isDone
+              ? 'text-emerald-700 dark:text-emerald-300'
+              : isNext
+              ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.75)]'
+              : p.name === 'fajr'
+              ? 'text-indigo-700 dark:text-indigo-300'
+              : p.name === 'dhuhr'
+              ? 'text-amber-700 dark:text-amber-300'
+              : p.name === 'asr'
+              ? 'text-orange-700 dark:text-orange-300'
+              : p.name === 'maghrib'
+              ? 'text-rose-700 dark:text-rose-300'
+              : 'text-indigo-700 dark:text-indigo-300';
+
+            const sealPendingStyle =
+              p.name === 'fajr'
+                ? 'bg-gradient-to-br from-indigo-500/20 to-rose-500/20 border-indigo-400/60 dark:border-indigo-400/45 text-indigo-800 dark:text-indigo-200'
+                : p.name === 'dhuhr'
+                ? 'bg-gradient-to-br from-amber-500/25 to-sky-500/15 border-amber-400/70 dark:border-amber-400/45 text-amber-900 dark:text-amber-200'
+                : p.name === 'asr'
+                ? 'bg-gradient-to-br from-orange-500/25 to-amber-500/20 border-orange-400/70 dark:border-orange-400/45 text-orange-900 dark:text-orange-200'
+                : p.name === 'maghrib'
+                ? 'bg-gradient-to-br from-rose-500/25 to-purple-500/20 border-rose-400/70 dark:border-rose-400/45 text-rose-900 dark:text-rose-200'
+                : 'bg-gradient-to-br from-indigo-500/25 to-purple-500/25 border-indigo-400/65 dark:border-indigo-400/45 text-indigo-900 dark:text-indigo-200';
+
+            // Bespoke Celestial SVG Icon per prayer
+            const renderCelestialSvg = () => {
+              const iconClass = `w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform duration-300 group-hover:scale-110 ${celestialIconAccent}`;
+              if (p.name === 'fajr') {
+                return (
+                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v4" />
+                    <path d="m4.93 10.93 1.41 1.41" />
+                    <path d="M2 18h2" />
+                    <path d="M20 18h2" />
+                    <path d="m19.07 10.93-1.41 1.41" />
+                    <path d="M22 22H2" />
+                    <path d="M8 18a4 4 0 0 1 8 0" />
+                  </svg>
+                );
               }
-            >
-              {/* Subtle top architectural accent bar for active or completed prayer */}
-              {(isNext || isDone) && (
-                <span
-                  className={`absolute top-0 inset-x-3 h-0.5 rounded-full ${
-                    isDone ? 'bg-emerald-500' : 'bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-400'
-                  }`}
-                />
-              )}
+              if (p.name === 'dhuhr') {
+                return (
+                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                  </svg>
+                );
+              }
+              if (p.name === 'asr') {
+                return (
+                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 3v1" />
+                    <path d="M12 20v1" />
+                    <path d="M3 12h1" />
+                    <path d="M20 12h1" />
+                    <path d="m18.364 5.636-.707.707" />
+                    <path d="m6.343 17.657-.707.707" />
+                  </svg>
+                );
+              }
+              if (p.name === 'maghrib') {
+                return (
+                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 10V2" />
+                    <path d="m4.93 10.93 1.41 1.41" />
+                    <path d="M2 18h2" />
+                    <path d="M20 18h2" />
+                    <path d="m19.07 10.93-1.41 1.41" />
+                    <path d="M22 22H2" />
+                    <path d="M16 18a4 4 0 0 0-8 0" />
+                  </svg>
+                );
+              }
+              return (
+                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                </svg>
+              );
+            };
 
-              {/* Top Celestial SVG Icon + Prayer Name */}
-              <div className="flex flex-col items-center gap-1 w-full">
-                <div className="h-5 flex items-center justify-center">
-                  {renderCelestialSvg()}
-                </div>
-                <span
-                  className={`text-xs sm:text-[13px] font-bold truncate w-full leading-tight ${
-                    isDone
-                      ? 'text-emerald-950 dark:text-emerald-100'
-                      : isNext
-                      ? 'text-white'
-                      : 'text-zinc-900 dark:text-zinc-100'
-                  }`}
-                >
-                  {p.title}
-                </span>
-              </div>
-
-              {/* Prayer Time (Tabular Mono) */}
-              <span
-                className={`text-[11px] sm:text-xs font-mono font-bold tabular-nums leading-none px-2 py-0.5 rounded-md ${
-                  isDone
-                    ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-500/10'
-                    : isNext
-                    ? 'text-amber-300 bg-white/10'
-                    : 'text-zinc-600 dark:text-zinc-400 bg-zinc-200/60 dark:bg-white/5'
-                }`}
-              >
-                <bdi dir="ltr">{timeDigits}</bdi>
-              </span>
-
-              {/* 1-Tap Instant Log Button (Crystal-clear distinction between Done vs Next vs Pending!) */}
-              <button
-                type="button"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  soundSynth.playStreakMilestoneChime();
-                  haptic.vibrateSprintCelebration();
-                  if (!isDone) {
-                    const defaultQabliyah =
-                      p.name === 'fajr' ? 2 : p.name === 'dhuhr' ? 4 : 0;
-                    const defaultBadiyah =
-                      p.name === 'dhuhr'
-                        ? 2
-                        : p.name === 'maghrib'
-                        ? 2
-                        : p.name === 'isha'
-                        ? 2
-                        : 0;
-                    await handleMarkPrayer(
-                      p.name,
-                      'in_group',
-                      {
-                        sunnahPerformed: defaultQabliyah + defaultBadiyah > 0,
-                        qabliyahRakats: defaultQabliyah,
-                        badiyahRakats: defaultBadiyah,
-                        witrRakats: p.name === 'isha' ? 3 : 0,
-                      },
-                      e
-                    );
-                  } else {
+            return (
+              <div
+                key={p.name}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  handleOpenPrayerModal(p.name);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
                     handleOpenPrayerModal(p.name);
                   }
                 }}
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all cursor-pointer active:scale-90 ${
+                className={`group relative pt-4 pb-2.5 px-1.5 sm:px-2.5 sm:pt-4.5 sm:pb-3 rounded-t-[34px] rounded-b-[20px] border transition-all duration-300 flex flex-col items-center justify-between text-center gap-2 cursor-pointer select-none active:scale-95 overflow-hidden ${
                   isDone
-                    ? 'bg-[#1eb814] text-white shadow-sm ring-2 ring-emerald-500/30'
+                    ? 'bg-gradient-to-b from-[#bbf7d0] via-[#dcfce7] to-[#f0fdf4] dark:from-emerald-950/95 dark:via-emerald-900/60 dark:to-[#0c1915] border-emerald-500/65 dark:border-emerald-400/55 text-zinc-900 dark:text-emerald-50 shadow-[0_10px_24px_-6px_rgba(16,185,129,0.32)]'
                     : isNext
-                    ? 'bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white border-2 border-emerald-400/80 shadow-sm'
-                    : 'bg-white dark:bg-zinc-800/90 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 text-zinc-400 dark:text-zinc-500 border border-zinc-300 dark:border-zinc-700'
+                    ? `${circadianNextHeroSurface} text-white -translate-y-1`
+                    : `${circadianPendingSurface} hover:-translate-y-0.5 hover:shadow-md text-zinc-900 dark:text-zinc-100`
                 }`}
                 title={
-                  isDone
-                    ? isAr
-                      ? 'تم توثيق الصلاة ✓ (اضغط لتعديل الحالة أو السنن)'
-                      : 'Prayer logged ✓ (Tap to edit)'
-                    : isAr
-                    ? `توثيق فوري لصلاة ${p.title} في جماعة مع السنن (+30 XP)`
-                    : `1-Tap log ${p.title} in group (+30 XP)`
+                  isAr
+                    ? `${p.title} (${timeFormatted}) — اضغط للسنن والتفاصيل، أو اضغط الختم الأوسط للتوثيق الفوري`
+                    : `${p.title} (${timeFormatted}) — Tap card for details or center seal for 1-tap log`
                 }
               >
-                {isDone ? (
-                  <Check className="w-4 h-4 stroke-[2.8]" />
-                ) : isNext ? (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping group-hover:hidden" />
-                ) : null}
-                {!isDone && (
-                  <Check
-                    className={`w-3.5 h-3.5 stroke-[2.5] transition-opacity ${
-                      isNext ? 'hidden group-hover:block' : 'opacity-0 group-hover:opacity-100'
-                    }`}
+                {/* Sculpted Double-Line Andalusian Ogee Mihrab Archway & Celestial Scenery SVG */}
+                <svg
+                  className="pointer-events-none absolute inset-0 w-full h-full"
+                  viewBox="0 0 100 150"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  {/* Soft Celestial Glow Orb at Mihrab Crown */}
+                  <circle
+                    cx="50"
+                    cy="28"
+                    r="24"
+                    fill="currentColor"
+                    className={
+                      isDone
+                        ? 'text-emerald-400/20'
+                        : isNext
+                        ? 'text-amber-400/25'
+                        : p.name === 'fajr'
+                        ? 'text-rose-400/15'
+                        : p.name === 'dhuhr'
+                        ? 'text-amber-400/20'
+                        : p.name === 'asr'
+                        ? 'text-orange-400/20'
+                        : p.name === 'maghrib'
+                        ? 'text-rose-500/20'
+                        : 'text-indigo-400/20'
+                    }
                   />
-                )}
-              </button>
 
-              {/* Micro Status / Sunnah Tag */}
-              <span
-                className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full truncate max-w-full leading-none ${
-                  isDone
-                    ? 'bg-emerald-500/20 text-emerald-900 dark:text-emerald-200'
-                    : isNext
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                    : 'bg-zinc-200/75 dark:bg-white/5 text-zinc-600 dark:text-zinc-400'
-                }`}
-              >
-                {isDone && sunnahLogged > 0
-                  ? isAr
-                    ? `${statusMicroLabel} +${sunnahLogged}س`
-                    : `${statusMicroLabel} +${sunnahLogged}S`
-                  : isNext && !isDone
-                  ? isAr
-                    ? 'القادمة • ' + statusMicroLabel
-                    : 'Next • ' + statusMicroLabel
-                  : statusMicroLabel}
-              </span>
-            </div>
-          );
-        })}
+                  {/* Outer Sculpted Pointed Mihrab Arch */}
+                  <path
+                    d="M 4 148 V 46 C 4 24 25 13 50 3 C 75 13 96 24 96 46 V 148"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    className={
+                      isDone
+                        ? 'text-emerald-600/45 dark:text-emerald-400/45'
+                        : isNext
+                        ? 'text-amber-300/65'
+                        : 'text-zinc-600/25 dark:text-white/20'
+                    }
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Inner Fine Filigree Mihrab Arch */}
+                  <path
+                    d="M 9 148 V 48 C 9 28 28 18 50 8 C 72 18 91 28 91 48 V 148"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.8"
+                    strokeDasharray="3 2"
+                    className={
+                      isDone
+                        ? 'text-emerald-600/30 dark:text-emerald-300/25'
+                        : isNext
+                        ? 'text-amber-200/40'
+                        : 'text-zinc-500/20 dark:text-white/10'
+                    }
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Hanging Mishkat (قنديل المحراب) Chain from Apex */}
+                  <line
+                    x1="50"
+                    y1="3"
+                    x2="50"
+                    y2="16"
+                    stroke="currentColor"
+                    strokeWidth="1.1"
+                    strokeDasharray="1.5 1.5"
+                    className={
+                      isNext
+                        ? 'text-amber-300/85'
+                        : isDone
+                        ? 'text-emerald-600/60 dark:text-emerald-400/60'
+                        : 'text-zinc-500/35 dark:text-white/25'
+                    }
+                  />
+
+                  {/* Starlight micro-dots for Fajr, Maghrib, and Isha */}
+                  {(p.name === 'fajr' || p.name === 'maghrib' || p.name === 'isha') && (
+                    <g
+                      fill="currentColor"
+                      className={isNext ? 'text-amber-200/70' : 'text-indigo-500/35 dark:text-amber-200/40'}
+                    >
+                      <circle cx="22" cy="28" r="1" />
+                      <circle cx="78" cy="26" r="1.2" />
+                      <circle cx="26" cy="46" r="0.8" />
+                      <circle cx="75" cy="44" r="0.9" />
+                    </g>
+                  )}
+                </svg>
+
+                {/* Top Golden Crown Badge for Next Prayer (Eliminates bottom text truncation!) */}
+                {isNext && !isDone && (
+                  <span className="absolute top-0 inset-x-3 py-[1.5px] rounded-b-lg bg-gradient-to-r from-amber-300 via-amber-400 to-amber-300 text-zinc-950 text-[8px] sm:text-[9px] font-black tracking-tight shadow-sm">
+                    {isAr ? 'القادمة' : 'NEXT'}
+                  </span>
+                )}
+
+                {/* Top Completed Crown Dot */}
+                {isDone && (
+                  <span className="absolute top-0 inset-x-5 h-1 rounded-b-full bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-500" />
+                )}
+
+                {/* Top Celestial Mishkat Lantern Medallion + Prayer Name */}
+                <div className="relative z-10 flex flex-col items-center gap-1 w-full mt-0.5">
+                  <div
+                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all shadow-2xs ${
+                      isDone
+                        ? 'bg-emerald-600/20 dark:bg-emerald-400/20 ring-1 ring-emerald-500/40'
+                        : isNext
+                        ? 'bg-amber-400/20 ring-1 ring-amber-300/60 shadow-[0_0_12px_rgba(251,191,36,0.35)]'
+                        : 'bg-white/80 dark:bg-white/10 ring-1 ring-black/5 dark:ring-white/15'
+                    }`}
+                  >
+                    {renderCelestialSvg()}
+                  </div>
+                  <span
+                    className={`text-xs sm:text-[13px] font-bold truncate w-full leading-tight ${
+                      isDone
+                        ? 'text-emerald-950 dark:text-emerald-50'
+                        : isNext
+                        ? 'text-white'
+                        : 'text-zinc-900 dark:text-white'
+                    }`}
+                  >
+                    {p.title}
+                  </span>
+                </div>
+
+                {/* Horology Time Pill */}
+                <span
+                  className={`relative z-10 text-[10px] sm:text-xs font-mono font-bold tabular-nums leading-none px-2 py-1 rounded-lg border ${
+                    isDone
+                      ? 'text-emerald-950 dark:text-emerald-200 bg-white/75 dark:bg-emerald-950/80 border-emerald-500/35'
+                      : isNext
+                      ? 'text-amber-200 bg-black/45 border-amber-300/45 shadow-inner'
+                      : 'text-zinc-800 dark:text-zinc-200 bg-white/85 dark:bg-zinc-900/80 border-black/10 dark:border-white/15 shadow-2xs'
+                  }`}
+                >
+                  <bdi dir="ltr">{timeDigits}</bdi>
+                </span>
+
+                {/* 1-Tap Tactile Jewel Medallion (Sculpted Seal — NEVER an empty white circle!) */}
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    soundSynth.playStreakMilestoneChime();
+                    haptic.vibrateSprintCelebration();
+                    if (!isDone) {
+                      const defaultQabliyah =
+                        p.name === 'fajr' ? 2 : p.name === 'dhuhr' ? 4 : 0;
+                      const defaultBadiyah =
+                        p.name === 'dhuhr'
+                          ? 2
+                          : p.name === 'maghrib'
+                          ? 2
+                          : p.name === 'isha'
+                          ? 2
+                          : 0;
+                      await handleMarkPrayer(
+                        p.name,
+                        'in_group',
+                        {
+                          sunnahPerformed: defaultQabliyah + defaultBadiyah > 0,
+                          qabliyahRakats: defaultQabliyah,
+                          badiyahRakats: defaultBadiyah,
+                          witrRakats: p.name === 'isha' ? 3 : 0,
+                        },
+                        e
+                      );
+                    } else {
+                      handleOpenPrayerModal(p.name);
+                    }
+                  }}
+                  className={`relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all cursor-pointer active:scale-90 border ${
+                    isDone
+                      ? 'bg-gradient-to-br from-[#22c55e] via-[#16a34a] to-[#15803d] text-white border-amber-300/70 shadow-[0_4px_12px_rgba(34,197,94,0.45)] ring-2 ring-emerald-400/40'
+                      : isNext
+                      ? 'bg-gradient-to-br from-amber-400 via-amber-500 to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-zinc-950 border-white/80 shadow-[0_0_18px_rgba(251,191,36,0.55)]'
+                      : `${sealPendingStyle} hover:bg-emerald-600 hover:text-white hover:border-emerald-500 shadow-xs`
+                  }`}
+                  title={
+                    isDone
+                      ? isAr
+                        ? 'تم توثيق الصلاة ✓ (اضغط لتعديل الحالة أو السنن)'
+                        : 'Prayer logged ✓ (Tap to edit)'
+                      : isAr
+                      ? `توثيق فوري لصلاة ${p.title} في جماعة مع السنن (+30 XP)`
+                      : `1-Tap log ${p.title} in group (+30 XP)`
+                  }
+                >
+                  {isDone ? (
+                    <Check className="w-4 h-4 stroke-[3]" />
+                  ) : isNext ? (
+                    <>
+                      <span className="absolute -inset-1 rounded-full border border-amber-300/70 animate-ping opacity-50" />
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </>
+                  ) : (
+                    /* Intricate Rub el Hizb 8-Pointed Star + Check Emblem so pending cards look like sculpted medallions */
+                    <svg
+                      className="w-4 h-4 opacity-85 group-hover:scale-110 transition-transform"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polygon
+                        points="12,2 14.8,8.2 21.5,9.2 16.5,14 17.8,20.8 12,17.5 6.2,20.8 7.5,14 2.5,9.2 9.2,8.2"
+                        fill="currentColor"
+                        fillOpacity="0.18"
+                      />
+                      <path d="m9 12 2 2 4-4" strokeWidth="2.4" />
+                    </svg>
+                  )}
+                </button>
+
+                {/* Clean Sunnah / Status Tag (Zero truncation!) */}
+                <span
+                  className={`relative z-10 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap leading-none border ${
+                    isDone
+                      ? 'bg-emerald-600/20 text-emerald-950 dark:text-emerald-100 border-emerald-600/35'
+                      : isNext
+                      ? 'bg-amber-400/20 text-amber-200 border-amber-300/40'
+                      : 'bg-white/75 dark:bg-black/35 text-zinc-800 dark:text-zinc-200 border-black/10 dark:border-white/10'
+                  }`}
+                >
+                  {isDone && sunnahLogged > 0
+                    ? isAr
+                      ? `${statusMicroLabel} +${sunnahLogged}س`
+                      : `${statusMicroLabel} +${sunnahLogged}S`
+                    : statusMicroLabel}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* ============================================================ */}
-      {/* 2.5 UNIFIED ARCHITECTURAL NAWAFIL & DHIKR QUICK TILES        */}
+      {/* 2.5 ATMOSPHERIC BENTO NAWAFIL & DHIKR QUICK TILES            */}
       {/* ============================================================ */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
-        {/* Tile 1: Salat Al-Dhuha */}
+        {/* Tile 1: Salat Al-Dhuha (Solar Gold Bento) */}
         <button
           type="button"
           onClick={() => {
@@ -1057,12 +1235,12 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           }}
           className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             todayLog?.dhuhaDone
-              ? 'bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/40 text-emerald-950 dark:text-emerald-100'
-              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
+              ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/15 dark:from-emerald-950/70 dark:to-emerald-900/40 border-emerald-500/45 text-emerald-950 dark:text-emerald-100'
+              : 'bg-gradient-to-br from-amber-500/15 via-orange-500/8 to-amber-50/80 dark:from-amber-950/45 dark:via-zinc-900/80 dark:to-zinc-900 border-amber-400/45 dark:border-amber-500/25 text-amber-950 dark:text-amber-100 hover:brightness-105'
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <span className="w-6 h-6 rounded-lg bg-amber-500/25 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0">
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="4" />
                 <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
@@ -1074,14 +1252,14 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ${
               todayLog?.dhuhaDone
                 ? 'bg-[#1eb814] text-white'
-                : 'bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300'
+                : 'bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30'
             }`}
           >
             {todayLog?.dhuhaDone ? '✓' : '+15'}
           </span>
         </button>
 
-        {/* Tile 2: Qiyam Al-Layl */}
+        {/* Tile 2: Qiyam Al-Layl (Starlit Indigo Bento) */}
         <button
           type="button"
           onClick={() => {
@@ -1092,12 +1270,12 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           }}
           className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             todayLog?.qiyamNightDone
-              ? 'bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/40 text-emerald-950 dark:text-emerald-100'
-              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
+              ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/15 dark:from-emerald-950/70 dark:to-emerald-900/40 border-emerald-500/45 text-emerald-950 dark:text-emerald-100'
+              : 'bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-indigo-50/80 dark:from-indigo-950/55 dark:via-zinc-900/80 dark:to-zinc-900 border-indigo-400/45 dark:border-indigo-500/30 text-indigo-950 dark:text-indigo-100 hover:brightness-105'
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-6 h-6 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+            <span className="w-6 h-6 rounded-lg bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0">
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
               </svg>
@@ -1108,14 +1286,14 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold shrink-0 ${
               todayLog?.qiyamNightDone
                 ? 'bg-[#1eb814] text-white'
-                : 'bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300'
+                : 'bg-indigo-500/20 text-indigo-900 dark:text-indigo-200 border border-indigo-500/30'
             }`}
           >
             {todayLog?.qiyamNightDone ? '✓' : '+30'}
           </span>
         </button>
 
-        {/* Tile 3: Post-Prayer Tasbih & Dhikr */}
+        {/* Tile 3: Post-Prayer Tasbih & Dhikr (Sacred Emerald Bento) */}
         <button
           type="button"
           onClick={() => {
@@ -1131,21 +1309,21 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             isExtrasExpanded && sanctuaryTab === 'tasbih'
               ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-[#141517] dark:border-white'
-              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
+              : 'bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-emerald-50/80 dark:from-emerald-950/45 dark:via-zinc-900/80 dark:to-zinc-900 border-emerald-400/45 dark:border-emerald-500/25 text-emerald-950 dark:text-emerald-100 hover:brightness-105'
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+            <span className="w-6 h-6 rounded-lg bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-3.5 h-3.5" />
             </span>
             <span className="truncate">{isAr ? 'ختام الصلاة' : 'Post-Prayer'}</span>
           </div>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 font-mono font-bold shrink-0">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-900 dark:text-emerald-200 border border-emerald-500/30 font-mono font-bold shrink-0">
             33×3
           </span>
         </button>
 
-        {/* Tile 4: Qadaa Missed Prayers Log */}
+        {/* Tile 4: Qadaa Missed Prayers Log (Rose-Gold Ledger Bento) */}
         <button
           type="button"
           onClick={() => {
@@ -1161,16 +1339,16 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           className={`px-3 py-2.5 rounded-[18px] border text-xs font-bold flex items-center justify-between gap-2 cursor-pointer active:scale-95 transition-all ${
             isExtrasExpanded && sanctuaryTab === 'qadaa'
               ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-[#141517] dark:border-white'
-              : 'bg-zinc-50/90 dark:bg-zinc-900/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 border-zinc-200/85 dark:border-white/10 text-zinc-800 dark:text-zinc-200'
+              : 'bg-gradient-to-br from-rose-500/12 via-amber-500/8 to-rose-50/75 dark:from-rose-950/40 dark:via-zinc-900/80 dark:to-zinc-900 border-rose-300/60 dark:border-rose-500/25 text-rose-950 dark:text-rose-100 hover:brightness-105'
           }`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <span className="w-6 h-6 rounded-lg bg-zinc-500/15 text-zinc-600 dark:text-zinc-400 flex items-center justify-center shrink-0">
+            <span className="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0">
               <RotateCcw className="w-3.5 h-3.5" />
             </span>
             <span className="truncate">{isAr ? 'سجل القضاء' : 'Qadaa Log'}</span>
           </div>
-          <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-200/80 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 font-bold shrink-0">
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-900 dark:text-rose-200 border border-rose-500/25 font-bold shrink-0">
             {isAr ? 'فوائت' : 'Track'}
           </span>
         </button>
