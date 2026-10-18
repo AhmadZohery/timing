@@ -146,7 +146,7 @@ export function App() {
     try {
       localStorage.setItem('midmar_active_station', st);
       if (typeof window !== 'undefined' && window.location.hash !== `#${st.toLowerCase()}`) {
-        window.history.replaceState(null, '', `#${st.toLowerCase()}`);
+        window.history.pushState({ station: st }, '', `#${st.toLowerCase()}`);
       }
       if (userState?.id) {
         db.user_state.update(userState.id, { activeStation: st }).catch(() => {});
@@ -343,10 +343,17 @@ export function App() {
   // Reward Toast state
   const [rewardToast, setRewardToast] = useState<string | null>(null);
 
-  // Synchronize browser history hashchange (Back / Forward navigation)
+  // Synchronize browser & Android hardware back button navigation (hashchange + popstate)
   useEffect(() => {
     const handleHashChange = () => {
       const cleanHash = window.location.hash.replace('#', '').toUpperCase();
+      if (!cleanHash) {
+        if (activeStation !== 'HOME') {
+          setActiveStationState('HOME');
+          localStorage.setItem('midmar_active_station', 'HOME');
+        }
+        return;
+      }
       const match = ALL_STATIONS.find((s) => s === cleanHash || s.toLowerCase() === cleanHash.toLowerCase());
       if (match && match !== activeStation) {
         setActiveStationState(match);
@@ -357,7 +364,11 @@ export function App() {
       }
     };
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
   }, [activeStation, userState?.id]);
 
   // Initial DB sync if no localStorage or hash was present
