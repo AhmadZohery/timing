@@ -517,38 +517,38 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
   // --- 1. خُطب ومواعظ مدوية (MP3 مباشر فائق السرعة) ---
   {
     id: 'track_kishk_01',
-    titleAr: 'الحبيب المحبوب ﷺ وشمائل المصطفى ومكانته عند ربه',
+    titleAr: 'الحبيب المحبوب ﷺ: خصائص المصطفى وشمائله ومكانته عند ربه',
     titleEn: 'The Beloved Prophet ﷺ & His Noble Qualities',
     sheikhAr: 'الشيخ عبد الحميد كشك (رحمه الله)',
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
-    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/002_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '44:10',
+    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/109_uP_bY_mUSLEm.Ettounssi.mp3',
+    durationFormatted: '85:33',
     badgeAr: '🔥 محبة المصطفى ﷺ',
     icon: '🎙️',
   },
   {
     id: 'track_kishk_02',
-    titleAr: 'أهل الكهف والرقيم ودروس الثبات على العقيدة',
+    titleAr: 'ذو القرنين وأصحاب الكهف والرقيم ودروس الثبات على العقيدة',
     titleEn: 'People of the Cave & Steadfastness in Faith',
     sheikhAr: 'الشيخ عبد الحميد كشك (رحمه الله)',
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
-    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/008_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '41:20',
+    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/120_uP_bY_mUSLEm.Ettounssi.mp3',
+    durationFormatted: '42:20',
     badgeAr: '⚔️ فتية آمنوا بربهم',
     icon: '🎙️',
   },
   {
     id: 'track_kishk_03',
-    titleAr: 'حادثة الإفك والفرج الرباني وتبرئة الصديقة عائشة',
-    titleEn: 'The Incident of Ifk & Divine Vindication',
+    titleAr: 'زواج الرسول ﷺ بالسيدة خديجة رضي الله عنها ووفاء بيت النبوة',
+    titleEn: 'Marriage of the Prophet ﷺ to Khadijah & Prophetic Home',
     sheikhAr: 'الشيخ عبد الحميد كشك (رحمه الله)',
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
-    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/003_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '38:50',
-    badgeAr: '🛡️ الصبر والفرج',
+    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/257_uP_bY_mUSLEm.Ettounssi.mp3',
+    durationFormatted: '89:40',
+    badgeAr: '🛡️ بيت النبوة',
     icon: '🎙️',
   },
   {
@@ -559,7 +559,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/006_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '46:15',
+    durationFormatted: '87:27',
     badgeAr: '✨ فاستقم كما أمرت',
     icon: '🎙️',
   },
@@ -571,7 +571,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Khaled Al-Rashed',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/way2sona_20160319_1746/1-qableanadam.mp3',
-    durationFormatted: '39:15',
+    durationFormatted: '54:01',
     badgeAr: '💔 موعظة مبكية',
     icon: '🔥',
   },
@@ -583,7 +583,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Khaled Al-Rashed',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/way2sona_20160319_1746/1-al-thabat.mp3',
-    durationFormatted: '41:10',
+    durationFormatted: '59:59',
     badgeAr: '🌱 ثبات ويقين',
     icon: '🔥',
   },
@@ -595,7 +595,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Badr Al-Meshari',
     category: 'siyra',
     audioUrl: 'https://archive.org/download/alwaldin_gmail_201504/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%A8%D8%AF%D8%B1%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A%20-%20%D9%85%D8%AD%D9%85%D8%AF%20%D8%B1%D8%B3%D9%88%D9%84%20%D8%A7%D9%84%D9%84%D9%87.MP3',
-    durationFormatted: '46:10',
+    durationFormatted: '86:06',
     badgeAr: '🕌 سيرة المصطفى',
     icon: '🕌',
   },
@@ -607,31 +607,31 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Badr Al-Meshari',
     category: 'siyra',
     audioUrl: 'https://archive.org/download/BDRALMSHARY01/BDRALMSHARY01.mp3',
-    durationFormatted: '34:50',
+    durationFormatted: '04:24',
     badgeAr: '🛡️ كرامات الصحابة',
     icon: '🕌',
   },
   {
     id: 'track_samir_01',
-    titleAr: 'من هم؟ أسرار علو الهمة ومجاهدة النفس والشيطان',
-    titleEn: 'Who Are They? Secrets of High Zeal',
+    titleAr: 'شرح حديث من همّ بحسنة: أسرار علو الهمة ومبادرة العمل',
+    titleEn: 'Hadith of Intending Good: Secrets of High Zeal',
     sheikhAr: 'الشيخ سمير مصطفى (فك الله أسره)',
     sheikhEn: 'Sheikh Samir Mostafa',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/mn-hm-samir/mn-hm-samir.mp3',
-    durationFormatted: '35:40',
+    durationFormatted: '74:45',
     badgeAr: '🚀 شحذ الهمة',
     icon: '⚡',
   },
   {
     id: 'track_hawali_aqeedah_01',
-    titleAr: 'شرح العقيدة الطحاوية: صفاء منهج السلف ونقد التأويل الأشعري',
+    titleAr: 'شرح العقيدة الطحاوية: صفاء منهج السلف ونقد التأويل الكلامي',
     titleEn: 'Al-Aqeedah Al-Tahawiyyah: Pure Salaf Creed',
     sheikhAr: 'الشيخ سفر الحوالي (فك الله أسره)',
     sheikhEn: 'Sheikh Safar Al-Hawali',
     category: 'tazkiyah',
-    audioUrl: 'https://archive.org/download/wasetia_Badr/001.mp3',
-    durationFormatted: '33:15',
+    audioUrl: 'https://archive.org/download/006_20240819/001.mp3',
+    durationFormatted: '68:29',
     badgeAr: '🕋 صفاء العقيدة',
     icon: '🏛️',
   },
@@ -827,7 +827,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Authentic Adhkar',
     category: 'adhkar',
     audioUrl: 'https://archive.org/download/TvQuran.com__Athkar/TvQuran.com_athkar_01.mp3',
-    durationFormatted: '22:15',
+    durationFormatted: '02:13',
     badgeAr: '☀️ شمس التوكل',
     icon: '🌸',
   },
@@ -839,7 +839,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Authentic Adhkar',
     category: 'adhkar',
     audioUrl: 'https://archive.org/download/TvQuran.com__Athkar/TvQuran.com_athkar_02.mp3',
-    durationFormatted: '21:40',
+    durationFormatted: '05:54',
     badgeAr: '🌙 طمأنينة المساء',
     icon: '🌸',
   },
@@ -851,7 +851,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Comprehensive Ruqyah',
     category: 'adhkar',
     audioUrl: 'https://archive.org/download/rqa_iiih/Rqa_iiih1.mp3',
-    durationFormatted: '35:20',
+    durationFormatted: '71:03',
     badgeAr: '💎 شفاء وسكينة',
     icon: '📿',
   },
@@ -859,37 +859,37 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
   // --- 4. تزكية وبناء النفس والهمة ---
   {
     id: 'track_tazkiyah_ikhlas',
-    titleAr: 'شرح رياض الصالحين: باب الإخلاص وإحضار النية في جميع الأعمال',
-    titleEn: 'Riyad as-Salihin: Sincerity & Daily Intentions',
-    sheikhAr: 'الشيخ محمد بن صالح العثيمين',
+    titleAr: 'شرح رياض الصالحين (1): باب الإخلاص وإحضار النية في جميع الأعمال',
+    titleEn: 'Riyad as-Salihin (1): Sincerity & Daily Intentions',
+    sheikhAr: 'الشيخ محمد بن صالح العثيمين (رحمه الله)',
     sheikhEn: 'Sheikh Ibn Uthaymeen',
     category: 'tazkiyah',
-    audioUrl: 'https://archive.org/download/ben1-130/0001.mp3',
-    durationFormatted: '31:20',
+    audioUrl: 'https://archive.org/download/011_20210928_202109/001.mp3',
+    durationFormatted: '41:07',
     badgeAr: '⚖️ تصحيح النوايا',
     icon: '💖',
   },
   {
     id: 'track_tazkiyah_tawbah_uthaymeen',
-    titleAr: 'شرح رياض الصالحين: باب التوبة وشروط الأوبة الصادقة إلى الله',
-    titleEn: 'Riyad as-Salihin: Sincere Repentance',
-    sheikhAr: 'الشيخ محمد بن صالح العثيمين',
+    titleAr: 'شرح رياض الصالحين (2): باب التوبة وشروط الأوبة الصادقة إلى الله',
+    titleEn: 'Riyad as-Salihin (2): Sincere Repentance',
+    sheikhAr: 'الشيخ محمد بن صالح العثيمين (رحمه الله)',
     sheikhEn: 'Sheikh Ibn Uthaymeen',
     category: 'tazkiyah',
-    audioUrl: 'https://archive.org/download/ben1-130/0002.mp3',
-    durationFormatted: '29:45',
+    audioUrl: 'https://archive.org/download/011_20210928_202109/002.mp3',
+    durationFormatted: '44:12',
     badgeAr: '🌿 باب التوبة',
     icon: '💖',
   },
   {
     id: 'track_tazkiyah_sabr',
-    titleAr: 'شرح رياض الصالحين: باب الصبر وفقه الابتلاء والاحتساب',
-    titleEn: 'Riyad as-Salihin: Patience & Trials in Life',
-    sheikhAr: 'الشيخ محمد بن صالح العثيمين',
+    titleAr: 'شرح رياض الصالحين (3): باب الصبر وفقه الابتلاء والاحتساب',
+    titleEn: 'Riyad as-Salihin (3): Patience & Trials in Life',
+    sheikhAr: 'الشيخ محمد بن صالح العثيمين (رحمه الله)',
     sheikhEn: 'Sheikh Ibn Uthaymeen',
     category: 'tazkiyah',
-    audioUrl: 'https://archive.org/download/ben1-130/0003.mp3',
-    durationFormatted: '33:10',
+    audioUrl: 'https://archive.org/download/011_20210928_202109/003.mp3',
+    durationFormatted: '46:18',
     badgeAr: '💎 قوة التحمل',
     icon: '💖',
   },
@@ -901,7 +901,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ibrahim Al-Sakran',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/Mo1440abo3mr/%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D9%88%D8%A7%D9%84%D8%AA%D8%B1%D8%A8%D9%8A%D8%A9%20-%20%D8%AF.%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D8%A7%D9%86.mp3',
-    durationFormatted: '45:10',
+    durationFormatted: '37:35',
     badgeAr: '🧠 وعي فكري',
     icon: '🌱',
   },
@@ -912,8 +912,8 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhAr: 'د. أحمد عبد المنعم',
     sheikhEn: 'Dr. Ahmed Abdelmonem',
     category: 'tazkiyah',
-    audioUrl: 'https://archive.org/download/Majales-elQuran-surat-elkahf_Ahmed-Abdelmoneem-mp3/001-%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%83%D9%87%D9%81%20(1)%20%D9%85%D9%82%D9%85%D8%AF%D8%A9%20%D9%87%D8%A7%D9%85%D8%A9%20_%20%D8%A7%D9%84%D8%AF%D9%83%D8%AA%D9%88%D8%B1%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3'.replace('%D9%85%D9%82%D9%85%D8%AF%D8%A9', '%D9%85%D9%82%D8%AF%D9%85%D8%A9'),
-    durationFormatted: '37:40',
+    audioUrl: 'https://archive.org/download/Majales-elQuran-surat-elkahf_Ahmed-Abdelmoneem-mp3/001-%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%83%D9%87%D9%81%20%281%29%20%D9%85%D9%82%D8%AF%D9%85%D8%A9%20%D9%87%D8%A7%D9%85%D8%A9%20_%20%D8%A7%D9%84%D8%AF%D9%83%D8%AA%D9%88%D8%B1%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3',
+    durationFormatted: '65:08',
     badgeAr: '📖 تدبر عميق',
     icon: '🌱',
   },
@@ -925,7 +925,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Mohamed Sayed Haj',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/Mohamed-Sayed-Hajj/%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%86%20%D8%A7%D8%B3%D8%AA%D9%82%D9%8A%D9%85%20%D9%88%D9%84%D9%83%D9%86.mp3',
-    durationFormatted: '51:20',
+    durationFormatted: '19:00',
     badgeAr: '🕊️ فقه الاستقامة',
     icon: '🕊️',
   },
@@ -937,7 +937,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Amjad Samir',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/media-way2allah-_3780/bnwd_alslh_alhdebea_alshekh_ahmd_smer_h17_-_knaa_alnde_alfdaeaea.mp3',
-    durationFormatted: '33:15',
+    durationFormatted: '16:27',
     badgeAr: '🌿 فقه النفس',
     icon: '🌿',
   },
@@ -1011,7 +1011,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/Establishing_contemporary_Muslim_awareness/01.mp3',
-    durationFormatted: '48:30',
+    durationFormatted: '99:25',
     badgeAr: '🧭 تأسيس الوعي',
     icon: '🧠',
   },
@@ -1023,7 +1023,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/Establishing_contemporary_Muslim_awareness/02.mp3',
-    durationFormatted: '52:10',
+    durationFormatted: '115:50',
     badgeAr: '🧭 سنن النهوض',
     icon: '🧠',
   },
@@ -1035,7 +1035,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/NAFS-2017/01-NAFS.mp3',
-    durationFormatted: '56:30',
+    durationFormatted: '106:55',
     badgeAr: '🏛️ مدخل علم النفس',
     icon: '⚔️',
   },
@@ -1049,7 +1049,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/hadith_/1.mp3',
-    durationFormatted: '46:15',
+    durationFormatted: '69:41',
     badgeAr: '💡 بناء اليقين',
     icon: '🌱',
   },
@@ -1060,33 +1060,33 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhAr: 'الشيخ أحمد بن يوسف السيد',
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'siyra',
-    audioUrl: 'https://archive.org/download/mp-3-160-k_20240824_1424/%2818%29%20%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20%D9%84%D9%84%D9%85%D8%B5%D9%84%D8%AD%D9%8A%D9%86%20-%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%20-%20%D8%81%D8%AA%D8%AD%20%D9%85%D9%83%D8%A9%20%28MP3_160K%29.mp3'.replace('%D8%81%D8%AA%D8%AD', '%D9%81%D8%AA%D8%AD'),
-    durationFormatted: '43:20',
+    audioUrl: 'https://archive.org/download/mp-3-160-k_20240824_1424/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20%D9%84%D9%84%D9%85%D8%B5%D9%84%D8%AD%D9%8A%D9%86%20%D9%A3%D9%A1%20_%20%D9%81%D8%AA%D8%AD%20%D9%85%D9%83%D8%A9%20_%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%28MP3_160K%29.mp3',
+    durationFormatted: '58:06',
     badgeAr: '🕌 سيرة المصلحين',
     icon: '✨',
   },
   {
     id: 'track_tarefe_ahkam_01',
-    titleAr: 'تفسير آيات الأحكام وتدبر السنن القرآنية الكبرى',
-    titleEn: 'Tafseer Ayat Al-Ahkam',
+    titleAr: 'تفسير آيات الأحكام (1): قوله تعالى {إني جاعل في الأرض خليفة}',
+    titleEn: 'Tafseer Ayat Al-Ahkam (1)',
     sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
     sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/001.mp3',
-    durationFormatted: '38:20',
+    durationFormatted: '87:23',
     badgeAr: '🛡️ آيات الأحكام',
     icon: '📖',
   },
   {
     id: 'track_tarefe_qadar_02',
-    titleAr: 'الإيمان بالقدر وحكمة الله في خلقه وأمره وطمأنينة القلب',
-    titleEn: 'Faith in Divine Decree & Wisdom',
+    titleAr: 'تفسير آيات الأحكام (2): الوفاء بالعهد والسنن الربانية في الأمم',
+    titleEn: 'Tafseer Ayat Al-Ahkam (2): Divine Covenants & Laws',
     sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
     sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/002.mp3',
-    durationFormatted: '38:15',
-    badgeAr: '🛡️ فقه القدر',
+    durationFormatted: '72:01',
+    badgeAr: '🛡️ سنن الله',
     icon: '🌟',
   },
   {
@@ -1096,8 +1096,8 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
     sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'tazkiyah',
-    audioUrl: 'https://archive.org/download/3azamitAllah/10-zo-al-hoja.mp3',
-    durationFormatted: '38:15',
+    audioUrl: 'https://archive.org/download/3azamitAllah/3azamit-allah.mp3',
+    durationFormatted: '36:34',
     badgeAr: '👑 عظمة الله',
     icon: '💎',
   },
@@ -1109,7 +1109,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Hazem Shouman',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/way2sona_20160330_2010/1--.mp3',
-    durationFormatted: '35:10',
+    durationFormatted: '72:55',
     badgeAr: '🤲 محتاج أصلي',
     icon: '🔥',
   },
@@ -1121,7 +1121,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Samir Mostafa',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/khotab_minbriah-sh_samir-mostafa/01_Smir_Mostafa_khotab_esbero(%D8%A7%D8%B5%D8%A8%D8%B1%D9%88%D8%A7%20%D9%88%D8%B5%D8%A7%D8%A8%D9%80%D8%B1%D9%88%D8%A7).mp3',
-    durationFormatted: '36:45',
+    durationFormatted: '42:11',
     badgeAr: '🔥 علو الهمة',
     icon: '⚡',
   },
@@ -1129,76 +1129,76 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
   // --- 6.5 دروس وفقه الرجل المسلم (الفتوة، القوامة، الكسب الحلال، وغض البصر) ---
   {
     id: 'track_men_fiqh_01',
-    titleAr: 'رجولة المؤمن وفتوة الصحابة: القوة والأمانة والقيادة في الإسلام',
-    titleEn: 'Believer Manhood & Chivalry of the Companions',
+    titleAr: 'رجولة المؤمن والاستقامة والصدق مع الله في زمن الفتن',
+    titleEn: 'Believer Manhood & Steadfastness with Allah',
     sheikhAr: 'الشيخ محمد مختار الشنقيطي',
     sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
     category: 'men_fiqh',
-    audioUrl: 'https://archive.org/download/Shanqeeti_Durus_Muntaqah/01_Thabat.mp3',
-    durationFormatted: '42:15',
+    audioUrl: 'https://archive.org/download/Shnghiti_by_hassan/016estqama.mp3',
+    durationFormatted: '72:31',
     badgeAr: '🧔 فقه وبناء الرجل',
     icon: '🧔',
   },
   {
     id: 'track_men_fiqh_02',
-    titleAr: 'مسؤولية الرجل في القوامة الرحيمة، الكسب الطيب، وحماية الأسرة',
-    titleEn: 'Merciful Qiwamah, Halal Earning & Family Leadership',
+    titleAr: 'مسؤولية الرجل في القوامة، اقتصاد الأسرة، والكسب الطيب',
+    titleEn: 'Merciful Qiwamah, Halal Earning & Family Economy',
     sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'men_fiqh',
-    audioUrl: 'https://archive.org/download/03_20191120_20191120/04.mp3',
-    durationFormatted: '135:48',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/07.mp3',
+    durationFormatted: '103:36',
     badgeAr: '🛡️ القوامة والمسؤولية',
     icon: '⚔️',
   },
   {
     id: 'track_men_fiqh_03',
-    titleAr: 'مجاهدة الشهوات وغض البصر وعلو همة الفتى المسلم',
-    titleEn: 'Lowering the Gaze & High Zeal for Young Muslim Men',
+    titleAr: 'علو همة الفتى المسلم واغتنام الشباب ومجاهدة الشهوات',
+    titleEn: 'High Zeal for Young Muslim Men & Guarding Youth',
     sheikhAr: 'الشيخ د. محمد إسماعيل المقدم',
     sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
     category: 'men_fiqh',
-    audioUrl: 'https://archive.org/download/Aldaa_Wa_Aldawaa_Badr/01.mp3',
-    durationFormatted: '39:20',
-    badgeAr: '🦁 عفة الفتى المسلم',
+    audioUrl: 'https://archive.org/download/3olow-hemmuh/07.mp3',
+    durationFormatted: '85:57',
+    badgeAr: '🦁 همة الفتى المسلم',
     icon: '🧔',
   },
 
   // --- 6.6 دروس وفقه المرأة المسلمة (الطهارة، العذر الشرعي، قدوات الصحابيات، والسكينة) ---
   {
     id: 'track_women_fiqh_01',
-    titleAr: 'فقه المرأة المسلمة: أحكام الطهارة والصلاة والعبادة حال العذر الشرعي',
-    titleEn: 'Muslim Woman Fiqh: Purification, Prayer & Worship During Menses',
-    sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
-    sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
+    titleAr: 'فقه المرأة المسلمة: أحكام الحيض والطهارة والصلاة',
+    titleEn: 'Muslim Woman Fiqh: Purification, Menses & Prayer',
+    sheikhAr: 'الشيخ د. محمد إسماعيل المقدم',
+    sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
     category: 'women_fiqh',
-    audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/001.mp3',
-    durationFormatted: '38:20',
+    audioUrl: 'https://archive.org/download/ana-sal-mokadim-jahloh/003.mp3',
+    durationFormatted: '112:39',
     badgeAr: '🌸 فقه وطهارة المرأة',
     icon: '🧕',
   },
   {
     id: 'track_women_fiqh_02',
-    titleAr: 'سير أمهات المؤمنين: الصديقة عائشة وخديجة وفاطمة رضي الله عنهن',
-    titleEn: 'Mothers of the Believers: Aisha, Khadijah & Fatimah',
+    titleAr: 'في بيت الحبيب ﷺ مع أزواجه وسير أمهات المؤمنين رضي الله عنهن',
+    titleEn: 'In the Prophet Home with the Mothers of the Believers',
     sheikhAr: 'الشيخ عبد الحميد كشك (رحمه الله)',
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'women_fiqh',
-    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/003_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '38:50',
+    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/137_uP_bY_mUSLEm.Ettounssi.mp3',
+    durationFormatted: '87:50',
     badgeAr: '👑 قدوات نساء الإسلام',
     icon: '🌸',
   },
   {
     id: 'track_women_fiqh_03',
-    titleAr: 'رسالة إلى المرأة المسلمة: الحجاب، الحياء، وبناء الجيل الصالح',
-    titleEn: 'Message to the Muslim Woman: Modesty, Peace & Raising Righteous Generations',
-    sheikhAr: 'الشيخ محمد مختار الشنقيطي',
-    sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
+    titleAr: 'الفتاوى النسائية الجامعة: أحكام الحجاب، العفاف، والأسرة المسلمة',
+    titleEn: 'Comprehensive Women Fatawa: Modesty, Hijab & Muslim Family',
+    sheikhAr: 'الشيخ عبد العزيز بن باز (رحمه الله)',
+    sheikhEn: 'Sheikh Ibn Baz',
     category: 'women_fiqh',
-    audioUrl: 'https://archive.org/download/Shanqeeti_Durus_Muntaqah/02_Tawakkul.mp3',
-    durationFormatted: '37:40',
-    badgeAr: '💎 تاج الحياء والسكينة',
+    audioUrl: 'https://archive.org/download/Ibn_Baz_uP_bY_mUSLEm/014-_up_by_muslem.mp3',
+    durationFormatted: '94:33',
+    badgeAr: '💎 الفتاوى النسائية',
     icon: '🧕',
   },
 
@@ -1487,8 +1487,20 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   useEffect(() => {
     const unsub = gymFaithAudio.subscribe((st) => {
       setAudioState(st);
-      setFavoriteIds(gymFaithAudio.getFavorites());
-      setCustomSeriesList(gymFaithAudio.getCustomSeries());
+      setFavoriteIds((prev) => {
+        const next = gymFaithAudio.getFavorites();
+        if (prev.length === next.length && prev.every((id, idx) => id === next[idx])) {
+          return prev;
+        }
+        return next;
+      });
+      setCustomSeriesList((prev) => {
+        const next = gymFaithAudio.getCustomSeries();
+        if (prev.length === next.length && prev.every((s, idx) => s.id === next[idx]?.id)) {
+          return prev;
+        }
+        return next;
+      });
     });
     return () => unsub();
   }, []);
@@ -2023,8 +2035,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
     const isThisTrackPlaying =
       audioState.isPlaying &&
-      (playingTrackId === track.id ||
-        (matchedChannel && audioState.mode === 'channel' && audioState.currentChannelId === matchedChannel.id) ||
+      ((matchedChannel && audioState.mode === 'channel' && audioState.currentChannelId === matchedChannel.id) ||
+        audioState.currentCustomUrl === track.audioUrl ||
         audioState.currentTitleAr === track.titleAr);
 
     if (isThisTrackPlaying) {
@@ -2050,6 +2062,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     haptic.vibrateMedium();
 
     if (isSoundCloudUrl(trimmed)) {
+      gymFaithAudio.pause();
       setSelectedSoundCloudDeck({
         id: 'sc_custom_' + Date.now(),
         scholarAr: 'مقطع ساوند كلاود مخصص',
@@ -4323,11 +4336,11 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               filteredTracks.map((track) => {
                 const isPlayingThis =
                   audioState.isPlaying &&
-                  (playingTrackId === track.id ||
-                    (track.category === 'radio' &&
-                      audioState.mode === 'channel' &&
-                      (audioState.currentChannelId === track.id.replace('track_radio_', '') ||
-                        audioState.currentTitleAr === track.titleAr)) ||
+                  ((track.category === 'radio' &&
+                    audioState.mode === 'channel' &&
+                    (audioState.currentChannelId === track.id.replace('track_radio_', '') ||
+                      audioState.currentTitleAr === track.titleAr)) ||
+                    audioState.currentCustomUrl === track.audioUrl ||
                     audioState.currentTitleAr === track.titleAr);
                 const isFav = favoriteIds.includes(track.id);
                 const isDone = completedTrackIds.includes(track.id);

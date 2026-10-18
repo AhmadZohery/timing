@@ -71,6 +71,7 @@ export interface GymFaithAudioState {
   youtubeUrl: string | null;
   isAudioOnlyMode: boolean;
   currentChannelId: string;
+  currentCustomUrl: string | null;
   currentSeriesId: string | null;
   currentEpisodeId: string | null;
   currentTitleAr: string;
@@ -171,6 +172,10 @@ class GymFaithAudioService {
         : null) || initialChannel.titleAr;
     const currentSheikh = resumePoint?.sheikhAr || initialChannel.sheikhAr;
     const currentChannelId = resumePoint?.channelId || initialChannel.id;
+    const currentCustomUrl =
+      resumePoint?.mode === 'channel' && resumePoint?.channelId?.startsWith('custom_')
+        ? resumePoint.audioUrl || null
+        : null;
     const currentSeriesId = resumePoint?.seriesId || null;
     const currentEpisodeId = resumePoint?.episodeId || null;
     const currentPos = resumePoint?.currentTime || 0;
@@ -187,6 +192,7 @@ class GymFaithAudioService {
       youtubeUrl: isYtResume ? resumePoint!.audioUrl : null,
       isAudioOnlyMode: true,
       currentChannelId,
+      currentCustomUrl,
       currentSeriesId,
       currentEpisodeId,
       currentTitleAr: currentTitle,
@@ -208,22 +214,34 @@ class GymFaithAudioService {
 
   public updateYouTubeProgress(currentTime: number, duration?: number, isPlaying?: boolean) {
     if (this.state.mediaType === 'youtube') {
-      const updates: Partial<GymFaithAudioState> = {
-        currentTime: Math.floor(currentTime),
-      };
-      if (typeof duration === 'number' && duration > 0) {
-        updates.duration = Math.floor(duration);
-      }
-      if (typeof isPlaying === 'boolean') {
-        updates.isPlaying = isPlaying;
-        // Real playback proves any earlier failure is over: drop the stale error banner
-        if (isPlaying && this.state.hasError) {
+      const cur = Math.floor(currentTime);
+      const dur = typeof duration === 'number' && duration > 0 ? Math.floor(duration) : this.state.duration;
+      const nextPlaying = typeof isPlaying === 'boolean' ? isPlaying : this.state.isPlaying;
+      const clearErr = Boolean(nextPlaying && this.state.hasError);
+
+      if (
+        cur !== this.state.currentTime ||
+        dur !== this.state.duration ||
+        nextPlaying !== this.state.isPlaying ||
+        clearErr
+      ) {
+        const updates: Partial<GymFaithAudioState> = {
+          currentTime: cur,
+          duration: dur,
+          isPlaying: nextPlaying,
+        };
+        if (clearErr) {
           updates.hasError = false;
           updates.errorMessage = null;
         }
+        this.updateState(updates);
       }
-      this.updateState(updates);
-      this.saveResumePoint();
+
+      const now = Date.now();
+      if (now - this.lastSaveTime > 3000 || (typeof isPlaying === 'boolean' && !isPlaying)) {
+        this.lastSaveTime = now;
+        this.saveResumePoint();
+      }
     }
   }
 
@@ -369,7 +387,7 @@ class GymFaithAudioService {
   }
 
   private scheduleAutoReconnect(reason: string) {
-    if (this.isUserPaused || !this.state.isPlaying) return;
+    if (this.isUserPaused || (!this.state.isPlaying && !this.state.isLoading)) return;
     if (this.reconnectTimeout) return;
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
@@ -536,7 +554,7 @@ class GymFaithAudioService {
         duration: dur,
         audioUrl: isYt
           ? this.state.youtubeUrl || ''
-          : this.audio?.src || ch?.streamUrl || '',
+          : this.state.currentCustomUrl || this.audio?.src || ch?.streamUrl || '',
         timestamp: Date.now(),
       };
     }
@@ -738,7 +756,9 @@ class GymFaithAudioService {
           mediaType: 'audio',
           youtubeVideoId: null,
           youtubePlaylistId: null,
+          youtubeUrl: null,
           currentChannelId: channel.id,
+          currentCustomUrl: null,
           currentSeriesId: null,
           currentEpisodeId: null,
           currentTitleAr: channel.titleAr,
@@ -767,7 +787,9 @@ class GymFaithAudioService {
 
       const targetId = this.state.currentChannelId;
       const isCustomChannel = Boolean(targetId && targetId.startsWith('custom_'));
-      const customResumeUrl = isCustomChannel ? this.state.resumePoint?.audioUrl : null;
+      const customResumeUrl = isCustomChannel
+        ? this.state.currentCustomUrl || this.state.resumePoint?.audioUrl || this.audio?.src || null
+        : null;
 
       if (isCustomChannel && customResumeUrl) {
         if (!this.audio.src || !this.audio.src.includes(customResumeUrl.replace(/^https?:\/\//, ''))) {
@@ -783,6 +805,7 @@ class GymFaithAudioService {
           mediaType: 'audio',
           youtubeVideoId: null,
           youtubePlaylistId: null,
+          currentCustomUrl: customResumeUrl,
           isLoading: true,
           hasError: false,
           errorMessage: null,
@@ -802,6 +825,7 @@ class GymFaithAudioService {
             youtubeVideoId: null,
             youtubePlaylistId: null,
             currentChannelId: channel.id,
+            currentCustomUrl: null,
             currentSeriesId: null,
             currentEpisodeId: null,
             currentTitleAr: channel.titleAr,
@@ -873,6 +897,7 @@ class GymFaithAudioService {
     const sessionId = ++this.currentSessionId;
 
     const isDifferent =
+      this.state.mediaType !== 'audio' ||
       this.state.mode !== 'series' ||
       this.state.currentSeriesId !== series.id ||
       this.state.currentEpisodeId !== episode.id ||
@@ -884,25 +909,40 @@ class GymFaithAudioService {
           this.audio.pause();
         } catch {}
       }
+      audioCoordinator.requestExclusive('gym_faith');
       const { videoId, playlistId } = extractYouTubeId(episode.audioUrl);
+      const isDifferentYt =
+        this.state.mediaType !== 'youtube' ||
+        this.state.currentSeriesId !== series.id ||
+        this.state.currentEpisodeId !== episode.id ||
+        this.state.youtubeVideoId !== (videoId || null);
+
       this.updateState({
         mode: 'series',
         mediaType: 'youtube',
         youtubeVideoId: videoId || null,
         youtubePlaylistId: playlistId || null,
         youtubeUrl: episode.audioUrl,
+        currentCustomUrl: null,
         currentSeriesId: series.id,
         currentEpisodeId: episode.id,
         currentTitleAr: `${series.titleAr} • ${episode.titleAr}`,
         currentSheikhAr: series.sheikhAr,
+        currentTime: startSecond,
+        ...(isDifferentYt ? { duration: 0 } : {}),
         isPlaying: true,
         isLoading: false,
         hasError: false,
         errorMessage: null,
       });
-      try {
-        this.ytBridge?.play();
-      } catch {}
+      if (!isDifferentYt) {
+        try {
+          if (startSecond > 0) {
+            this.ytBridge?.seekTo(startSecond);
+          }
+          this.ytBridge?.play();
+        } catch {}
+      }
       this.saveResumePoint();
       this.updateMediaSession();
       return;
@@ -920,6 +960,8 @@ class GymFaithAudioService {
       mediaType: 'audio',
       youtubeVideoId: null,
       youtubePlaylistId: null,
+      youtubeUrl: null,
+      currentCustomUrl: null,
       currentSeriesId: series.id,
       currentEpisodeId: episode.id,
       currentTitleAr: `${series.titleAr} • ${episode.titleAr}`,
@@ -1116,6 +1158,7 @@ class GymFaithAudioService {
         mode: 'channel',
         mediaType: 'audio',
         currentChannelId: channel.id,
+        currentCustomUrl: null,
         currentSeriesId: null,
         currentEpisodeId: null,
         currentTitleAr: channel.titleAr,
@@ -1265,7 +1308,13 @@ class GymFaithAudioService {
           this.audio.pause();
         } catch {}
       }
+      audioCoordinator.requestExclusive('gym_faith');
       const { videoId, playlistId } = extractYouTubeId(url);
+      const isDifferentYt =
+        this.state.mediaType !== 'youtube' ||
+        this.state.youtubeUrl !== url ||
+        this.state.youtubeVideoId !== (videoId || null);
+
       this.updateState({
         mode: 'channel',
         mediaType: 'youtube',
@@ -1273,18 +1322,22 @@ class GymFaithAudioService {
         youtubePlaylistId: playlistId || null,
         youtubeUrl: url,
         currentChannelId: 'custom_' + Date.now(),
+        currentCustomUrl: url,
         currentSeriesId: null,
         currentEpisodeId: null,
         currentTitleAr: titleAr,
         currentSheikhAr: sheikhAr,
+        ...(isDifferentYt ? { currentTime: 0, duration: 0 } : {}),
         isPlaying: true,
         isLoading: false,
         hasError: false,
         errorMessage: null,
       });
-      try {
-        this.ytBridge?.play();
-      } catch {}
+      if (!isDifferentYt) {
+        try {
+          this.ytBridge?.play();
+        } catch {}
+      }
       this.saveResumePoint();
       this.updateMediaSession();
       return;
@@ -1295,7 +1348,6 @@ class GymFaithAudioService {
         this.ytBridge?.pause();
       } catch {}
     }
-    this.updateState({ mediaType: 'audio', youtubeVideoId: null, youtubePlaylistId: null });
 
     // Check if this URL matches an existing GymAudioChannel strictly
     const matchedChannel = GYM_FAITH_CHANNELS.find(
@@ -1314,7 +1366,10 @@ class GymFaithAudioService {
 
     const sessionId = ++this.currentSessionId;
 
-    const isDifferent = !this.audio.src || !this.audio.src.includes(url.replace(/^https?:\/\//, ''));
+    const isDifferent =
+      this.state.mediaType !== 'audio' ||
+      !this.audio.src ||
+      !this.audio.src.includes(url.replace(/^https?:\/\//, ''));
     if (isDifferent) {
       this.audio.src = url;
       this.audio.load();
@@ -1324,7 +1379,12 @@ class GymFaithAudioService {
 
     this.updateState({
       mode: 'channel',
+      mediaType: 'audio',
+      youtubeVideoId: null,
+      youtubePlaylistId: null,
+      youtubeUrl: null,
       currentChannelId: customId,
+      currentCustomUrl: url,
       currentSeriesId: null,
       currentEpisodeId: null,
       currentTitleAr: titleAr,
