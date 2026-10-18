@@ -141,21 +141,21 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
       />
       <div className="relative z-10 w-full max-w-3xl max-h-[92dvh] flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 shrink-0 bg-gradient-to-r from-sky-50/50 via-transparent to-indigo-50/30 dark:from-sky-950/20 dark:to-indigo-950/10">
+        <div className="flex items-center justify-between p-4 sm:p-5 celestial-obsidian-stage border-b border-white/10 shrink-0 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-sky-600/30 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-500 text-white flex items-center justify-center shadow-md shadow-sky-600/30 shrink-0 border border-sky-400/30">
               <Compass className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
+                <h2 className="text-base sm:text-lg font-black text-white">
                   {isAr ? 'نمط الحياة وتخصيص محطات اليوم' : 'Lifestyle Flow & Station Blueprint'}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-200 border border-sky-400/30 text-[10px] font-bold">
                   {isAr ? 'يناسب جميع الحالات' : 'All Lifestyles'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {isAr
                   ? 'سواء كنت طالباً، باحثاً، مستقلاً، أو تُنظم شؤون بيتك بلا وظيفة رسمية؛ النظام يتكيف معك بالكامل.'
                   : 'Tailor your daily flow whether you are a student, freelancer, homemaker, or builder.'}
@@ -166,7 +166,7 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -175,7 +175,7 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
         {/* Scrollable Body */}
         <div className="p-4 sm:p-5 overflow-y-auto space-y-5 flex-1">
           {/* Smart Wizard Quick Launch Banner */}
-          <div className="p-4 rounded-2xl bg-linear-to-r from-amber-500/15 via-orange-500/10 to-indigo-500/15 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-4 rounded-2xl bento-3d-amber flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5" />
@@ -228,10 +228,10 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
                     key={pId}
                     type="button"
                     onClick={() => handleSelectPersona(pId)}
-                    className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3 rounded-2xl text-start transition-all cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-sky-50/80 dark:bg-sky-950/40 border-sky-500 text-slate-900 dark:text-zinc-100 shadow-md ring-2 ring-sky-500/20'
-                        : 'bg-slate-50/70 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700/80 text-slate-700 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                        ? 'bento-3d-sky text-slate-900 dark:text-zinc-100 ring-2 ring-sky-500/30'
+                        : 'surface-card-3d text-slate-700 dark:text-zinc-300 hover:border-sky-300'
                     }`}
                   >
                     <div>
@@ -295,10 +295,10 @@ export const LifestyleStationCustomizerModal: React.FC<LifestyleStationCustomize
                 return (
                   <div
                     key={stId}
-                    className={`p-3 rounded-2xl border text-xs flex items-center justify-between gap-2 transition-all ${
+                    className={`p-3 rounded-2xl text-xs flex items-center justify-between gap-2 transition-all ${
                       isOverridden
-                        ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800/60'
-                        : 'bg-white dark:bg-zinc-800/80 border-slate-200 dark:border-zinc-700'
+                        ? 'bento-3d-amber'
+                        : 'surface-card-3d'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">

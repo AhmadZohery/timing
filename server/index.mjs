@@ -1232,7 +1232,10 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Check if file exists, else fallback to index.html (SPA routing)
+  // Check if file exists, else fallback to index.html (SPA routing ONLY for non-asset navigation routes)
+  const requestedExt = path.extname(pathname).toLowerCase();
+  const isAssetRequest = pathname.startsWith('/assets/') || (requestedExt !== '' && requestedExt !== '.html');
+
   let stat = null;
   try {
     stat = fs.statSync(filePath);
@@ -1241,6 +1244,14 @@ const server = http.createServer(async (req, res) => {
       stat = fs.statSync(filePath);
     }
   } catch {
+    if (isAssetRequest) {
+      res.writeHead(404, {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      });
+      res.end('404: Asset not found');
+      return;
+    }
     filePath = path.join(DIST_DIR, 'index.html');
     try {
       stat = fs.statSync(filePath);
@@ -1261,7 +1272,7 @@ const server = http.createServer(async (req, res) => {
     'X-Content-Type-Options': 'nosniff',
   };
 
-  if (pathname.startsWith('/assets/')) {
+  if (pathname.startsWith('/assets/') && ext !== '.html') {
     headers['Cache-Control'] = 'public, max-age=31536000, immutable';
   } else {
     headers['Cache-Control'] = 'no-cache, must-revalidate';

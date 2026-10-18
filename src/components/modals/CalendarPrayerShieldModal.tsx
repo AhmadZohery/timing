@@ -35,7 +35,7 @@ export const CalendarPrayerShieldModal: React.FC<CalendarPrayerShieldModalProps>
   onClose,
   onEventsImported,
 }) => {
-  const { isRTL, language } = useTranslation();
+  const { language } = useTranslation();
   const isAr = language === 'ar';
 
   const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'schedule'>('upload');
@@ -206,281 +206,285 @@ export const CalendarPrayerShieldModal: React.FC<CalendarPrayerShieldModalProps>
       />
 
       {/* Modal Dialog */}
-      <div className="relative z-10 w-full max-w-3xl rounded-2xl modal-surface border border-slate-200 dark:border-zinc-800 p-5 sm:p-6 space-y-5 max-h-[92vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer`}
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 max-h-[92vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 shrink-0">
-            <ShieldAlert className="w-6 h-6" />
+        <div className="p-5 sm:p-6 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/30 shrink-0 shadow-inner">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                <span>{isAr ? 'درع الصلوات ومزامنة التقويم' : 'Calendar Prayer Shield'}</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-200 border border-amber-400/30 font-medium">
+                  OPP-0104
+                </span>
+              </h3>
+              <p className="text-xs text-slate-300">
+                {isAr
+                  ? 'حماية أوقات الصلوات والسنن من تعارضات اجتماعات العمل عبر استيراد ملفات التقويم .ics محلياً 100%'
+                  : 'Zero-cloud RFC 5545 iCalendar parser guarding sacred prayer buffers against meeting clashes'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
-              <span>{isAr ? 'درع الصلوات ومزامنة التقويم' : 'Calendar Prayer Shield'}</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 font-medium">
-                OPP-0104
-              </span>
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-zinc-400">
-              {isAr
-                ? 'حماية أوقات الصلوات والسنن من تعارضات اجتماعات العمل عبر استيراد ملفات التقويم .ics محلياً 100%'
-                : 'Zero-cloud RFC 5545 iCalendar parser guarding sacred prayer buffers against meeting clashes'}
-            </p>
-          </div>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2">
           <button
-            onClick={() => setActiveTab('upload')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'upload'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-            }`}
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+            aria-label="Close"
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>{isAr ? 'رفع ملف .ics' : 'Upload .ics'}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('paste')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'paste'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>{isAr ? 'لصق نص التقويم' : 'Paste Raw iCal'}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('schedule')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'schedule'
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>{isAr ? `الجدول والتعارضات (${parsedEvents.length})` : `Schedule (${parsedEvents.length})`}</span>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tab 1: Upload */}
-        {activeTab === 'upload' && (
-          <div className="space-y-4">
-            <label className="border-2 border-dashed border-slate-300 dark:border-zinc-700 hover:border-amber-500 dark:hover:border-amber-400 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-slate-50/50 dark:bg-zinc-950/50">
-              <Upload className="w-10 h-10 text-amber-500 mb-2" />
-              <span className="text-sm font-bold text-slate-800 dark:text-zinc-200">
-                {fileName ? fileName : (isAr ? 'اضغط لاختيار ملف .ics أو اسحبه هنا' : 'Click to select .ics file or drag & drop')}
-              </span>
-              <span className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
-                {isAr ? 'متوافق مع تقويم جوجل، Outlook، و Apple Calendar' : 'Compatible with Google Calendar, Outlook, Apple Calendar'}
-              </span>
-              <input
-                type="file"
-                accept=".ics,text/calendar"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </label>
-          </div>
-        )}
-
-        {/* Tab 2: Paste */}
-        {activeTab === 'paste' && (
-          <div className="space-y-3">
-            <textarea
-              value={rawIcsText}
-              onChange={(e) => setRawIcsText(e.target.value)}
-              placeholder={
-                isAr
-                  ? 'الصق نص تقويم iCalendar هنا (يبدأ بـ BEGIN:VCALENDAR...)'
-                  : 'Paste RFC 5545 iCalendar string here (starts with BEGIN:VCALENDAR...)'
-              }
-              rows={6}
-              className="w-full text-xs font-mono p-3 rounded-xl border border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-950 text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
+        <div className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+          {/* Tab Navigation */}
+          <div className="flex items-center gap-2 border-b border-slate-200 dark:border-zinc-800 pb-2">
             <button
-              onClick={handleParsePastedText}
-              disabled={!rawIcsText.trim() || isProcessing}
-              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-xs"
+              onClick={() => setActiveTab('upload')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'upload'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
+              }`}
             >
-              <Sparkles className="w-4 h-4" />
-              <span>{isProcessing ? (isAr ? 'جارٍ التحليل...' : 'Parsing...') : (isAr ? 'تحليل النص واستخراج المواعيد' : 'Parse iCal Text')}</span>
+              <Upload className="w-3.5 h-3.5" />
+              <span>{isAr ? 'رفع ملف .ics' : 'Upload .ics'}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('paste')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'paste'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>{isAr ? 'لصق نص التقويم' : 'Paste Raw iCal'}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('schedule')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'schedule'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{isAr ? `الجدول والتعارضات (${parsedEvents.length})` : `Schedule (${parsedEvents.length})`}</span>
             </button>
           </div>
-        )}
 
-        {/* Buffer Zone Settings */}
-        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-700 dark:text-zinc-300 font-medium">
-            <Clock className="w-4 h-4 text-amber-500" />
-            <span>{isAr ? 'حرم الصلاة الوقائي:' : 'Prayer Buffer Protection:'}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
-              <span>{isAr ? 'قبل الأذان (وضوء/استعداد):' : 'Before (Wudu):'}</span>
-              <select
-                value={bufferBefore}
-                onChange={(e) => setBufferBefore(Number(e.target.value))}
-                className="bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-md px-1.5 py-0.5 font-bold"
-              >
-                <option value={10}>10 د</option>
-                <option value={15}>15 د</option>
-                <option value={20}>20 د</option>
-                <option value={30}>30 د</option>
-              </select>
-            </label>
-            <label className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
-              <span>{isAr ? 'بعد الأذان (صلاة/سنن/أذكار):' : 'After (Prayer/Sunnah):'}</span>
-              <select
-                value={bufferAfter}
-                onChange={(e) => setBufferAfter(Number(e.target.value))}
-                className="bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-md px-1.5 py-0.5 font-bold"
-              >
-                <option value={15}>15 د</option>
-                <option value={25}>25 د</option>
-                <option value={35}>35 د</option>
-                <option value={45}>45 د</option>
-              </select>
-            </label>
-          </div>
-        </div>
+          {/* Tab 1: Upload */}
+          {activeTab === 'upload' && (
+            <div className="space-y-4">
+              <label className="border-2 border-dashed border-amber-400/50 hover:border-amber-500 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bento-3d-amber">
+                <Upload className="w-10 h-10 text-amber-500 mb-2" />
+                <span className="text-sm font-bold text-slate-800 dark:text-zinc-200">
+                  {fileName ? fileName : (isAr ? 'اضغط لاختيار ملف .ics أو اسحبه هنا' : 'Click to select .ics file or drag & drop')}
+                </span>
+                <span className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+                  {isAr ? 'متوافق مع تقويم جوجل، Outlook، و Apple Calendar' : 'Compatible with Google Calendar, Outlook, Apple Calendar'}
+                </span>
+                <input
+                  type="file"
+                  accept=".ics,text/calendar"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          )}
 
-        {/* Tab 3 / Main Display: Schedule & Conflict Analysis */}
-        {activeTab === 'schedule' && (
-          <div className="space-y-4">
-            {/* Status Summary Banner */}
-            <div className={`p-4 rounded-xl border flex items-center justify-between gap-3 ${
-              totalConflicts > 0
-                ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800/50 text-rose-800 dark:text-rose-200'
-                : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50 text-emerald-800 dark:text-emerald-200'
-            }`}>
-              <div className="flex items-center gap-3">
-                {totalConflicts > 0 ? (
-                  <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
-                ) : (
-                  <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                )}
-                <div className="text-xs">
-                  <div className="font-bold">
-                    {totalConflicts > 0
-                      ? (isAr ? `تنبيه: تم رصد ${totalConflicts} تعارض مع أوقات الصلاة!` : `Warning: ${totalConflicts} meeting conflicts detected with prayer buffers!`)
-                      : (isAr ? 'ما شاء الله! جميع مواعيدك اليوم خارج حرم الصلوات الخمس.' : 'All meetings today are clear of sacred prayer buffers.')}
-                  </div>
-                  <div className="text-[11px] opacity-80">
-                    {isAr
-                      ? `تم فحص ${buffers.length} صلوات، وإجمالي وقت الحرم المحمي: ${totalProtectedMinutes} دقيقة`
-                      : `Protected ${buffers.length} prayers with ${totalProtectedMinutes} total buffer minutes.`}
+          {/* Tab 2: Paste */}
+          {activeTab === 'paste' && (
+            <div className="space-y-3">
+              <textarea
+                value={rawIcsText}
+                onChange={(e) => setRawIcsText(e.target.value)}
+                placeholder={
+                  isAr
+                    ? 'الصق نص تقويم iCalendar هنا (يبدأ بـ BEGIN:VCALENDAR...)'
+                    : 'Paste RFC 5545 iCalendar string here (starts with BEGIN:VCALENDAR...)'
+                }
+                rows={6}
+                className="w-full text-xs font-mono p-3 rounded-xl border border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-950 text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+              <button
+                onClick={handleParsePastedText}
+                disabled={!rawIcsText.trim() || isProcessing}
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-xs"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{isProcessing ? (isAr ? 'جارٍ التحليل...' : 'Parsing...') : (isAr ? 'تحليل النص واستخراج المواعيد' : 'Parse iCal Text')}</span>
+              </button>
+            </div>
+          )}
+
+          {/* Buffer Zone Settings */}
+          <div className="p-3.5 rounded-xl surface-card-3d flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-slate-700 dark:text-zinc-300 font-medium">
+              <Clock className="w-4 h-4 text-amber-500" />
+              <span>{isAr ? 'حرم الصلاة الوقائي:' : 'Prayer Buffer Protection:'}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
+                <span>{isAr ? 'قبل الأذان (وضوء/استعداد):' : 'Before (Wudu):'}</span>
+                <select
+                  value={bufferBefore}
+                  onChange={(e) => setBufferBefore(Number(e.target.value))}
+                  className="bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-md px-1.5 py-0.5 font-bold"
+                >
+                  <option value={10}>10 د</option>
+                  <option value={15}>15 د</option>
+                  <option value={20}>20 د</option>
+                  <option value={30}>30 د</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-1.5 text-slate-600 dark:text-zinc-400">
+                <span>{isAr ? 'بعد الأذان (صلاة/سنن/أذكار):' : 'After (Prayer/Sunnah):'}</span>
+                <select
+                  value={bufferAfter}
+                  onChange={(e) => setBufferAfter(Number(e.target.value))}
+                  className="bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-md px-1.5 py-0.5 font-bold"
+                >
+                  <option value={15}>15 د</option>
+                  <option value={25}>25 د</option>
+                  <option value={35}>35 د</option>
+                  <option value={45}>45 د</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          {/* Tab 3 / Main Display: Schedule & Conflict Analysis */}
+          {activeTab === 'schedule' && (
+            <div className="space-y-4">
+              {/* Status Summary Banner */}
+              <div className={`p-4 rounded-xl flex items-center justify-between gap-3 ${
+                totalConflicts > 0
+                  ? 'bento-3d-rose text-rose-800 dark:text-rose-200'
+                  : 'bento-3d-mint text-emerald-800 dark:text-emerald-200'
+              }`}>
+                <div className="flex items-center gap-3">
+                  {totalConflicts > 0 ? (
+                    <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+                  ) : (
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  )}
+                  <div className="text-xs">
+                    <div className="font-bold">
+                      {totalConflicts > 0
+                        ? (isAr ? `تنبيه: تم رصد ${totalConflicts} تعارض مع أوقات الصلاة!` : `Warning: ${totalConflicts} meeting conflicts detected with prayer buffers!`)
+                        : (isAr ? 'ما شاء الله! جميع مواعيدك اليوم خارج حرم الصلوات الخمس.' : 'All meetings today are clear of sacred prayer buffers.')}
+                    </div>
+                    <div className="text-[11px] opacity-80">
+                      {isAr
+                        ? `تم فحص ${buffers.length} صلوات، وإجمالي وقت الحرم المحمي: ${totalProtectedMinutes} دقيقة`
+                        : `Protected ${buffers.length} prayers with ${totalProtectedMinutes} total buffer minutes.`}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {parsedEvents.length > 0 && (
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={handleSaveToIndexedDb}
-                    disabled={isProcessing}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-xs"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{savedCount ? (isAr ? 'تم الحفظ ✅' : 'Saved ✅') : (isAr ? 'حفظ محلياً' : 'Save')}</span>
-                  </button>
-                  <button
-                    onClick={handleClearCalendar}
-                    className="p-1.5 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 cursor-pointer"
-                    title={isAr ? 'مسح مواعيد التقويم' : 'Clear events'}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Prayer Shield Buffer Cards */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">
-                {isAr ? 'أوقات الصلوات والحرم الوقائي اليوم:' : "Today's Sacred Prayer Buffers:"}
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {buffers.map((buf) => (
-                  <div
-                    key={buf.prayerName}
-                    className={`p-3 rounded-xl border text-xs transition-all ${
-                      buf.isConflict
-                        ? 'bg-rose-50/70 dark:bg-rose-950/20 border-rose-300 dark:border-rose-800'
-                        : 'bg-slate-50/70 dark:bg-zinc-950/40 border-slate-200 dark:border-zinc-800'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="font-bold text-slate-900 dark:text-zinc-100">
-                        {buf.prayerNameAr}
-                      </span>
-                      <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold">
-                        {formatTime(buf.prayerTime)}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center justify-between">
-                      <span>{isAr ? 'حرم الصلاة الوقائي:' : 'Buffer zone:'}</span>
-                      <span className="font-mono">
-                        {formatTime(buf.bufferStart)} - {formatTime(buf.bufferEnd)}
-                      </span>
-                    </div>
-
-                    {buf.isConflict && (
-                      <div className="mt-2 pt-2 border-t border-rose-200 dark:border-rose-800/60 space-y-1">
-                        <div className="font-bold text-rose-600 dark:text-rose-400 text-[11px] flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3" />
-                          <span>{isAr ? 'تعارض مع:' : 'Clash with:'}</span>
-                        </div>
-                        {buf.conflictingEvents.map((evt) => (
-                          <div key={evt.id} className="text-[11px] text-rose-700 dark:text-rose-300 truncate">
-                            • {evt.summary} ({formatTime(evt.startTime)} - {formatTime(evt.endTime)})
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Optimal Focus Slots */}
-            {focusSlots.length > 0 && (
-              <div className="space-y-2 pt-2">
-                <h4 className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{isAr ? 'فترات التركيز الذهبي المقترحة (خالية من الاجتماعات والصلوات):' : 'Golden Deep-Work Focus Slots:'}</span>
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {focusSlots.slice(0, 4).map((slot, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-xs flex items-center justify-between"
+                {parsedEvents.length > 0 && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={handleSaveToIndexedDb}
+                      disabled={isProcessing}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-xs"
                     >
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                        <span className="font-mono font-bold text-slate-800 dark:text-zinc-200">
-                          {formatTime(slot.start)} - {formatTime(slot.end)}
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{savedCount ? (isAr ? 'تم الحفظ ✅' : 'Saved ✅') : (isAr ? 'حفظ محلياً' : 'Save')}</span>
+                    </button>
+                    <button
+                      onClick={handleClearCalendar}
+                      className="p-1.5 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 cursor-pointer"
+                      title={isAr ? 'مسح مواعيد التقويم' : 'Clear events'}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Prayer Shield Buffer Cards */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">
+                  {isAr ? 'أوقات الصلوات والحرم الوقائي اليوم:' : "Today's Sacred Prayer Buffers:"}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {buffers.map((buf) => (
+                    <div
+                      key={buf.prayerName}
+                      className={`p-3 rounded-xl text-xs transition-all ${
+                        buf.isConflict
+                          ? 'bento-3d-rose'
+                          : 'surface-card-3d'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-bold text-slate-900 dark:text-zinc-100">
+                          {buf.prayerNameAr}
+                        </span>
+                        <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                          {formatTime(buf.prayerTime)}
                         </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-bold text-[10px]">
-                        {slot.durationMinutes} {isAr ? 'دقيقة تركيز' : 'min focus'}
-                      </span>
+                      <div className="text-[11px] text-slate-500 dark:text-zinc-400 flex items-center justify-between">
+                        <span>{isAr ? 'حرم الصلاة الوقائي:' : 'Buffer zone:'}</span>
+                        <span className="font-mono">
+                          {formatTime(buf.bufferStart)} - {formatTime(buf.bufferEnd)}
+                        </span>
+                      </div>
+
+                      {buf.isConflict && (
+                        <div className="mt-2 pt-2 border-t border-rose-200 dark:border-rose-800/60 space-y-1">
+                          <div className="font-bold text-rose-600 dark:text-rose-400 text-[11px] flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            <span>{isAr ? 'تعارض مع:' : 'Clash with:'}</span>
+                          </div>
+                          {buf.conflictingEvents.map((evt) => (
+                            <div key={evt.id} className="text-[11px] text-rose-700 dark:text-rose-300 truncate">
+                              • {evt.summary} ({formatTime(evt.startTime)} - {formatTime(evt.endTime)})
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Optimal Focus Slots */}
+              {focusSlots.length > 0 && (
+                <div className="space-y-2 pt-2">
+                  <h4 className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{isAr ? 'فترات التركيز الذهبي المقترحة (خالية من الاجتماعات والصلوات):' : 'Golden Deep-Work Focus Slots:'}</span>
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {focusSlots.slice(0, 4).map((slot, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded-xl bento-3d-amber text-xs flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                          <span className="font-mono font-bold text-slate-800 dark:text-zinc-200">
+                            {formatTime(slot.start)} - {formatTime(slot.end)}
+                          </span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 font-bold text-[10px]">
+                          {slot.durationMinutes} {isAr ? 'دقيقة تركيز' : 'min focus'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

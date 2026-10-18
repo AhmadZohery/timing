@@ -253,39 +253,39 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
         }}
       />
       <div
-        className="relative z-10 w-full sm:max-w-xl bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[92vh] flex flex-col"
+        className="relative z-10 w-full sm:max-w-xl modal-surface rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[92vh] flex flex-col"
         dir="rtl"
       >
         {/* Mobile Pull Handle */}
-        <div className="w-full flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full" />
+        <div className="w-full flex justify-center pt-3 pb-1 sm:hidden celestial-obsidian-stage border-b-0">
+          <div className="w-12 h-1.5 bg-white/30 rounded-full" />
         </div>
 
         {/* Modal Header */}
-        <div className="px-6 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
-              <MapPin className="w-4 h-4" />
+        <div className="px-6 py-4 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-inner">
+              <MapPin className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+              <h3 className="font-bold text-sm text-white">
                 إعدادات القبلة، المواقيت وصوت الأذان
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-[11px] text-slate-300">
                 حساب فلكي دقيق وخيارات التنبيهات والأذان لمختلف المؤذنين
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4.5 h-4.5" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="px-6 pt-3 pb-1 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-800/40">
+        <div className="px-6 pt-3 pb-2 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 bg-slate-50/50 dark:bg-slate-800/40">
           <button
             type="button"
             onClick={() => {
@@ -324,7 +324,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
             /* ADHAN & PRE-PRAYER NOTIFICATION SETTINGS */
             <div className="space-y-5 animate-fade-in">
               {/* Adhan Toggle Card */}
-              <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 space-y-3">
+              <div className="p-4 rounded-2xl bento-3d-amber space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -353,7 +353,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
               </div>
 
               {/* 10-Minute Pre-Prayer Reminder */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="p-4 rounded-2xl surface-card-3d space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
@@ -422,10 +422,10 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
                         <div
                           key={m.id}
                           onClick={() => handleUpdateAdhanSettings({ muadhin: m.id })}
-                          className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                          className={`p-3 rounded-2xl transition-all flex items-center justify-between gap-3 cursor-pointer ${
                             isSelected
-                              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 shadow-xs'
-                              : 'bg-white dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                              ? 'bento-3d-amber ring-2 ring-amber-500/30'
+                              : 'surface-card-3d hover:border-slate-300'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 truncate">
@@ -471,7 +471,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
                 </div>
               ) : (
                 /* Spiritual Prayer Chime Selector (Active when Full Adhan Audio is Disabled) */
-                <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 space-y-3">
+                <div className="p-4 rounded-2xl bento-3d-mint space-y-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                       <BellRing className="w-4 h-4" />
@@ -576,7 +576,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
                     haptic.vibrateLight();
                     setIsSoundTonesModalOpen(true);
                   }}
-                  className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-emerald-500/10 border border-amber-500/30 hover:border-amber-500/60 transition-all flex items-center justify-between gap-3 text-right cursor-pointer group shadow-2xs"
+                  className="w-full p-3.5 rounded-2xl bento-3d-amber hover:border-amber-500/60 transition-all flex items-center justify-between gap-3 text-right cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 group-hover:scale-105 transition-transform">
@@ -607,7 +607,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
             /* LOCATION, GPS & QIBLA SETTINGS (ORIGINAL TAB) */
             <>
           {/* How dynamic calculation works banner */}
-          <div className="p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 text-xs text-sky-900 dark:text-sky-200 space-y-1.5">
+          <div className="p-3.5 rounded-2xl bento-3d-sky text-xs text-sky-900 dark:text-sky-200 space-y-1.5">
             <div className="flex items-center gap-2 font-bold text-sky-800 dark:text-sky-300">
               <Info className="w-4 h-4 text-sky-600" />
               <span>كيف تعمل مواقيت الصلاة والإشعارات في مضمار؟</span>

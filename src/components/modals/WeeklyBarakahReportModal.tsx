@@ -195,21 +195,21 @@ ${worshipTxt}
         dir={isAr ? 'rtl' : 'ltr'}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-white/[0.08] bg-gradient-to-r from-purple-500/10 via-emerald-500/10 to-amber-500/10 flex items-center justify-between gap-3 shrink-0">
+        <div className="p-4 sm:p-5 border-b border-white/10 celestial-obsidian-stage text-white flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md font-bold shrink-0">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md font-bold shrink-0 border border-purple-400/30">
               📊
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                <h3 className="text-base sm:text-lg font-bold text-white">
                   {isAr ? 'تقرير حصاد البركة والسرعة الأسبوعي' : 'Weekly Barakah & Velocity Harvest Report'}
                 </h3>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30">
                   {isAr ? 'آخر 7 أيام' : 'Last 7 Days'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 {isAr
                   ? 'رؤية شمولية تزن الإيمان والعمل العميق والجسد دون لوم أو إجهاد'
                   : 'Holistic evaluation synthesizing Deen, Deep Work, and Physical Vitality'}
@@ -220,7 +220,7 @@ ${worshipTxt}
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -229,12 +229,12 @@ ${worshipTxt}
         {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 scrollbar-thin">
           {/* Top Hero: Weekly Barakah Index Score */}
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-purple-950/70 via-[#18192a] to-emerald-950/60 border border-purple-500/30 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md relative overflow-hidden">
+          <div className="p-5 rounded-3xl celestial-obsidian-stage border border-purple-500/30 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md relative overflow-hidden">
             <div className="space-y-1.5 z-10">
               <span className="text-[11px] font-mono text-purple-300 font-bold uppercase tracking-wider block">
                 {isAr ? 'مؤشر التزكية وبركة الأسبوع' : 'Weekly Barakah Velocity Score'}
               </span>
-              <h4 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
+              <h4 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
                 <span>{weeklyData.barakahIndex}%</span>
                 <span className="text-sm font-bold text-emerald-400">
                   {weeklyData.barakahIndex >= 85
@@ -267,17 +267,17 @@ ${worshipTxt}
           {/* 4 Pillars Stat Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {/* Pillar 1: Quran & Hasanat */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/90 dark:border-white/[0.08] space-y-1.5">
+            <div className="p-3.5 sm:p-4 rounded-2xl bento-3d-mint space-y-1.5">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-bold">
                   📖
                 </div>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-200">
                   {isAr ? 'الورد القرآني' : 'Quran Wird'}
                 </span>
               </div>
               <div className="pt-1">
-                <span className="text-lg sm:text-xl font-black text-slate-950 dark:text-white font-mono block">
+                <span className="text-lg sm:text-xl font-bold text-slate-950 dark:text-white font-mono block">
                   {weeklyData.totalQuranPages} <span className="text-xs font-sans font-bold text-slate-500">{isAr ? 'صفحة' : 'pages'}</span>
                 </span>
                 <span className="text-[10px] text-emerald-700 dark:text-emerald-300 font-mono font-bold block truncate">
@@ -287,17 +287,17 @@ ${worshipTxt}
             </div>
 
             {/* Pillar 2: Prayers On-Time & Group */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/90 dark:border-white/[0.08] space-y-1.5">
+            <div className="p-3.5 sm:p-4 rounded-2xl bento-3d-amber space-y-1.5">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm font-bold">
                   🕌
                 </div>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-200">
                   {isAr ? 'الصلوات والسنن' : 'Prayers & Sunnah'}
                 </span>
               </div>
               <div className="pt-1">
-                <span className="text-lg sm:text-xl font-black text-slate-950 dark:text-white font-mono block">
+                <span className="text-lg sm:text-xl font-bold text-slate-950 dark:text-white font-mono block">
                   {weeklyData.totalPrayersOnTime} <span className="text-xs font-sans font-bold text-slate-500">/ {weeklyData.daysCount * 5}</span>
                 </span>
                 <span className="text-[10px] text-amber-700 dark:text-amber-300 font-mono font-bold block truncate">
@@ -307,17 +307,17 @@ ${worshipTxt}
             </div>
 
             {/* Pillar 3: Deep Work Hours */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/90 dark:border-white/[0.08] space-y-1.5">
+            <div className="p-3.5 sm:p-4 rounded-2xl bento-3d-sky space-y-1.5">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-sm font-bold">
                   ⚡
                 </div>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-200">
                   {isAr ? 'العمل والتركيز' : 'Deep Work'}
                 </span>
               </div>
               <div className="pt-1">
-                <span className="text-lg sm:text-xl font-black text-slate-950 dark:text-white font-mono block">
+                <span className="text-lg sm:text-xl font-bold text-slate-950 dark:text-white font-mono block">
                   {weeklyData.focusHours} <span className="text-xs font-sans font-bold text-slate-500">{isAr ? 'ساعة' : 'hours'}</span>
                 </span>
                 <span className="text-[10px] text-sky-700 dark:text-sky-300 font-mono font-bold block truncate">
@@ -327,17 +327,17 @@ ${worshipTxt}
             </div>
 
             {/* Pillar 4: Physical Strength & Workouts */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/90 dark:border-white/[0.08] space-y-1.5">
+            <div className="p-3.5 sm:p-4 rounded-2xl bento-3d-rose space-y-1.5">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center text-sm font-bold">
                   🏋️
                 </div>
-                <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-300">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-zinc-200">
                   {isAr ? 'القوة واللياقة' : 'Physical Health'}
                 </span>
               </div>
               <div className="pt-1">
-                <span className="text-lg sm:text-xl font-black text-slate-950 dark:text-white font-mono block">
+                <span className="text-lg sm:text-xl font-bold text-slate-950 dark:text-white font-mono block">
                   {weeklyData.totalWorkouts} <span className="text-xs font-sans font-bold text-slate-500">{isAr ? 'جلسات' : 'sessions'}</span>
                 </span>
                 <span className="text-[10px] text-rose-700 dark:text-rose-300 font-mono font-bold block truncate">
@@ -352,13 +352,13 @@ ${worshipTxt}
             const bufferUsed = userState?.weeklyBufferCount || 0;
             const isBufferClear = bufferUsed === 0;
             return (
-              <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-[#181924] border border-amber-200/90 dark:border-amber-500/25 flex items-center justify-between gap-3 shadow-xs">
+              <div className="p-4 rounded-2xl bento-3d-amber flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center text-base font-bold shrink-0">
                     🛡️
                   </div>
                   <div>
-                    <h5 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                    <h5 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                       {isAr ? 'صمام أمان بافر السبت (The 3-Hour Valve)' : 'Saturday Buffer Safety Valve'}
                     </h5>
                     <p className="text-[11px] text-slate-600 dark:text-zinc-400">
@@ -393,7 +393,7 @@ ${worshipTxt}
           })()}
 
           {/* Privacy & Tazkiyah Shield Toggle before Sharing */}
-          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/[0.06] flex items-center justify-between gap-3 text-xs">
+          <div className="p-3.5 rounded-2xl surface-card-3d flex items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
               <span className="text-base">🤍</span>
               <div>

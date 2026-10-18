@@ -350,16 +350,16 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800/80 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 via-transparent to-transparent">
+        <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between celestial-obsidian-stage text-white">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+            <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-inner">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
+              <h2 className="text-base sm:text-lg font-bold text-white">
                 {isAr ? 'تخصيص ومتابعة الورد القرآني' : 'Custom Quran Wird Tracker'}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {isAr
                   ? 'اختر سورتك، حدد الآيات أو الصفحات، وسجل قراءتك بمرونة مطلقة'
                   : 'Choose your Surah, set ayah/page range, and track with total flexibility'}
@@ -372,7 +372,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
               soundSynth.playTactileClick();
               onClose();
             }}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -380,7 +380,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         </div>
 
         {/* Tab Navigation (3 Flexible Modes) */}
-        <div className="px-4 sm:px-5 pt-3 border-b border-slate-100 dark:border-zinc-800 flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+        <div className="px-4 sm:px-5 pt-3 border-b border-slate-200/80 dark:border-white/[0.08] flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
           <button
             type="button"
             onClick={() => {
@@ -450,7 +450,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                           isSelected
                             ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700'
+                            : 'surface-card-3d text-slate-700 dark:text-zinc-300 hover:border-emerald-400'
                         }`}
                       >
                         <span>{s.nameAr}</span>
@@ -471,14 +471,14 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={isAr ? 'ابحث باسم السورة أو رقمها (مثلاً: الكهف، 18، يس)...' : 'Search Surah name or number...'}
-                    className="w-full px-3.5 py-2.5 pe-9 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-xs sm:text-sm text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3.5 py-2.5 pe-9 rounded-xl surface-card-3d text-xs sm:text-sm text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                   <Search className="w-4 h-4 text-slate-400 absolute end-3 top-3 pointer-events-none" />
                 </div>
 
                 {/* Dropdown list if searching or displaying current */}
                 {searchQuery.trim().length > 0 && (
-                  <div className="mt-1.5 max-h-40 overflow-y-auto rounded-xl bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 shadow-lg divide-y divide-slate-100 dark:divide-zinc-700">
+                  <div className="mt-1.5 max-h-40 overflow-y-auto rounded-xl surface-card-3d shadow-lg divide-y divide-slate-100 dark:divide-zinc-700">
                     {filteredSurahs.slice(0, 10).map((s) => (
                       <button
                         key={s.number}
@@ -508,13 +508,13 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
               </div>
 
               {/* Active Surah Card Banner */}
-              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/30 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bento-3d-mint flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs px-2 py-0.5 rounded-md bg-emerald-600 text-white font-mono font-bold">
                       #{currentSurah.number}
                     </span>
-                    <h3 className="font-black text-sm sm:text-base text-emerald-950 dark:text-emerald-300">
+                    <h3 className="font-bold text-sm sm:text-base text-emerald-950 dark:text-emerald-300">
                       {isAr ? `سورة ${currentSurah.nameAr}` : currentSurah.nameEn}
                     </h3>
                     <span className="text-[10px] text-slate-500 dark:text-zinc-400">
@@ -532,7 +532,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                   <span className="text-[10px] text-slate-400 block font-medium">
                     {isAr ? 'إجمالي صفحاتها' : 'Total Pages'}
                   </span>
-                  <span className="text-sm font-black text-emerald-700 dark:text-emerald-400 font-mono">
+                  <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 font-mono">
                     {currentSurah.endPage - currentSurah.startPage + 1} {isAr ? 'صفحة' : 'p'}
                   </span>
                 </div>
@@ -540,7 +540,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
 
               {/* Ayah Range Inputs: من آية ... إلى آية ... */}
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700">
+                <div className="p-3 rounded-2xl surface-card-3d">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">
                     {isAr ? 'من آية رقم:' : 'From Ayah #:'}
                   </label>
@@ -560,14 +560,14 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                     <button
                       type="button"
                       onClick={() => setStartAyah(1)}
-                      className="flex-1 py-1 rounded-lg bg-slate-200/70 dark:bg-zinc-700 text-[10px] font-bold text-slate-700 dark:text-zinc-300 hover:bg-emerald-100"
+                      className="flex-1 py-1 rounded-lg bg-slate-200/70 dark:bg-zinc-700 text-[10px] font-bold text-slate-700 dark:text-zinc-300 hover:bg-emerald-100 cursor-pointer"
                     >
                       {isAr ? 'البداية (1)' : 'Start (1)'}
                     </button>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700">
+                <div className="p-3 rounded-2xl surface-card-3d">
                   <label className="block text-[11px] font-bold text-slate-600 dark:text-zinc-400 mb-1">
                     {isAr ? 'إلى آية رقم:' : 'To Ayah #:'}
                   </label>
@@ -586,7 +586,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                     <button
                       type="button"
                       onClick={() => setEndAyah(currentSurah.ayahCount)}
-                      className="flex-1 py-1 rounded-lg bg-slate-200/70 dark:bg-zinc-700 text-[10px] font-bold text-slate-700 dark:text-zinc-300 hover:bg-emerald-100"
+                      className="flex-1 py-1 rounded-lg bg-slate-200/70 dark:bg-zinc-700 text-[10px] font-bold text-slate-700 dark:text-zinc-300 hover:bg-emerald-100 cursor-pointer"
                     >
                       {isAr ? `نهاية السورة (${currentSurah.ayahCount})` : `End (${currentSurah.ayahCount})`}
                     </button>
@@ -595,14 +595,14 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
               </div>
 
               {/* Dynamic Calculation Card */}
-              <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-between">
+              <div className="p-3 rounded-2xl bento-3d-amber flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-bold block">
+                  <span className="text-[11px] text-amber-900 dark:text-amber-300 font-bold block">
                     {isAr
                       ? `القراءة المحددة: ${calculatedAyahsCount} آية من سورة ${currentSurah.nameAr}`
                       : `Selected: ${calculatedAyahsCount} ayahs of ${currentSurah.nameEn}`}
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-zinc-400">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">
                     {isAr
                       ? `تعادل تقريباً ${estimatedPagesForAyahs} صفحة • +${calculateEstimatedHasanat(estimatedPagesForAyahs).toLocaleString()} حسنة مضاعفة 🤍`
                       : `Approx ${estimatedPagesForAyahs} pages • +${calculateEstimatedHasanat(estimatedPagesForAyahs).toLocaleString()} Hasanat 🤍`}
@@ -616,7 +616,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
           {/* TAB 2: BY PAGES & BOOKMARK */}
           {activeTab === 'pages' && (
             <div className="space-y-4">
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700">
+              <div className="p-3.5 rounded-2xl surface-card-3d">
                 <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 block mb-1">
                   {isAr ? 'تحديد نطاق القراءة بالصفحات (مصحف المدينة 604 صفحة):' : 'Reading Range by Pages (Medina Mushaf 604p):'}
                 </span>
@@ -693,7 +693,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         soundSynth.playTactileClick();
                         setEndPage(Math.min(604, endPage + btn.count));
                       }}
-                      className="py-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-800 dark:text-zinc-200 hover:text-emerald-700 text-xs font-bold transition-colors cursor-pointer text-center"
+                      className="py-2 rounded-xl surface-card-3d hover:border-emerald-400 text-slate-800 dark:text-zinc-200 hover:text-emerald-700 text-xs font-bold transition-colors cursor-pointer text-center"
                     >
                       {btn.label}
                     </button>
@@ -702,9 +702,9 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
               </div>
 
               {/* Summary Card */}
-              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 flex items-center justify-between">
+              <div className="p-3.5 rounded-2xl bento-3d-mint flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-black text-emerald-900 dark:text-emerald-300 block">
+                  <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 block">
                     {isAr
                       ? `الإجمالي: ${calculatedPagesCount} صفحة مقروءة اليوم`
                       : `Total: ${calculatedPagesCount} pages read today`}
@@ -715,7 +715,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                       : `From p.${startPage} to p.${endPage}`}
                   </span>
                 </div>
-                <span className="text-sm font-black font-mono text-emerald-700 dark:text-emerald-400">
+                <span className="text-sm font-bold font-mono text-emerald-700 dark:text-emerald-400">
                   +{(calculatedPagesCount * 5500).toLocaleString()} {isAr ? 'حسنة' : 'XP'}
                 </span>
               </div>
@@ -740,14 +740,14 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         soundSynth.playTactileClick();
                         setSelectedPresetKey(preset.id);
                       }}
-                      className={`p-3.5 rounded-2xl border text-start transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-2xl text-start transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-500/20'
-                          : 'bg-white dark:bg-zinc-800/60 border-slate-200 dark:border-zinc-700 text-slate-800 dark:text-zinc-200 hover:border-emerald-300'
+                          ? 'bento-3d-mint text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-500/30'
+                          : 'surface-card-3d text-slate-800 dark:text-zinc-200 hover:border-emerald-300'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-black">{preset.titleAr}</span>
+                        <span className="text-xs font-bold">{preset.titleAr}</span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-bold font-mono">
                           {preset.pages} {isAr ? 'صفحة' : 'p'}
                         </span>

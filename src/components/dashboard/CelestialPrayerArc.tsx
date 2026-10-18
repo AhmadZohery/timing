@@ -9,6 +9,7 @@ interface CelestialPrayerArcProps {
   now: Date;
   doneMap: Record<PrayerKey, boolean>;
   isAr: boolean;
+  onSelectPrayer?: (prayer: PrayerKey) => void;
 }
 
 /**
@@ -64,6 +65,7 @@ export const CelestialPrayerArc: React.FC<CelestialPrayerArcProps> = ({
   now,
   doneMap,
   isAr,
+  onSelectPrayer,
 }) => {
   const rawId = useId();
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, '');
@@ -179,7 +181,21 @@ export const CelestialPrayerArc: React.FC<CelestialPrayerArcProps> = ({
           const done = doneMap[p.key];
           const current = p.key === currentKey;
           return (
-            <g key={p.key}>
+            <g
+              key={p.key}
+              onClick={() => onSelectPrayer?.(p.key)}
+              className="cursor-pointer"
+              role="button"
+              tabIndex={0}
+              aria-label={isAr ? `تسجيل صلاة ${p.ar}` : `Log ${p.en} prayer`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectPrayer?.(p.key);
+                }
+              }}
+            >
+              <circle cx={x} cy={pt.y} r="14" fill="transparent" />
               {current && (
                 <circle
                   className="arc-ping"
@@ -216,13 +232,16 @@ export const CelestialPrayerArc: React.FC<CelestialPrayerArcProps> = ({
           const current = p.key === currentKey;
           return (
             <div key={p.key} className="flex justify-center">
-              <span
-                className={`inline-flex items-center gap-0.5 px-2 py-1 rounded-full text-[12px] leading-[1.7] font-semibold whitespace-nowrap ${
+              <button
+                type="button"
+                onClick={() => onSelectPrayer?.(p.key)}
+                title={isAr ? `انقر لتسجيل صلاة ${p.ar}` : `Tap to log ${p.en}`}
+                className={`inline-flex items-center gap-0.5 px-2.5 py-1 rounded-full text-[12px] leading-[1.7] font-semibold whitespace-nowrap cursor-pointer transition-all active:scale-95 ${
                   current
-                    ? 'bg-amber-300/15 ring-1 ring-amber-300/30 text-amber-200'
+                    ? 'bg-amber-300/15 hover:bg-amber-300/25 ring-1 ring-amber-300/30 text-amber-200'
                     : done
-                    ? 'text-zinc-300'
-                    : 'text-white/60'
+                    ? 'text-zinc-200 hover:bg-white/10'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {done && (
@@ -232,7 +251,7 @@ export const CelestialPrayerArc: React.FC<CelestialPrayerArcProps> = ({
                   />
                 )}
                 <span>{isAr ? p.ar : p.en}</span>
-              </span>
+              </button>
             </div>
           );
         })}

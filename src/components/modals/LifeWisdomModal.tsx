@@ -109,21 +109,21 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
         className="relative z-10 modal-surface border border-cyan-300/40 dark:border-cyan-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-cyan-200/50 dark:border-white/[0.08] bg-gradient-to-r from-cyan-500/10 via-sky-500/5 to-transparent flex items-center justify-between">
+        <div className="p-4 sm:p-6 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-bold text-lg shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 flex items-center justify-center font-bold text-lg shadow-inner">
               <Brain className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
+                <h2 className="text-base sm:text-lg font-black text-white">
                   {isAr ? 'خزانة النماذج الفكرية والمعارف الحياتية' : 'Mental Models & Life Wisdom Vault'}
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-400/40">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/25 text-cyan-200 border border-cyan-400/40">
                   {filteredItems.length} {isAr ? 'مبدأ ونموذج' : 'Models'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {isAr
                   ? 'قوانين التفكير، إدارة الوقت، علوم الجسد، والإسعافات الأولية التي تفيدك في حياتك اليومية'
                   : 'Actionable mental models, time laws, and practical life hacks'}
@@ -138,7 +138,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
               onClose();
             }}
             aria-label={isAr ? 'إغلاق' : 'Close'}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -194,7 +194,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
               return (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-cyan-200/70 dark:border-white/[0.08] bg-white dark:bg-zinc-900/60 p-4 sm:p-5 shadow-xs transition-all hover:border-cyan-400/80"
+                  className="rounded-2xl surface-card-3d p-4 sm:p-5 transition-all hover:border-cyan-400/80"
                 >
                   {/* Top Bar */}
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -245,7 +245,7 @@ export const LifeWisdomModal: React.FC<LifeWisdomModalProps> = ({
                   </div>
 
                   {/* Practical Action Banner */}
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/5 dark:from-emerald-950/30 dark:to-teal-950/10 border border-emerald-300/60 dark:border-emerald-700/50 flex items-start gap-2.5 text-xs text-emerald-950 dark:text-emerald-200">
+                  <div className="p-3 rounded-xl bento-3d-mint flex items-start gap-2.5 text-xs text-emerald-950 dark:text-emerald-200">
                     <Lightbulb className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <p className="leading-relaxed select-text">
                       <span className="font-bold text-emerald-800 dark:text-emerald-300">{isAr ? 'التطبيق العملي اليوم:' : 'Action:'} </span>

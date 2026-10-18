@@ -51,21 +51,21 @@ export const ThemePaletteModal: React.FC<ThemePaletteModalProps> = ({
       />
       <div className="relative z-10 w-full max-w-xl flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 shrink-0 bg-gradient-to-r from-amber-50/50 via-transparent to-purple-50/30 dark:from-amber-950/20 dark:to-purple-950/10">
+        <div className="flex items-center justify-between p-4 sm:p-5 celestial-obsidian-stage border-b border-white/10 shrink-0 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-600 text-white flex items-center justify-center shadow-md shadow-amber-500/30 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-600 text-white flex items-center justify-center shadow-md shadow-amber-500/30 shrink-0 border border-amber-400/30">
               <Palette className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
+                <h2 className="text-base sm:text-lg font-black text-white">
                   {isAr ? 'طراز التصميم والباليت الفنية' : 'Boutique Theme Palette'}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-200 border border-amber-400/40 text-[10px] font-bold">
                   {isAr ? 'تصميم بشري فاخر' : 'De-AI Craft'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {isAr
                   ? 'اختر الطابع اللوني الفخم الذي يمنحك الراحة والتركيز التام.'
                   : 'Select an artisanal luxury palette tailored for deep visual comfort.'}
@@ -76,7 +76,7 @@ export const ThemePaletteModal: React.FC<ThemePaletteModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -100,10 +100,10 @@ export const ThemePaletteModal: React.FC<ThemePaletteModalProps> = ({
                 key={pId}
                 type="button"
                 onClick={() => handleSelect(pId)}
-                className={`w-full p-4 rounded-2xl border text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                className={`w-full p-4 rounded-2xl text-start transition-all cursor-pointer flex items-center justify-between gap-4 ${
                   isSelected
-                    ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-500 shadow-md ring-2 ring-amber-500/20'
-                    : 'bg-slate-50/70 dark:bg-zinc-800/50 border-slate-200 dark:border-zinc-700/80 hover:bg-slate-100 dark:hover:bg-zinc-800'
+                    ? 'bento-3d-amber ring-2 ring-amber-500/30'
+                    : 'surface-card-3d hover:border-amber-300'
                 }`}
               >
                 <div className="flex items-center gap-3.5">

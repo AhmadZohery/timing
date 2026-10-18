@@ -451,6 +451,7 @@ export const Header: React.FC<HeaderProps> = ({
     haptic.vibrateSprintCelebration();
     setStreakToast(streakTier.title);
     setTimeout(() => setStreakToast(null), 3000);
+    onOpenEvaluationModal?.();
   };
 
   const handleToggleMute = () => {
@@ -850,7 +851,18 @@ export const Header: React.FC<HeaderProps> = ({
           title={language === 'ar' ? 'العودة إلى الصفحة الرئيسية' : 'Return to Home'}
         >
           {/* Mobile Circular Avatar (Matches Habitline mobile-image.png) */}
-          <div className="sm:hidden w-10 h-10 rounded-full bg-gradient-to-tr from-[#1eb814] via-emerald-400 to-teal-300 p-0.5 shadow-md shrink-0">
+          <div
+            onClick={(e) => {
+              if (onOpenProfileModal) {
+                e.stopPropagation();
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                onOpenProfileModal();
+              }
+            }}
+            title={language === 'ar' ? 'تبديل الملف الشخصي' : 'Switch Profile'}
+            className="sm:hidden w-10 h-10 rounded-full bg-gradient-to-tr from-[#1eb814] via-emerald-400 to-teal-300 p-0.5 shadow-md shrink-0 cursor-pointer active:scale-90 transition-transform"
+          >
             <div className="w-full h-full rounded-full bg-[#1e2024] flex items-center justify-center text-base">
               <span>{activeProfileEmoji || '🦅'}</span>
             </div>

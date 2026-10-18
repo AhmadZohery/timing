@@ -166,21 +166,21 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
         <div className="absolute -top-10 inset-x-0 h-24 bg-gradient-to-b from-emerald-500/20 via-teal-500/10 to-transparent pointer-events-none blur-xl" />
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800/80 flex items-start justify-between gap-3 relative z-10 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
+        <div className="p-4 sm:p-5 celestial-obsidian-stage border-b border-white/10 flex items-start justify-between gap-3 relative z-10 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 shrink-0 border border-emerald-400/30">
               <Gift className="w-6 h-6 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100">
+                <h2 className="text-base sm:text-lg font-black text-white">
                   {isAr ? 'متجر المكافآت الواقعية (اشتري لنفسك كذا 🎁)' : 'Real-Life Reward Marketplace 🎁'}
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-400/40">
                   {isAr ? 'مكافآت ملموسة' : 'Dopamine Store'}
                 </span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 {isAr
                   ? 'كافئ نفسك بوجبة، ملابس جديدة، قهوة، أو أجهزة دون أدنى تأنيب ضمير!'
                   : 'Treat yourself to cheat meals, clothes, coffee, or gadgets without guilt!'}
@@ -194,7 +194,7 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
               haptic.vibrateLight();
               onClose();
             }}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0"
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer shrink-0"
             title={isAr ? 'إغلاق' : 'Close'}
           >
             <X className="w-5 h-5" />
@@ -333,10 +333,10 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
                   return (
                     <div
                       key={reward.id}
-                      className={`relative p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
+                      className={`relative p-4 rounded-2xl transition-all duration-200 flex flex-col justify-between ${
                         canAfford
-                          ? 'bg-gradient-to-b from-white to-emerald-50/40 dark:from-zinc-900 dark:to-emerald-950/20 border-emerald-300 dark:border-emerald-800/60 shadow-sm hover:shadow-md'
-                          : 'bg-white dark:bg-zinc-900/60 border-slate-200 dark:border-zinc-800 opacity-80'
+                          ? 'bento-3d-mint'
+                          : 'surface-card-3d opacity-85'
                       }`}
                     >
                       {/* Top Row: Emoji, Title, Points Pill */}
@@ -427,7 +427,7 @@ export const RealLifeRewardsModal: React.FC<RealLifeRewardsModalProps> = ({
               </div>
 
               {/* Motivational Banner */}
-              <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-200 flex items-start gap-3 text-xs">
+              <div className="p-4 rounded-2xl bento-3d-amber text-amber-900 dark:text-amber-200 flex items-start gap-3 text-xs">
                 <span className="text-xl shrink-0">💡</span>
                 <div className="space-y-1">
                   <strong className="font-bold block">

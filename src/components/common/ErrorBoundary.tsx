@@ -6,6 +6,8 @@ interface Props {
   fallbackTitle?: string;
   fallbackMessage?: string;
   isRoot?: boolean;
+  isModal?: boolean;
+  resetKey?: string | number;
   onReset?: () => void;
 }
 
@@ -25,6 +27,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
+  }
+
+  public componentDidUpdate(prevProps: Props) {
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false, error: undefined });
+    }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -106,10 +114,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      return (
+      const card = (
         <div
           dir="rtl"
-          className="w-full p-5 sm:p-7 my-4 rounded-3xl bg-rose-50/95 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 shadow-xl flex flex-col items-center justify-center text-center space-y-4 select-none animate-fade-in"
+          onClick={(e) => e.stopPropagation()}
+          className={`w-full ${this.props.isModal ? 'max-w-lg modal-surface' : 'my-4 bg-rose-50/95 dark:bg-rose-950/40'} p-5 sm:p-7 rounded-3xl border border-rose-200 dark:border-rose-900/60 shadow-xl flex flex-col items-center justify-center text-center space-y-4 select-none animate-fade-in`}
         >
           <div className="w-14 h-14 rounded-2xl bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shadow-xs">
             <AlertTriangle className="w-7 h-7 animate-pulse" />
@@ -138,7 +147,7 @@ export class ErrorBoundary extends Component<Props, State> {
               className="px-4 py-2.5 min-h-[44px] rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>إعادة المحاولة 🔄</span>
+              <span>{this.props.isModal ? 'إغلاق وإعادة المحاولة ✕' : 'إعادة المحاولة 🔄'}</span>
             </button>
 
             <button
@@ -204,6 +213,21 @@ export class ErrorBoundary extends Component<Props, State> {
           )}
         </div>
       );
+
+      if (this.props.isModal) {
+        return (
+          <div
+            role="dialog"
+            aria-modal="true"
+            onClick={this.handleReset}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in"
+          >
+            {card}
+          </div>
+        );
+      }
+
+      return card;
     }
 
     return this.props.children;

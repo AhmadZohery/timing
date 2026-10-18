@@ -256,38 +256,38 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/75 dark:bg-black/85 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label="أذكار الصباح والمساء"
-        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-3xl modal-surface border border-slate-200 dark:border-amber-900/40 flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
+        className="w-full max-w-2xl h-[90dvh] sm:h-auto sm:max-h-[92dvh] rounded-[28px] modal-surface border border-white/15 shadow-2xl flex flex-col overflow-hidden text-start cursor-default animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-amber-50/80 via-white to-indigo-50/60 dark:from-amber-950/40 dark:via-zinc-900 dark:to-indigo-950/40 flex items-center justify-between gap-3 shrink-0">
+        <div className="celestial-obsidian-stage text-white p-4 sm:p-5 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
             <div
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shrink-0 ${
+              className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0 border border-white/15 ${
                 timeMode === 'morning'
-                  ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30'
-                  : 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30'
+                  ? 'bg-amber-500/20 text-amber-300'
+                  : 'bg-indigo-500/20 text-indigo-300'
               }`}
             >
-              {timeMode === 'morning' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-indigo-400" />}
+              {timeMode === 'morning' ? <Sun className="w-5 h-5 text-amber-300" /> : <Moon className="w-5 h-5 text-indigo-300" />}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 dir="rtl" lang="ar" className="text-base sm:text-lg font-black text-slate-900 dark:text-white tashkeel-text">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 dir="rtl" lang="ar" className="text-base sm:text-lg font-bold text-white tashkeel-text">
                   {timeMode === 'morning' ? 'أَذْكَارُ الصَّبَاحِ الْمُبَارَكَةُ' : 'أَذْكَارُ الْمَسَاءِ وَحِصْنُ الْمُسْلِمِ'}
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300">
-                  {completedCount}/{filteredAdhkar.length} مكتمل
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#bce8c2] text-emerald-950">
+                  <bdi dir="ltr">{completedCount}/{filteredAdhkar.length}</bdi> مكتمل
                 </span>
               </div>
-              <p dir="rtl" lang="ar" className="text-[11px] text-slate-500 dark:text-slate-400 tashkeel-text">
+              <p dir="rtl" lang="ar" className="text-[11px] text-zinc-300 tashkeel-text mt-0.5">
                 {timeMode === 'morning'
                   ? '«مَنْ قَالَهَا حِينَ يُصْبِحُ أُجِيرَ مِنَ الْجِنِّ حَتَّى يُمْسِيَ»'
                   : '«مَنْ قَالَهَا حِينَ يُمْسِي كَانَ فِي حِفْظِ اللَّهِ حَتَّى يُصْبِحَ»'}
@@ -297,17 +297,17 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
 
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Morning / Evening Switcher */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center bg-white/10 p-0.5 rounded-full border border-white/15">
               <button
                 type="button"
                 onClick={() => {
                   soundSynth.playTactileClick();
                   setTimeMode('morning');
                 }}
-                className={`min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`min-w-[38px] min-h-[38px] flex items-center justify-center p-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   timeMode === 'morning'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-amber-400 text-zinc-950 shadow-xs'
+                    : 'text-white/70 hover:text-white'
                 }`}
                 title="أذكار الصباح"
                 aria-label="أذكار الصباح"
@@ -320,10 +320,10 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                   soundSynth.playTactileClick();
                   setTimeMode('evening');
                 }}
-                className={`min-w-[40px] min-h-[40px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`min-w-[38px] min-h-[38px] flex items-center justify-center p-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                   timeMode === 'evening'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-[#5448e8] text-white shadow-xs'
+                    : 'text-white/70 hover:text-white'
                 }`}
                 title="أذكار المساء"
                 aria-label="أذكار المساء"
@@ -337,7 +337,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
               type="button"
               onClick={onClose}
               aria-label="إغلاق"
-              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -345,22 +345,22 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
         </div>
 
         {/* View Mode Switcher: Concise vs Full */}
-        <div className="px-4 py-2.5 bg-slate-50/80 dark:bg-slate-950/60 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 text-xs">
-          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">نمط القراءة:</span>
-          <div className="flex items-center gap-1.5 bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-300 dark:border-slate-700">
+        <div className="px-4 py-2.5 surface-card-3d border-b border-zinc-200/80 dark:border-white/10 flex items-center justify-between gap-3 text-xs">
+          <span className="text-[11px] text-zinc-600 dark:text-zinc-300 font-bold">نمط القراءة:</span>
+          <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-full border border-zinc-200 dark:border-zinc-700">
             <button
               type="button"
               onClick={() => {
                 soundSynth.playTactileClick();
                 setViewMode('concise');
               }}
-              className={`min-h-[38px] px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`min-h-[34px] px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'concise'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400'
               }`}
             >
-              <Zap className="w-3.5 h-3.5" />
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
               <span>مختصر للحافظ ⚡</span>
             </button>
 
@@ -370,27 +370,27 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
                 soundSynth.playTactileClick();
                 setViewMode('full');
               }}
-              className={`min-h-[38px] px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`min-h-[34px] px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'full'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
               <span>النص الكامل للتدبر 📖</span>
             </button>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-slate-200 dark:bg-slate-800 h-1">
+        <div className="w-full bg-zinc-200 dark:bg-zinc-800 h-1.5">
           <div
-            className="bg-gradient-to-r from-amber-500 to-emerald-500 h-1 transition-all duration-300"
+            className="bg-gradient-to-r from-[#5448e8] to-[#1eb814] h-1.5 transition-all duration-300"
             style={{ width: `${filteredAdhkar.length > 0 ? Math.min(100, Math.round((completedCount / filteredAdhkar.length) * 100)) : 0}%` }}
           />
         </div>
 
-        {/* Adhkar List Container (with min-h-0 to avoid flexbox collapse) */}
+        {/* Adhkar List Container */}
         <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 space-y-3 scrollbar-thin">
           {filteredAdhkar.map((item, idx) => {
             const currentCount = counters[item.id] || 0;
@@ -399,45 +399,46 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
             return (
               <div
                 key={item.id}
-                className={`p-3.5 rounded-2xl border transition-all text-start space-y-2 ${
+                onClick={() => handleTap(item.id, item.target)}
+                className={`p-4 rounded-[24px] border transition-all text-start space-y-2 cursor-pointer active:scale-[0.99] ${
                   isItemDone
-                    ? 'bg-emerald-50/70 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-100'
-                    : 'bg-white dark:bg-zinc-900/90 border-slate-200 dark:border-zinc-800 hover:border-slate-300 dark:hover:border-zinc-700 shadow-2xs'
+                    ? 'bento-3d-mint border-[#22c55e]/50 text-emerald-950 dark:text-emerald-100'
+                    : 'surface-card-3d border-zinc-200/80 dark:border-white/10'
                 }`}
               >
                 {/* Title & Counter Controls */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
+                    <span className="w-6 h-6 rounded-full bg-[#141517] dark:bg-white/15 text-white text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
                       {idx + 1}
                     </span>
-                    <h4 className="text-xs sm:text-sm font-black text-amber-700 dark:text-amber-300 truncate">
+                    <h4 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white truncate">
                       {item.title}
                     </h4>
-                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 shrink-0">
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-900 dark:text-amber-300 shrink-0">
                       {item.target > 1 ? `${item.target} مرات` : 'مرة واحدة'}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       onClick={() => handleTap(item.id, item.target)}
-                      className={`min-h-[44px] min-w-[44px] px-3.5 py-1.5 rounded-xl font-mono text-xs font-black transition-all cursor-pointer select-none active:scale-90 flex items-center justify-center gap-1.5 ${
+                      className={`min-h-[40px] min-w-[44px] px-3.5 py-1.5 rounded-full font-mono text-xs font-bold transition-all cursor-pointer select-none active:scale-90 flex items-center justify-center gap-1.5 ${
                         isItemDone
-                          ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                          : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20'
+                          ? 'bg-habit-green-ink text-white shadow-xs'
+                          : 'bg-[#5448e8] hover:bg-indigo-600 text-white shadow-md'
                       }`}
                     >
                       {isItemDone ? <Check className="w-3.5 h-3.5" /> : null}
-                      <span>{currentCount} / {item.target}</span>
+                      <bdi dir="ltr">{currentCount} / {item.target}</bdi>
                     </button>
 
                     {!isItemDone && item.target > 1 && (
                       <button
                         type="button"
                         onClick={() => handleFastComplete(item.id, item.target)}
-                        className="min-h-[44px] min-w-[44px] px-2.5 rounded-xl bg-slate-200 dark:bg-zinc-700/60 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white text-[11px] font-bold flex items-center justify-center cursor-pointer"
+                        className="min-h-[40px] min-w-[40px] px-2.5 rounded-full bg-zinc-200 dark:bg-zinc-700/80 hover:bg-habit-green-ink hover:text-white text-zinc-700 dark:text-zinc-200 text-[11px] font-bold flex items-center justify-center cursor-pointer transition-colors"
                         title="إتمام سريع"
                         aria-label="إتمام سريع"
                       >
@@ -449,19 +450,19 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
 
                 {/* Text Display: Concise vs Full */}
                 {viewMode === 'concise' ? (
-                  <p dir="rtl" lang="ar" className="text-xs tashkeel-text leading-[2.2] text-slate-700 dark:text-slate-300 font-serif select-text ps-7">
+                  <p dir="rtl" lang="ar" className="text-xs sm:text-sm tashkeel-text leading-[2.2] text-zinc-800 dark:text-zinc-200 font-quran select-text ps-7">
                     {item.shortSnippet}
                   </p>
                 ) : (
-                  <p dir="rtl" lang="ar" className="text-xs sm:text-sm tashkeel-text leading-[2.2] text-slate-900 dark:text-slate-100 font-serif select-text ps-7 whitespace-pre-line bg-slate-50 dark:bg-zinc-950/40 p-3 rounded-xl border border-slate-200 dark:border-zinc-800/80">
+                  <p dir="rtl" lang="ar" className="text-xs sm:text-sm tashkeel-text leading-[2.2] text-zinc-900 dark:text-zinc-100 font-quran select-text ps-7 whitespace-pre-line bg-white/80 dark:bg-zinc-950/50 p-3.5 rounded-2xl border border-zinc-200/80 dark:border-white/10">
                     {item.fullText}
                   </p>
                 )}
 
                 {/* Virtue & Hadith Reference */}
-                <div className="text-[10px] text-slate-500 dark:text-slate-400 ps-7 flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-zinc-800">
-                  <span className="italic">{item.virtue}</span>
-                  <span className="font-mono text-slate-400 dark:text-zinc-500 shrink-0">{item.source}</span>
+                <div className="text-[10px] text-zinc-600 dark:text-zinc-400 ps-7 flex items-center justify-between gap-2 pt-1 border-t border-zinc-200/60 dark:border-white/10">
+                  <span>{item.virtue}</span>
+                  <span className="font-mono text-zinc-500 dark:text-zinc-400 shrink-0">{item.source}</span>
                 </div>
               </div>
             );
@@ -469,8 +470,8 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
         </div>
 
         {/* Footer */}
-        <div className="p-4 sm:p-5 pb-[max(1rem,env(safe-area-inset-bottom))] bg-slate-50/90 dark:bg-zinc-950 border-t border-slate-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 w-full sm:w-auto justify-between sm:justify-start">
+        <div className="p-4 sm:p-5 pb-[max(1rem,env(safe-area-inset-bottom))] surface-card-3d border-t border-zinc-200/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 w-full sm:w-auto justify-between sm:justify-start">
             <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold">
               <Sparkles className="w-4 h-4 shrink-0" />
               <span>مكافأة الحصن: +20 نقطة طمأنينة وإيمان</span>
@@ -481,11 +482,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
             <button
               type="button"
               onClick={handleFinishSession}
-              className={`flex-1 sm:flex-initial min-h-[44px] px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer ${
-                done
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'
-                  : 'bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 text-slate-950 font-black shadow-amber-500/20 active:scale-95'
-              }`}
+              className="flex-1 sm:flex-initial min-h-[44px] px-6 py-2.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer active:scale-95"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>{done ? 'تم إنجاز الأذكار بنجاح اليوم ✔' : 'أتممت قراءة الأذكار كاملة 🤍 (+20 XP)'}</span>
@@ -494,7 +491,7 @@ export const MorningEveningAdhkarModal: React.FC<MorningEveningAdhkarModalProps>
             <button
               type="button"
               onClick={onClose}
-              className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-200 dark:bg-zinc-800 hover:bg-slate-300 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
+              className="min-h-[44px] px-4 py-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-colors cursor-pointer"
             >
               إغلاق
             </button>

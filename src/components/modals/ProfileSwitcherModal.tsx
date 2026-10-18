@@ -159,21 +159,21 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-2xl max-h-[92vh] rounded-2xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
+      <div className="relative z-10 w-full max-w-2xl max-h-[92vh] rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-900/60">
+        <div className="p-4 sm:p-5 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white shadow-md shadow-indigo-500/20">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white shadow-md shadow-indigo-500/20 border border-indigo-400/30">
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 {t('profile_switcher_title')}
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/40">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-200 border border-indigo-400/40">
                   {profiles.length} {isAr ? 'حسابات' : 'Profiles'}
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {t('profile_switcher_sub')}
               </p>
             </div>
@@ -181,7 +181,7 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -236,10 +236,10 @@ export const ProfileSwitcherModal: React.FC<ProfileSwitcherModalProps> = ({
                   <div
                     key={prof.id}
                     onClick={() => handleSelectProfile(prof.id)}
-                    className={`p-4 rounded-xl border text-start flex flex-col justify-between transition-all cursor-pointer relative ${
+                    className={`p-4 rounded-2xl text-start flex flex-col justify-between transition-all cursor-pointer relative ${
                       isActive
-                        ? 'bg-indigo-50/70 dark:bg-indigo-950/40 border-indigo-400 dark:border-indigo-600 ring-2 ring-indigo-500/20 shadow-sm'
-                        : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 hover:border-indigo-300 dark:hover:border-zinc-700'
+                        ? 'bento-3d-lavender ring-2 ring-indigo-500/30'
+                        : 'surface-card-3d hover:border-indigo-300'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">

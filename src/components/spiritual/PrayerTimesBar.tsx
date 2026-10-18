@@ -153,6 +153,7 @@ export interface PrayerTimesBarProps {
   onRewardToast?: (msg: string) => void;
   onOpenLocationModal?: () => void;
   onOpenSmartTasbih?: (presetId?: TasbihPresetId) => void;
+  externalTriggerPrayer?: { prayer: PrayerName; nonce: number } | null;
   className?: string;
 }
 
@@ -162,6 +163,7 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   onRewardToast,
   onOpenLocationModal,
   onOpenSmartTasbih,
+  externalTriggerPrayer,
   className = '',
 }) => {
   const { language } = useTranslation();
@@ -473,6 +475,14 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
     );
     setWitrDone(Boolean(existing?.witrRakats));
   };
+
+  useEffect(() => {
+    if (externalTriggerPrayer?.prayer) {
+      setSanctuaryTab('meeqat');
+      handleOpenPrayerModal(externalTriggerPrayer.prayer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalTriggerPrayer?.nonce]);
 
   const prayerCards: Array<{
     name: PrayerName;
@@ -2004,315 +2014,317 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
               onClick={() => setSelectedPrayerAction(null)}
             />
 
-            {/* Centered Pop-up Modal */}
+            {/* Centered Pop-up Modal — Unified Hybrid Celestial + 3D Bento */}
             <div
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] sm:w-[440px] max-h-[92vh] overflow-y-auto modal-surface border border-slate-200 dark:border-white/[0.12] rounded-3xl p-5 sm:p-6 space-y-4 animate-scale-in text-xs"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] sm:w-[460px] max-h-[92vh] overflow-y-auto modal-surface border border-zinc-200/80 dark:border-white/10 rounded-[28px] overflow-hidden animate-scale-in text-xs"
               dir={isAr ? 'rtl' : 'ltr'}
             >
-              {/* Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.08]">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shadow-inner">
+              {/* Celestial Obsidian Stage Header */}
+              <div className="celestial-obsidian-stage text-white p-4 sm:p-5 flex items-center justify-between border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-habit-green-ink text-white flex items-center justify-center text-xl shadow-lg shadow-[#1eb814]/25 shrink-0">
                     🤲
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-sm sm:text-base font-black text-white">
                         {isAr ? `تسجيل صلاة ${p.title}` : `Log ${p.title}`}
                       </h4>
-                      <span className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.06] px-2 py-0.5 rounded-full">
+                      <span className="font-mono text-[11px] font-bold text-[#bce8c2] bg-white/10 border border-white/15 px-2.5 py-0.5 rounded-full tabular-nums">
                         {formatPrayerTime(p.timeDate, isAr)}
                       </span>
                     </div>
-                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold block mt-0.5">
-                      {record ? (isAr ? 'تعديل حالة الأداء والسنن' : 'Edit status & sunnah') : (isAr ? 'تسجيل فريضة وسنن جديدة' : 'Record prayer & sunnah')}
+                    <span className="text-[11px] text-zinc-300 font-bold block mt-0.5">
+                      {record ? (isAr ? 'تعديل حالة الأداء والسنن الرواتب' : 'Edit status & sunnah') : (isAr ? 'تسجيل فريضة وسنن جديدة' : 'Record prayer & sunnah')}
                     </span>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedPrayerAction(null)}
-                  className="p-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.06] text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
-              {/* 1. Primary Status Options */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-slate-700 dark:text-zinc-300 block">
-                  {isAr ? '1. حالة أداء الفريضة:' : '1. Prayer Status:'}
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {/* Mosque / Group */}
-                  <button
-                    type="button"
-                    onClick={() => setModalStatus('in_group')}
-                    className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
-                      modalStatus === 'in_group'
-                        ? 'bg-amber-500/15 border-amber-500 text-amber-950 dark:text-amber-200 ring-2 ring-amber-500/30 font-black shadow-xs'
-                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] text-slate-700 dark:text-zinc-300 font-bold'
-                    }`}
-                  >
-                    <span className="text-xl">🕌</span>
-                    <span className="text-xs leading-tight">{isAr ? 'في المسجد / جماعة' : 'Mosque / Group'}</span>
-                    <span className="font-mono text-[10px] font-black text-amber-600 dark:text-amber-400">
-                      +{isFajr ? 45 : 30}ن
-                    </span>
-                  </button>
-
-                  {/* On Time Solo */}
-                  <button
-                    type="button"
-                    onClick={() => setModalStatus('on_time')}
-                    className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
-                      modalStatus === 'on_time'
-                        ? 'bg-emerald-500/15 border-emerald-500 text-emerald-950 dark:text-emerald-200 ring-2 ring-emerald-500/30 font-black shadow-xs'
-                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] text-slate-700 dark:text-zinc-300 font-bold'
-                    }`}
-                  >
-                    <span className="text-xl">🏠</span>
-                    <span className="text-xs leading-tight">{isAr ? 'في وقتها (منفرداً)' : 'On Time (Solo)'}</span>
-                    <span className="font-mono text-[10px] font-black text-emerald-600 dark:text-emerald-400">
-                      +{isFajr ? 35 : 20}ن
-                    </span>
-                  </button>
-
-                  {/* Late / Qada */}
-                  <button
-                    type="button"
-                    onClick={() => setModalStatus('late')}
-                    className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
-                      modalStatus === 'late'
-                        ? 'bg-slate-300/40 dark:bg-zinc-700/60 border-slate-400 text-slate-900 dark:text-white ring-2 ring-slate-400/30 font-black'
-                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] text-slate-700 dark:text-zinc-300 font-bold'
-                    }`}
-                  >
-                    <span className="text-xl">⏳</span>
-                    <span className="text-xs leading-tight">{isAr ? 'قضاءً بعد الوقت' : 'Late / Qada'}</span>
-                    <span className="font-mono text-[10px] font-bold text-slate-500">
-                      +10ن
-                    </span>
-                  </button>
-
-                  {/* Pillars-Inspired: Excused / Travel (Zero Guilt) */}
-                  <button
-                    type="button"
-                    onClick={() => setModalStatus('excused')}
-                    className={`p-2.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
-                      modalStatus === 'excused'
-                        ? 'bg-purple-500/15 border-purple-500 text-purple-950 dark:text-purple-200 ring-2 ring-purple-500/30 font-black shadow-xs'
-                        : 'bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/[0.06] hover:bg-slate-100 dark:hover:bg-white/[0.06] text-slate-700 dark:text-zinc-300 font-bold'
-                    }`}
-                  >
-                    <span className="text-xl">🕊️</span>
-                    <span className="text-xs leading-tight">{isAr ? 'رخصة / عذر شرعي' : 'Excused / Travel'}</span>
-                    <span className="font-mono text-[10px] font-bold text-purple-600 dark:text-purple-400">
-                      +20ن 🛡️
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* 2. Sunan & Nawafil Attached to This Prayer */}
-              <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-white/[0.08]">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-black text-slate-700 dark:text-zinc-300">
-                    {isAr ? '2. السنن والرواتب المرتبطة:' : '2. Attached Sunan:'}
-                  </label>
-                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
-                    {totalSunnahRakats > 0 ? `+${sunnahBonusPts}ن مكافأة سنن` : 'سُنّة نبوية مؤكدة'}
-                  </span>
-                </div>
-
+              <div className="p-4 sm:p-5 space-y-4">
+                {/* 1. Primary Status Options */}
                 <div className="space-y-2">
-                  {/* Fajr Sunnah */}
-                  {isFajr && (
-                    <label className="flex items-center justify-between p-2.5 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-800/40 cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={sunnahQabliyah === 2}
-                          onChange={(e) => setSunnahQabliyah(e.target.checked ? 2 : 0)}
-                          className="w-4 h-4 text-emerald-600 rounded"
-                        />
-                        <div>
-                          <span className="font-bold text-xs text-indigo-950 dark:text-indigo-200 block">
-                            سُنّة الفجر الاستفتاحية (ركعتان قبل الفريضة)
-                          </span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                            «ركعتا الفجر خير من الدنيا وما فيها»
-                          </span>
-                        </div>
-                      </div>
-                      <span className="font-mono font-bold text-emerald-600 text-xs">+10ن</span>
-                    </label>
-                  )}
+                  <label className="text-[11px] font-black text-zinc-800 dark:text-zinc-200 block">
+                    {isAr ? '1. حالة أداء الفريضة:' : '1. Prayer Status:'}
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Mosque / Group */}
+                    <button
+                      type="button"
+                      onClick={() => setModalStatus('in_group')}
+                      className={`p-3 rounded-[20px] border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
+                        modalStatus === 'in_group'
+                          ? 'bento-3d-amber ring-2 ring-amber-500/40 font-black shadow-sm'
+                          : 'surface-card-3d border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-bold'
+                      }`}
+                    >
+                      <span className="text-xl">🕌</span>
+                      <span className="text-xs leading-tight">{isAr ? 'في المسجد / جماعة' : 'Mosque / Group'}</span>
+                      <span className="font-mono text-[10px] font-black text-amber-800 dark:text-amber-300">
+                        +{isFajr ? 45 : 30}ن
+                      </span>
+                    </button>
 
-                  {/* Dhuhr Sunan */}
-                  {(isDhuhr || isJumuah) && (
-                    <>
-                      <label className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 cursor-pointer">
-                        <div className="flex items-center gap-2">
+                    {/* On Time Solo */}
+                    <button
+                      type="button"
+                      onClick={() => setModalStatus('on_time')}
+                      className={`p-3 rounded-[20px] border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
+                        modalStatus === 'on_time'
+                          ? 'bento-3d-mint ring-2 ring-[#1eb814]/40 font-black shadow-sm'
+                          : 'surface-card-3d border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-bold'
+                      }`}
+                    >
+                      <span className="text-xl">🏠</span>
+                      <span className="text-xs leading-tight">{isAr ? 'في وقتها (منفرداً)' : 'On Time (Solo)'}</span>
+                      <span className="font-mono text-[10px] font-black text-[#1eb814] dark:text-emerald-300">
+                        +{isFajr ? 35 : 20}ن
+                      </span>
+                    </button>
+
+                    {/* Late / Qada */}
+                    <button
+                      type="button"
+                      onClick={() => setModalStatus('late')}
+                      className={`p-3 rounded-[20px] border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
+                        modalStatus === 'late'
+                          ? 'bento-3d-sky ring-2 ring-sky-500/40 font-black shadow-sm'
+                          : 'surface-card-3d border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-bold'
+                      }`}
+                    >
+                      <span className="text-xl">⏳</span>
+                      <span className="text-xs leading-tight">{isAr ? 'قضاءً بعد الوقت' : 'Late / Qada'}</span>
+                      <span className="font-mono text-[10px] font-bold text-zinc-600 dark:text-zinc-400">
+                        +10ن
+                      </span>
+                    </button>
+
+                    {/* Pillars-Inspired: Excused / Travel (Zero Guilt) */}
+                    <button
+                      type="button"
+                      onClick={() => setModalStatus('excused')}
+                      className={`p-3 rounded-[20px] border text-center transition-all cursor-pointer flex flex-col items-center justify-between gap-1.5 ${
+                        modalStatus === 'excused'
+                          ? 'bento-3d-lavender ring-2 ring-[#5448e8]/40 font-black shadow-sm'
+                          : 'surface-card-3d border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 font-bold'
+                      }`}
+                    >
+                      <span className="text-xl">🕊️</span>
+                      <span className="text-xs leading-tight">{isAr ? 'رخصة / عذر شرعي' : 'Excused / Travel'}</span>
+                      <span className="font-mono text-[10px] font-bold text-[#5448e8] dark:text-indigo-300">
+                        +20ن 🛡️
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Sunan & Nawafil Attached to This Prayer */}
+                <div className="space-y-2 pt-2 border-t border-zinc-200/80 dark:border-white/10">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-black text-zinc-800 dark:text-zinc-200">
+                      {isAr ? '2. السنن والرواتب المرتبطة:' : '2. Attached Sunan:'}
+                    </label>
+                    <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#fde6d8] dark:bg-amber-950/60 text-amber-950 dark:text-amber-300 font-bold">
+                      {totalSunnahRakats > 0 ? `+${sunnahBonusPts}ن مكافأة سنن` : 'سُنّة نبوية مؤكدة'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {/* Fajr Sunnah */}
+                    {isFajr && (
+                      <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-lavender cursor-pointer">
+                        <div className="flex items-center gap-2.5">
+                          <input
+                            type="checkbox"
+                            checked={sunnahQabliyah === 2}
+                            onChange={(e) => setSunnahQabliyah(e.target.checked ? 2 : 0)}
+                            className="w-4 h-4 accent-[#1eb814] rounded"
+                          />
+                          <div>
+                            <span className="font-bold text-xs text-zinc-950 dark:text-indigo-100 block">
+                              سُنّة الفجر الاستفتاحية (ركعتان قبل الفريضة)
+                            </span>
+                            <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                              «ركعتا الفجر خير من الدنيا وما فيها»
+                            </span>
+                          </div>
+                        </div>
+                        <span className="font-mono font-bold text-[#1eb814] text-xs">+10ن</span>
+                      </label>
+                    )}
+
+                    {/* Dhuhr Sunan */}
+                    {(isDhuhr || isJumuah) && (
+                      <>
+                        <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-amber cursor-pointer">
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={sunnahQabliyah === 4}
+                              onChange={(e) => setSunnahQabliyah(e.target.checked ? 4 : 0)}
+                              className="w-4 h-4 accent-[#1eb814] rounded"
+                            />
+                            <div>
+                              <span className="font-bold text-xs text-zinc-950 dark:text-amber-100 block">
+                                سُنّة الظهر الاستفتاحية (٤ ركعات سابقة)
+                              </span>
+                              <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                                سنة الزوال التي تُفتح فيها أبواب السماء
+                              </span>
+                            </div>
+                          </div>
+                          <span className="font-mono font-bold text-[#1eb814] text-xs">+10ن</span>
+                        </label>
+
+                        <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-amber cursor-pointer">
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={sunnahBadiyah === 2}
+                              onChange={(e) => setSunnahBadiyah(e.target.checked ? 2 : 0)}
+                              className="w-4 h-4 accent-[#1eb814] rounded"
+                            />
+                            <div>
+                              <span className="font-bold text-xs text-zinc-950 dark:text-amber-100 block">
+                                سُنّة الظهر المعقبة (ركعتان لاحقة بعد الفريضة)
+                              </span>
+                              <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                                من السنن الرواتب الـ 12 المؤكدة
+                              </span>
+                            </div>
+                          </div>
+                          <span className="font-mono font-bold text-[#1eb814] text-xs">+10ن</span>
+                        </label>
+                      </>
+                    )}
+
+                    {/* Asr Sunnah */}
+                    {isAsr && (
+                      <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-amber cursor-pointer">
+                        <div className="flex items-center gap-2.5">
                           <input
                             type="checkbox"
                             checked={sunnahQabliyah === 4}
                             onChange={(e) => setSunnahQabliyah(e.target.checked ? 4 : 0)}
-                            className="w-4 h-4 text-emerald-600 rounded"
+                            className="w-4 h-4 accent-[#1eb814] rounded"
                           />
                           <div>
-                            <span className="font-bold text-xs text-amber-950 dark:text-amber-200 block">
-                              سُنّة الظهر الاستفتاحية (٤ ركعات سابقة)
+                            <span className="font-bold text-xs text-zinc-950 dark:text-amber-100 block">
+                              السنة السابقة المستحبة لصلاة العصر (٤ ركعات)
                             </span>
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                              سنة الزوال التي تُفتح فيها أبواب السماء
+                            <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                              «رَحِمَ اللَّهُ امْرَأً صَلَّى قَبْلَ الْعَصْرِ أَرْبَعاً»
                             </span>
                           </div>
                         </div>
-                        <span className="font-mono font-bold text-emerald-600 text-xs">+10ن</span>
+                        <span className="font-mono font-bold text-[#1eb814] text-xs">+10ن</span>
                       </label>
+                    )}
 
-                      <label className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 cursor-pointer">
-                        <div className="flex items-center gap-2">
+                    {/* Maghrib Sunnah */}
+                    {isMaghrib && (
+                      <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-rose cursor-pointer">
+                        <div className="flex items-center gap-2.5">
                           <input
                             type="checkbox"
                             checked={sunnahBadiyah === 2}
                             onChange={(e) => setSunnahBadiyah(e.target.checked ? 2 : 0)}
-                            className="w-4 h-4 text-emerald-600 rounded"
+                            className="w-4 h-4 accent-[#1eb814] rounded"
                           />
                           <div>
-                            <span className="font-bold text-xs text-amber-950 dark:text-amber-200 block">
-                              سُنّة الظهر المعقبة (ركعتان لاحقة بعد الفريضة)
+                            <span className="font-bold text-xs text-zinc-950 dark:text-rose-100 block">
+                              سُنّة المغرب المعقبة (ركعتان لاحقة بعد الفريضة)
                             </span>
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                            <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
                               من السنن الرواتب الـ 12 المؤكدة
                             </span>
                           </div>
                         </div>
-                        <span className="font-mono font-bold text-emerald-600 text-xs">+10ن</span>
+                        <span className="font-mono font-bold text-[#1eb814] text-xs">+10ن</span>
                       </label>
-                    </>
-                  )}
+                    )}
 
-                  {/* Asr Sunnah */}
-                  {isAsr && (
-                    <label className="flex items-center justify-between p-2.5 rounded-xl bg-orange-50/60 dark:bg-orange-950/20 border border-orange-200/80 dark:border-orange-800/40 cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={sunnahQabliyah === 4}
-                          onChange={(e) => setSunnahQabliyah(e.target.checked ? 4 : 0)}
-                          className="w-4 h-4 text-emerald-600 rounded"
-                        />
-                        <div>
-                          <span className="font-bold text-xs text-orange-950 dark:text-orange-200 block">
-                            السنة السابقة المستحبة لصلاة العصر (٤ ركعات)
-                          </span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                            «رَحِمَ اللَّهُ امْرَأً صَلَّى قَبْلَ الْعَصْرِ أَرْبَعاً»
-                          </span>
-                        </div>
-                      </div>
-                      <span className="font-mono font-bold text-emerald-600 text-xs">+10ن</span>
-                    </label>
-                  )}
-
-                  {/* Maghrib Sunnah */}
-                  {isMaghrib && (
-                    <label className="flex items-center justify-between p-2.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-800/40 cursor-pointer">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={sunnahBadiyah === 2}
-                          onChange={(e) => setSunnahBadiyah(e.target.checked ? 2 : 0)}
-                          className="w-4 h-4 text-emerald-600 rounded"
-                        />
-                        <div>
-                          <span className="font-bold text-xs text-rose-950 dark:text-rose-200 block">
-                            سُنّة المغرب المعقبة (ركعتان لاحقة بعد الفريضة)
-                          </span>
-                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                            من السنن الرواتب الـ 12 المؤكدة
-                          </span>
-                        </div>
-                      </div>
-                      <span className="font-mono font-bold text-emerald-600 text-xs">+10ن</span>
-                    </label>
-                  )}
-
-                  {/* Isha Sunnah & Witr */}
-                  {isIsha && (
-                    <>
-                      <label className="flex items-center justify-between p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/80 dark:border-purple-800/40 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={sunnahBadiyah === 2}
-                            onChange={(e) => setSunnahBadiyah(e.target.checked ? 2 : 0)}
-                            className="w-4 h-4 text-emerald-600 rounded"
-                          />
-                          <div>
-                            <span className="font-bold text-xs text-purple-950 dark:text-purple-200 block">
-                              سُنّة العشاء المعقبة (ركعتان لاحقة بعد الفريضة)
-                            </span>
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                              من السنن الرواتب الـ 12 المؤكدة
-                            </span>
+                    {/* Isha Sunnah & Witr */}
+                    {isIsha && (
+                      <>
+                        <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-lavender cursor-pointer">
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={sunnahBadiyah === 2}
+                              onChange={(e) => setSunnahBadiyah(e.target.checked ? 2 : 0)}
+                              className="w-4 h-4 accent-[#1eb814] rounded"
+                            />
+                            <div>
+                              <span className="font-bold text-xs text-zinc-950 dark:text-indigo-100 block">
+                                سُنّة العشاء المعقبة (ركعتان لاحقة بعد الفريضة)
+                              </span>
+                              <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                                من السنن الرواتب الـ 12 المؤكدة
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <span className="font-mono font-bold text-emerald-600 text-xs">+10ن</span>
-                      </label>
+                          <span className="font-mono font-bold text-[#1eb814] text-xs">+10ن</span>
+                        </label>
 
-                      <label className="flex items-center justify-between p-2.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/80 dark:border-purple-800/40 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={witrDone}
-                            onChange={(e) => setWitrDone(e.target.checked)}
-                            className="w-4 h-4 text-emerald-600 rounded"
-                          />
-                          <div>
-                            <span className="font-bold text-xs text-purple-950 dark:text-purple-200 block">
-                              صلاة الشفع والوتر (٣ ركعات)
-                            </span>
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                              «اجعلوا آخر صلاتكم بالليل وتراً»
-                            </span>
+                        <label className="flex items-center justify-between p-3 rounded-[20px] bento-3d-lavender cursor-pointer">
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={witrDone}
+                              onChange={(e) => setWitrDone(e.target.checked)}
+                              className="w-4 h-4 accent-[#1eb814] rounded"
+                            />
+                            <div>
+                              <span className="font-bold text-xs text-zinc-950 dark:text-indigo-100 block">
+                                صلاة الشفع والوتر (٣ ركعات)
+                              </span>
+                              <span className="text-[10px] text-zinc-700 dark:text-zinc-300">
+                                «اجعلوا آخر صلاتكم بالليل وتراً»
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <span className="font-mono font-bold text-emerald-600 text-xs">+15ن</span>
-                      </label>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Total Points Footer and Submit */}
-              <div className="pt-2 border-t border-slate-100 dark:border-white/[0.08] flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-zinc-300">
-                  <span>المكافأة:</span>
-                  <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm">
-                    +{totalPts}ن
-                  </span>
+                          <span className="font-mono font-bold text-[#1eb814] text-xs">+15ن</span>
+                        </label>
+                      </>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPrayerAction(null)}
-                    className="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.06] hover:bg-slate-200 text-slate-600 dark:text-zinc-300 text-xs font-bold cursor-pointer transition-colors"
-                  >
-                    إلغاء
-                  </button>
+                {/* Total Points Footer and Submit */}
+                <div className="pt-3 border-t border-zinc-200/80 dark:border-white/10 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                    <span>المكافأة:</span>
+                    <span className="px-2.5 py-1 rounded-full bg-[#bce8c2] text-zinc-950 font-mono font-black text-xs tabular-nums">
+                      +{totalPts} XP
+                    </span>
+                  </div>
 
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5"
-                  >
-                    <span>✓</span>
-                    <span>حفظ الصلاة والسنن</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPrayerAction(null)}
+                      className="px-4 py-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-700 dark:text-zinc-200 text-xs font-bold cursor-pointer transition-colors"
+                    >
+                      إلغاء
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      className="px-5 py-2.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white text-xs font-black shadow-md shadow-[#1eb814]/25 cursor-pointer transition-all active:scale-95 flex items-center gap-1.5"
+                    >
+                      <span>✓</span>
+                      <span>حفظ الصلاة والسنن</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

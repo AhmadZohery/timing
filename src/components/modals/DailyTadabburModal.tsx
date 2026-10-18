@@ -196,7 +196,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
   // Theme container classes
   const themeClasses = {
     default:
-      'bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-800',
+      'modal-surface text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-800',
     sepia:
       'bg-[#fbf7ee] text-[#2c2214] border-[#e8ddc9]',
     dark:
@@ -204,7 +204,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
   }[readerTheme];
 
   const cardSurfaceClasses = {
-    default: 'bg-slate-50/70 dark:bg-zinc-800/50 border-slate-200/80 dark:border-zinc-700/60',
+    default: 'surface-card-3d',
     sepia: 'bg-[#f4edd9] border-[#e2d5bd]',
     dark: 'bg-zinc-900 border-zinc-800',
   }[readerTheme];
@@ -233,22 +233,22 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
         {/* ============================================================ */}
         {/* MODAL HEADER & CONTROLS                                      */}
         {/* ============================================================ */}
-        <div className="p-4 sm:p-5 border-b flex flex-wrap items-center justify-between gap-3 border-inherit shrink-0">
+        <div className="p-4 sm:p-5 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 celestial-obsidian-stage text-white shrink-0">
           {/* Title & Badge */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-600/30">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/30 border border-emerald-400/30">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold tracking-tight text-white">
                   {isAr ? 'روضة التدبر والحديث النبوي الشريف' : 'Daily Quran & Hadith Sanctuary'}
                 </h2>
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800/40">
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-400/30">
                   {isAr ? 'مصادر أصلية موثقة' : 'Authentic'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5 font-medium">
+              <p className="text-xs text-slate-300 mt-0.5 font-medium">
                 {currentItem.dayTitleAr}
               </p>
             </div>
@@ -257,13 +257,13 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
           {/* Right Tools: Day Navigator, Reader Themes, Font Sizes, Close */}
           <div className="flex items-center gap-2">
             {/* Day Switcher */}
-            <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200 dark:border-zinc-700">
+            <div className="flex items-center gap-1 bg-white/10 p-1 rounded-2xl border border-white/15 text-white">
               <button
                 type="button"
                 onClick={handlePrevDay}
                 title={isAr ? 'اليوم السابق' : 'Previous Day'}
                 aria-label={isAr ? 'اليوم السابق' : 'Previous Day'}
-                className="min-w-[38px] min-h-[38px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                className="min-w-[38px] min-h-[38px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-xl hover:bg-white/15 transition-colors cursor-pointer"
               >
                 {isRTL ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
@@ -275,19 +275,19 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 onClick={handleNextDay}
                 title={isAr ? 'اليوم التالي' : 'Next Day'}
                 aria-label={isAr ? 'اليوم التالي' : 'Next Day'}
-                className="min-w-[38px] min-h-[38px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
+                className="min-w-[38px] min-h-[38px] sm:min-w-[32px] sm:min-h-[32px] flex items-center justify-center p-1.5 rounded-xl hover:bg-white/15 transition-colors cursor-pointer"
               >
                 {isRTL ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </button>
             </div>
 
             {/* Font Size Adjuster */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200 dark:border-zinc-700">
+            <div className="hidden sm:flex items-center gap-1 bg-white/10 p-1 rounded-2xl border border-white/15 text-white">
               <button
                 type="button"
                 onClick={() => setFontSize('sm')}
                 className={`px-2 py-1 text-xs rounded-xl font-bold cursor-pointer transition-all ${
-                  fontSize === 'sm' ? 'bg-white dark:bg-zinc-900 shadow-xs' : 'opacity-60'
+                  fontSize === 'sm' ? 'bg-white/25 text-white shadow-xs' : 'opacity-60'
                 }`}
                 title="حجم خط صغير"
               >
@@ -297,7 +297,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 type="button"
                 onClick={() => setFontSize('md')}
                 className={`px-2 py-1 text-xs rounded-xl font-bold cursor-pointer transition-all ${
-                  fontSize === 'md' ? 'bg-white dark:bg-zinc-900 shadow-xs' : 'opacity-60'
+                  fontSize === 'md' ? 'bg-white/25 text-white shadow-xs' : 'opacity-60'
                 }`}
                 title="حجم خط متوسط"
               >
@@ -307,7 +307,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 type="button"
                 onClick={() => setFontSize('lg')}
                 className={`px-2 py-1 text-xs rounded-xl font-bold cursor-pointer transition-all ${
-                  fontSize === 'lg' ? 'bg-white dark:bg-zinc-900 shadow-xs' : 'opacity-60'
+                  fontSize === 'lg' ? 'bg-white/25 text-white shadow-xs' : 'opacity-60'
                 }`}
                 title="حجم خط كبير"
               >
@@ -317,7 +317,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 type="button"
                 onClick={() => setFontSize('xl')}
                 className={`px-2 py-1 text-xs rounded-xl font-bold cursor-pointer transition-all ${
-                  fontSize === 'xl' ? 'bg-white dark:bg-zinc-900 shadow-xs' : 'opacity-60'
+                  fontSize === 'xl' ? 'bg-white/25 text-white shadow-xs' : 'opacity-60'
                 }`}
                 title="حجم خط ضخم"
               >
@@ -326,36 +326,36 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
             </div>
 
             {/* Theme switcher (Default / Sepia / Dark) */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-2xl border border-slate-200 dark:border-zinc-700">
+            <div className="hidden sm:flex items-center gap-1 bg-white/10 p-1 rounded-2xl border border-white/15">
               <button
                 type="button"
                 onClick={() => setReaderTheme('default')}
                 className={`p-1.5 rounded-xl cursor-pointer transition-all ${
-                  readerTheme === 'default' ? 'bg-white dark:bg-zinc-900 shadow-xs' : 'opacity-60'
+                  readerTheme === 'default' ? 'bg-white/25 shadow-xs' : 'opacity-60'
                 }`}
                 title={isAr ? 'المظهر التلقائي' : 'Default Theme'}
               >
-                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
               </button>
               <button
                 type="button"
                 onClick={() => setReaderTheme('sepia')}
                 className={`p-1.5 rounded-xl cursor-pointer transition-all ${
-                  readerTheme === 'sepia' ? 'bg-amber-100 text-amber-900 shadow-xs' : 'opacity-60'
+                  readerTheme === 'sepia' ? 'bg-amber-200/30 text-amber-300 shadow-xs' : 'opacity-60'
                 }`}
                 title={isAr ? 'ورق المصحف الدافئ (Sepia)' : 'Sepia Paper'}
               >
-                <Feather className="w-3.5 h-3.5 text-amber-800" />
+                <Feather className="w-3.5 h-3.5 text-amber-300" />
               </button>
               <button
                 type="button"
                 onClick={() => setReaderTheme('dark')}
                 className={`p-1.5 rounded-xl cursor-pointer transition-all ${
-                  readerTheme === 'dark' ? 'bg-zinc-900 text-zinc-100 shadow-xs' : 'opacity-60'
+                  readerTheme === 'dark' ? 'bg-white/25 text-zinc-100 shadow-xs' : 'opacity-60'
                 }`}
                 title={isAr ? 'المظهر الليلي الهادئ' : 'Night Velvet'}
               >
-                <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                <Moon className="w-3.5 h-3.5 text-indigo-300" />
               </button>
             </div>
 
@@ -364,7 +364,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
               type="button"
               onClick={onClose}
               aria-label={isAr ? 'إغلاق' : 'Close'}
-              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center p-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors cursor-pointer"
               title={isAr ? 'إغلاق' : 'Close'}
             >
               <X className="w-5 h-5" />
@@ -384,7 +384,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 haptic.vibrateLight();
                 setActiveTab('quran');
               }}
-              className={`min-h-[44px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`min-h-[44px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'quran'
                   ? 'bg-white dark:bg-zinc-900 text-emerald-700 dark:text-emerald-400 shadow-md ring-1 ring-emerald-500/25'
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
@@ -401,7 +401,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 haptic.vibrateLight();
                 setActiveTab('hadith');
               }}
-              className={`min-h-[44px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`min-h-[44px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'hadith'
                   ? 'bg-white dark:bg-zinc-900 text-teal-700 dark:text-teal-400 shadow-md ring-1 ring-teal-500/25'
                   : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
@@ -428,9 +428,9 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 className="space-y-6"
               >
                 {/* Surah Header Banner */}
-                <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20">
+                <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bento-3d-mint">
                   <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="text-base sm:text-lg font-black text-emerald-800 dark:text-emerald-300">
+                    <span className="text-base sm:text-lg font-bold text-emerald-800 dark:text-emerald-300">
                       {quran.surahName}
                     </span>
                     <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 border border-emerald-300/40 dark:border-emerald-700/40">
@@ -455,7 +455,7 @@ export const DailyTadabburModal: React.FC<DailyTadabburModalProps> = ({
                 </div>
 
                 {/* Sacred Text with Full Tashkeel and Illuminated Frame */}
-                <div className="relative p-6 sm:p-8 rounded-2xl bg-amber-50/30 dark:bg-zinc-950/80 border border-amber-300/60 dark:border-amber-500/30 shadow-2xs">
+                <div className="relative p-6 sm:p-8 rounded-2xl bento-3d-amber">
                   <IslamicRubElHizb className="absolute top-3.5 start-3.5 w-4 h-4 text-amber-500/50" />
                   <IslamicRubElHizb className="absolute top-3.5 end-3.5 w-4 h-4 text-amber-500/50" />
                   <p

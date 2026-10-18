@@ -98,132 +98,135 @@ export const ZeroInertiaModal: React.FC<ZeroInertiaModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-md rounded-2xl modal-surface border border-rose-200 dark:border-rose-500/40 p-6 space-y-5">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 start-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
+      <div className="relative z-10 w-full max-w-md rounded-3xl modal-surface border border-rose-200 dark:border-rose-500/40 overflow-hidden">
         {/* Modal Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 shrink-0 animate-pulse">
-            <AlertTriangle className="w-6 h-6" />
+        <div className="px-6 py-4 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-400/30 shrink-0 animate-pulse">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white">
+                {t('panic_modal_title')}
+              </h3>
+              <p className="text-xs text-rose-200">
+                {t('panic_modal_sub')}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-              {t('panic_modal_title')}
-            </h3>
-            <p className="text-xs text-rose-700 dark:text-rose-300">
-              {t('panic_modal_sub')}
-            </p>
-          </div>
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {!isDone ? (
-          <>
-            {/* Cognitive Safe Space Message */}
-            <div className="p-3.5 rounded-xl bg-rose-50/60 dark:bg-zinc-950 border border-rose-100 dark:border-zinc-800 text-xs text-slate-700 dark:text-zinc-300 space-y-1.5 leading-relaxed">
-              <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                <Smile className="w-3.5 h-3.5" />
-                <span>{t('panic_safe_space_title')}</span>
-              </span>
-              <p className="text-slate-600 dark:text-zinc-400">
-                {t('panic_safe_space_desc')}
-              </p>
-            </div>
-
-            {/* Micro-Tasks Selection */}
-            {!isStarted && (
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block">
-                  {t('panic_choose_task')}
-                </label>
-                {microTasks.map((task, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      setSelectedTaskIndex(idx);
-                    }}
-                    className={`w-full p-2.5 rounded-lg text-xs text-start border transition-all cursor-pointer flex items-center justify-between ${
-                      selectedTaskIndex === idx
-                        ? 'bg-rose-50 dark:bg-rose-500/15 border-rose-300 dark:border-rose-500/40 text-rose-800 dark:text-rose-200 font-semibold'
-                        : 'bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    <span>{task}</span>
-                    {selectedTaskIndex === idx && <Zap className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Timer Active View */}
-            {isStarted && (
-              <div className="p-6 rounded-2xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-center space-y-3">
-                <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-                  {language === 'ar' ? 'المهمة المجهرية الجارية الآن:' : 'Task in progress:'}
-                </div>
-                <div className="text-sm font-bold text-slate-900 dark:text-zinc-100">
-                  {microTasks[selectedTaskIndex]}
-                </div>
-                <div className="text-4xl font-mono font-black text-rose-600 dark:text-rose-400 tabular-nums">
-                  <bdi dir="ltr">{formatTime(timer.remainingSec)}</bdi>
-                </div>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
-                  {language === 'ar' ? 'ابقَ مع هذه الدقائق الـ 3 فقط. ضغط خارجي منعدم تماماً.' : 'Stay with these 3 minutes. Zero external pressure.'}
+        <div className="p-6 space-y-5">
+          {!isDone ? (
+            <>
+              {/* Cognitive Safe Space Message */}
+              <div className="p-3.5 rounded-xl bento-3d-rose text-xs text-slate-700 dark:text-zinc-300 space-y-1.5 leading-relaxed">
+                <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                  <Smile className="w-3.5 h-3.5" />
+                  <span>{t('panic_safe_space_title')}</span>
+                </span>
+                <p className="text-slate-600 dark:text-zinc-400">
+                  {t('panic_safe_space_desc')}
                 </p>
               </div>
-            )}
 
-            {/* Actions */}
-            <div className="pt-2 flex items-center gap-2">
-              {!isStarted ? (
-                <button
-                  onClick={handleStartMicroTask}
-                  className="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-rose-500/20 active:scale-95 cursor-pointer"
-                >
-                  <Play className="w-4 h-4 fill-white" />
-                  <span>{t('panic_start_btn')}</span>
-                </button>
-              ) : (
-                <button
-                  onClick={handleCompleteEarly}
-                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  <span>{t('panic_early_done')}</span>
-                </button>
+              {/* Micro-Tasks Selection */}
+              {!isStarted && (
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 block">
+                    {t('panic_choose_task')}
+                  </label>
+                  {microTasks.map((task, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setSelectedTaskIndex(idx);
+                      }}
+                      className={`w-full p-2.5 rounded-xl text-xs text-start transition-all cursor-pointer flex items-center justify-between ${
+                        selectedTaskIndex === idx
+                          ? 'bento-3d-rose text-rose-800 dark:text-rose-200 font-semibold ring-2 ring-rose-500/30'
+                          : 'surface-card-3d text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      <span>{task}</span>
+                      {selectedTaskIndex === idx && <Zap className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />}
+                    </button>
+                  ))}
+                </div>
               )}
-            </div>
-          </>
-        ) : (
-          /* Success Screen */
-          <div className="p-6 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-500/40 text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
-              <CheckCircle className="w-6 h-6" />
-            </div>
 
-            <div className="space-y-1">
-              <h4 className="text-base font-bold text-emerald-800 dark:text-emerald-300">
-                {t('panic_success_title')}
-              </h4>
-              <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
-                {t('panic_success_desc')}
-              </p>
-            </div>
+              {/* Timer Active View */}
+              {isStarted && (
+                <div className="p-6 rounded-2xl bento-3d-rose text-center space-y-3">
+                  <div className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
+                    {language === 'ar' ? 'المهمة المجهرية الجارية الآن:' : 'Task in progress:'}
+                  </div>
+                  <div className="text-sm font-bold text-slate-900 dark:text-zinc-100">
+                    {microTasks[selectedTaskIndex]}
+                  </div>
+                  <div className="text-4xl font-mono font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                    <bdi dir="ltr">{formatTime(timer.remainingSec)}</bdi>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium">
+                    {language === 'ar' ? 'ابقَ مع هذه الدقائق الـ 3 فقط. ضغط خارجي منعدم تماماً.' : 'Stay with these 3 minutes. Zero external pressure.'}
+                  </p>
+                </div>
+              )}
 
-            <button
-              onClick={handleFinishAndResume}
-              className="w-full py-2.5 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
-            >
-              {t('panic_resume_btn')}
-            </button>
-          </div>
-        )}
+              {/* Actions */}
+              <div className="pt-2 flex items-center gap-2">
+                {!isStarted ? (
+                  <button
+                    onClick={handleStartMicroTask}
+                    className="w-full py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-rose-500/20 active:scale-95 cursor-pointer"
+                  >
+                    <Play className="w-4 h-4 fill-white" />
+                    <span>{t('panic_start_btn')}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCompleteEarly}
+                    className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>{t('panic_early_done')}</span>
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            /* Success Screen */
+            <div className="p-6 rounded-2xl bento-3d-mint text-center space-y-4">
+              <div className="w-12 h-12 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
+                <CheckCircle className="w-6 h-6" />
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="text-base font-bold text-emerald-800 dark:text-emerald-300">
+                  {t('panic_success_title')}
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-zinc-300 leading-relaxed">
+                  {t('panic_success_desc')}
+                </p>
+              </div>
+
+              <button
+                onClick={handleFinishAndResume}
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md"
+              >
+                {t('panic_resume_btn')}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

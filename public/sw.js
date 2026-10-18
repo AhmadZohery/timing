@@ -15,7 +15,7 @@ if (isLocalDev) {
   });
 }
 
-const CACHE_NAME = 'midmar-lifeos-v3';
+const CACHE_NAME = 'midmar-lifeos-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -242,12 +242,21 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        return cachedResponse;
+        const cachedType = (cachedResponse.headers.get('content-type') || '').toLowerCase();
+        const isJsOrCss = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+        if (!isJsOrCss || !cachedType.includes('text/html')) {
+          return cachedResponse;
+        }
       }
       return fetch(event.request)
         .then((networkResponse) => {
           if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
             return networkResponse;
+          }
+          const respType = (networkResponse.headers.get('content-type') || '').toLowerCase();
+          const isJsOrCss = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+          if (isJsOrCss && respType.includes('text/html')) {
+            return new Response('Asset mismatch', { status: 404, statusText: 'Not Found' });
           }
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -255,9 +264,10 @@ self.addEventListener('fetch', (event) => {
           });
           return networkResponse;
         })
-        .catch((err) => {
+        .catch(async (err) => {
           if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-            return caches.match('/index.html') || caches.match('/');
+            const cachedHtml = (await caches.match('/index.html')) || (await caches.match('/'));
+            if (cachedHtml) return cachedHtml;
           }
           // Reject naturally so browser dynamic imports and fetch retries fail cleanly without SyntaxError
           throw err;

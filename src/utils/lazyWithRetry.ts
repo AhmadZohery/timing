@@ -27,6 +27,8 @@ export async function loadWithRetry<T extends ComponentType<any>>(
       errorMessage.includes('Importing a module script failed') ||
       errorMessage.includes('error loading dynamically imported module') ||
       errorMessage.includes('Loading chunk') ||
+      errorMessage.includes('MIME type') ||
+      errorMessage.includes('Unexpected token') ||
       err?.name === 'ChunkLoadError';
 
     console.warn(`[Midmar lazyWithRetry] Chunk load failure for "${componentName}":`, errorMessage);

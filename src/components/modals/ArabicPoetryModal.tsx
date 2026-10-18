@@ -119,21 +119,21 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
         className="relative z-10 modal-surface border border-amber-300/40 dark:border-amber-500/20 w-full max-w-3xl max-h-[90vh] rounded-3xl flex flex-col overflow-hidden"
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 border-b border-amber-200/50 dark:border-white/[0.08] bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent flex items-center justify-between">
+        <div className="p-4 sm:p-6 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-lg shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center font-bold text-lg shadow-inner">
               <Feather className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-zinc-100 font-serif">
+                <h2 className="text-base sm:text-lg font-black text-white font-serif">
                   {isAr ? 'ديوان الحكمة والشعر العربي المشروح' : 'Classical Arabic Poetry & Wisdom Diwan'}
                 </h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-400/40">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-200 border border-amber-400/40">
                   {filteredPoems.length} {isAr ? 'بيتاً محققاً' : 'Verses'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {isAr
                   ? 'عيون الشعر التليد، تفكيك المفردات اللغوية الصعبة، والدروس العملية لحياتك اليومية'
                   : 'Masterpiece classical verses with word roots, context, and life takeaways'}
@@ -149,7 +149,7 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
               onClose();
             }}
             aria-label={isAr ? 'إغلاق' : 'Close'}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 text-slate-600 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -206,7 +206,7 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
               return (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-amber-200/70 dark:border-white/[0.08] bg-white dark:bg-zinc-900/60 p-4 sm:p-5 shadow-xs transition-all hover:border-amber-300/80"
+                  className="rounded-2xl surface-card-3d p-4 sm:p-5 transition-all hover:border-amber-300/80"
                 >
                   {/* Top Meta Bar */}
                   <div className="flex items-center justify-between gap-2 mb-3">
@@ -262,7 +262,7 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                   </div>
 
                   {/* Poetic Verse with Tashkeel & Dignified Typography */}
-                  <div className="text-center py-4 px-3 bg-gradient-to-b from-amber-50/40 to-transparent dark:from-white/[0.02] rounded-2xl border border-amber-100/60 dark:border-white/[0.04] mb-3 overflow-hidden">
+                  <div className="text-center py-4 px-3 bento-3d-amber rounded-2xl mb-3 overflow-hidden">
                     <div
                       dir="rtl"
                       lang="ar"
@@ -283,7 +283,7 @@ export const ArabicPoetryModal: React.FC<ArabicPoetryModalProps> = ({
                   </div>
 
                   {/* Quick Life Takeaway Banner */}
-                  <div className="p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 flex items-start gap-2 text-xs text-emerald-950 dark:text-emerald-200">
+                  <div className="p-2.5 rounded-xl bento-3d-mint flex items-start gap-2 text-xs text-emerald-950 dark:text-emerald-200">
                     <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                     <p className="font-medium leading-relaxed">
                       <span className="font-bold">{isAr ? 'الحكمة لواقعك:' : 'Life Takeaway:'}</span> {item.wisdomTakeaway}

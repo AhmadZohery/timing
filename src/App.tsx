@@ -1013,7 +1013,12 @@ export function App() {
       )}
 
       {/* Dedicated Sacred Modals with Isolated ErrorBoundary (Always Eagerly Mounted) */}
-      <ErrorBoundary fallbackTitle="تنبيه مؤقت في نافذة متابعة الورد القرآني">
+      <ErrorBoundary
+        isModal
+        resetKey={String(isWirdModalOpen)}
+        onReset={() => setIsWirdModalOpen(false)}
+        fallbackTitle="تنبيه مؤقت في نافذة متابعة الورد القرآني"
+      >
         {isWirdModalOpen && (
           <FlexibleQuranTrackerModal
             isOpen={isWirdModalOpen}
@@ -1028,7 +1033,12 @@ export function App() {
         )}
       </ErrorBoundary>
 
-      <ErrorBoundary fallbackTitle="تنبيه مؤقت في نافذة أذكار الصباح والمساء">
+      <ErrorBoundary
+        isModal
+        resetKey={String(isAdhkarModalOpen)}
+        onReset={() => setIsAdhkarModalOpen(false)}
+        fallbackTitle="تنبيه مؤقت في نافذة أذكار الصباح والمساء"
+      >
         {isAdhkarModalOpen && (
           <MorningEveningAdhkarModal
             isOpen={isAdhkarModalOpen}
@@ -1043,9 +1053,89 @@ export function App() {
         )}
       </ErrorBoundary>
 
-      {/* Lazy Modals Protected by ErrorBoundary & Conditional Mount (Zero Stalls) */}
-      <ErrorBoundary fallbackTitle="تنبيه مؤقت في النوافذ المنبثقة">
-        <Suspense fallback={null}>
+      {/* Lazy Modals Protected by Self-Healing Modal ErrorBoundary & Instant Feedback Suspense */}
+      <ErrorBoundary
+        isModal
+        resetKey={[
+          isPanicModalOpen,
+          isBufferModalOpen,
+          isGoalsModalOpen,
+          isCrmDrawerOpen,
+          isBatteryGuideOpen,
+          isSettingsModalOpen,
+          isQuickReminderOpen,
+          isShortcutsModalOpen,
+          isArchiveModalOpen,
+          isProfileModalOpen,
+          isEvaluationModalOpen,
+          isHabitModalOpen,
+          isAiCoachOpen,
+          isTwoMinuteModalOpen,
+          isA2hsModalOpen,
+          isOnboardingModalOpen,
+          isSleepRestModalOpen,
+          isPrayerLocationModalOpen,
+          isRewardsModalOpen,
+          isCommandPaletteOpen,
+          isLifestyleModalOpen,
+          isPaletteModalOpen,
+          isSmartTasbihOpen,
+          isDailyPrideTicketOpen,
+          isTadabburModalOpen,
+          isFaithAudioModalOpen,
+          isArabicPoetryOpen,
+          isLifeWisdomOpen,
+          isNiyyahModalOpen,
+          isCustomDeckModalOpen,
+          isCalendarShieldModalOpen,
+          isQuickPinModalOpen,
+        ].join(',')}
+        onReset={() => {
+          setIsPanicModalOpen(false);
+          setIsBufferModalOpen(false);
+          setIsGoalsModalOpen(false);
+          setIsCrmDrawerOpen(false);
+          setIsBatteryGuideOpen(false);
+          setIsSettingsModalOpen(false);
+          setIsQuickReminderOpen(false);
+          setIsShortcutsModalOpen(false);
+          setIsArchiveModalOpen(false);
+          setIsProfileModalOpen(false);
+          setIsEvaluationModalOpen(false);
+          setIsHabitModalOpen(false);
+          setIsAiCoachOpen(false);
+          setIsTwoMinuteModalOpen(false);
+          setIsA2hsModalOpen(false);
+          setIsOnboardingModalOpen(false);
+          setIsSleepRestModalOpen(false);
+          setIsPrayerLocationModalOpen(false);
+          setIsRewardsModalOpen(false);
+          setIsCommandPaletteOpen(false);
+          setIsLifestyleModalOpen(false);
+          setIsPaletteModalOpen(false);
+          setIsSmartTasbihOpen(false);
+          setIsDailyPrideTicketOpen(false);
+          setIsTadabburModalOpen(false);
+          setIsFaithAudioModalOpen(false);
+          setIsArabicPoetryOpen(false);
+          setIsLifeWisdomOpen(false);
+          setIsNiyyahModalOpen(false);
+          setIsCustomDeckModalOpen(false);
+          setIsCalendarShieldModalOpen(false);
+          setIsQuickPinModalOpen(false);
+        }}
+        fallbackTitle="تنبيه مؤقت في النوافذ المنبثقة"
+      >
+        <Suspense
+          fallback={
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs animate-fade-in">
+              <div className="px-5 py-3.5 rounded-2xl celestial-obsidian-stage text-white border border-white/15 shadow-2xl flex items-center gap-3 text-xs font-bold">
+                <span className="w-4 h-4 rounded-full border-2 border-[#bce8c2] border-t-transparent animate-spin" />
+                <span>{language === 'ar' ? 'جاري فتح النافذة...' : 'Opening window...'}</span>
+              </div>
+            </div>
+          }
+        >
           {isPanicModalOpen && (
             <ZeroInertiaModal
               isOpen={isPanicModalOpen}

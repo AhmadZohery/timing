@@ -550,31 +550,34 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-3xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 p-4 sm:p-6 md:p-8 space-y-6 max-h-[92dvh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-        <button
-          onClick={onClose}
-          className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'} p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer`}
-          aria-label="Close"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
+      <div className="relative z-10 w-full max-w-3xl rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 max-h-[92dvh] overflow-hidden flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 shrink-0">
-            <Settings className="w-6 h-6" />
+        <div className="p-5 sm:p-6 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-white/10 text-emerald-300 border border-white/15 shrink-0 shadow-inner">
+              <Settings className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                {t('settings_modal_title')}
+              </h3>
+              <p className="text-xs text-slate-300 font-medium">{t('settings_modal_sub')}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
-              {t('settings_modal_title')}
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">{t('settings_modal_sub')}</p>
-          </div>
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Behavioral & Hardware Controls */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3 shadow-2xs">
-          <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-300">{t('settings_haptics_title')}</h4>
+        <div className="p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto flex-1 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          {/* Behavioral & Hardware Controls */}
+          <div className="p-4 rounded-2xl surface-card-3d space-y-3">
+            <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-300">{t('settings_haptics_title')}</h4>
 
           {/* Fajr Grace Period Toggle */}
           <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
@@ -1637,6 +1640,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
             />
           </React.Suspense>
         )}
+        </div>
       </div>
     </div>
   );

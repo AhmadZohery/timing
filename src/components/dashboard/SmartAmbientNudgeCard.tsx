@@ -130,28 +130,25 @@ export const SmartAmbientNudgeCard: React.FC<SmartAmbientNudgeCardProps> = ({
   return (
     <div
       dir="rtl"
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-3 sm:p-4 border border-indigo-500/30 shadow-lg shadow-indigo-950/20 transition-all duration-300 animate-fade-in ${className}`}
+      className={`relative overflow-hidden rounded-[24px] celestial-obsidian-stage text-white p-3.5 sm:p-4 border border-white/15 shadow-lg transition-all duration-300 animate-fade-in ${className}`}
     >
-      {/* Decorative Subtle Ambient Glow */}
-      <div className="absolute top-0 right-1/4 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
-
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
         {/* Content Info */}
         <div className="flex items-start gap-3 min-w-0">
-          <div className="p-2 rounded-xl bg-white/10 text-white shrink-0 mt-0.5 border border-white/10 shadow-xs">
+          <div className="p-2.5 rounded-2xl bg-white/10 text-white shrink-0 mt-0.5 border border-white/15 shadow-xs">
             {renderCategoryIcon()}
           </div>
 
           <div className="space-y-0.5 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#bce8c2] text-emerald-950">
                 {currentNudge.wittyTag}
               </span>
               <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                 {currentNudge.headline}
               </h4>
             </div>
-            <p className="text-xs text-indigo-100/80 leading-relaxed max-w-2xl">
+            <p className="text-xs text-zinc-300 leading-relaxed max-w-2xl">
               {currentNudge.message}
             </p>
           </div>
@@ -163,13 +160,13 @@ export const SmartAmbientNudgeCard: React.FC<SmartAmbientNudgeCardProps> = ({
             <button
               type="button"
               onClick={handleApply}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-white text-xs font-bold shadow-md shadow-indigo-500/25 flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shrink-0"
+              className="px-4 py-2 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shrink-0"
             >
               <span>{currentNudge.actionLabel}</span>
               <ArrowLeft className="w-3.5 h-3.5" />
             </button>
           ) : isApplied ? (
-            <span className="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            <span className="px-4 py-2 rounded-full bg-[#22c55e] text-zinc-950 text-xs font-bold flex items-center gap-1.5 shadow-sm">
               <Check className="w-3.5 h-3.5" />
               <span>تم التطبيق بنجاح!</span>
             </span>
@@ -179,7 +176,7 @@ export const SmartAmbientNudgeCard: React.FC<SmartAmbientNudgeCardProps> = ({
             type="button"
             onClick={handleDismiss}
             title="مش وقته (تخطي دون إزعاج)"
-            className="p-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/60 hover:text-white transition-colors cursor-pointer border border-white/5"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10"
           >
             <X className="w-4 h-4" />
           </button>

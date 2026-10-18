@@ -169,35 +169,31 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
 
   return (
     <div
-      className={`rounded-3xl bg-gradient-to-br from-indigo-900/10 via-slate-900/[0.03] to-purple-900/10 dark:from-indigo-950/40 dark:via-zinc-900/80 dark:to-purple-950/30 border border-indigo-200/80 dark:border-indigo-800/40 p-5 sm:p-6 shadow-sm relative overflow-hidden backdrop-blur-xs transition-all ${className}`}
+      className={`rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 p-5 sm:p-6 shadow-sm relative overflow-hidden transition-all ${className}`}
     >
-      {/* Decorative Glow Elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
-
       {/* Top Header Row */}
       <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20 shrink-0">
-            <Brain className="w-6 h-6 animate-pulse" />
+          <div className="w-11 h-11 rounded-2xl bg-[#141517] text-[#e2defc] flex items-center justify-center shadow-xs shrink-0">
+            <Brain className="w-6 h-6" />
           </div>
 
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+              <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white">
                 {isAr ? 'المساعد الإدراكي وفهم السلوك' : 'Cognitive Copilot & Behavioral DNA'}
               </h3>
               <span
-                className={`text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 border ${
+                className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 ${
                   hasApiKey
-                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
-                    : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30'
+                    ? 'bg-[#bce8c2] text-emerald-950'
+                    : 'bg-[#e2defc] text-indigo-950'
                 }`}
               >
                 <span>{hasApiKey ? '● Gemini 2.0 Active' : '⚡ Local Physics Engine'}</span>
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
               {isAr
                 ? 'تحليل أنماط طاقتك اليومية وكشف أسباب التسويف وضبط وتيرتك الفردية'
                 : 'Decodes your focus biology, eliminates procrastination, and sets your sweet spot.'}
@@ -210,10 +206,10 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
           <button
             type="button"
             onClick={() => setIsConfigModalOpen(true)}
-            className="p-2 sm:px-3 sm:py-2 rounded-xl bg-white/80 dark:bg-zinc-800/80 hover:bg-slate-100 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+            className="px-3 py-2 rounded-full surface-card-3d border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
             title={isAr ? 'إعدادات محرك الذكاء ومفتاح الـ API' : 'AI Engine Settings & API Key'}
           >
-            <Key className="w-3.5 h-3.5 text-indigo-500" />
+            <Key className="w-3.5 h-3.5 text-[#5448e8]" />
             <span className="hidden sm:inline">
               {hasApiKey ? (isAr ? 'المفتاح متصل' : 'Key Active') : (isAr ? 'ربط API' : 'Connect API')}
             </span>
@@ -223,7 +219,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
             type="button"
             onClick={handleGenerateReport}
             disabled={isLoadingReport}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 text-white text-xs font-black shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shrink-0"
+            className="px-4 py-2 rounded-full bg-[#141517] dark:bg-white disabled:opacity-50 text-white dark:text-zinc-950 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shrink-0"
           >
             {isLoadingReport ? (
               <>
@@ -232,7 +228,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
               </>
             ) : (
               <>
-                <Activity className="w-3.5 h-3.5" />
+                <Activity className="w-3.5 h-3.5 text-[#1eb814]" />
                 <span>{isAr ? 'تحليل اليوم الإدراكي' : 'Daily Diagnosis'}</span>
               </>
             )}
@@ -243,28 +239,28 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
       {/* Behavioral DNA 4-Metric Bento Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10 mb-4">
         {/* Metric 1: Optimal Sprint */}
-        <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+        <div className="p-3.5 rounded-[22px] bento-3d-amber border border-amber-300/60 dark:border-amber-800/40 flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-amber-950 dark:text-amber-200">
             <span className="text-[11px] font-bold">{isAr ? 'الجلسة الذهبية' : 'Golden Sprint'}</span>
-            <Zap className="w-4 h-4 text-amber-500" />
+            <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono">
+            <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">
               {dna.optimalSprintMinutes}{' '}
-              <span className="text-xs font-normal text-slate-500">{isAr ? 'دقيقة' : 'min'}</span>
+              <span className="text-xs font-normal text-zinc-600 dark:text-amber-200/80">{isAr ? 'دقيقة' : 'min'}</span>
             </div>
-            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block mt-0.5">
+            <span className="text-[10px] text-amber-900 dark:text-amber-300 font-bold block mt-0.5">
               {isAr ? 'طاقة تركيز دون تسويف' : 'Frictionless Focus'}
             </span>
           </div>
           <button
             type="button"
             onClick={handleApplySprintDuration}
-            className="w-full py-1.5 px-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-[10px] font-black border border-indigo-200 dark:border-indigo-800/40 transition-all flex items-center justify-center gap-1 cursor-pointer"
+            className="w-full py-1.5 px-2 rounded-full bg-white/85 dark:bg-zinc-900/80 hover:bg-white text-zinc-900 dark:text-amber-200 text-[10px] font-bold border border-amber-300/60 dark:border-amber-700/50 transition-all flex items-center justify-center gap-1 cursor-pointer"
           >
             {appliedSprintSuccess ? (
               <>
-                <Check className="w-3 h-3 text-emerald-500" />
+                <Check className="w-3 h-3 text-emerald-600" />
                 <span>{isAr ? 'معتمد' : 'Applied'}</span>
               </>
             ) : (
@@ -274,58 +270,58 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
         </div>
 
         {/* Metric 2: Peak Cognitive Window */}
-        <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+        <div className="p-3.5 rounded-[22px] bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-sky-950 dark:text-sky-200">
             <span className="text-[11px] font-bold">{isAr ? 'ذروة اليقظة' : 'Peak Hours'}</span>
-            <Clock className="w-4 h-4 text-sky-500" />
+            <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           </div>
           <div>
-            <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white font-mono">
-              {dna.peakFocusHourStart}:00 - {dna.peakFocusHourEnd}:00
+            <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white font-mono">
+              <bdi dir="ltr">{dna.peakFocusHourStart}:00 - {dna.peakFocusHourEnd}:00</bdi>
             </div>
-            <span className="text-[10px] text-sky-600 dark:text-sky-400 font-bold block mt-0.5">
+            <span className="text-[10px] text-sky-900 dark:text-sky-300 font-bold block mt-0.5">
               {isAr ? 'أعلى إنتاجية ذهنية صباحية' : 'Optimal Willpower Peak'}
             </span>
           </div>
-          <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
+          <div className="text-[10px] text-zinc-600 dark:text-sky-200/70 font-medium">
             {isAr ? 'احمِ هذه الساعات للمهام الكبرى' : 'Reserve for deep tasks'}
           </div>
         </div>
 
         {/* Metric 3: Sleep Multiplier */}
-        <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+        <div className="p-3.5 rounded-[22px] bento-3d-lavender border border-indigo-300/60 dark:border-indigo-800/40 flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-indigo-950 dark:text-indigo-200">
             <span className="text-[11px] font-bold">{isAr ? 'أثر الاستشفاء' : 'Recovery Boost'}</span>
-            <Moon className="w-4 h-4 text-purple-500" />
+            <Moon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 font-mono">
-              +{sleepMultiplierPct}%
+            <div className="text-xl sm:text-2xl font-bold text-indigo-950 dark:text-white font-mono">
+              <bdi dir="ltr">+{sleepMultiplierPct}%</bdi>
             </div>
-            <span className="text-[10px] text-slate-600 dark:text-zinc-400 font-bold block mt-0.5">
+            <span className="text-[10px] text-indigo-900 dark:text-indigo-300 font-bold block mt-0.5">
               {isAr ? `نوم ${dna.averageSleepDuration} ساعات` : `${dna.averageSleepDuration}h sleep avg`}
             </span>
           </div>
-          <div className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
+          <div className="text-[10px] text-zinc-600 dark:text-indigo-200/70 font-medium">
             {isAr ? 'مضاعِف نقاط الإنجاز' : 'Energy Multiplier'}
           </div>
         </div>
 
         {/* Metric 4: Task Velocity & Sessions */}
-        <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-900/80 border border-slate-200/80 dark:border-zinc-800/80 shadow-xs flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-slate-500 dark:text-zinc-400">
+        <div className="p-3.5 rounded-[22px] bento-3d-mint border border-emerald-300/60 dark:border-emerald-800/40 flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-emerald-950 dark:text-emerald-200">
             <span className="text-[11px] font-bold">{isAr ? 'معدل الإتمام' : 'Velocity'}</span>
-            <TrendingUp className="w-4 h-4 text-emerald-500" />
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono">
-              {dna.completionRatePct}%
+            <div className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white font-mono">
+              <bdi dir="ltr">{dna.completionRatePct}%</bdi>
             </div>
-            <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-bold block mt-0.5">
+            <span className="text-[10px] text-emerald-900 dark:text-emerald-300 font-bold block mt-0.5">
               {dna.totalSessionsAnalyzed} {isAr ? 'جلسة محللة' : 'sessions logged'}
             </span>
           </div>
-          <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+          <div className="text-[10px] text-zinc-600 dark:text-emerald-200/70 font-medium">
             {isAr ? 'وتيرة عمل مستقرة' : 'Steady Momentum'}
           </div>
         </div>
@@ -333,10 +329,10 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
 
       {/* Primary Key Insight Pill */}
       {dna.keyInsights && dna.keyInsights.length > 0 && !isExpanded && (
-        <div className="relative z-10 p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/40 text-xs text-slate-800 dark:text-indigo-200 flex items-center justify-between gap-3">
+        <div className="relative z-10 p-3.5 rounded-[22px] bento-3d-lavender border border-indigo-200/60 dark:border-indigo-800/40 text-xs text-zinc-900 dark:text-indigo-100 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-indigo-500 shrink-0" />
-            <p className="line-clamp-2 leading-relaxed">
+            <Activity className="w-4 h-4 text-[#5448e8] dark:text-indigo-300 shrink-0" />
+            <p className="line-clamp-2 leading-relaxed font-medium">
               {dna.keyInsights[0].replace(/\*\*/g, '')}
             </p>
           </div>
@@ -344,7 +340,7 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
           <button
             type="button"
             onClick={() => setIsExpanded(true)}
-            className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 hover:underline shrink-0 flex items-center gap-0.5 cursor-pointer"
+            className="text-[11px] font-bold px-3 py-1 rounded-full bg-white/85 dark:bg-white/10 text-indigo-950 dark:text-white shrink-0 flex items-center gap-0.5 cursor-pointer"
           >
             <span>{isAr ? 'تفاصيل أكثر' : 'More'}</span>
             <ChevronDown className="w-3.5 h-3.5" />
@@ -354,17 +350,17 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
 
       {/* Expanded Deep Analysis Report View */}
       {isExpanded && (
-        <div className="relative z-10 mt-3 pt-3 border-t border-indigo-200/60 dark:border-indigo-800/40 space-y-4 animate-fade-in">
+        <div className="relative z-10 mt-3 pt-3 border-t border-zinc-200/60 dark:border-white/10 space-y-4 animate-fade-in">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-              <Brain className="w-4 h-4 text-indigo-500" />
+            <span className="text-xs font-bold text-zinc-900 dark:text-white flex items-center gap-1.5">
+              <Brain className="w-4 h-4 text-[#5448e8]" />
               <span>{isAr ? 'التقرير السلوكي والتشخيص الإدراكي الكامل' : 'Full Cognitive Diagnosis Report'}</span>
             </span>
 
             <button
               type="button"
               onClick={() => setIsExpanded(false)}
-              className="text-xs text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1 font-bold cursor-pointer"
+              className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white flex items-center gap-1 font-bold cursor-pointer"
             >
               <span>{isAr ? 'طي التقرير' : 'Collapse'}</span>
               <ChevronUp className="w-3.5 h-3.5" />
@@ -372,12 +368,12 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
           </div>
 
           {/* Report Body */}
-          <div className="p-4 rounded-2xl bg-white/90 dark:bg-black/40 border border-indigo-100 dark:border-zinc-800 text-xs text-slate-800 dark:text-zinc-200 leading-relaxed font-medium space-y-2 whitespace-pre-line shadow-xs">
+          <div className="p-4 rounded-[22px] bento-3d-lavender border border-indigo-200/60 dark:border-indigo-800/40 text-xs text-zinc-800 dark:text-zinc-100 leading-relaxed font-medium space-y-2 whitespace-pre-line">
             {aiReport ? (
               aiReport
             ) : (
               <div className="space-y-2">
-                <div className="font-bold text-indigo-700 dark:text-indigo-300">
+                <div className="font-bold text-indigo-950 dark:text-indigo-200">
                   {isAr ? '📌 التوصيات السلوكية الميدانية المستخلصة:' : '📌 Key Behavioral Principles:'}
                 </div>
                 {dna.keyInsights.map((insight, idx) => (
@@ -393,14 +389,14 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
 
       {/* API Key Modal */}
       {isConfigModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="w-full max-w-md modal-surface border border-slate-200 dark:border-zinc-800 rounded-3xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="w-full max-w-md modal-surface border border-white/15 rounded-[28px] overflow-hidden shadow-2xl">
+            <div className="celestial-obsidian-stage text-white p-5 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-white/10 border border-white/15 text-amber-300 flex items-center justify-center font-bold">
                   <Key className="w-4 h-4" />
                 </div>
-                <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                <h4 className="text-sm font-bold text-white">
                   {isAr ? 'ربط مفتاح الذكاء الاصطناعي (Gemini 2.0)' : 'Connect Gemini 2.0 AI'}
                 </h4>
               </div>
@@ -408,62 +404,64 @@ export const AiBehavioralCopilotCard: React.FC<AiBehavioralCopilotCardProps> = (
               <button
                 type="button"
                 onClick={() => setIsConfigModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center text-xs cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">
-              {isAr
-                ? 'يستخدم النظام مفتاح Gemini 2.0 لتحليل سلوكك بدقة وفهم أسباب التسويف وصياغة خطط إنتاجية وروحية تتناسب مع تفاصيل يومك.'
-                : 'Connect your free Google Gemini API key for deep personalization, tailored routines, and cognitive root cause analysis.'}
-            </p>
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                {isAr
+                  ? 'يستخدم النظام مفتاح Gemini 2.0 لتحليل سلوكك بدقة وفهم أسباب التسويف وصياغة خطط إنتاجية وروحية تتناسب مع تفاصيل يومك.'
+                  : 'Connect your free Google Gemini API key for deep personalization, tailored routines, and cognitive root cause analysis.'}
+              </p>
 
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                  {isAr ? 'مفتاح الـ API الخاص بك:' : 'API Key:'}
-                </label>
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 font-bold"
-                >
-                  <span>{isAr ? 'احصل على مفتاح مجاني' : 'Get free key'}</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                    {isAr ? 'مفتاح الـ API الخاص بك:' : 'API Key:'}
+                  </label>
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-[#5448e8] dark:text-indigo-400 hover:underline flex items-center gap-1 font-bold"
+                  >
+                    <span>{isAr ? 'احصل على مفتاح مجاني' : 'Get free key'}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+                <input
+                  type="password"
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  placeholder="AIzaSy... الصق المفتاح هنا"
+                  className="w-full px-3.5 py-2.5 surface-card-3d border border-zinc-300 dark:border-zinc-700 rounded-2xl text-xs font-mono text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
               </div>
-              <input
-                type="password"
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="AIzaSy... الصق المفتاح هنا"
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-zinc-800/80 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setIsConfigModalOpen(false)}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 cursor-pointer"
-              >
-                {isAr ? 'إلغاء' : 'Cancel'}
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveApiKey}
-                disabled={!apiKeyInput.trim() || isSavingKey}
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-black shadow-md cursor-pointer flex items-center gap-1.5"
-              >
-                {isSavingKey ? (
-                  <span>{isAr ? 'جارِ الحفظ...' : 'Saving...'}</span>
-                ) : (
-                  <span>{isAr ? 'حفظ وتفعيل' : 'Save & Activate'}</span>
-                )}
-              </button>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsConfigModalOpen(false)}
+                  className="px-4 py-2.5 rounded-full surface-card-3d border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold cursor-pointer"
+                >
+                  {isAr ? 'إلغاء' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveApiKey}
+                  disabled={!apiKeyInput.trim() || isSavingKey}
+                  className="px-5 py-2.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep disabled:opacity-50 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+                >
+                  {isSavingKey ? (
+                    <span>{isAr ? 'جارِ الحفظ...' : 'Saving...'}</span>
+                  ) : (
+                    <span>{isAr ? 'حفظ وتفعيل' : 'Save & Activate'}</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

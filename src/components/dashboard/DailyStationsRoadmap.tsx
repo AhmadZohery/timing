@@ -206,12 +206,6 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
     setIsRestRunning(false);
   };
 
-  const handleSelectNode = (stId: StationId) => {
-    soundSynth.playTactileClick();
-    haptic.vibrateLight();
-    setSelectedStationId(stId);
-  };
-
   const handleLaunchStation = (stId: StationId) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
@@ -282,16 +276,20 @@ export const DailyStationsRoadmap: React.FC<DailyStationsRoadmapProps> = ({
               key={stId}
               type="button"
               whileTap={{ scale: 0.96 }}
-              onClick={() => handleSelectNode(stId)}
-              onDoubleClick={() => handleLaunchStation(stId)}
+              onMouseEnter={() => setSelectedStationId(stId)}
+              onFocus={() => setSelectedStationId(stId)}
+              onClick={() => {
+                setSelectedStationId(stId);
+                handleLaunchStation(stId);
+              }}
               className={`relative min-h-[58px] p-2.5 rounded-[22px] border text-start flex items-center justify-between gap-2 transition-all cursor-pointer ${
                 isCompleted
-                  ? 'bg-[#bce8c2] dark:bg-emerald-950/70 border-[#1eb814]/50 text-zinc-900 dark:text-emerald-100'
+                  ? 'bento-3d-mint border-[#1eb814]/50 text-zinc-900 dark:text-emerald-100'
                   : isSelected
                   ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-[#141517] dark:border-white shadow-md'
                   : isSuggestedNow
-                  ? 'bg-[#d4f5dc]/65 dark:bg-emerald-950/35 border-[#1eb814]/40'
-                  : 'bg-[#f5f6f8] hover:bg-zinc-100 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 border-zinc-200/70 dark:border-white/10'
+                  ? 'bento-3d-lavender border-indigo-400/40'
+                  : 'surface-card-3d hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-200/70 dark:border-white/10'
               }`}
             >
               {isSelected && (

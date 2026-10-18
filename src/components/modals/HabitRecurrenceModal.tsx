@@ -112,18 +112,18 @@ export const HabitRecurrenceModal: React.FC<HabitRecurrenceModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full sm:max-w-lg modal-surface border-t sm:border border-slate-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative z-10 w-full sm:max-w-lg modal-surface border-t sm:border border-slate-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-3xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <div className="p-5 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+            <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-inner">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
+              <h3 className="text-base font-bold text-white">
                 {isAr ? 'إضافة عبادة أو عادة جديدة' : 'Add New Habit / Deed'}
               </h3>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+              <p className="text-[11px] text-slate-300">
                 {isAr ? 'تحديد نمط التكرار والجدول الزمني الذكي' : 'Specify recurrence & points reward'}
               </p>
             </div>
@@ -131,106 +131,107 @@ export const HabitRecurrenceModal: React.FC<HabitRecurrenceModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-pointer"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white cursor-pointer transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4.5 h-4.5" />
           </button>
         </div>
 
-        {/* Quick Islamic Presets Catalog */}
-        <div className="space-y-2">
-          <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-emerald-500" />
-            {isAr ? 'اقتراحات سنن وعبادات جاهزة بنقرة واحدة:' : 'Suggested Islamic Habits (1-Tap):'}
-          </span>
-          <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto no-scrollbar p-1">
-            {PRESET_ISLAMIC_HABITS.map((p, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSelectPreset(p)}
-                className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700/60 cursor-pointer select-none"
-              >
-                + {p.title}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <form onSubmit={handleSave} className="space-y-4">
-          {/* Title Input */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
-              {isAr ? 'اسم العبادة أو العادة:' : 'Habit Name:'}
-            </label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={isAr ? 'مثال: صلاة الضحى، صيام الاثنين، سورة الكهف...' : 'e.g. Duha prayer, fasting...'}
-              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
+        <div className="p-5 space-y-4 overflow-y-auto flex-1">
+          {/* Quick Islamic Presets Catalog */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-emerald-500" />
+              {isAr ? 'اقتراحات سنن وعبادات جاهزة بنقرة واحدة:' : 'Suggested Islamic Habits (1-Tap):'}
+            </span>
+            <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto no-scrollbar p-1">
+              {PRESET_ISLAMIC_HABITS.map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSelectPreset(p)}
+                  className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-zinc-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700/60 cursor-pointer select-none"
+                >
+                  + {p.title}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Core Questionnaire: Recurrence Pattern */}
-          <div className="space-y-2 p-3.5 rounded-xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-zinc-700/60">
-            <div className="flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                {isAr ? 'هل هذه العادة يومياً أم مرة واحدة أم أيام محددة؟' : 'How often does this habit repeat?'}
-              </span>
+          <form onSubmit={handleSave} className="space-y-4">
+            {/* Title Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+                {isAr ? 'اسم العبادة أو العادة:' : 'Habit Name:'}
+              </label>
+              <input
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={isAr ? 'مثال: صلاة الضحى، صيام الاثنين، سورة الكهف...' : 'e.g. Duha prayer, fasting...'}
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 text-slate-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
-              {/* Option 1: Daily */}
-              <button
-                type="button"
-                onClick={() => setRecurrence('daily')}
-                className={`p-2.5 rounded-xl border text-start transition-all cursor-pointer ${
-                  recurrence === 'daily'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-500 text-emerald-900 dark:text-emerald-200 shadow-xs'
-                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-400'
-                }`}
-              >
-                <div className="text-xs font-bold">{isAr ? 'يومياً (كل يوم) 🔄' : 'Daily 🔄'}</div>
-                <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                  {isAr ? 'تتكرر في كل الأيام' : 'Repeats every day'}
-                </div>
-              </button>
+            {/* Core Questionnaire: Recurrence Pattern */}
+            <div className="space-y-2 p-3.5 rounded-2xl surface-card-3d">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                  {isAr ? 'هل هذه العادة يومياً أم مرة واحدة أم أيام محددة؟' : 'How often does this habit repeat?'}
+                </span>
+              </div>
 
-              {/* Option 2: Once */}
-              <button
-                type="button"
-                onClick={() => setRecurrence('once')}
-                className={`p-2.5 rounded-xl border text-start transition-all cursor-pointer ${
-                  recurrence === 'once'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-500 text-emerald-900 dark:text-emerald-200 shadow-xs'
-                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-400'
-                }`}
-              >
-                <div className="text-xs font-bold">{isAr ? 'مرة واحدة فقط 🎯' : 'Once Today 🎯'}</div>
-                <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                  {isAr ? 'لهذا اليوم فقط' : 'Only for today'}
-                </div>
-              </button>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                {/* Option 1: Daily */}
+                <button
+                  type="button"
+                  onClick={() => setRecurrence('daily')}
+                  className={`p-2.5 rounded-xl text-start transition-all cursor-pointer ${
+                    recurrence === 'daily'
+                      ? 'bento-3d-mint text-emerald-900 dark:text-emerald-200'
+                      : 'surface-card-3d text-slate-700 dark:text-zinc-400'
+                  }`}
+                >
+                  <div className="text-xs font-bold">{isAr ? 'يومياً (كل يوم) 🔄' : 'Daily 🔄'}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                    {isAr ? 'تتكرر في كل الأيام' : 'Repeats every day'}
+                  </div>
+                </button>
 
-              {/* Option 3: Weekly Specific */}
-              <button
-                type="button"
-                onClick={() => setRecurrence('weekly_specific')}
-                className={`p-2.5 rounded-xl border text-start transition-all cursor-pointer ${
-                  recurrence === 'weekly_specific'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-500 text-emerald-900 dark:text-emerald-200 shadow-xs'
-                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-400'
-                }`}
-              >
-                <div className="text-xs font-bold">{isAr ? 'أيام محددة 🗓️' : 'Specific Days 🗓️'}</div>
-                <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                  {isAr ? 'مثل الجمعة أو الاثنين' : 'e.g. Fri or Mon'}
-                </div>
-              </button>
-            </div>
+                {/* Option 2: Once */}
+                <button
+                  type="button"
+                  onClick={() => setRecurrence('once')}
+                  className={`p-2.5 rounded-xl text-start transition-all cursor-pointer ${
+                    recurrence === 'once'
+                      ? 'bento-3d-mint text-emerald-900 dark:text-emerald-200'
+                      : 'surface-card-3d text-slate-700 dark:text-zinc-400'
+                  }`}
+                >
+                  <div className="text-xs font-bold">{isAr ? 'مرة واحدة فقط 🎯' : 'Once Today 🎯'}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                    {isAr ? 'لهذا اليوم فقط' : 'Only for today'}
+                  </div>
+                </button>
+
+                {/* Option 3: Weekly Specific */}
+                <button
+                  type="button"
+                  onClick={() => setRecurrence('weekly_specific')}
+                  className={`p-2.5 rounded-xl text-start transition-all cursor-pointer ${
+                    recurrence === 'weekly_specific'
+                      ? 'bento-3d-mint text-emerald-900 dark:text-emerald-200'
+                      : 'surface-card-3d text-slate-700 dark:text-zinc-400'
+                  }`}
+                >
+                  <div className="text-xs font-bold">{isAr ? 'أيام محددة 🗓️' : 'Specific Days 🗓️'}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
+                    {isAr ? 'مثل الجمعة أو الاثنين' : 'e.g. Fri or Mon'}
+                  </div>
+                </button>
+              </div>
 
             {/* Days Selection if Specific Days */}
             {recurrence === 'weekly_specific' && (
@@ -321,6 +322,7 @@ export const HabitRecurrenceModal: React.FC<HabitRecurrenceModalProps> = ({
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

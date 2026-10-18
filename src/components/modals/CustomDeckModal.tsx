@@ -137,23 +137,23 @@ export const CustomDeckModal: React.FC<CustomDeckModalProps> = ({
 
       <div className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 overflow-hidden">
         {/* Modal Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-zinc-800/80 flex items-center justify-between">
+        <div className="p-6 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
+            <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-inner">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-zinc-100 tracking-tight">
+              <h3 className="text-lg font-black text-white tracking-tight">
                 استيراد وتخصيص حزم البطاقات (CEFR / Anki)
               </h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 توسيع حصيلتك اللغوية باستيراد ملفات CSV، TSV، أو حزم Anki مع تطهير فوري للبيانات
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-2 rounded-full bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -202,7 +202,7 @@ export const CustomDeckModal: React.FC<CustomDeckModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
           {successMsg && (
-            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-sm font-bold flex items-center gap-2">
+            <div className="p-4 rounded-2xl bento-3d-mint text-emerald-700 dark:text-emerald-300 text-sm font-bold flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -243,12 +243,12 @@ export const CustomDeckModal: React.FC<CustomDeckModalProps> = ({
               </div>
 
               {/* Upload Drop Zone */}
-              <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-2xl hover:border-emerald-500/50 hover:bg-emerald-500/[0.02] transition-all cursor-pointer">
-                <Upload className="w-8 h-8 text-slate-400 group-hover:text-emerald-500 mb-2" />
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
+              <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-emerald-400/50 rounded-2xl bento-3d-mint hover:border-emerald-500 transition-all cursor-pointer">
+                <Upload className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mb-2" />
+                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">
                   انقر لاختيار ملف أو اسحبه إلى هنا
                 </span>
-                <span className="text-[11px] text-slate-400 dark:text-zinc-500 mt-1">
+                <span className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
                   يدعم صيغ .csv, .tsv, .txt, .json وحزم Anki المصدرة
                 </span>
                 <input

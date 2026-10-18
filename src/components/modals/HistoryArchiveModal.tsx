@@ -177,21 +177,21 @@ export const HistoryArchiveModal: React.FC<HistoryArchiveModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full max-w-5xl max-h-[92vh] rounded-2xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
+      <div className="relative z-10 w-full max-w-5xl max-h-[92vh] rounded-3xl modal-surface border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-zinc-800 flex items-center justify-between bg-slate-50/80 dark:bg-zinc-900/60">
+        <div className="p-4 sm:p-5 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20 border border-emerald-400/30">
               <CalendarIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 {t('archive_modal_title')}
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-400/40">
                   {dailyLogs.length} {isAr ? 'يوماً مسجلاً' : 'Days Tracked'}
                 </span>
               </h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400">
+              <p className="text-xs text-slate-300">
                 {t('archive_modal_sub')}
               </p>
             </div>
@@ -199,7 +199,7 @@ export const HistoryArchiveModal: React.FC<HistoryArchiveModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -252,7 +252,7 @@ export const HistoryArchiveModal: React.FC<HistoryArchiveModalProps> = ({
               {/* Calendar Grid Column */}
               <div className="lg:col-span-7 space-y-4">
                 {/* Month Navigator Toolbar */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 flex items-center justify-between">
+                <div className="p-3 rounded-xl surface-card-3d flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handlePrevMonth}

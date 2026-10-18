@@ -485,34 +485,34 @@ ${actionText}`;
       />
       <div className="relative z-10 w-full max-w-2xl modal-surface border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Top Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between bg-gradient-to-l from-emerald-50/70 via-white to-white dark:from-emerald-950/20 dark:via-zinc-900 dark:to-zinc-900">
+        <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between celestial-obsidian-stage text-white">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-600 text-white shadow-xs">
+            <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-inner">
               <Trophy className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-zinc-100">
+              <h2 className="text-base sm:text-lg font-bold text-white">
                 {isAr ? 'لوحة التقييم الدوري والتحفيز' : 'LifeOS Scorecard & Motivation'}
               </h2>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+              <p className="text-[11px] text-slate-300">
                 {isAr ? 'مؤشر توازن الحياة الحقيقي، تقارير الأسبوع والشهر، والتوجيه الذكي' : 'Daily, weekly & monthly holistic performance'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {userState && (
-              <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/40 text-xs font-bold text-amber-700 dark:text-amber-400">
-                <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+              <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-xl bg-amber-500/20 border border-amber-400/30 text-xs font-bold text-amber-300">
+                <Flame className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 <span>{userState.streakDays || 0} {isAr ? 'أيام تتابع' : 'days'}</span>
-                <span className="text-amber-300 dark:text-amber-700">|</span>
-                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500/40" />
+                <span className="text-amber-500/50">|</span>
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400/40" />
                 <span>{userState.totalPoints || 0} {isAr ? 'نقطة' : 'pts'}</span>
               </div>
             )}
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-pointer transition-colors"
+              className="p-2 rounded-xl hover:bg-white/10 text-white/70 hover:text-white cursor-pointer transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -549,18 +549,18 @@ ${actionText}`;
           {activeTab === 'daily' && (
             <div className="space-y-4 animate-fade-in">
               {/* Daily Balance Score Banner */}
-              <div className="p-4 rounded-2xl bg-gradient-to-l from-emerald-50 via-teal-50/50 to-white dark:from-emerald-950/40 dark:via-zinc-900 dark:to-zinc-900 border border-emerald-300 dark:border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="p-4 rounded-2xl bento-3d-mint flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
                   <div className={`p-3.5 rounded-2xl bg-gradient-to-br ${gradeBadgeColor} shadow-md shrink-0 flex flex-col items-center justify-center text-center min-w-[64px]`}>
-                    <span className="text-xl font-black font-mono leading-none">{dailyMetrics.lifeBalanceScore}</span>
+                    <span className="text-xl font-bold font-mono leading-none">{dailyMetrics.lifeBalanceScore}</span>
                     <span className="text-[9px] font-bold opacity-90 mt-0.5">/ 100</span>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-extrabold text-slate-900 dark:text-zinc-100">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
                         {gradeTitle}
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black font-mono">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono">
                         +{dailyMetrics.totalPointsToday} {isAr ? 'نقطة' : 'pts'}
                       </span>
                     </div>
@@ -583,7 +583,7 @@ ${actionText}`;
 
               {/* AI Deep Analysis Output Card (if generated) */}
               {aiAnalysisResult && (
-                <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 space-y-2 animate-fade-in text-xs leading-relaxed text-indigo-950 dark:text-indigo-200">
+                <div className="p-4 rounded-2xl bento-3d-lavender space-y-2 animate-fade-in text-xs leading-relaxed text-indigo-950 dark:text-indigo-200">
                   <div className="flex items-center justify-between pb-1 border-b border-indigo-200/60 dark:border-indigo-800/40">
                     <span className="font-bold flex items-center gap-1.5 text-indigo-800 dark:text-indigo-300">
                       <Brain className="w-4 h-4" />
@@ -592,7 +592,7 @@ ${actionText}`;
                     <button
                       type="button"
                       onClick={() => setAiAnalysisResult(null)}
-                      className="text-slate-400 hover:text-slate-600 text-[10px]"
+                      className="text-slate-400 hover:text-slate-600 text-[10px] cursor-pointer"
                     >
                       ✕
                     </button>
@@ -612,13 +612,13 @@ ${actionText}`;
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Pillar 1: Spiritual & Prayers (35%) */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 space-y-2">
+                  <div className="p-3.5 rounded-2xl bento-3d-mint space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                         <span>🕌</span>
                         <span>{isAr ? 'الركن الإيماني والصلوات (35%)' : 'Spiritual & Prayers'}</span>
                       </span>
-                      <span className="text-xs font-black font-mono text-emerald-600 dark:text-emerald-400">
+                      <span className="text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
                         {dailyMetrics.spiritualScore}%
                       </span>
                     </div>
@@ -637,13 +637,13 @@ ${actionText}`;
                   </div>
 
                   {/* Pillar 2: Deep Work & Career (30%) */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 space-y-2">
+                  <div className="p-3.5 rounded-2xl bento-3d-sky space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                         <Briefcase className="w-3.5 h-3.5 text-sky-600" />
                         <span>{isAr ? 'ركن العمل والتركيز العميق (30%)' : 'Deep Work & Focus'}</span>
                       </span>
-                      <span className="text-xs font-black font-mono text-sky-600 dark:text-cyan-400">
+                      <span className="text-xs font-bold font-mono text-sky-600 dark:text-cyan-400">
                         {dailyMetrics.workScore}%
                       </span>
                     </div>
@@ -662,13 +662,13 @@ ${actionText}`;
                   </div>
 
                   {/* Pillar 3: Circadian Rest & Recovery (20%) */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 space-y-2">
+                  <div className="p-3.5 rounded-2xl bento-3d-lavender space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                         <Moon className="w-3.5 h-3.5 text-indigo-500" />
                         <span>{isAr ? 'ركن الاستشفاء والنوم (20%)' : 'Sleep & Recovery'}</span>
                       </span>
-                      <span className="text-xs font-black font-mono text-indigo-600 dark:text-indigo-400">
+                      <span className="text-xs font-bold font-mono text-indigo-600 dark:text-indigo-400">
                         {dailyMetrics.sleepScore}%
                       </span>
                     </div>
@@ -687,13 +687,13 @@ ${actionText}`;
                   </div>
 
                   {/* Pillar 4: Physical Anchor & Mind (15%) */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 space-y-2">
+                  <div className="p-3.5 rounded-2xl bento-3d-rose space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 flex items-center gap-1.5">
                         <Heart className="w-3.5 h-3.5 text-rose-500" />
                         <span>{isAr ? 'الصحة البدنية والصفاء (15%)' : 'Physical & Mind'}</span>
                       </span>
-                      <span className="text-xs font-black font-mono text-rose-600 dark:text-rose-400">
+                      <span className="text-xs font-bold font-mono text-rose-600 dark:text-rose-400">
                         {dailyMetrics.physicalMindScore}%
                       </span>
                     </div>
@@ -716,17 +716,17 @@ ${actionText}`;
           {/* TAB 2: WEEKLY EVALUATION */}
           {activeTab === 'weekly' && (
             <div className="space-y-4 animate-fade-in">
-              <div className="p-4 rounded-2xl bg-gradient-to-l from-indigo-50 to-white dark:from-indigo-950/40 dark:to-zinc-900 border border-indigo-200 dark:border-indigo-800/40 flex items-center justify-between">
+              <div className="p-4 rounded-2xl bento-3d-lavender flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                     {isAr ? 'تقرير آخر 7 أيام فعلية' : 'True 7-Day Performance'}
                   </span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-zinc-100">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-zinc-100">
                     {isAr ? 'مصفوفة الاتساق والالتزام الأسبوعي' : 'Weekly Consistency Scorecard'}
                   </h3>
                 </div>
                 <div className="text-end">
-                  <div className="text-xl font-black text-indigo-700 dark:text-indigo-400 font-mono">
+                  <div className="text-xl font-bold text-indigo-700 dark:text-indigo-400 font-mono">
                     {weeklyMetrics.weeklyPrayerConsistency}%
                   </div>
                   <span className="text-[10px] text-slate-500 dark:text-zinc-400">
@@ -736,7 +736,7 @@ ${actionText}`;
               </div>
 
               {/* 7-Day Visual Mini Bar Chart */}
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700/60 space-y-3">
+              <div className="p-4 rounded-2xl surface-card-3d space-y-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-800 dark:text-zinc-200">
                     {isAr ? 'رسم بياني لأداء الأيام السبعة:' : '7-Day Activity Chart:'}

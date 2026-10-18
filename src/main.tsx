@@ -16,6 +16,20 @@ initializeDatabaseSeed()
     console.error('Failed to initialize database seed:', err);
   });
 
+// Clear any stale chunk-retry markers after 4 seconds of stable app boot
+if (typeof window !== 'undefined' && window.sessionStorage) {
+  setTimeout(() => {
+    try {
+      for (let i = window.sessionStorage.length - 1; i >= 0; i--) {
+        const key = window.sessionStorage.key(i);
+        if (key && key.startsWith('midmar_chunk_retry_')) {
+          window.sessionStorage.removeItem(key);
+        }
+      }
+    } catch {}
+  }, 4000);
+}
+
 // Register Service Worker for offline-first PWA (production only)
 if ('serviceWorker' in navigator) {
   if (import.meta.env.DEV) {
