@@ -23,6 +23,7 @@ declare class TimestampTrigger {
 }
 
 const DEFAULT_ALARM_ICON = '/icons/icon-192x192.png';
+const DEFAULT_ALARM_BADGE = '/icons/notification-badge-96x96.png';
 
 class AutonomousNotificationScheduler {
   private isScheduling = false;
@@ -794,7 +795,7 @@ class AutonomousNotificationScheduler {
             await reg.showNotification('🔔 تجربة تنبيه الشاشة المقفلة (مِضمار)', {
               body: 'ما شاء الله! التنبيه يعمل بدقة متناهية وشاشة هاتفك مقفلة والتطبيق مغلق.',
               icon: DEFAULT_ALARM_ICON,
-              badge: DEFAULT_ALARM_ICON,
+              badge: DEFAULT_ALARM_BADGE,
               tag: 'test-lockscreen-alert',
               requireInteraction: true,
               vibrate: [500, 250, 500, 250, 500],

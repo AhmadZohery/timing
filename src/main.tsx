@@ -30,35 +30,25 @@ if (typeof window !== 'undefined' && window.sessionStorage) {
   }, 4000);
 }
 
-// Register Service Worker for offline-first PWA (production only)
+// Register Service Worker for offline-first PWA & native notification icon/badge rendering
 if ('serviceWorker' in navigator) {
-  if (import.meta.env.DEV) {
-    // In local development, unregister any stale service workers to ensure instant Vite HMR
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      for (const registration of registrations) {
-        registration.unregister();
-      }
-    }).catch(() => {});
-  } else {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((reg) => {
-          console.log('Service Worker registered successfully:', reg.scope);
-          // Check for newer version on load
-          reg.update().catch(() => {});
-          // Re-check for updates whenever user returns to the tab or app
-          window.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-              reg.update().catch(() => {});
-            }
-          });
-        })
-        .catch((err) => {
-          console.warn('Service Worker registration failed:', err);
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((reg) => {
+        // Check for newer version on load
+        reg.update().catch(() => {});
+        // Re-check for updates whenever user returns to the tab or app
+        window.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            reg.update().catch(() => {});
+          }
         });
-    });
-  }
+      })
+      .catch((err) => {
+        console.warn('Service Worker registration failed:', err);
+      });
+  });
 }
 
 createRoot(document.getElementById('root')!).render(

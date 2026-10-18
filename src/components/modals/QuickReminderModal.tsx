@@ -210,29 +210,40 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
         }
       }
 
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const iconUrl = `${origin}/icons/icon-192x192.png`;
+      const badgeUrl = `${origin}/icons/notification-badge-96x96.png`;
+
       try {
         if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.getRegistration();
+          let reg = await navigator.serviceWorker.getRegistration();
+          if (!reg) {
+            reg = await navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+          }
           if (reg) {
             await reg.showNotification(
               isAr ? 'مِضمار — التنبيهات تعمل بنجاح 🔔' : 'Midmar — Notifications Active 🔔',
               {
                 body: isAr
-                  ? 'هذا إشعار فوري يؤكد جاهزية منبهات الصلاة والأذكار والمهام على جهازك.'
+                  ? 'هذا إشعار فوري بشعار مِضمار يؤكد جاهزية منبهات الصلاة والأذكار والمهام على جهازك.'
                   : 'Instant verification alert: Prayer & task alarms are active.',
-                icon: '/icons/icon-192x192.png',
-                badge: '/icons/icon-192x192.png',
+                icon: iconUrl,
+                badge: badgeUrl,
                 tag: 'midmar-instant-test',
-              }
+                renotify: true,
+              } as any
             );
           } else {
             new Notification(
               isAr ? 'مِضمار — التنبيهات تعمل بنجاح 🔔' : 'Midmar — Notifications Active 🔔',
               {
                 body: isAr
-                  ? 'هذا إشعار فوري يؤكد جاهزية منبهات الصلاة والأذكار والمهام على جهازك.'
+                  ? 'هذا إشعار فوري بشعار مِضمار يؤكد جاهزية منبهات الصلاة والأذكار والمهام على جهازك.'
                   : 'Instant verification alert: Prayer & task alarms are active.',
-              }
+                icon: iconUrl,
+                badge: badgeUrl,
+                tag: 'midmar-instant-test',
+              } as any
             );
           }
         }

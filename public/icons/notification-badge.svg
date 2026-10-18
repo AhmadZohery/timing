@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!--
+    Android Notification SmallIcon / Badge Silhouette (Monochrome White on 100% Transparent Canvas)
+    Android masks all non-transparent pixels to white. Background MUST be 100% transparent so it never renders as a white square.
+  -->
+
+  <!-- Top Qibla / Fajr Zenith Diamond -->
+  <polygon points="256,28 274,56 256,84 238,56" fill="#ffffff" />
+
+  <!-- Outer Circadian Orbit Arcs (Left & Right Framing Wings) -->
+  <path
+    d="M 108 138 A 188 188 0 0 0 96 296"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="18"
+    stroke-linecap="round"
+  />
+  <path
+    d="M 404 138 A 188 188 0 0 1 416 296"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="18"
+    stroke-linecap="round"
+  />
+
+  <!-- Master Calligraphic Meem Racetrack (حرف الميم - شعار مِضمار) - Boldened for 24dp Status Bar Clarity -->
+  <path
+    d="M 256 102
+       C 334 102, 386 152, 386 222
+       C 386 278, 352 324, 316 358
+       C 286 386, 268 424, 244 466
+       C 230 490, 204 496, 180 492
+       C 166 489, 164 474, 174 464
+       C 202 434, 222 394, 232 348
+       C 172 332, 126 282, 126 222
+       C 126 152, 178 102, 256 102 Z
+       M 256 158
+       C 292 158, 320 186, 320 222
+       C 320 258, 292 286, 256 286
+       C 220 286, 192 258, 192 222
+       C 192 186, 220 158, 256 158 Z"
+    fill="#ffffff"
+    fill-rule="evenodd"
+  />
+
+  <!-- Sacred Heart: 8-Pointed Guiding Star (نجم الفلاح في قلب الميم) -->
+  <polygon
+    points="256,178 263,202 287,191 275,215 299,222 275,229 287,253 263,242 256,266 249,242 225,253 237,229 213,222 237,215 225,191 249,202"
+    fill="#ffffff"
+  />
+</svg>

@@ -34,11 +34,12 @@ class NotificationService {
       ];
     }
 
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     try {
       await reg.showNotification(title, {
         body,
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-192x192.png',
+        icon: `${origin}/icons/icon-192x192.png`,
+        badge: `${origin}/icons/notification-badge-96x96.png`,
         tag: 'station-alert',
         renotify: true,
         data: { type },

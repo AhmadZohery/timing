@@ -157,7 +157,7 @@ setInterval(async () => {
       tag: alarm.tag,
       url: alarm.url || '/',
       icon: '/icons/icon-192x192.png',
-      badge: '/icons/icon-192x192.png',
+      badge: '/icons/notification-badge-96x96.png',
     });
 
     for (const sub of uniqueSubs) {
@@ -848,7 +848,7 @@ const server = http.createServer(async (req, res) => {
           tag: 'server-lockscreen-test',
           url: '/',
           icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-192x192.png',
+          badge: '/icons/notification-badge-96x96.png',
         });
 
         for (const sub of userSubs) {

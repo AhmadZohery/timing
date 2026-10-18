@@ -1,21 +1,7 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
 const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
 
-if (isLocalDev) {
-  self.addEventListener('install', () => self.skipWaiting());
-  self.addEventListener('activate', (event) => {
-    event.waitUntil(
-      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-        .then(() => self.registration.unregister())
-        .then(() => self.clients.claim())
-    );
-  });
-  self.addEventListener('fetch', () => {
-    return;
-  });
-}
-
-const CACHE_NAME = 'midmar-lifeos-v5';
+const CACHE_NAME = 'midmar-lifeos-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -23,6 +9,8 @@ const STATIC_ASSETS = [
   '/favicon.svg',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
+  '/icons/notification-badge-96x96.png',
+  '/icons/notification-badge-192x192.png',
   '/icons/apple-touch-icon.png',
   '/icons.svg',
 ];
@@ -79,12 +67,17 @@ async function removeAlarmFromDB(alarmId) {
   } catch {}
 }
 
-const DEFAULT_ICON = '/icons/icon-192x192.png';
-const DEFAULT_BADGE = '/icons/icon-192x192.png';
+const DEFAULT_ICON = new URL('/icons/icon-192x192.png', self.location.origin).href;
+// Android status bar & notification header require a monochrome white silhouette on a 100% transparent background
+const DEFAULT_BADGE = new URL('/icons/notification-badge-96x96.png', self.location.origin).href;
 
 function getValidIcon(icon) {
   if (icon && typeof icon === 'string' && !icon.endsWith('.svg')) {
-    return icon;
+    try {
+      return new URL(icon, self.location.origin).href;
+    } catch {
+      return icon;
+    }
   }
   return DEFAULT_ICON;
 }
@@ -166,11 +159,13 @@ async function checkDueAlarms() {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
+  if (!isLocalDev) {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll(STATIC_ASSETS);
+      })
+    );
+  }
   self.skipWaiting();
 });
 
@@ -179,14 +174,13 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (isLocalDev || key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 // Smart caching strategy:
@@ -194,7 +188,7 @@ self.addEventListener('activate', (event) => {
 // 2. API requests (/api/) -> Network only (never cached by SW)
 // 3. Static assets (images, icons, fonts, hashed JS/CSS) -> Cache-First with network fallback
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  if (isLocalDev || event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 

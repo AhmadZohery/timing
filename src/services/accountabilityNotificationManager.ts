@@ -297,13 +297,17 @@ class AccountabilityNotificationManager {
 
     if (Notification.permission !== 'granted') return false;
 
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const iconUrl = `${origin}/icons/icon-192x192.png`;
+    const badgeUrl = `${origin}/icons/notification-badge-96x96.png`;
+
     try {
       if ('serviceWorker' in navigator) {
         const reg = await navigator.serviceWorker.ready;
         await reg.showNotification(title, {
           body,
-          icon: '/favicon.svg',
-          badge: '/favicon.svg',
+          icon: iconUrl,
+          badge: badgeUrl,
           tag,
           renotify: true,
           actions,
@@ -313,9 +317,10 @@ class AccountabilityNotificationManager {
 
       new Notification(title, {
         body,
-        icon: '/favicon.svg',
+        icon: iconUrl,
+        badge: badgeUrl,
         tag,
-      });
+      } as any);
       return true;
     } catch (err) {
       console.warn('Could not display accountability notification:', err);
