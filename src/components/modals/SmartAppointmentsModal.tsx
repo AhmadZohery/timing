@@ -482,11 +482,11 @@ export const SmartAppointmentsModal: React.FC<SmartAppointmentsModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label="مفكرة المواعيد والمناسبات الذكية وحصاد الرضا"
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-zinc-950/60 backdrop-blur-md overflow-hidden animate-in fade-in duration-200"
+      className="fixed inset-0 z-[90] flex items-center justify-center p-2.5 sm:p-4 bg-zinc-950/65 backdrop-blur-md overflow-hidden animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl max-h-[93vh] flex flex-col bg-[#faf7f0] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-[32px] border-2 border-amber-300/80 dark:border-amber-500/30 shadow-[0_24px_80px_rgba(6,78,59,0.28)] overflow-hidden relative"
+        className="w-full max-w-2xl max-h-[90dvh] flex flex-col bg-[#faf7f0] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-[32px] border-2 border-amber-300/80 dark:border-amber-500/30 shadow-[0_24px_80px_rgba(6,78,59,0.28)] overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
         data-no-swipe="true"
       >

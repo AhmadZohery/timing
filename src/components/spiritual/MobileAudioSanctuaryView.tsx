@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Play,
   Pause,
@@ -5192,13 +5193,16 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       )}
 
-      {/* ✨ Full-Screen Mamluk Shamsa Zen Contemplation Mode (وضع خلوة التدبر والتركيز العميق) */}
-      {isZenModeOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex flex-col items-center justify-between p-5 bg-gradient-to-b from-[#042f2e] via-[#064e3b] to-[#1e1b4b] text-white animate-in fade-in duration-200 overflow-y-auto"
-        >
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <>
+            {/* ✨ Full-Screen Mamluk Shamsa Zen Contemplation Mode (وضع خلوة التدبر والتركيز العميق) */}
+            {isZenModeOpen && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-[90] flex flex-col items-center justify-between p-5 bg-gradient-to-b from-[#042f2e] via-[#064e3b] to-[#1e1b4b] text-white animate-in fade-in duration-200 overflow-y-auto"
+              >
           <div className="pointer-events-none absolute inset-0 bg-islamic-pattern opacity-10" />
 
           {/* Top Bar */}
@@ -5756,6 +5760,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
         </div>
       )}
+          </>,
+          document.body
+        )}
     </div>
   );
 };

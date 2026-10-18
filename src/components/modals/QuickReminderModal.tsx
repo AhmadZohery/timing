@@ -558,7 +558,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={isAr ? 'مركز الإشعارات والمنبهات الذكي' : 'Smart Notifications & Alarms Hub'}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in"
+      className="fixed inset-0 z-[90] flex items-center justify-center p-2.5 sm:p-4 animate-fade-in"
     >
       {/* Backdrop */}
       <div
@@ -575,7 +575,7 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.97 }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-xl max-h-[92vh] flex flex-col rounded-t-[32px] sm:rounded-[32px] bg-[#f7f7f7] dark:bg-zinc-950 border border-zinc-200/80 dark:border-white/10 shadow-2xl overflow-hidden"
+        className="relative z-10 w-full max-w-xl max-h-[90dvh] flex flex-col rounded-[32px] bg-[#f7f7f7] dark:bg-zinc-950 border border-zinc-200/80 dark:border-white/10 shadow-2xl overflow-hidden"
       >
         {/* ============================================================ */}
         {/* 1. HABITLINE OBSIDIAN COMMAND HEADER                         */}

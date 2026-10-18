@@ -81,6 +81,18 @@ export const SwipeableStationContainer: React.FC<SwipeableStationContainerProps>
           initial={{ opacity: 0, y: 10, scale: 0.99 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.99 }}
+          transformTemplate={(_, generated) => {
+            if (
+              !generated ||
+              generated === 'none' ||
+              generated === 'translateX(0px) translateY(0px) scale(1)' ||
+              generated === 'translateY(0px) scale(1)' ||
+              generated === 'translate3d(0px, 0px, 0px)'
+            ) {
+              return 'none';
+            }
+            return generated;
+          }}
           transition={{
             type: 'spring',
             stiffness: 320,

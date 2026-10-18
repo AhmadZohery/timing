@@ -242,7 +242,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-2.5 sm:p-4 animate-fade-in">
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
@@ -253,7 +253,7 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
         }}
       />
       <div
-        className="relative z-10 w-full sm:max-w-xl modal-surface rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[92vh] flex flex-col"
+        className="relative z-10 w-full sm:max-w-xl modal-surface rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[90dvh] flex flex-col"
         dir="rtl"
       >
         {/* Mobile Pull Handle */}

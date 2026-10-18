@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import {
@@ -3225,487 +3226,519 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       )}
 
 
-      {/* Schedule Anomaly Modal */}
-      <ScheduleAnomalyModal
-        isOpen={isAnomalyModalOpen}
-        onClose={() => setIsAnomalyModalOpen(false)}
-        expectedSport={selectedSport}
-        onLogged={(_record) => {
-          onRewardToast(
-            isAr
-              ? '🛡️ تم توثيق ظرفك وحماية شعلتك بنسبة 100% دون أي عقوبة!'
-              : '🛡️ Anomaly logged. Your streak is 100% protected!'
-          );
-        }}
-      />
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <>
+            {/* Schedule Anomaly Modal */}
+            <ScheduleAnomalyModal
+              isOpen={isAnomalyModalOpen}
+              onClose={() => setIsAnomalyModalOpen(false)}
+              expectedSport={selectedSport}
+              onLogged={(_record) => {
+                onRewardToast(
+                  isAr
+                    ? '🛡️ تم توثيق ظرفك وحماية شعلتك بنسبة 100% دون أي عقوبة!'
+                    : '🛡️ Anomaly logged. Your streak is 100% protected!'
+                );
+              }}
+            />
 
-      {/* Deep-Dive Read More Wisdom Modal */}
-      {isReadMoreWisdomOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={() => setIsReadMoreWisdomOpen(false)}
-        >
-          <div
-            className="w-full max-w-lg modal-surface border border-white/15 rounded-[28px] overflow-hidden max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="celestial-obsidian-stage text-white p-5 border-b border-white/10 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-2xl shrink-0">
-                  {dailyWisdom.icon}
-                </div>
-                <div>
-                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-200 text-[10px] font-bold mb-0.5">
-                    {dailyWisdom.categoryLabelAr}
-                  </span>
-                  <h3 className="text-base font-bold text-white">
-                    {dailyWisdom.titleAr}
-                  </h3>
-                  <span className="text-xs font-mono text-zinc-300">
-                    {dailyWisdom.titleEn}
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
+            {/* Deep-Dive Read More Wisdom Modal */}
+            {isReadMoreWisdomOpen && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
                 onClick={() => setIsReadMoreWisdomOpen(false)}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-5 sm:p-6 space-y-3.5 text-xs leading-relaxed overflow-y-auto">
-              <div className="p-3.5 rounded-[22px] bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 text-sky-950 dark:text-sky-100 font-bold text-xs sm:text-sm">
-                «{dailyWisdom.summaryAr}»
-              </div>
-
-              <div className="space-y-1.5 p-4 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10">
-                <h4 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 text-xs sm:text-sm">
-                  <span>🧠</span>
-                  <span>{isAr ? 'الخلفية العلمية والشرح' : 'Scientific Explanation'}</span>
-                </h4>
-                <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                  {dailyWisdom.detailedExplanationAr}
-                </p>
-              </div>
-
-              <div className="space-y-1.5 p-4 rounded-[22px] bento-3d-mint border border-emerald-300/60 dark:border-emerald-800/40">
-                <h4 className="font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5 text-xs sm:text-sm">
-                  <span>📌</span>
-                  <span>{isAr ? 'الخطوة العملية المباشرة' : 'Practical Action'}</span>
-                </h4>
-                <p className="text-emerald-900 dark:text-emerald-100 font-medium leading-relaxed">
-                  {dailyWisdom.practicalActionAr}
-                </p>
-              </div>
-
-              {dailyWisdom.realLifeExampleAr && (
-                <div className="space-y-1.5 p-4 rounded-[22px] bento-3d-amber border border-amber-300/60 dark:border-amber-800/40">
-                  <h4 className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-1.5 text-xs sm:text-sm">
-                    <span>💡</span>
-                    <span>{isAr ? 'مثال واقعي تطبيقي' : 'Real-Life Example'}</span>
-                  </h4>
-                  <p className="text-amber-900 dark:text-amber-100 leading-relaxed">
-                    {dailyWisdom.realLifeExampleAr}
-                  </p>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    haptic.vibrateLight();
-                    const txt = `💡 ${dailyWisdom.titleAr} (${dailyWisdom.titleEn})\n\n«${dailyWisdom.summaryAr}»\n\n📌 الخطوة العملية: ${dailyWisdom.practicalActionAr}`;
-                    navigator.clipboard.writeText(txt);
-                    onRewardToast(isAr ? '📋 تم نسخ النموذج بنجاح!' : 'Copied to clipboard!');
-                  }}
-                  className="flex-1 py-3 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-transform active:scale-95 cursor-pointer"
+                <div
+                  className="w-full max-w-lg modal-surface border border-white/15 rounded-[28px] overflow-hidden max-h-[90dvh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <span>📋</span>
-                  <span>{isAr ? 'نسخ الحكمة' : 'Copy Wisdom'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsReadMoreWisdomOpen(false)}
-                  className="py-3 px-5 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-zinc-800 dark:text-zinc-200 font-bold text-xs transition-colors cursor-pointer"
-                >
-                  {isAr ? 'إغلاق' : 'Close'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Morning & Evening Adhkar Modal (Fallback if not handled by root App) */}
-      {!onOpenAdhkarModal && (
-        <MorningEveningAdhkarModal
-          isOpen={isAdhkarModalOpen}
-          onClose={() => setIsAdhkarModalOpen(false)}
-          initialMode={adhkarMode}
-          isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
-          onRewardToast={onRewardToast}
-        />
-      )}
-
-      {/* Surah Al-Mulk Interactive Reader Modal */}
-      <SurahMulkModal
-        isOpen={isHomeSurahMulkOpen}
-        onClose={() => setIsHomeSurahMulkOpen(false)}
-        isCompleted={todayLog?.surahMulkDone}
-        onRewardToast={onRewardToast}
-      />
-
-      {/* Sunnah Fasting Reminder Modal */}
-      <FastingReminderModal
-        isOpen={isFastingModalOpen}
-        onClose={() => setIsFastingModalOpen(false)}
-        isFastingToday={todayLog?.fastingDone}
-        onRewardToast={onRewardToast}
-      />
-
-      {/* Nawafil Guide Full Modal Gateway */}
-      <NawafilGuideModal
-        isOpen={isNawafilModalOpen}
-        onClose={() => setIsNawafilModalOpen(false)}
-        initialTab={nawafilModalTab}
-        todayLog={todayLog}
-        onRewardToast={onRewardToast}
-      />
-
-      {/* Weekly Barakah Harvest Report Modal */}
-      <WeeklyBarakahReportModal
-        isOpen={isWeeklyReportOpen}
-        onClose={() => setIsWeeklyReportOpen(false)}
-        userState={userState}
-        dailyLogs={allDailyLogs || []}
-        todayLog={todayLog}
-      />
-
-      {/* Friday Barakah & Surah Al-Kahf Sanctuary Modal */}
-      <FridayKahfModal
-        isOpen={isFridayModalOpen}
-        onClose={() => setIsFridayModalOpen(false)}
-        isCompleted={todayLog?.surahKahfDone}
-        onRewardToast={onRewardToast}
-      />
-
-      {/* Language Quiz Modal from Home Dashboard */}
-      <LanguageQuizModal
-        isOpen={isHomeQuizOpen}
-        onClose={() => {
-          setIsHomeQuizOpen(false);
-          setLangStats(spacedRepetition.getStats());
-        }}
-        words={homeLangWords}
-        speechCode={currentLangObj.speechCode}
-        initialLevel={selectedBentoLevel}
-        onCompleted={(_score, _total) => {
-          setLangStats(spacedRepetition.getStats());
-          if (onRewardToast) {
-            onRewardToast(
-              isAr
-                ? `🏆 أحسنت! أتممت اختبار الكلمات اليومي بنجاح (+20 XP)!`
-                : `🏆 Great job! Quiz completed (+20 XP)!`
-            );
-          }
-        }}
-      />
-
-      {/* Language Moves & 3D Flashcards Modal */}
-      <LanguageMovesModal
-        isOpen={isLanguageMovesOpen}
-        onClose={() => {
-          setIsLanguageMovesOpen(false);
-          setLangStats(spacedRepetition.getStats());
-        }}
-        words={homeLangWords}
-        speechCode={currentLangObj.speechCode}
-        isAr={isAr}
-        languageName={currentLangObj.nameAr}
-        initialMove="flashcards"
-        initialLevel={selectedBentoLevel}
-      />
-
-      {/* Flexible Quran Tracker & Surah Selection Modal (Fallback if not handled by root App) */}
-      {!onOpenQuranTracker && (
-        <FlexibleQuranTrackerModal
-          isOpen={isFlexibleQuranOpen}
-          onClose={() => setIsFlexibleQuranOpen(false)}
-          quranProgress={quranProgress}
-          onRewardToast={onRewardToast}
-          todayLog={todayLog}
-        />
-      )}
-
-      {/* 1-Tap Quick Work & Workout Schedule + Active Station Override Modal */}
-      {isQuickScheduleOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={() => setIsQuickScheduleOpen(false)}
-        >
-          <div
-            className="w-full max-w-lg modal-surface border border-white/15 rounded-[28px] overflow-hidden max-h-[92vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="celestial-obsidian-stage text-white p-5 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-300/35 flex items-center justify-center text-2xl shrink-0">
-                  ⏰
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    {isAr ? 'ضبط مواعيدك اليومية والوضع الحالي' : 'My Daily Schedule & Active Mode'}
-                  </h3>
-                  <p className="text-[11px] text-zinc-300">
-                    {isAr
-                      ? 'خصّص مواعيد عملك ورياضتك أو غيّر محطتك الحالية بضغطة واحدة'
-                      : 'Customize your work & workout hours or switch active mode'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsQuickScheduleOpen(false)}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4 overflow-y-auto text-xs">
-              {/* 1. Instant Manual Station Mode Switcher */}
-              <div className="p-4 rounded-[22px] bento-3d-mint border border-emerald-300/60 dark:border-emerald-800/40 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-zinc-900 dark:text-white text-xs sm:text-sm">
-                    {isAr ? '⚡ ما هو وضعك الحالي الآن؟ (تبديل فوري)' : '⚡ What is your mode right now?'}
-                  </span>
-                  {activeManualOverride && (
+                  <div className="celestial-obsidian-stage text-white p-5 border-b border-white/10 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-2xl shrink-0">
+                        {dailyWisdom.icon}
+                      </div>
+                      <div>
+                        <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-200 text-[10px] font-bold mb-0.5">
+                          {dailyWisdom.categoryLabelAr}
+                        </span>
+                        <h3 className="text-base font-bold text-white">
+                          {dailyWisdom.titleAr}
+                        </h3>
+                        <span className="text-xs font-mono text-zinc-300">
+                          {dailyWisdom.titleEn}
+                        </span>
+                      </div>
+                    </div>
                     <button
                       type="button"
-                      onClick={() =>
-                        handleSaveScheduleConfig({
-                          manualStationOverride: undefined,
-                        })
-                      }
-                      className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 text-emerald-900 cursor-pointer"
+                      onClick={() => setIsReadMoreWisdomOpen(false)}
+                      className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     >
-                      {isAr ? 'إعادة للوضع التلقائي 🔄' : 'Auto Mode 🔄'}
+                      ✕
                     </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    {
-                      id: 'WORK_MICRO_SPRINT' as StationId,
-                      label: isAr ? '💼 أنا في العمل / المذاكرة الآن' : '💼 At Work / Studying Now',
-                    },
-                    {
-                      id: 'GYM_ANCHOR' as StationId,
-                      label: isAr ? '🏋️ وقت الرياضة والنشاط الآن' : '🏋️ Workout Time Now',
-                    },
-                    {
-                      id: 'COMMUTE_MORNING' as StationId,
-                      label: isAr ? '🌅 ورد الصباح والقرآن' : '🌅 Morning Wird',
-                    },
-                    {
-                      id: 'EVENING_SPRINT' as StationId,
-                      label: isAr ? '💻 شوط المساء والتعلم' : '💻 Evening Sprint',
-                    },
-                  ].map((mode) => {
-                    const isCurrent = currentSuggestedStation.id === mode.id;
-                    return (
-                      <button
-                        key={mode.id}
-                        type="button"
-                        onClick={async () => {
-                          await handleSaveScheduleConfig({
-                            manualStationOverride: {
-                              stationId: mode.id,
-                              date: todayBioDate,
-                            },
-                          });
-                          setIsQuickScheduleOpen(false);
-                        }}
-                        className={`p-2.5 rounded-2xl border text-start font-bold transition-all cursor-pointer active:scale-95 ${
-                          isCurrent
-                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 border-transparent shadow-sm'
-                            : 'bg-white/85 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border-emerald-200/70 dark:border-zinc-700'
-                        }`}
-                      >
-                        {mode.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. Work Start & End Hours */}
-              <div className="p-4 rounded-[22px] bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 space-y-3">
-                <span className="font-bold text-zinc-900 dark:text-white block text-xs sm:text-sm">
-                  {isAr ? '💼 مواعيد ساعات العمل أو الدراسة الرسمية:' : '💼 Official Work / Study Hours:'}
-                </span>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    {isAr ? 'بداية العمل:' : 'Work Starts:'}
-                  </label>
-                  <div className="grid grid-cols-5 gap-1.5">
-                    {[
-                      { h: 7, l: '7 ص' },
-                      { h: 8, l: '8 ص' },
-                      { h: 9, l: '9 ص' },
-                      { h: 10, l: '10 ص' },
-                      { h: 11, l: '11 ص' },
-                    ].map((opt) => (
-                      <button
-                        key={opt.h}
-                        type="button"
-                        onClick={() => handleSaveScheduleConfig({ workStartHour: opt.h })}
-                        className={`py-2 rounded-xl font-bold transition-all cursor-pointer ${
-                          userWorkStartHour === opt.h
-                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
-                            : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
-                        }`}
-                      >
-                        {opt.l}
-                      </button>
-                    ))}
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    {isAr ? 'نهاية العمل (لن يزعجك التطبيق بالرياضة قبل هذا الوقت):' : 'Work Ends:'}
-                  </label>
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {[
-                      { h: 14, l: '2 م' },
-                      { h: 15, l: '3 م' },
-                      { h: 16, l: '4 م' },
-                      { h: 17, l: '5 م' },
-                      { h: 18, l: '6 م' },
-                      { h: 19, l: '7 م' },
-                    ].map((opt) => (
+                  <div className="p-5 sm:p-6 space-y-3.5 text-xs leading-relaxed overflow-y-auto overscroll-contain">
+                    <div className="p-3.5 rounded-[22px] bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 text-sky-950 dark:text-sky-100 font-bold text-xs sm:text-sm">
+                      «{dailyWisdom.summaryAr}»
+                    </div>
+
+                    <div className="space-y-1.5 p-4 rounded-[22px] surface-card-3d border border-zinc-200/80 dark:border-white/10">
+                      <h4 className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 text-xs sm:text-sm">
+                        <span>🧠</span>
+                        <span>{isAr ? 'الخلفية العلمية والشرح' : 'Scientific Explanation'}</span>
+                      </h4>
+                      <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                        {dailyWisdom.detailedExplanationAr}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5 p-4 rounded-[22px] bento-3d-mint border border-emerald-300/60 dark:border-emerald-800/40">
+                      <h4 className="font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5 text-xs sm:text-sm">
+                        <span>📌</span>
+                        <span>{isAr ? 'الخطوة العملية المباشرة' : 'Practical Action'}</span>
+                      </h4>
+                      <p className="text-emerald-900 dark:text-emerald-100 font-medium leading-relaxed">
+                        {dailyWisdom.practicalActionAr}
+                      </p>
+                    </div>
+
+                    {dailyWisdom.realLifeExampleAr && (
+                      <div className="space-y-1.5 p-4 rounded-[22px] bento-3d-amber border border-amber-300/60 dark:border-amber-800/40">
+                        <h4 className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-1.5 text-xs sm:text-sm">
+                          <span>💡</span>
+                          <span>{isAr ? 'مثال واقعي تطبيقي' : 'Real-Life Example'}</span>
+                        </h4>
+                        <p className="text-amber-900 dark:text-amber-100 leading-relaxed">
+                          {dailyWisdom.realLifeExampleAr}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2.5 pt-2">
                       <button
-                        key={opt.h}
                         type="button"
                         onClick={() => {
-                          const nextWorkout =
-                            userWorkoutStartHour >= userWorkStartHour && userWorkoutStartHour < opt.h
-                              ? Math.min(21, opt.h + 1)
-                              : userWorkoutStartHour;
-                          handleSaveScheduleConfig({
-                            workEndHour: opt.h,
-                            workoutStartHour: nextWorkout,
-                          });
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          const txt = `💡 ${dailyWisdom.titleAr} (${dailyWisdom.titleEn})\n\n«${dailyWisdom.summaryAr}»\n\n📌 الخطوة العملية: ${dailyWisdom.practicalActionAr}`;
+                          navigator.clipboard.writeText(txt);
+                          onRewardToast(isAr ? '📋 تم نسخ النموذج بنجاح!' : 'Copied to clipboard!');
                         }}
-                        className={`py-2 rounded-xl font-bold transition-all cursor-pointer ${
-                          userWorkEndHour === opt.h
-                            ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
-                            : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
-                        }`}
+                        className="flex-1 py-3 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-transform active:scale-95 cursor-pointer"
                       >
-                        {opt.l}
+                        <span>📋</span>
+                        <span>{isAr ? 'نسخ الحكمة' : 'Copy Wisdom'}</span>
                       </button>
-                    ))}
+                      <button
+                        type="button"
+                        onClick={() => setIsReadMoreWisdomOpen(false)}
+                        className="py-3 px-5 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-zinc-800 dark:text-zinc-200 font-bold text-xs transition-colors cursor-pointer"
+                      >
+                        {isAr ? 'إغلاق' : 'Close'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* 3. Preferred Workout Hour */}
-              <div className="p-4 rounded-[22px] bento-3d-amber border border-amber-300/60 dark:border-amber-800/40 space-y-2.5">
-                <span className="font-bold text-zinc-900 dark:text-white block text-xs sm:text-sm">
-                  {isAr ? '🏋️ الموعد اليومي المفضل للرياضة:' : '🏋️ Preferred Daily Workout Time:'}
-                </span>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {[
-                    { h: 6, l: isAr ? '🌅 صباحاً (6:00 ص)' : '🌅 Morning (6 AM)' },
-                    { h: 17, l: isAr ? '🌤️ عصراً (5:00 م)' : '🌤️ 5:00 PM' },
-                    { h: 18, l: isAr ? '🌇 بعد العمل (6:00 م)' : '🌇 6:00 PM' },
-                    { h: 19, l: isAr ? '🌆 المغرب (7:00 م)' : '🌆 7:00 PM' },
-                    { h: 20, l: isAr ? '🌙 مساءً (8:00 م)' : '🌙 8:00 PM' },
-                    { h: -1, l: isAr ? '☕ بدون رياضة / راحة' : '☕ Rest / No Gym' },
-                  ].map((opt) => (
+            {/* Morning & Evening Adhkar Modal (Fallback if not handled by root App) */}
+            {!onOpenAdhkarModal && (
+              <MorningEveningAdhkarModal
+                isOpen={isAdhkarModalOpen}
+                onClose={() => setIsAdhkarModalOpen(false)}
+                initialMode={adhkarMode}
+                isCompleted={adhkarMode === 'morning' ? todayLog?.adhkarMorningDone : todayLog?.adhkarEveningDone}
+                onRewardToast={onRewardToast}
+              />
+            )}
+
+            {/* Surah Al-Mulk Interactive Reader Modal */}
+            <SurahMulkModal
+              isOpen={isHomeSurahMulkOpen}
+              onClose={() => setIsHomeSurahMulkOpen(false)}
+              isCompleted={todayLog?.surahMulkDone}
+              onRewardToast={onRewardToast}
+            />
+
+            {/* Sunnah Fasting Reminder Modal */}
+            <FastingReminderModal
+              isOpen={isFastingModalOpen}
+              onClose={() => setIsFastingModalOpen(false)}
+              isFastingToday={todayLog?.fastingDone}
+              onRewardToast={onRewardToast}
+            />
+
+            {/* Nawafil Guide Full Modal Gateway */}
+            <NawafilGuideModal
+              isOpen={isNawafilModalOpen}
+              onClose={() => setIsNawafilModalOpen(false)}
+              initialTab={nawafilModalTab}
+              todayLog={todayLog}
+              onRewardToast={onRewardToast}
+            />
+
+            {/* Weekly Barakah Harvest Report Modal */}
+            <WeeklyBarakahReportModal
+              isOpen={isWeeklyReportOpen}
+              onClose={() => setIsWeeklyReportOpen(false)}
+              userState={userState}
+              dailyLogs={allDailyLogs || []}
+              todayLog={todayLog}
+            />
+
+            {/* Friday Barakah & Surah Al-Kahf Sanctuary Modal */}
+            <FridayKahfModal
+              isOpen={isFridayModalOpen}
+              onClose={() => setIsFridayModalOpen(false)}
+              isCompleted={todayLog?.surahKahfDone}
+              onRewardToast={onRewardToast}
+            />
+
+            {/* Language Quiz Modal from Home Dashboard */}
+            <LanguageQuizModal
+              isOpen={isHomeQuizOpen}
+              onClose={() => {
+                setIsHomeQuizOpen(false);
+                setLangStats(spacedRepetition.getStats());
+              }}
+              words={homeLangWords}
+              speechCode={currentLangObj.speechCode}
+              initialLevel={selectedBentoLevel}
+              onCompleted={(_score, _total) => {
+                setLangStats(spacedRepetition.getStats());
+                if (onRewardToast) {
+                  onRewardToast(
+                    isAr
+                      ? `🏆 أحسنت! أتممت اختبار الكلمات اليومي بنجاح (+20 XP)!`
+                      : `🏆 Great job! Quiz completed (+20 XP)!`
+                  );
+                }
+              }}
+            />
+
+            {/* Language Moves & 3D Flashcards Modal */}
+            <LanguageMovesModal
+              isOpen={isLanguageMovesOpen}
+              onClose={() => {
+                setIsLanguageMovesOpen(false);
+                setLangStats(spacedRepetition.getStats());
+              }}
+              words={homeLangWords}
+              speechCode={currentLangObj.speechCode}
+              isAr={isAr}
+              languageName={currentLangObj.nameAr}
+              initialMove="flashcards"
+              initialLevel={selectedBentoLevel}
+            />
+
+            {/* Flexible Quran Tracker & Surah Selection Modal (Fallback if not handled by root App) */}
+            {!onOpenQuranTracker && (
+              <FlexibleQuranTrackerModal
+                isOpen={isFlexibleQuranOpen}
+                onClose={() => setIsFlexibleQuranOpen(false)}
+                quranProgress={quranProgress}
+                onRewardToast={onRewardToast}
+                todayLog={todayLog}
+              />
+            )}
+
+            {/* 1-Tap Quick Work & Workout Schedule + Active Station Override Modal */}
+            {isQuickScheduleOpen && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+                onClick={() => setIsQuickScheduleOpen(false)}
+              >
+                <div
+                  className="w-full max-w-lg modal-surface border border-white/15 rounded-[28px] overflow-hidden max-h-[90dvh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="celestial-obsidian-stage text-white p-5 border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-300/35 flex items-center justify-center text-2xl shrink-0">
+                        ⏰
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-white">
+                          {isAr ? 'مواعيدي والجدول اليومي والوضع الحالي' : 'My Schedule, Appointments & Active Mode'}
+                        </h3>
+                        <p className="text-[11px] text-zinc-300">
+                          {isAr
+                            ? 'افتح مفكرة مواعيدك ومناسباتك أو خصّص ساعات عملك ورياضتك بضغطة واحدة'
+                            : 'Open your appointments journal or customize your work & workout hours'}
+                        </p>
+                      </div>
+                    </div>
                     <button
-                      key={opt.h}
                       type="button"
-                      onClick={() =>
-                        handleSaveScheduleConfig({
-                          workoutStartHour: opt.h,
-                          workoutPreference: opt.h === -1 ? 'none_rest' : (routineAns?.workoutPreference === 'none_rest' ? 'gym_iron' : (routineAns?.workoutPreference || 'gym_iron')),
-                        })
-                      }
-                      className={`py-2 px-2.5 rounded-xl font-bold transition-all cursor-pointer ${
-                        userWorkoutStartHour === opt.h
-                          ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
-                          : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-amber-200/70 dark:border-zinc-700'
-                      }`}
+                      onClick={() => setIsQuickScheduleOpen(false)}
+                      className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     >
-                      {opt.l}
+                      ✕
                     </button>
-                  ))}
+                  </div>
+
+                  <div className="p-4 sm:p-5 space-y-4 overflow-y-auto overscroll-contain text-xs">
+                    {/* 0. Direct 1-Tap Gateway to Daily Appointments, Occasions & Gift Prep */}
+                    <div className="p-3.5 rounded-[22px] bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-emerald-500/15 border-2 border-amber-400/60 dark:border-amber-500/35 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <span className="font-bold text-zinc-950 dark:text-white block text-xs sm:text-sm">
+                          {isAr ? '📅 مفكرة المواعيد والمناسبات والهدايا' : '📅 Appointments, Occasions & Gift Prep'}
+                        </span>
+                        <span className="text-[11px] text-zinc-600 dark:text-zinc-300 block mt-0.5">
+                          {isAr
+                            ? 'سجّل مواعيد الشغل، الخروجات، الأطباء، والمناسبات مع تذكير التحضير قبلها'
+                            : 'Manage dated appointments, outings, and pre-event reminders'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setIsQuickScheduleOpen(false);
+                          setIsSmartAppointmentsOpen(true);
+                        }}
+                        className="px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 cursor-pointer shadow-sm active:scale-95 transition-transform"
+                      >
+                        {isAr ? 'فتح المفكرة ←' : 'Open ←'}
+                      </button>
+                    </div>
+
+                    {/* 1. Instant Manual Station Mode Switcher */}
+                    <div className="p-4 rounded-[22px] bento-3d-mint border border-emerald-300/60 dark:border-emerald-800/40 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-zinc-900 dark:text-white text-xs sm:text-sm">
+                          {isAr ? '⚡ ما هو وضعك الحالي الآن؟ (تبديل فوري)' : '⚡ What is your mode right now?'}
+                        </span>
+                        {activeManualOverride && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleSaveScheduleConfig({
+                                manualStationOverride: undefined,
+                              })
+                            }
+                            className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/90 text-emerald-900 cursor-pointer"
+                          >
+                            {isAr ? 'إعادة للوضع التلقائي 🔄' : 'Auto Mode 🔄'}
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          {
+                            id: 'WORK_MICRO_SPRINT' as StationId,
+                            label: isAr ? '💼 أنا في العمل / المذاكرة الآن' : '💼 At Work / Studying Now',
+                          },
+                          {
+                            id: 'GYM_ANCHOR' as StationId,
+                            label: isAr ? '🏋️ وقت الرياضة والنشاط الآن' : '🏋️ Workout Time Now',
+                          },
+                          {
+                            id: 'COMMUTE_MORNING' as StationId,
+                            label: isAr ? '🌅 ورد الصباح والقرآن' : '🌅 Morning Wird',
+                          },
+                          {
+                            id: 'EVENING_SPRINT' as StationId,
+                            label: isAr ? '💻 شوط المساء والتعلم' : '💻 Evening Sprint',
+                          },
+                        ].map((mode) => {
+                          const isCurrent = currentSuggestedStation.id === mode.id;
+                          return (
+                            <button
+                              key={mode.id}
+                              type="button"
+                              onClick={async () => {
+                                await handleSaveScheduleConfig({
+                                  manualStationOverride: {
+                                    stationId: mode.id,
+                                    date: todayBioDate,
+                                  },
+                                });
+                                setIsQuickScheduleOpen(false);
+                              }}
+                              className={`p-2.5 rounded-2xl border text-start font-bold transition-all cursor-pointer active:scale-95 ${
+                                isCurrent
+                                  ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 border-transparent shadow-sm'
+                                  : 'bg-white/85 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border-emerald-200/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {mode.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 2. Work Start & End Hours */}
+                    <div className="p-4 rounded-[22px] bento-3d-sky border border-sky-300/60 dark:border-sky-800/40 space-y-3">
+                      <span className="font-bold text-zinc-900 dark:text-white block text-xs sm:text-sm">
+                        {isAr ? '💼 مواعيد ساعات العمل أو الدراسة الرسمية:' : '💼 Official Work / Study Hours:'}
+                      </span>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                          {isAr ? 'بداية العمل:' : 'Work Starts:'}
+                        </label>
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {[
+                            { h: 7, l: '7 ص' },
+                            { h: 8, l: '8 ص' },
+                            { h: 9, l: '9 ص' },
+                            { h: 10, l: '10 ص' },
+                            { h: 11, l: '11 ص' },
+                          ].map((opt) => (
+                            <button
+                              key={opt.h}
+                              type="button"
+                              onClick={() => handleSaveScheduleConfig({ workStartHour: opt.h })}
+                              className={`py-2 rounded-xl font-bold transition-all cursor-pointer ${
+                                userWorkStartHour === opt.h
+                                  ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                                  : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {opt.l}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                          {isAr ? 'نهاية العمل (لن يزعجك التطبيق بالرياضة قبل هذا الوقت):' : 'Work Ends:'}
+                        </label>
+                        <div className="grid grid-cols-6 gap-1.5">
+                          {[
+                            { h: 14, l: '2 م' },
+                            { h: 15, l: '3 م' },
+                            { h: 16, l: '4 م' },
+                            { h: 17, l: '5 م' },
+                            { h: 18, l: '6 م' },
+                            { h: 19, l: '7 م' },
+                          ].map((opt) => (
+                            <button
+                              key={opt.h}
+                              type="button"
+                              onClick={() => {
+                                const nextWorkout =
+                                  userWorkoutStartHour >= userWorkStartHour && userWorkoutStartHour < opt.h
+                                    ? Math.min(21, opt.h + 1)
+                                    : userWorkoutStartHour;
+                                handleSaveScheduleConfig({
+                                  workEndHour: opt.h,
+                                  workoutStartHour: nextWorkout,
+                                });
+                              }}
+                              className={`py-2 rounded-xl font-bold transition-all cursor-pointer ${
+                                userWorkEndHour === opt.h
+                                  ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                                  : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-sky-200/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {opt.l}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Preferred Workout Hour */}
+                    <div className="p-4 rounded-[22px] bento-3d-amber border border-amber-300/60 dark:border-amber-800/40 space-y-2.5">
+                      <span className="font-bold text-zinc-900 dark:text-white block text-xs sm:text-sm">
+                        {isAr ? '🏋️ الموعد اليومي المفضل للرياضة:' : '🏋️ Preferred Daily Workout Time:'}
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {[
+                          { h: 6, l: isAr ? '🌅 صباحاً (6:00 ص)' : '🌅 Morning (6 AM)' },
+                          { h: 17, l: isAr ? '🌤️ عصراً (5:00 م)' : '🌤️ 5:00 PM' },
+                          { h: 18, l: isAr ? '🌇 بعد العمل (6:00 م)' : '🌇 6:00 PM' },
+                          { h: 19, l: isAr ? '🌆 المغرب (7:00 م)' : '🌆 7:00 PM' },
+                          { h: 20, l: isAr ? '🌙 مساءً (8:00 م)' : '🌙 8:00 PM' },
+                          { h: -1, l: isAr ? '☕ بدون رياضة / راحة' : '☕ Rest / No Gym' },
+                        ].map((opt) => (
+                          <button
+                            key={opt.h}
+                            type="button"
+                            onClick={() =>
+                              handleSaveScheduleConfig({
+                                workoutStartHour: opt.h,
+                                workoutPreference: opt.h === -1 ? 'none_rest' : (routineAns?.workoutPreference === 'none_rest' ? 'gym_iron' : (routineAns?.workoutPreference || 'gym_iron')),
+                              })
+                            }
+                            className={`py-2 px-2.5 rounded-xl font-bold transition-all cursor-pointer ${
+                              userWorkoutStartHour === opt.h
+                                ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
+                                : 'bg-white/85 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-amber-200/70 dark:border-zinc-700'
+                            }`}
+                          >
+                            {opt.l}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Footer Actions */}
+                    <div className="flex items-center justify-between gap-2.5 pt-1">
+                      {onOpenLifestyleModal && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsQuickScheduleOpen(false);
+                            onOpenLifestyleModal();
+                          }}
+                          className="px-4 py-2.5 rounded-full surface-card-3d border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-zinc-200 font-bold text-xs cursor-pointer"
+                        >
+                          {isAr ? 'تخصيص المحطات المتقدم ⚙️' : 'Advanced Stations ⚙️'}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsQuickScheduleOpen(false)}
+                        className="ms-auto px-6 py-2.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs shadow-md cursor-pointer active:scale-95 transition-transform"
+                      >
+                        {isAr ? 'تم الحفظ ✓' : 'Done ✓'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Footer Actions */}
-              <div className="flex items-center justify-between gap-2.5 pt-1">
-                {onOpenLifestyleModal && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsQuickScheduleOpen(false);
-                      onOpenLifestyleModal();
-                    }}
-                    className="px-4 py-2.5 rounded-full surface-card-3d border border-zinc-200 dark:border-white/10 text-zinc-800 dark:text-zinc-200 font-bold text-xs cursor-pointer"
-                  >
-                    {isAr ? 'تخصيص المحطات المتقدم ⚙️' : 'Advanced Stations ⚙️'}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setIsQuickScheduleOpen(false)}
-                  className="ms-auto px-6 py-2.5 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white font-bold text-xs shadow-md cursor-pointer active:scale-95 transition-transform"
-                >
-                  {isAr ? 'تم الحفظ ✓' : 'Done ✓'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            {/* Chess Tactical Lab & Opening Repertoire Modal */}
+            <ChessTacticalLabModal
+              isOpen={isChessLabOpen}
+              onClose={() => setIsChessLabOpen(false)}
+              isAr={isAr}
+              onRewardToast={onRewardToast}
+            />
 
-      {/* Chess Tactical Lab & Opening Repertoire Modal */}
-      <ChessTacticalLabModal
-        isOpen={isChessLabOpen}
-        onClose={() => setIsChessLabOpen(false)}
-        isAr={isAr}
-        onRewardToast={onRewardToast}
-      />
+            {/* Book Reading Sanctuary & Daily Page Tracker Modal */}
+            <BookReadingSanctuaryModal
+              isOpen={isBookSanctuaryOpen}
+              onClose={() => setIsBookSanctuaryOpen(false)}
+              isAr={isAr}
+              onRewardToast={onRewardToast}
+            />
 
-      {/* Book Reading Sanctuary & Daily Page Tracker Modal */}
-      <BookReadingSanctuaryModal
-        isOpen={isBookSanctuaryOpen}
-        onClose={() => setIsBookSanctuaryOpen(false)}
-        isAr={isAr}
-        onRewardToast={onRewardToast}
-      />
-
-      {/* Smart Daily Appointments, Occasions, Pre-Prep Gift Assistant & Post-Satisfaction Modal */}
-      <SmartAppointmentsModal
-        isOpen={isSmartAppointmentsOpen}
-        onClose={() => setIsSmartAppointmentsOpen(false)}
-        onRewardToast={onRewardToast}
-      />
+            {/* Smart Daily Appointments, Occasions, Pre-Prep Gift Assistant & Post-Satisfaction Modal */}
+            <SmartAppointmentsModal
+              isOpen={isSmartAppointmentsOpen}
+              onClose={() => setIsSmartAppointmentsOpen(false)}
+              onRewardToast={onRewardToast}
+            />
+          </>,
+          document.body
+        )}
     </div>
   );
 };

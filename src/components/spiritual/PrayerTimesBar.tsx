@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import confetti from 'canvas-confetti';
 import {
   CheckCircle2,
@@ -2443,19 +2444,20 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
           });
         };
 
-        return (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs transition-opacity animate-fade-in"
-              onClick={() => setSelectedPrayerAction(null)}
-            />
-
-            {/* Centered Pop-up Modal — Unified Hybrid Celestial + 3D Bento */}
-            <div
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[94%] sm:w-[460px] max-h-[92vh] overflow-y-auto modal-surface border border-zinc-200/80 dark:border-white/10 rounded-[28px] overflow-hidden animate-scale-in text-xs"
-              dir={isAr ? 'rtl' : 'ltr'}
-            >
+        return typeof document !== 'undefined'
+          ? createPortal(
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-xs transition-opacity animate-fade-in"
+                onClick={() => setSelectedPrayerAction(null)}
+              >
+                {/* Centered Pop-up Modal — Unified Hybrid Celestial + 3D Bento */}
+                <div
+                  className="w-full max-w-[460px] max-h-[90dvh] overflow-y-auto overscroll-contain modal-surface border border-zinc-200/80 dark:border-white/10 rounded-[28px] overflow-hidden animate-scale-in text-xs shadow-2xl"
+                  dir={isAr ? 'rtl' : 'ltr'}
+                  onClick={(e) => e.stopPropagation()}
+                >
               {/* Celestial Obsidian Stage Header */}
               <div className="celestial-obsidian-stage text-white p-4 sm:p-5 flex items-center justify-between border-b border-white/10">
                 <div className="flex items-center gap-3">
@@ -2764,19 +2766,25 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
-          </>
-        );
+              </div>
+            </div>,
+            document.body
+          )
+        : null;
       })()}
 
       {/* Nawafil Guide Full Modal Gateway */}
-      <NawafilGuideModal
-        isOpen={isNawafilModalOpen}
-        onClose={() => setIsNawafilModalOpen(false)}
-        initialTab={nawafilModalTab}
-        todayLog={todayLog}
-        onRewardToast={onRewardToast}
-      />
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <NawafilGuideModal
+            isOpen={isNawafilModalOpen}
+            onClose={() => setIsNawafilModalOpen(false)}
+            initialTab={nawafilModalTab}
+            todayLog={todayLog}
+            onRewardToast={onRewardToast}
+          />,
+          document.body
+        )}
     </div>
   );
 };
