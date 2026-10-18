@@ -1964,6 +1964,27 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         <div className="pointer-events-none absolute -top-12 -end-12 w-40 h-40 rounded-full bg-amber-300/25 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-12 -start-12 w-36 h-36 rounded-full bg-emerald-400/20 blur-2xl" />
 
+        {/* Live Atmospheric Sanctuary Weather Visual Overlays */}
+        {ambientMode === 'rain' && (
+          <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-65">
+            <span className="absolute top-1 start-[12%] w-[1.5px] h-8 bg-gradient-to-b from-transparent via-teal-500 to-amber-400 rotate-12 animate-pulse" />
+            <span className="absolute top-3 start-[28%] w-[1.5px] h-10 bg-gradient-to-b from-transparent via-emerald-500 to-teal-300 rotate-12 animate-bounce" />
+            <span className="absolute top-0 start-[48%] w-[1.5px] h-9 bg-gradient-to-b from-transparent via-teal-400 to-amber-300 rotate-12 animate-pulse" />
+            <span className="absolute top-2 start-[68%] w-[1.5px] h-11 bg-gradient-to-b from-transparent via-emerald-500 to-amber-400 rotate-12 animate-bounce" />
+            <span className="absolute top-1 start-[85%] w-[1.5px] h-8 bg-gradient-to-b from-transparent via-teal-500 to-emerald-300 rotate-12 animate-pulse" />
+          </div>
+        )}
+        {ambientMode === 'breeze' && (
+          <div className="pointer-events-none absolute inset-0 overflow-hidden opacity-75">
+            <span className="absolute top-3 start-[18%] w-2.5 h-2.5 rounded-full bg-emerald-400/60 blur-[1px] animate-ping" />
+            <span className="absolute bottom-3 start-[45%] w-3 h-3 rounded-full bg-amber-300/70 blur-[1px] animate-bounce" />
+            <span className="absolute top-4 start-[76%] w-2 h-2 rounded-full bg-teal-400/60 blur-[1px] animate-pulse" />
+          </div>
+        )}
+        {ambientMode === 'warmth' && (
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(251,191,36,0.28),transparent_70%)] animate-pulse" />
+        )}
+
         {/* Top Bar: Interactive Rotating Mamluk Shamsa Vinyl + Title + Smart Tools & Close */}
         <div className="flex items-center justify-between gap-2 relative z-10">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -1982,6 +2003,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               title={isAr ? 'اضغط للتشغيل أو الإيقاف المؤقت' : 'Tap to Play / Pause'}
               className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 cursor-pointer group shadow-[0_6px_18px_rgba(6,78,59,0.25)] active:scale-95 transition-transform"
             >
+              {audioState.isPlaying && (
+                <span className="pointer-events-none absolute -inset-1 rounded-full border-2 border-amber-400/70 animate-ping opacity-40" />
+              )}
               <svg
                 viewBox="0 0 100 100"
                 className={`w-full h-full ${
@@ -2028,6 +2052,29 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-950 dark:text-indigo-200 border border-indigo-300">
                     {isAr ? `🎓 أتممت ${completedTrackIds.length} مجالس` : `${completedTrackIds.length} Completed`}
                   </span>
+                )}
+                {audioState.isPlaying && (
+                  <div className="flex items-end gap-[2px] h-3.5 px-1.5 py-0.5 rounded-full bg-emerald-900/10 dark:bg-emerald-400/15 border border-emerald-400/40">
+                    {[
+                      { h: 5, d: '0.52s', dl: '0s' },
+                      { h: 11, d: '0.68s', dl: '0.12s' },
+                      { h: 8, d: '0.47s', dl: '0.24s' },
+                      { h: 12, d: '0.74s', dl: '0.08s' },
+                      { h: 6, d: '0.59s', dl: '0.18s' },
+                    ].map((bar, idx) => (
+                      <span
+                        key={idx}
+                        className="w-[2.5px] rounded-full bg-gradient-to-t from-emerald-600 to-amber-500 wave-bar wave-bar-play"
+                        style={
+                          {
+                            height: `${bar.h}px`,
+                            '--d': bar.d,
+                            '--dl': bar.dl,
+                          } as React.CSSProperties
+                        }
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
               <h2 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white truncate mt-0.5">
@@ -3017,7 +3064,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   <div
                     key={track.id}
                     onClick={() => handleTogglePlayTrack(track)}
-                    className={`p-3 sm:p-3.5 rounded-[22px] transition-all flex flex-col gap-2 cursor-pointer border-2 ${
+                    className={`p-3 sm:p-3.5 rounded-[22px] transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.985] flex flex-col gap-2 cursor-pointer border-2 ${
                       isPlayingThis
                         ? 'bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white border-amber-400 shadow-[0_12px_28px_-6px_rgba(5,150,105,0.45)] ring-2 ring-amber-300/60'
                         : `${theme.card} text-zinc-900 dark:text-zinc-100 shadow-[0_6px_16px_-8px_rgba(24,24,27,0.12)]`
@@ -3466,32 +3513,81 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
             </div>
           )}
 
-          {/* Interactive Scrubber Bar for Series / On-Demand MP3s */}
+          {/* Interactive Scrubber Bar + 1-Tap Smart Lecture Chapter Jumps */}
           {audioState.duration > 0 && (
-            <div className="flex items-center gap-2.5 px-1" dir="ltr">
-              <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-400 tabular-nums shrink-0">
-                {formatSeconds(audioState.currentTime)}
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={Math.max(1, audioState.duration)}
-                value={Math.min(audioState.currentTime, audioState.duration)}
-                onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
-                aria-label={isAr ? 'شريط التقدم الصوتي' : 'Audio progress scrubber'}
-                className="flex-1 h-1.5 bg-emerald-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-emerald-600"
-              />
-              <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-400 tabular-nums shrink-0">
-                {formatSeconds(audioState.duration)}
-              </span>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2.5 px-1" dir="ltr">
+                <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-400 tabular-nums shrink-0">
+                  {formatSeconds(audioState.currentTime)}
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(1, audioState.duration)}
+                  value={Math.min(audioState.currentTime, audioState.duration)}
+                  onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
+                  aria-label={isAr ? 'شريط التقدم الصوتي' : 'Audio progress scrubber'}
+                  className="flex-1 h-1.5 bg-emerald-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-emerald-600"
+                />
+                <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-400 tabular-nums shrink-0">
+                  {formatSeconds(audioState.duration)}
+                </span>
+              </div>
+              {audioState.duration > 180 && (
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar px-1" dir="rtl">
+                  <span className="text-[9px] font-bold text-amber-800 dark:text-amber-300 shrink-0">
+                    ⚡ قفز:
+                  </span>
+                  {[
+                    { label: 'المقدمة 0:00', target: 0 },
+                    { label: '+5 دقائق ⚡', target: Math.min(audioState.duration - 5, audioState.currentTime + 300) },
+                    { label: 'لبّ المجلس (50%)', target: Math.floor(audioState.duration * 0.5) },
+                    { label: 'الخلاصة (75%)', target: Math.floor(audioState.duration * 0.75) },
+                  ].map((jump) => (
+                    <button
+                      key={jump.label}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        gymFaithAudio.seekTo(jump.target);
+                      }}
+                      className="px-2 py-0.5 rounded-full bg-amber-50/90 dark:bg-zinc-800 hover:bg-emerald-50 text-emerald-950 dark:text-emerald-200 border border-amber-300/80 text-[9px] font-bold shrink-0 cursor-pointer active:scale-95 transition-transform"
+                    >
+                      {jump.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           <div className="flex items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs border border-amber-300/60">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs border border-amber-300/60 relative overflow-hidden">
                 {audioState.isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
+                ) : audioState.isPlaying ? (
+                  <div className="flex items-end gap-[2px] h-4">
+                    {[
+                      { h: 6, d: '0.52s', dl: '0s' },
+                      { h: 13, d: '0.68s', dl: '0.12s' },
+                      { h: 9, d: '0.47s', dl: '0.24s' },
+                      { h: 14, d: '0.74s', dl: '0.08s' },
+                    ].map((bar, idx) => (
+                      <span
+                        key={idx}
+                        className="w-[2.5px] rounded-full bg-amber-300 wave-bar wave-bar-play"
+                        style={
+                          {
+                            height: `${bar.h}px`,
+                            '--d': bar.d,
+                            '--dl': bar.dl,
+                          } as React.CSSProperties
+                        }
+                      />
+                    ))}
+                  </div>
                 ) : (
                   <Volume2 className="w-4 h-4 stroke-[2.2]" />
                 )}

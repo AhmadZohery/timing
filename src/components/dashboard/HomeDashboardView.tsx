@@ -1403,11 +1403,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             </span>
           </button>
 
-          {/* Interactive Atheer Broadcast Studio Deck */}
-          <div className="flex-1 min-w-0 rounded-[22px] bg-[#141517] text-white p-3 border border-white/12 shadow-md flex flex-col justify-between gap-2 relative overflow-hidden">
-            <div className="pointer-events-none absolute -top-8 -end-8 w-24 h-24 rounded-full bg-[#bce8c2]/15 blur-xl" />
+          {/* Interactive Royal Emerald-Gold Atheer Broadcast Studio Deck */}
+          <div className="flex-1 min-w-0 rounded-[24px] bg-gradient-to-br from-[#064e3b] via-[#0f5132] to-[#1e1b4b] text-white p-3 border-2 border-amber-300/60 shadow-[0_12px_28px_-6px_rgba(6,78,59,0.45)] flex flex-col justify-between gap-2 relative overflow-hidden">
+            <div className="pointer-events-none absolute -top-8 -end-8 w-28 h-28 rounded-full bg-amber-300/20 blur-xl animate-pulse" />
+            <div className="pointer-events-none absolute -bottom-8 -start-8 w-24 h-24 rounded-full bg-emerald-400/20 blur-xl" />
 
-            {/* Top Row: Play/Pause + Track Metadata + Waveform */}
+            {/* Top Row: Mini Rotating Shamsa Play/Pause + Track Metadata + Mobile-Visible Live Equalizer */}
             <div className="flex items-center justify-between gap-2.5 relative z-10">
               <button
                 type="button"
@@ -1418,16 +1419,19 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   gymFaithAudio.togglePlay();
                 }}
                 aria-label={faithPlaying ? (isAr ? 'إيقاف الأثير مؤقتاً' : 'Pause Audio') : (isAr ? 'تشغيل الأثير فوراً' : 'Play Audio')}
-                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer active:scale-90 transition-all shadow-sm ${
+                className={`relative w-10 h-10 rounded-full flex items-center justify-center shrink-0 cursor-pointer active:scale-90 transition-all shadow-md border ${
                   faithPlaying
-                    ? 'bg-[#fde6d8] text-[#141517] ring-2 ring-amber-400/50'
-                    : 'bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517]'
+                    ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-zinc-950 border-white ring-2 ring-amber-300/60'
+                    : 'bg-gradient-to-br from-amber-200 to-amber-400 hover:brightness-110 text-zinc-950 border-amber-100'
                 }`}
               >
                 {faithPlaying ? (
                   <Pause className="w-4 h-4 fill-current" />
                 ) : (
                   <Play className="w-4 h-4 fill-current ms-0.5" />
+                )}
+                {faithPlaying && (
+                  <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-zinc-950 animate-ping" />
                 )}
               </button>
 
@@ -1440,32 +1444,32 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 }}
                 className="min-w-0 flex-1 cursor-pointer text-start"
               >
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#bce8c2]/20 text-[#bce8c2]">
-                    {faithPlaying ? (isAr ? '🔊 يعمل الآن' : '🔊 Live') : (isAr ? '🎙️ استوديو الأثير' : '🎙️ Atheer')}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/25 text-amber-200 border border-amber-300/40">
+                    {faithPlaying ? (isAr ? '🔊 يصدح الآن' : '🔊 Live') : (isAr ? '۞ محراب الأثير' : '۞ Atheer')}
                   </span>
-                  <span className="text-[10px] font-bold text-zinc-400 truncate">
-                    {faithAudioState.currentSheikhAr}
+                  <span className="text-[10px] font-bold text-emerald-200 truncate">
+                    {faithAudioState.currentSheikhAr || (isAr ? 'يوتيوب 5.0⭐ • ساوند كلاود' : 'YouTube & SoundCloud')}
                   </span>
                 </div>
                 <p className="text-xs font-bold text-white truncate mt-0.5">
-                  {faithAudioState.currentTitleAr || (isAr ? 'أثير السيرة والتلاوات الخاشعة' : 'Prophetic & Quran Audio')}
+                  {faithAudioState.currentTitleAr || (isAr ? 'أكاديمية الوعي، التلاوات، وسلاسل العلماء' : 'Awareness Academy & Quran')}
                 </p>
               </div>
 
-              {/* Compact Animated Spectrum */}
-              <span dir="ltr" className="hidden sm:flex items-center justify-center gap-[2px] h-8 px-1 shrink-0" aria-hidden="true">
-                {WAVE_BARS.slice(10, 24).map((h, i) => (
+              {/* Mobile-Visible Animated Golden-Emerald Spectrum */}
+              <span dir="ltr" className="flex items-center justify-center gap-[2px] h-7 px-1 shrink-0" aria-hidden="true">
+                {WAVE_BARS.slice(12, 21).map((h, i) => (
                   <span
                     key={i}
-                    className={`wave-bar w-[2px] shrink-0 rounded-full bg-[#bce8c2] ${
-                      faithPlaying ? 'wave-bar-play' : 'opacity-45'
+                    className={`wave-bar w-[2.5px] shrink-0 rounded-full bg-gradient-to-t from-emerald-300 to-amber-300 ${
+                      faithPlaying ? 'wave-bar-play' : 'opacity-50'
                     }`}
                     style={
                       {
-                        height: Math.max(6, Math.round(h * 0.55)),
-                        '--d': `${900 + (i % 5) * 130}ms`,
-                        '--dl': `-${i * 70}ms`,
+                        height: Math.max(6, Math.round(h * 0.5)),
+                        '--d': `${850 + (i % 5) * 120}ms`,
+                        '--dl': `-${i * 65}ms`,
                       } as React.CSSProperties
                     }
                   />
@@ -1473,8 +1477,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </span>
             </div>
 
-            {/* Bottom Row: 1-Tap Quick Station Switchers + Open 65+ Studio Modal */}
-            <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-white/10 relative z-10 overflow-x-auto no-scrollbar">
+            {/* Bottom Row: 1-Tap Quick Station Switchers + Open 80+ Academy Studio Modal */}
+            <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-white/15 relative z-10 overflow-x-auto no-scrollbar">
               <div className="flex items-center gap-1 shrink-0">
                 {[
                   { id: 'makkah_quran_radio', label: isAr ? '🕋 تلاوات' : 'Quran' },
@@ -1493,10 +1497,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                         haptic.vibrateLight();
                         gymFaithAudio.setChannel(st.id, true);
                       }}
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer border ${
                         activeSt
-                          ? 'bg-[#fde6d8] text-[#141517]'
-                          : 'bg-white/10 hover:bg-white/20 text-zinc-300'
+                          ? 'bg-amber-400 text-zinc-950 border-white shadow-xs'
+                          : 'bg-white/10 hover:bg-white/20 text-emerald-100 border-white/15'
                       }`}
                     >
                       {st.label}
@@ -1513,10 +1517,10 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   if (onOpenFaithAudio) onOpenFaithAudio();
                   else onSelectStation('GYM_ANCHOR');
                 }}
-                className="px-2.5 py-0.5 rounded-full bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517] text-[10px] font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+                className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-emerald-300 hover:brightness-105 text-zinc-950 text-[10px] font-black flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
               >
                 <Headphones className="w-3 h-3" />
-                <span>{isAr ? 'المكتبة (65+)' : 'Studio (65+)'}</span>
+                <span>{isAr ? 'أكاديمية الأثير (80+) ✨' : 'Studio (80+)'}</span>
               </button>
             </div>
           </div>

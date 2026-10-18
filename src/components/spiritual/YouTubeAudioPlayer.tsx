@@ -146,8 +146,8 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
         </div>
       )}
 
-      {/* Progress Scrubber */}
-      <div className="space-y-1">
+      {/* Progress Scrubber + 1-Tap Smart Lecture Chapter Jumps */}
+      <div className="space-y-2">
         <div className="flex items-center justify-between text-[11px] font-mono text-zinc-600 dark:text-zinc-400 font-bold">
           <span>{formatSeconds(audioState.currentTime)}</span>
           <span>{formatSeconds(audioState.duration)}</span>
@@ -160,6 +160,32 @@ export const YouTubeAudioPlayer: React.FC<YouTubeAudioPlayerProps> = ({
           onChange={handleSeek}
           className="w-full h-1.5 bg-emerald-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-emerald-600 transition-all"
         />
+        {audioState.duration > 180 && (
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5" dir="rtl">
+            <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 shrink-0">
+              ⚡ قفز ذكي:
+            </span>
+            {[
+              { label: 'المقدمة 0:00', target: 0 },
+              { label: '+5 دقائق ⚡', target: Math.min(audioState.duration - 5, audioState.currentTime + 300) },
+              { label: 'لبّ المجلس (50%)', target: Math.floor(audioState.duration * 0.5) },
+              { label: 'الخلاصة (75%)', target: Math.floor(audioState.duration * 0.75) },
+            ].map((jump) => (
+              <button
+                key={jump.label}
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  gymFaithAudio.seekTo(jump.target);
+                }}
+                className="px-2 py-0.5 rounded-full bg-white/90 dark:bg-zinc-800 hover:bg-emerald-50 text-emerald-900 dark:text-emerald-200 border border-amber-300/70 text-[10px] font-bold shrink-0 cursor-pointer active:scale-95 transition-transform"
+              >
+                {jump.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Control Buttons */}
