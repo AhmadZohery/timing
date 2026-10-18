@@ -1362,6 +1362,10 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const [isZenModeOpen, setIsZenModeOpen] = useState(false);
   const [quizIndex, setQuizIndex] = useState(0);
   const [selectedQuizOption, setSelectedQuizOption] = useState<number | null>(null);
+  const [isDictatingGem, setIsDictatingGem] = useState(false);
+  const [expandedMindMapTrackId, setExpandedMindMapTrackId] = useState<string | null>(null);
+  const [manuscriptPreviewTrack, setManuscriptPreviewTrack] = useState<MobileAudioTrack | null>(null);
+  const [manuscriptTheme, setManuscriptTheme] = useState<'parchment' | 'emerald' | 'sapphire'>('parchment');
   const [pledgedActionIds, setPledgedActionIds] = useState<string[]>(() => {
     try {
       const raw = localStorage.getItem('midmar_atheer_daily_pledges_v1');
@@ -1621,6 +1625,111 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         onRewardToast?.(isAr ? '📋 تم نسخ البطاقة الدعوية مع الخلاصة والرابط لمشاركتها!' : 'Dawah card copied to clipboard!');
       });
     }
+  };
+
+  // 🎙️ Voice-to-Gem Arabic Speech Dictation (إملاء الفائدة صوتياً بالذكاء الصوتي)
+  const handleVoiceDictateGem = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const SpeechRec =
+      (window as unknown as { SpeechRecognition?: any; webkitSpeechRecognition?: any }).SpeechRecognition ||
+      (window as unknown as { webkitSpeechRecognition?: any }).webkitSpeechRecognition;
+
+    if (!SpeechRec) {
+      onRewardToast?.('🎙️ متصفحك الحالي لا يدعم الإملاء الصوتي المباشر — يمكنك الكتابة مباشرة');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRec();
+      recognition.lang = 'ar-SA';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      setIsDictatingGem(true);
+      onRewardToast?.('🎙️ تحدّث الآن... جاري تحويل صوتك إلى فائدة مكتوبة');
+
+      recognition.onresult = (event: any) => {
+        const transcript = event?.results?.[0]?.[0]?.transcript;
+        if (transcript) {
+          setGemDraftText((prev) => (prev ? `${prev} ${transcript}` : transcript));
+          onRewardToast?.('✨ تم التقاط الفائدة الصوتية بنجاح!');
+        }
+        setIsDictatingGem(false);
+      };
+      recognition.onerror = () => {
+        setIsDictatingGem(false);
+      };
+      recognition.onend = () => {
+        setIsDictatingGem(false);
+      };
+      recognition.start();
+    } catch {
+      setIsDictatingGem(false);
+    }
+  };
+
+  // 🔖 1-Tap Instant Golden Timestamp Bookmark (ختم اللحظة الذهبية بضغطة واحدة أثناء الاستماع)
+  const handleOneTapGoldenBookmark = () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateMedium();
+    const sec = Math.floor(audioState.currentTime || 0);
+    const title = audioState.currentTitleAr || 'مجلس صوتي';
+    const sheikh = audioState.currentSheikhAr || 'محراب الوعي';
+    const matchedTrack = allCombinedTracks.find(
+      (t) => t.id === playingTrackId || t.titleAr === title
+    );
+
+    const newGem: SavedAudioGem = {
+      id: 'gem_mark_' + Date.now(),
+      trackId: matchedTrack?.id || playingTrackId || 'active_stream',
+      trackTitleAr: title,
+      sheikhAr: sheikh,
+      timestampSec: sec,
+      noteText:
+        matchedTrack?.takeawayAr ||
+        `🔖 علامة ذهبية مختومة عند الدقيقة ${formatSeconds(sec)} للرجوع والتدبر`,
+      createdAt: new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }),
+    };
+
+    setSavedGems((prev) => {
+      const next = [newGem, ...prev];
+      try {
+        localStorage.setItem(SAVED_GEMS_STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    onRewardToast?.(`🔖 تم ختم اللحظة الذهبية (${formatSeconds(sec)}) في كشكول البصائر بضغطة واحدة!`);
+  };
+
+  // 🗺️ Interactive 3-Node Visual Mind-Map Generator per Track (التشجير العقلي البصري للمحاضرة)
+  const getTrackVisualMindMap = (track: MobileAudioTrack) => {
+    if (track.category === 'men_fiqh') {
+      return [
+        { step: '١. التشخيص', label: 'فتور الهمة وضياع بوصلة القوامة والمسؤولية في زحام المشتتات.' },
+        { step: '٢. التأصيل', label: track.takeawayAr || 'بناء الفتوة الإيمانية والانضباط النفسي على هدي الصحابة.' },
+        { step: '٣. العمل', label: 'تخصيص ورد يومي ثابت للعلم والعمل لا يُفرّط فيه مهما كانت الظروف.' },
+      ];
+    }
+    if (track.category === 'women_fiqh' || track.category === 'zawaj') {
+      return [
+        { step: '١. التشخيص', label: 'تأثر البيوت بالمقارنات الوهمية واضطراب مفاهيم السكينة والمودة.' },
+        { step: '٢. التأصيل', label: track.takeawayAr || 'البيت المسلم محراب يُبنى بالتغافل الكريم والرحمة وفقه الأدوار.' },
+        { step: '٣. العمل', label: 'إرساء مجلس أسري يومي هادئ للذكر والحوار بعيداً عن الشاشات.' },
+      ];
+    }
+    if (track.category === 'mindset' || track.category === 'siyra') {
+      return [
+        { step: '١. التشخيص', label: 'التشظي المعرفي واستهلاك الشذرات السريعة دون خريطة كلية.' },
+        { step: '٢. التأصيل', label: track.takeawayAr || 'ردّ الجزئيات إلى الأصول الكلية المحكمة في الوحي وسنن التاريخ.' },
+        { step: '٣. العمل', label: 'تدوين ٣ أصول منهجية من المجلس ومراجعتها قبل البدء بمجلس جديد.' },
+      ];
+    }
+    return [
+      { step: '١. الباعث', label: 'حاجة القلب المتجددة إلى جلاء الغفلة واستعادة الأنس بالله.' },
+      { step: '٢. البصيرة', label: track.takeawayAr || 'اليقين بأن الصبر على المجاهدة يفتح أبواب اللذة والسكينة.' },
+      { step: '٣. الثمرة', label: 'محاسبة النفس برفق وتحويل أثر الموعظة إلى ورد عمل يومي دائم.' },
+    ];
   };
 
   // Combine VERIFIED_FAITH_TRACKS with any custom tracks added by the user
@@ -2660,9 +2769,22 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               required
               value={gemDraftText}
               onChange={(e) => setGemDraftText(e.target.value)}
-              placeholder={isAr ? 'اكتب الدرة أو البصيرة التي لمست قلبك...' : 'Write your key insight...'}
+              placeholder={isAr ? 'اكتب الدرة أو اضغط 🎙️ للإملاء الصوتي بالعربية...' : 'Write or dictate your insight...'}
               className="flex-1 h-8 px-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-amber-300 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white"
             />
+            <button
+              type="button"
+              onClick={handleVoiceDictateGem}
+              className={`h-8 px-2.5 rounded-xl text-[11px] font-bold shrink-0 cursor-pointer border transition-all flex items-center gap-1 ${
+                isDictatingGem
+                  ? 'bg-rose-600 text-white border-rose-400 animate-pulse shadow-md'
+                  : 'bg-amber-100 hover:bg-amber-200 dark:bg-zinc-800 text-amber-950 dark:text-amber-200 border-amber-300'
+              }`}
+              title={isAr ? 'إملاء الفائدة بالصوت 🎙️' : 'Voice Dictation 🎙️'}
+            >
+              <span>🎙️</span>
+              <span className="hidden xs:inline">{isDictatingGem ? 'يستمع...' : 'إملاء'}</span>
+            </button>
             <button
               type="submit"
               className="h-8 px-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shrink-0 cursor-pointer"
@@ -3761,49 +3883,133 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     )}
 
                     {track.category !== 'radio' && (
-                      <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-amber-200/50 dark:border-zinc-800/80">
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              soundSynth.playTactileClick();
-                              setGemDraftTrack(track);
-                            }}
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
-                              isPlayingThis
-                                ? 'bg-white/15 hover:bg-white/25 text-white border-white/25'
-                                : 'bg-white/90 dark:bg-zinc-800 hover:bg-amber-100 text-zinc-800 dark:text-zinc-200 border-amber-300/70 dark:border-zinc-700'
-                            }`}
-                          >
-                            {isAr ? '✍️ دوّن فائدة' : '✍️ Note'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => toggleCompletedTrack(track.id, e)}
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
-                              isDone
-                                ? 'bg-emerald-600 text-white border-emerald-700'
-                                : isPlayingThis
-                                ? 'bg-white/15 text-amber-200 border-white/25'
-                                : 'bg-emerald-50/90 dark:bg-zinc-800 text-emerald-900 dark:text-emerald-300 border-emerald-300/70 dark:border-zinc-700'
-                            }`}
-                          >
-                            {isDone ? (isAr ? '✔ أتممت المجلس' : '✔ Completed') : isAr ? '🎓 سجّل إتمام' : 'Mark Done'}
-                          </button>
+                      <div className="space-y-2 pt-1 border-t border-amber-200/50 dark:border-zinc-800/80">
+                        <div className="flex items-center justify-between gap-1.5 flex-wrap">
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundSynth.playTactileClick();
+                                setGemDraftTrack(track);
+                              }}
+                              className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                                isPlayingThis
+                                  ? 'bg-white/15 hover:bg-white/25 text-white border-white/25'
+                                  : 'bg-white/90 dark:bg-zinc-800 hover:bg-amber-100 text-zinc-800 dark:text-zinc-200 border-amber-300/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {isAr ? '✍️ فائدة' : '✍️ Note'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundSynth.playTactileClick();
+                                haptic.vibrateLight();
+                                setExpandedMindMapTrackId((prev) => (prev === track.id ? null : track.id));
+                              }}
+                              className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                                expandedMindMapTrackId === track.id
+                                  ? 'bg-amber-500 text-zinc-950 border-amber-300 shadow-xs'
+                                  : isPlayingThis
+                                  ? 'bg-white/15 text-amber-200 border-white/25'
+                                  : 'bg-amber-50/90 dark:bg-zinc-800 text-amber-950 dark:text-amber-200 border-amber-300/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {isAr ? '🗺️ خريطة المجلس' : '🗺️ Mind-Map'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => toggleCompletedTrack(track.id, e)}
+                              className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                                isDone
+                                  ? 'bg-emerald-600 text-white border-emerald-700'
+                                  : isPlayingThis
+                                  ? 'bg-white/15 text-amber-200 border-white/25'
+                                  : 'bg-emerald-50/90 dark:bg-zinc-800 text-emerald-900 dark:text-emerald-300 border-emerald-300/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {isDone ? (isAr ? '✔ أتممت' : '✔ Done') : isAr ? '🎓 إتمام' : 'Mark Done'}
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundSynth.playTactileClick();
+                                haptic.vibrateLight();
+                                setManuscriptPreviewTrack(track);
+                              }}
+                              className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                                isPlayingThis
+                                  ? 'bg-amber-400 text-zinc-950 border-amber-200 shadow-xs'
+                                  : 'bg-gradient-to-r from-amber-100 to-emerald-50 dark:from-amber-950/60 dark:to-emerald-950/50 text-amber-950 dark:text-amber-200 border-amber-400/80'
+                              }`}
+                            >
+                              {isAr ? '🖼️ مخطوطة' : '🖼️ Poster'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleShareDawahCard(track, e)}
+                              className={`px-2 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                                isPlayingThis
+                                  ? 'bg-amber-400/25 text-amber-100 border-amber-300/40'
+                                  : 'bg-amber-50/90 dark:bg-zinc-800 text-amber-900 dark:text-amber-300 border-amber-300/70 dark:border-zinc-700'
+                              }`}
+                            >
+                              {isAr ? '📋 نسخ' : '📋 Copy'}
+                            </button>
+                          </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={(e) => handleShareDawahCard(track, e)}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
-                            isPlayingThis
-                              ? 'bg-amber-400/25 text-amber-100 border-amber-300/40'
-                              : 'bg-amber-50/90 dark:bg-zinc-800 text-amber-900 dark:text-amber-300 border-amber-300/70 dark:border-zinc-700'
-                          }`}
-                        >
-                          {isAr ? '📋 مشاركة البطاقة' : '📋 Share'}
-                        </button>
+                        {/* 🗺️ Interactive 3-Node Visual Mind-Map Drawer (التشجير العقلي البصري للمحاضرة) */}
+                        {expandedMindMapTrackId === track.id && (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className={`p-2.5 rounded-2xl border space-y-2 animate-in fade-in duration-150 ${
+                              isPlayingThis
+                                ? 'bg-black/30 border-amber-300/40 text-white'
+                                : 'bg-gradient-to-br from-amber-50/95 via-white to-emerald-50/80 dark:from-zinc-950 dark:to-emerald-950/30 border-amber-300/80 dark:border-amber-500/40 text-zinc-900 dark:text-zinc-100'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                                <span>🗺️</span>
+                                <span>خريطة التشجير العقلي للمجلس (٣ محاور متسلسلة)</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setExpandedMindMapTrackId(null)}
+                                className="text-[10px] font-bold opacity-75 hover:opacity-100 cursor-pointer"
+                              >
+                                إغلاق ✕
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                              {getTrackVisualMindMap(track).map((node, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`p-2 rounded-xl border ${
+                                    isPlayingThis
+                                      ? 'bg-white/10 border-white/20'
+                                      : 'bg-white/95 dark:bg-zinc-900/90 border-amber-200/80 dark:border-zinc-800 shadow-2xs'
+                                  }`}
+                                >
+                                  <div className="text-[10px] font-bold text-emerald-700 dark:text-amber-300 mb-0.5 flex items-center gap-1">
+                                    <span>{node.icon}</span>
+                                    <span>{node.stage}</span>
+                                  </div>
+                                  <p className="text-[10px] leading-relaxed font-medium opacity-90">
+                                    {node.text}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -4236,6 +4442,16 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
               <button
                 type="button"
+                onClick={() => handleOneTapGoldenBookmark()}
+                className="px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-950 dark:text-amber-200 border border-amber-300/80 text-[10px] font-bold cursor-pointer flex items-center gap-0.5"
+                title={isAr ? 'ختم اللحظة الذهبية بضغطة واحدة 🔖' : '1-Tap Golden Timestamp Bookmark 🔖'}
+              >
+                <span>🔖</span>
+                <span className="hidden sm:inline">{isAr ? 'ختم' : 'Mark'}</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
@@ -4395,7 +4611,14 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
 
           {/* Bottom Zen Controls */}
-          <div className="w-full max-w-md flex items-center justify-between gap-2 relative z-10">
+          <div className="w-full max-w-md flex items-center justify-between gap-1.5 flex-wrap relative z-10">
+            <button
+              type="button"
+              onClick={() => handleOneTapGoldenBookmark()}
+              className="px-3.5 py-2 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold cursor-pointer shadow-md"
+            >
+              🔖 ختم اللحظة بضغطة
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -4406,19 +4629,166 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   ) || allCombinedTracks[0];
                 if (curTrack) setGemDraftTrack(curTrack);
               }}
-              className="px-4 py-2 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold cursor-pointer shadow-md"
+              className="px-3.5 py-2 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold cursor-pointer shadow-md"
             >
-              ✍️ دوّن فائدة بهذه الدقيقة
+              ✍️ دوّن أو أملِ بالصوت
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsSleepModalOpen(true);
               }}
-              className="px-4 py-2 rounded-2xl bg-white/15 hover:bg-white/25 text-white border border-white/25 text-xs font-bold cursor-pointer"
+              className="px-3 py-2 rounded-2xl bg-white/15 hover:bg-white/25 text-white border border-white/25 text-xs font-bold cursor-pointer"
             >
               🌙 مؤقت النوم
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 🖼️ Royal Illuminated Manuscript Card Generator Modal (مُولِّد بطاقة المخطوطة المملوكية المصوّرة) */}
+      {manuscriptPreviewTrack && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setManuscriptPreviewTrack(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-in fade-in duration-150"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm space-y-3"
+          >
+            {/* Theme Selector Pills */}
+            <div className="flex items-center justify-between gap-1.5 bg-zinc-900/90 p-1.5 rounded-2xl border border-amber-400/50">
+              {[
+                { id: 'parchment', label: '📜 رقّ المدينة المذهّب' },
+                { id: 'emerald', label: '🌲 زمرد المحراب الملكي' },
+                { id: 'sapphire', label: '🌌 ياقوت السحر والليل' },
+              ].map((th) => (
+                <button
+                  key={th.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    setManuscriptTheme(th.id as 'parchment' | 'emerald' | 'sapphire');
+                  }}
+                  className={`flex-1 py-1.5 px-2 rounded-xl text-[10px] font-bold cursor-pointer transition-all ${
+                    manuscriptTheme === th.id
+                      ? 'bg-amber-400 text-zinc-950 shadow-sm'
+                      : 'text-amber-100 hover:bg-white/10'
+                  }`}
+                >
+                  {th.label}
+                </button>
+              ))}
+            </div>
+
+            {/* The Illuminated Manuscript Poster Frame */}
+            <div
+              className={`relative overflow-hidden rounded-[28px] p-5 border-2 shadow-2xl space-y-3.5 text-center transition-all ${
+                manuscriptTheme === 'parchment'
+                  ? 'bg-gradient-to-b from-[#fdf8ed] via-[#f7edd4] to-[#efe0b9] text-zinc-950 border-amber-500'
+                  : manuscriptTheme === 'emerald'
+                  ? 'bg-gradient-to-b from-[#042f2e] via-[#064e3b] to-[#022c22] text-white border-amber-400'
+                  : 'bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#090d16] text-white border-amber-400'
+              }`}
+            >
+              <div className="pointer-events-none absolute inset-0 bg-islamic-pattern opacity-10" />
+              <div className="pointer-events-none absolute inset-2.5 rounded-[20px] border border-amber-400/45" />
+
+              {/* Top Shamsa Seal */}
+              <div className="relative z-10 flex flex-col items-center gap-1">
+                <span
+                  className={`px-3 py-0.5 rounded-full text-[10px] font-bold border ${
+                    manuscriptTheme === 'parchment'
+                      ? 'bg-amber-900/10 text-amber-950 border-amber-600/40'
+                      : 'bg-amber-400/20 text-amber-200 border-amber-300/40'
+                  }`}
+                >
+                  🏛️ مخطوطة محراب البصيرة • مضمار
+                </span>
+                <h3
+                  className={`text-base font-bold leading-snug pt-1 ${
+                    manuscriptTheme === 'parchment' ? 'text-emerald-950' : 'text-amber-300'
+                  }`}
+                >
+                  «{manuscriptPreviewTrack.titleAr}»
+                </h3>
+                <span
+                  className={`text-xs font-bold ${
+                    manuscriptTheme === 'parchment' ? 'text-amber-900' : 'text-emerald-200'
+                  }`}
+                >
+                  🎙️ {manuscriptPreviewTrack.sheikhAr}
+                </span>
+              </div>
+
+              {/* Golden Rule Quote Box */}
+              <div
+                className={`relative z-10 p-3.5 rounded-2xl border text-xs font-bold leading-relaxed ${
+                  manuscriptTheme === 'parchment'
+                    ? 'bg-white/80 border-amber-400/80 text-zinc-900 shadow-xs'
+                    : 'bg-black/25 border-amber-300/35 text-amber-50'
+                }`}
+              >
+                💎 {manuscriptPreviewTrack.takeawayAr || 'مجلس علمي وتزكوي مؤصل يحيي القلب ويرفع الهمة'}
+              </div>
+
+              {/* 3-Pillar Mini Summary inside Manuscript */}
+              <div className="relative z-10 grid grid-cols-3 gap-1.5 text-right">
+                {getTrackVisualMindMap(manuscriptPreviewTrack).map((node, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-2 rounded-xl border ${
+                      manuscriptTheme === 'parchment'
+                        ? 'bg-amber-50/90 border-amber-300/80 text-zinc-900'
+                        : 'bg-white/10 border-white/15 text-white'
+                    }`}
+                  >
+                    <div
+                      className={`text-[9px] font-bold mb-0.5 ${
+                        manuscriptTheme === 'parchment' ? 'text-emerald-800' : 'text-amber-300'
+                      }`}
+                    >
+                      {node.icon} {node.stage}
+                    </div>
+                    <p className="text-[9px] leading-snug opacity-90 line-clamp-3">{node.text}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Pledge Footer */}
+              <div
+                className={`relative z-10 p-2 rounded-xl text-[10px] font-bold ${
+                  manuscriptTheme === 'parchment'
+                    ? 'bg-emerald-900 text-amber-100'
+                    : 'bg-amber-400/20 text-amber-200 border border-amber-300/40'
+                }`}
+              >
+                🎯 الواجب العملي: {getTrackDailyActionPledge(manuscriptPreviewTrack)}
+              </div>
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  handleShareDawahCard(manuscriptPreviewTrack, e);
+                  setManuscriptPreviewTrack(null);
+                }}
+                className="flex-1 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold cursor-pointer shadow-lg"
+              >
+                📋 نسخ ومشاركة المخطوطة الدعوية
+              </button>
+              <button
+                type="button"
+                onClick={() => setManuscriptPreviewTrack(null)}
+                className="px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold cursor-pointer"
+              >
+                إغلاق ✕
+              </button>
+            </div>
           </div>
         </div>
       )}
