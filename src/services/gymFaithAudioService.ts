@@ -496,9 +496,15 @@ class GymFaithAudioService {
   }
 
   private saveResumePoint() {
-    if (!this.audio) return;
-    const curTime = Math.floor(this.audio.currentTime) || 0;
-    const dur = Math.floor(this.audio.duration) || 0;
+    const isYt = this.state.mediaType === 'youtube';
+    if (!this.audio && !isYt) return;
+
+    const curTime = isYt
+      ? Math.floor(this.state.currentTime) || 0
+      : Math.floor(this.audio?.currentTime || this.state.currentTime) || 0;
+    const dur = isYt
+      ? Math.floor(this.state.duration) || 0
+      : Math.floor(this.audio?.duration || this.state.duration) || 0;
 
     let resume: FaithAudioResumePoint;
 
@@ -516,7 +522,7 @@ class GymFaithAudioService {
         sheikhAr: series?.sheikhAr || this.state.currentSheikhAr,
         currentTime: curTime,
         duration: dur,
-        audioUrl: ep?.audioUrl || this.audio.src,
+        audioUrl: ep?.audioUrl || (isYt ? this.state.youtubeUrl || '' : this.audio?.src || ''),
         timestamp: Date.now(),
       };
     } else {
@@ -528,7 +534,9 @@ class GymFaithAudioService {
         sheikhAr: ch?.sheikhAr || this.state.currentSheikhAr,
         currentTime: curTime,
         duration: dur,
-        audioUrl: this.audio.src || ch?.streamUrl || '',
+        audioUrl: isYt
+          ? this.state.youtubeUrl || ''
+          : this.audio?.src || ch?.streamUrl || '',
         timestamp: Date.now(),
       };
     }
@@ -987,10 +995,19 @@ class GymFaithAudioService {
         resume.channelTitleAr || this.state.currentTitleAr,
         resume.sheikhAr || this.state.currentSheikhAr
       );
-      if (resume.currentTime > 0 && this.audio) {
-        try {
-          this.audio.currentTime = resume.currentTime;
-        } catch {}
+      if (resume.currentTime > 0) {
+        if (isYouTubeUrl(resume.audioUrl)) {
+          this.updateState({ currentTime: resume.currentTime });
+          setTimeout(() => {
+            try {
+              this.ytBridge?.seekTo(resume.currentTime);
+            } catch {}
+          }, 900);
+        } else if (this.audio) {
+          try {
+            this.audio.currentTime = resume.currentTime;
+          } catch {}
+        }
       }
     } else if (resume.channelId) {
       await this.play(resume.channelId);
@@ -1268,6 +1285,7 @@ class GymFaithAudioService {
       try {
         this.ytBridge?.play();
       } catch {}
+      this.saveResumePoint();
       this.updateMediaSession();
       return;
     }

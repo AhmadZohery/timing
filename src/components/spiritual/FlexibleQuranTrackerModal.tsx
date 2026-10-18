@@ -47,6 +47,19 @@ interface HifzAyahItem {
   text: string;
 }
 
+interface SavedHifzMasteryEntry {
+  id: string;
+  surahNumber: number;
+  surahNameAr: string;
+  startAyah: number;
+  endAyah: number;
+  dateFormatted: string;
+  reviewCount: number;
+}
+
+const HIFZ_STUDIO_STATE_KEY = 'midmar_hifz_studio_state_v2';
+const HIFZ_MASTERY_LOG_KEY = 'midmar_hifz_mastery_log_v1';
+
 const OFFLINE_FALLBACK_AYAHS: Record<number, HifzAyahItem[]> = {
   1: [
     { numberInSurah: 1, globalNumber: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ' },
@@ -62,7 +75,7 @@ const OFFLINE_FALLBACK_AYAHS: Record<number, HifzAyahItem[]> = {
     { numberInSurah: 2, globalNumber: 5243, text: 'الَّذِي خَلَقَ الْمَوْتَ وَالْحَيَاةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا ۚ وَهُوَ الْعَزِيزُ الْغَفُورُ' },
     { numberInSurah: 3, globalNumber: 5244, text: 'الَّذِي خَلَقَ سَبْعَ سَمَاوَاتٍ طِبَاقًا ۖ مَّا تَرَىٰ فِي خَلْقِ الرَّحْمَٰنِ مِن تَفَاوُتٍ ۖ فَارْجِعِ الْبَصَرَ هَلْ تَرَىٰ مِن فُطُورٍ' },
     { numberInSurah: 4, globalNumber: 5245, text: 'ثُمَّ ارْجِعِ الْبَصَرَ كَرَّتَيْنِ يَنقَلِبْ إِلَيْكَ الْبَصَرُ خَاسِئًا وَهُوَ حَسِيرٌ' },
-    { numberInSurah: 5, globalNumber: 5246, text: 'وَلَقَدْ زَيَّنَّا السَّمَاءَ الدُّنْيَا بِمَصَابِيحَ وَجَعَلْنَاهَا رُجُومًا لِّلشَّيَاطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ السَّعِيرِ' },
+    { numberInSurah: 5, globalNumber: 5246, text: 'وَلَقَدْ زَيَّنَّا السَّمَاءَ الدُّنْيَا بِمَصَابِيحَ وَجَعَلْنَاهَا رُجومًا لِّلشَّيَاطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ السَّعِيرِ' },
   ],
   18: [
     { numberInSurah: 1, globalNumber: 2141, text: 'الْحَمْدُ لِلَّهِ الَّذِي أَنزَلَ عَلَىٰ عَبْدِهِ الْكِتَابَ وَلَمْ يَجْعَل لَّهُ عِوَجًا' },
@@ -120,26 +133,67 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
     quranProgress?.endPage || Math.min(604, (quranProgress?.currentPage || initialSurah?.startPage || 2) + 4)
   );
 
-  // Tab 4: Interactive Hifz (Memorization & Self-Testing Studio) state
-  const [hifzSurahNumber, setHifzSurahNumber] = useState<number>(67); // Default Surah Al-Mulk
-  const [hifzStartAyah, setHifzStartAyah] = useState<number>(1);
-  const [hifzEndAyah, setHifzEndAyah] = useState<number>(5);
-  const [hifzMaskLevel, setHifzMaskLevel] = useState<HifzMaskLevel>('half_masked');
+  // Load persisted Hifz Studio state from localStorage
+  const savedHifzState = useMemo(() => {
+    try {
+      const raw = localStorage.getItem(HIFZ_STUDIO_STATE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Tab 4: Interactive Hifz (Memorization & Self-Testing Studio) state — Persistent
+  const [hifzSurahNumber, setHifzSurahNumber] = useState<number>(savedHifzState?.surahNumber || 67);
+  const [hifzStartAyah, setHifzStartAyah] = useState<number>(savedHifzState?.startAyah || 1);
+  const [hifzEndAyah, setHifzEndAyah] = useState<number>(savedHifzState?.endAyah || 5);
+  const [hifzMaskLevel, setHifzMaskLevel] = useState<HifzMaskLevel>(savedHifzState?.maskLevel || 'half_masked');
   const [revealedWordKeys, setRevealedWordKeys] = useState<Record<string, boolean>>({});
   const [hifzAyahs, setHifzAyahs] = useState<HifzAyahItem[]>(OFFLINE_FALLBACK_AYAHS[67]);
   const [isLoadingHifz, setIsLoadingHifz] = useState<boolean>(false);
-  const [hifzReciter, setHifzReciter] = useState<'ar.husary' | 'ar.minshawi' | 'ar.alafasy'>('ar.husary');
-  const [hifzLoopTarget, setHifzLoopTarget] = useState<number>(3);
+  const [hifzReciter, setHifzReciter] = useState<'ar.husary' | 'ar.minshawi' | 'ar.alafasy' | 'ar.hudhaify'>(
+    savedHifzState?.reciter || 'ar.husary'
+  );
+  const [hifzLoopTarget, setHifzLoopTarget] = useState<number>(savedHifzState?.loopTarget || 3);
   const [hifzCurrentLoop, setHifzCurrentLoop] = useState<number>(0);
   const [playingHifzAyah, setPlayingHifzAyah] = useState<number | null>(null);
-  const [hifzStepsDone, setHifzStepsDone] = useState<Record<string, boolean>>({
-    listen3: false,
-    read5: false,
-    maskHalf: false,
-    blindTest: false,
-    linkPrev: false,
+  const [isRangeLooping, setIsRangeLooping] = useState<boolean>(false);
+  const [hifzStepsDone, setHifzStepsDone] = useState<Record<string, boolean>>(
+    savedHifzState?.stepsDone || {
+      listen3: false,
+      read5: false,
+      maskHalf: false,
+      blindTest: false,
+      linkPrev: false,
+    }
+  );
+  const [hifzMasteryLog, setHifzMasteryLog] = useState<SavedHifzMasteryEntry[]>(() => {
+    try {
+      const raw = localStorage.getItem(HIFZ_MASTERY_LOG_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
   });
   const hifzAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Auto-persist Hifz Studio state whenever any setting changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        HIFZ_STUDIO_STATE_KEY,
+        JSON.stringify({
+          surahNumber: hifzSurahNumber,
+          startAyah: hifzStartAyah,
+          endAyah: hifzEndAyah,
+          maskLevel: hifzMaskLevel,
+          reciter: hifzReciter,
+          loopTarget: hifzLoopTarget,
+          stepsDone: hifzStepsDone,
+        })
+      );
+    } catch {}
+  }, [hifzSurahNumber, hifzStartAyah, hifzEndAyah, hifzMaskLevel, hifzReciter, hifzLoopTarget, hifzStepsDone]);
 
   // Fetch Surah Ayahs for Hifz Studio (with localStorage cache + offline fallback)
   useEffect(() => {
@@ -196,13 +250,15 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
     if (!isOpen && hifzAudioRef.current) {
       hifzAudioRef.current.pause();
       setPlayingHifzAyah(null);
+      setIsRangeLooping(false);
     }
   }, [isOpen]);
 
-  // Play & Loop Ayah Audio for Hifz
+  // Play & Loop single Ayah Audio for Hifz
   const handlePlayHifzAyah = (ayah: HifzAyahItem, loopCount: number = 1) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
+    setIsRangeLooping(false);
     if (playingHifzAyah === ayah.numberInSurah && hifzAudioRef.current && !hifzAudioRef.current.paused) {
       hifzAudioRef.current.pause();
       setPlayingHifzAyah(null);
@@ -238,6 +294,64 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
     audio.play().catch(() => {
       setPlayingHifzAyah(null);
     });
+  };
+
+  // Play & Loop Entire Selected Ayah Range Sequentially (تكرار متسلسل لكامل النصاب للربط)
+  const handleTogglePlayRangeLoop = (slice: HifzAyahItem[]) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateMedium();
+
+    if (isRangeLooping) {
+      if (hifzAudioRef.current) hifzAudioRef.current.pause();
+      setIsRangeLooping(false);
+      setPlayingHifzAyah(null);
+      setHifzCurrentLoop(0);
+      return;
+    }
+
+    if (!slice.length) return;
+    if (hifzAudioRef.current) hifzAudioRef.current.pause();
+
+    setIsRangeLooping(true);
+
+    const playStep = (ayahIdx: number, cycleNum: number) => {
+      const targetAyah = slice[ayahIdx];
+      if (!targetAyah) {
+        setIsRangeLooping(false);
+        setPlayingHifzAyah(null);
+        return;
+      }
+      const audioUrl = `https://cdn.islamic.network/quran/audio/128/${hifzReciter}/${targetAyah.globalNumber}.mp3`;
+      const audio = new Audio(audioUrl);
+      hifzAudioRef.current = audio;
+      setPlayingHifzAyah(targetAyah.numberInSurah);
+      setHifzCurrentLoop(cycleNum);
+
+      audio.onended = () => {
+        if (ayahIdx + 1 < slice.length) {
+          playStep(ayahIdx + 1, cycleNum);
+        } else if (cycleNum < hifzLoopTarget) {
+          playStep(0, cycleNum + 1);
+        } else {
+          setIsRangeLooping(false);
+          setPlayingHifzAyah(null);
+          setHifzCurrentLoop(0);
+          setHifzStepsDone((prev) => ({ ...prev, listen3: true }));
+        }
+      };
+
+      audio.onerror = () => {
+        setIsRangeLooping(false);
+        setPlayingHifzAyah(null);
+      };
+
+      audio.play().catch(() => {
+        setIsRangeLooping(false);
+        setPlayingHifzAyah(null);
+      });
+    };
+
+    playStep(0, 1);
   };
 
   // Sync state whenever modal opens or quranProgress updates
@@ -413,6 +527,58 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
       finalStartPage = hifzSurahMeta.startPage;
       finalEndPage = hifzSurahMeta.endPage;
       rewardPoints = 30;
+
+      if (!isBookmarkOnly) {
+        const entryId = `${finalSurahNumber}_${finalStartAyah}_${finalEndAyah}`;
+        const dateFormatted = new Date().toLocaleDateString('ar-EG', {
+          month: 'short',
+          day: 'numeric',
+        });
+        setHifzMasteryLog((prev) => {
+          const existingIdx = prev.findIndex((item) => item.id === entryId);
+          let next: SavedHifzMasteryEntry[];
+          if (existingIdx >= 0) {
+            next = prev.map((item, idx) =>
+              idx === existingIdx
+                ? { ...item, reviewCount: item.reviewCount + 1, dateFormatted }
+                : item
+            );
+          } else {
+            next = [
+              {
+                id: entryId,
+                surahNumber: finalSurahNumber,
+                surahNameAr: finalSurahName,
+                startAyah: finalStartAyah,
+                endAyah: finalEndAyah,
+                dateFormatted,
+                reviewCount: 1,
+              },
+              ...prev,
+            ];
+          }
+          try {
+            localStorage.setItem(HIFZ_MASTERY_LOG_KEY, JSON.stringify(next));
+          } catch {}
+          return next;
+        });
+
+        // Auto-advance Hifz window to next 5 Ayahs if more Ayahs remain in this Surah
+        if (finalEndAyah < hifzSurahMeta.ayahCount) {
+          const nextStart = finalEndAyah + 1;
+          const nextEnd = Math.min(hifzSurahMeta.ayahCount, nextStart + 4);
+          setHifzStartAyah(nextStart);
+          setHifzEndAyah(nextEnd);
+          setRevealedWordKeys({});
+          setHifzStepsDone({
+            listen3: false,
+            read5: false,
+            maskHalf: false,
+            blindTest: false,
+            linkPrev: false,
+          });
+        }
+      }
     }
 
     const dbMode = activeTab === 'hifz' ? 'surah_ayah' : activeTab;
@@ -503,8 +669,8 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         onRewardToast(
           activeTab === 'hifz'
             ? isAr
-              ? `🧠 ما شاء الله! تم تثبيت وتسميع آيات (${finalStartAyah}-${finalEndAyah}) من سورة ${finalSurahName} (+30 XP)`
-              : `🧠 Masha'Allah! Memorized & verified Ayahs ${finalStartAyah}-${finalEndAyah} of ${finalSurahName} (+30 XP)`
+              ? `🧠 ما شاء الله! تم حفظ وتثبيت الآيات (${finalStartAyah}-${finalEndAyah}) من سورة ${finalSurahName} في سجل المحفوظات (+30 XP)`
+              : `🧠 Masha'Allah! Memorized & saved Ayahs ${finalStartAyah}-${finalEndAyah} of ${finalSurahName} (+30 XP)`
             : isAr
             ? `✨ تقبّل الله تلاوتك! تم تسجيل ${finalPagesCount} ص من ${finalSurahName} (+${hasanat.toLocaleString()} حسنة مضاعفة 🤍)`
             : `✨ May Allah accept! Logged ${finalPagesCount} pages of ${finalSurahName} (+${rewardPoints} XP)`
@@ -514,7 +680,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
       if (onRewardToast) {
         onRewardToast(
           isAr
-            ? `📌 تم حفظ علامة المصحف بنجاح: ${finalSurahName} (صفحة ${finalEndPage})`
+            ? `📌 تم حفظ علامة المصحف وموضع الحفظ بنجاح: ${finalSurahName} (صفحة ${finalEndPage})`
             : `📌 Bookmark saved: ${finalSurahName} (Page ${finalEndPage})`
         );
       }
@@ -525,27 +691,38 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-950/75 dark:bg-black/85 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-emerald-950/60 dark:bg-black/85 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl modal-surface rounded-3xl border border-slate-200 dark:border-zinc-800 flex flex-col h-[90dvh] sm:h-auto sm:max-h-[92dvh] overflow-hidden"
+        className="w-full max-w-2xl bg-[#faf7f0] dark:bg-zinc-950 rounded-3xl border-2 border-amber-300/80 dark:border-amber-500/30 shadow-[0_24px_80px_rgba(6,78,59,0.28)] flex flex-col h-[90dvh] sm:h-auto sm:max-h-[92dvh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Bar */}
-        <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between celestial-obsidian-stage text-white">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shadow-inner">
+        {/* Header Bar — Illuminated Mamluk Emerald-Gold & Ivory Stage */}
+        <div className="p-4 sm:p-5 border-b-2 border-amber-300/70 dark:border-amber-500/25 flex items-center justify-between bg-gradient-to-br from-[#ecfdf5] via-[#fef9c3]/75 to-[#e0e7ff]/75 dark:from-emerald-950/90 dark:via-zinc-900 dark:to-indigo-950/85 relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-amber-400 to-indigo-500" />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="p-2.5 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white border border-amber-300 shadow-sm">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-white">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300/80">
+                  {isAr ? '۞ مِحراب القرآن والحفظ المتقن' : '۞ Quran & Hifz Sanctuary'}
+                </span>
+                {hifzMasteryLog.length > 0 && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 border border-emerald-300">
+                    {isAr ? `📜 ${hifzMasteryLog.length} أنصبة محفوظة` : `${hifzMasteryLog.length} Saved Ranges`}
+                  </span>
+                )}
+              </div>
+              <h2 className="text-base sm:text-lg font-bold text-zinc-950 dark:text-white mt-0.5">
                 {isAr ? 'الورد القرآني واستوديو الحفظ والتسميع' : 'Quran Wird & Interactive Hifz Studio'}
               </h2>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
                 {isAr
-                  ? 'تابع وردك اليومي أو احفظ الآيات بالتكرار الصوتي والإخفاء التدريجي للكلمات'
-                  : 'Track your daily Wird or memorize Ayahs with audio looping & progressive word masking'}
+                  ? 'حفظ تلقائي للموضع • تكرار متسلسل للربط • إخفاء تدريجي للكلمات'
+                  : 'Auto-saved position • Sequential audio loop • Progressive word masking'}
               </p>
             </div>
           </div>
@@ -555,7 +732,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
               soundSynth.playTactileClick();
               onClose();
             }}
-            className="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-full bg-white/90 dark:bg-zinc-800 hover:bg-rose-50 text-zinc-700 dark:text-zinc-200 hover:text-rose-700 border border-zinc-300/80 dark:border-zinc-700 flex items-center justify-center transition-colors cursor-pointer relative z-10"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -967,21 +1144,41 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
           {activeTab === 'hifz' && (
             <div className="space-y-4">
               {/* 1. Surah & Ayah Range Picker for Hifz */}
-              <div className="p-3.5 rounded-2xl surface-card-3d space-y-3">
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50/90 via-white to-amber-50/70 dark:from-emerald-950/40 dark:via-zinc-900 dark:to-amber-950/30 border-2 border-emerald-300/80 dark:border-emerald-500/30 space-y-3 shadow-xs">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <span className="text-xs font-bold text-slate-800 dark:text-zinc-100 block">
+                    <span className="text-xs font-bold text-zinc-950 dark:text-zinc-100 block">
                       🧠 {isAr ? '١. اختر السورة ونصاب الآيات للحفظ والتثبيت اليوم:' : '1. Select Surah & Ayah Window for Hifz:'}
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-zinc-400">
+                    <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
                       {isAr
-                        ? 'ينصح العلماء بحفظ 3 إلى 5 آيات متقنة مع ربطها وتكرارها بصرياً وصوتياً'
-                        : 'Memorize 3-5 Ayahs at a time with audio looping and progressive word masking'}
+                        ? 'يُحفظ موضعك تلقائياً • ينصح الحفّاظ بـ 5 آيات متقنة مع ربطها وتكرارها'
+                        : 'Position auto-saved • Memorize 3-5 Ayahs with audio looping & progressive masking'}
                     </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
-                    سورة {hifzSurahMeta.nameAr} ({hifzStartAyah} - {hifzEndAyah})
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-950 dark:text-amber-200 border border-amber-300 text-[10px] font-bold">
+                      سورة {hifzSurahMeta.nameAr} ({hifzStartAyah} - {hifzEndAyah})
+                    </span>
+                    {hifzEndAyah < hifzSurahMeta.ayahCount && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          const nextStart = hifzEndAyah + 1;
+                          const nextEnd = Math.min(hifzSurahMeta.ayahCount, nextStart + 4);
+                          setHifzStartAyah(nextStart);
+                          setHifzEndAyah(nextEnd);
+                          setRevealedWordKeys({});
+                        }}
+                        className="px-2.5 py-1 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold cursor-pointer shadow-2xs"
+                        title={isAr ? 'الانتقال للنصاب التالي (+5 آيات)' : 'Next 5 Ayahs'}
+                      >
+                        {isAr ? '⏭️ النصاب التالي (+5)' : 'Next +5 ⏭️'}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Quick Hifz Surahs Strip */}
@@ -1001,10 +1198,10 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                           setHifzEndAyah(Math.min(s.ayahCount, 5));
                           setRevealedWordKeys({});
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 cursor-pointer transition-all ${
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 cursor-pointer transition-all border ${
                           isSel
-                            ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
-                            : 'bg-slate-100 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'
+                            ? 'bg-gradient-to-r from-emerald-700 to-teal-700 text-white border-amber-300 shadow-sm'
+                            : 'bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-300 border-emerald-200 dark:border-zinc-700 hover:border-emerald-400'
                         }`}
                       >
                         سورة {s.nameAr}
@@ -1016,7 +1213,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                 {/* Full 114 Surah Dropdown + Start/End Ayah */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
+                    <label className="block text-[10px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">
                       {isAr ? 'اختر من 114 سورة:' : 'Surah (1-114):'}
                     </label>
                     <select
@@ -1029,7 +1226,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         setHifzEndAyah(Math.min(s?.ayahCount || 5, 5));
                         setRevealedWordKeys({});
                       }}
-                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-bold text-slate-900 dark:text-zinc-100"
+                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-emerald-300/80 dark:border-zinc-700 text-xs font-bold text-zinc-950 dark:text-zinc-100"
                     >
                       {QURAN_SURAHS.map((s) => (
                         <option key={s.number} value={s.number}>
@@ -1040,7 +1237,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
+                    <label className="block text-[10px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">
                       {isAr ? 'من آية:' : 'From Ayah:'}
                     </label>
                     <input
@@ -1054,12 +1251,12 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         if (v > hifzEndAyah) setHifzEndAyah(Math.min(hifzSurahMeta.ayahCount, v + 4));
                         setRevealedWordKeys({});
                       }}
-                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-center text-slate-900 dark:text-zinc-100"
+                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-emerald-300/80 dark:border-zinc-700 text-xs font-mono font-bold text-center text-zinc-950 dark:text-zinc-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
+                    <label className="block text-[10px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">
                       {isAr ? 'إلى آية (ننصح بـ 5 آيات):' : 'To Ayah:'}
                     </label>
                     <input
@@ -1072,7 +1269,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         setHifzEndAyah(v);
                         setRevealedWordKeys({});
                       }}
-                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-center text-slate-900 dark:text-zinc-100"
+                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-emerald-300/80 dark:border-zinc-700 text-xs font-mono font-bold text-center text-zinc-950 dark:text-zinc-100"
                     />
                   </div>
                 </div>
@@ -1092,7 +1289,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                       soundSynth.playTactileClick();
                       setRevealedWordKeys({});
                     }}
-                    className="px-2.5 py-1 rounded-full bg-white/90 dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 text-[10px] font-bold flex items-center gap-1 cursor-pointer border border-amber-500/30"
+                    className="px-2.5 py-1 rounded-full bg-white/95 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-[10px] font-bold flex items-center gap-1 cursor-pointer border border-amber-400/80 shadow-2xs"
                   >
                     <RotateCcw className="w-3 h-3" />
                     <span>{isAr ? 'إعادة إخفاء الكلمات' : 'Reset Hidden Words'}</span>
@@ -1115,11 +1312,16 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         soundSynth.playTactileClick();
                         setHifzMaskLevel(lvl.id);
                         setRevealedWordKeys({});
+                        if (lvl.id === 'half_masked' || lvl.id === 'first_word_only') {
+                          setHifzStepsDone((prev) => ({ ...prev, maskHalf: true }));
+                        } else if (lvl.id === 'blind_recall') {
+                          setHifzStepsDone((prev) => ({ ...prev, blindTest: true }));
+                        }
                       }}
-                      className={`py-2 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center ${
+                      className={`py-2 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center border ${
                         hifzMaskLevel === lvl.id
-                          ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
-                          : 'bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 border border-amber-500/20'
+                          ? 'bg-gradient-to-r from-emerald-700 to-teal-700 text-white border-amber-300 shadow-xs'
+                          : 'bg-white/90 dark:bg-zinc-900/80 text-zinc-800 dark:text-zinc-300 border-amber-400/40'
                       }`}
                     >
                       {isAr ? lvl.labelAr : lvl.labelEn}
@@ -1138,6 +1340,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                       [
                         { id: 'ar.husary', label: 'الحصري' },
                         { id: 'ar.minshawi', label: 'المنشاوي' },
+                        { id: 'ar.hudhaify', label: 'الحذيفي' },
                         { id: 'ar.alafasy', label: 'العفاسي' },
                       ] as const
                     ).map((rec) => (
@@ -1145,10 +1348,10 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                         key={rec.id}
                         type="button"
                         onClick={() => setHifzReciter(rec.id)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer border ${
                           hifzReciter === rec.id
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-white/80 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'
+                            ? 'bg-emerald-600 text-white border-amber-300'
+                            : 'bg-white/90 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-300 border-amber-300/60'
                         }`}
                       >
                         {rec.label}
@@ -1159,17 +1362,17 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                   <div className="flex items-center gap-1">
                     <Repeat className="w-3.5 h-3.5 text-amber-700 dark:text-amber-300" />
                     <span className="text-[10px] font-bold text-amber-950 dark:text-amber-200">
-                      {isAr ? 'تكرار الآية:' : 'Loop:'}
+                      {isAr ? 'تكرار:' : 'Loop:'}
                     </span>
                     {[1, 3, 5, 7].map((cnt) => (
                       <button
                         key={cnt}
                         type="button"
                         onClick={() => setHifzLoopTarget(cnt)}
-                        className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold cursor-pointer ${
+                        className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold cursor-pointer border ${
                           hifzLoopTarget === cnt
-                            ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950'
-                            : 'bg-white/80 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'
+                            ? 'bg-emerald-700 text-white border-amber-300'
+                            : 'bg-white/90 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-300 border-amber-300/50'
                         }`}
                       >
                         {cnt}x
@@ -1179,28 +1382,61 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                 </div>
               </div>
 
-              {/* 3. Interactive Mushaf Hifz Stage (Tap any masked word to reveal it!) */}
-              <div className="p-4 sm:p-5 rounded-3xl celestial-obsidian-stage border border-amber-500/30 text-white space-y-3">
-                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
-                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4" />
-                    <span>
-                      {isAr
-                        ? `لوح الحفظ التفاعلي — سورة ${hifzSurahMeta.nameAr} (الآيات ${hifzStartAyah} إلى ${hifzEndAyah})`
-                        : `Interactive Hifz Slate — Surah ${hifzSurahMeta.nameEn}`}
+              {/* 3. Illuminated Mushaf Al-Madinah Parchment Hifz Stage (Tap any masked word to reveal!) */}
+              <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-[#fffdf7] via-[#fef9e7] to-[#ecfdf5]/80 dark:from-zinc-900 dark:via-emerald-950/40 dark:to-zinc-900 border-2 border-amber-400/90 dark:border-amber-500/40 shadow-[0_14px_34px_-10px_rgba(180,83,9,0.2)] space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-300/70 dark:border-amber-500/25 pb-2.5">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-950 dark:text-amber-300 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-amber-600" />
+                      <span>
+                        {isAr
+                          ? `لوح المصحف التفاعلي — سورة ${hifzSurahMeta.nameAr} (الآيات ${hifzStartAyah} إلى ${hifzEndAyah})`
+                          : `Interactive Mushaf Hifz Slate — Surah ${hifzSurahMeta.nameEn}`}
+                      </span>
                     </span>
-                  </span>
-                  <span className="text-[10px] text-emerald-300 font-bold">
-                    {isAr ? '💡 اضغط على أي كلمة مخفية لكشفها والتحقق من حفظك' : '💡 Tap any hidden word to reveal'}
-                  </span>
+                    <span className="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold block mt-0.5">
+                      {isAr ? '💡 اضغط على أي كلمة مخفية (•••) لكشفها والتحقق من حفظك' : '💡 Tap any hidden word to reveal'}
+                    </span>
+                  </div>
+
+                  {/* 1-Tap Sequential Range Audio Loop Button (ربط الآيات متسلسلة) */}
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePlayRangeLoop(activeHifzAyahSlice)}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all shadow-sm border ${
+                      isRangeLooping
+                        ? 'bg-rose-600 text-white border-amber-200 animate-pulse'
+                        : 'bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white border-amber-300'
+                    }`}
+                  >
+                    {isRangeLooping ? (
+                      <>
+                        <Pause className="w-3.5 h-3.5 fill-current" />
+                        <span>
+                          {isAr
+                            ? `إيقاف ربط النصاب (دورة ${hifzCurrentLoop}/${hifzLoopTarget})`
+                            : `Stop Range Loop (${hifzCurrentLoop}/${hifzLoopTarget})`}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Repeat className="w-3.5 h-3.5" />
+                        <span>
+                          {isAr
+                            ? `🔁 تلاوة وربط النصاب كاملاً (${hifzLoopTarget}x)`
+                            : `Loop Entire Range (${hifzLoopTarget}x)`}
+                        </span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {isLoadingHifz ? (
-                  <div className="py-8 text-center text-xs text-slate-300">
+                  <div className="py-8 text-center text-xs font-bold text-emerald-800 dark:text-emerald-300">
                     {isAr ? 'جاري تحميل الرسم العثماني للآيات...' : 'Loading Uthmani Ayahs...'}
                   </div>
                 ) : activeHifzAyahSlice.length === 0 ? (
-                  <div className="py-6 text-center text-xs text-slate-300">
+                  <div className="py-6 text-center text-xs font-bold text-zinc-600 dark:text-zinc-300">
                     {isAr ? 'لا توجد آيات في هذا النطاق، يرجى ضبط رقم البداية والنهاية.' : 'No Ayahs in selected range.'}
                   </div>
                 ) : (
@@ -1212,14 +1448,14 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                       return (
                         <div
                           key={ayah.numberInSurah}
-                          className={`p-3.5 rounded-2xl border transition-all ${
+                          className={`p-3.5 rounded-2xl border-2 transition-all ${
                             isPlayingThisAyah
-                              ? 'bg-emerald-950/60 border-emerald-400/50 shadow-md'
-                              : 'bg-white/[0.04] border-white/10'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-500 shadow-md ring-2 ring-amber-300/60'
+                              : 'bg-white/95 dark:bg-zinc-900/90 border-amber-200/90 dark:border-zinc-800'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2 mb-2">
-                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-mono font-bold">
+                            <span className="px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-950 dark:text-amber-200 border border-amber-300 text-[10px] font-mono font-bold">
                               آية ﴿{ayah.numberInSurah}﴾
                             </span>
 
@@ -1227,15 +1463,15 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                               <button
                                 type="button"
                                 onClick={() => handlePlayHifzAyah(ayah, 1)}
-                                className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
-                                  isPlayingThisAyah
-                                    ? 'bg-emerald-500 text-zinc-950'
-                                    : 'bg-white/10 hover:bg-white/20 text-white'
+                                className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all border ${
+                                  isPlayingThisAyah && !isRangeLooping
+                                    ? 'bg-emerald-600 text-white border-amber-300'
+                                    : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-zinc-800 text-emerald-900 dark:text-emerald-200 border-emerald-300/80'
                                 }`}
                               >
-                                {isPlayingThisAyah ? (
+                                {isPlayingThisAyah && !isRangeLooping ? (
                                   <>
-                                    <Pause className="w-3 h-3" />
+                                    <Pause className="w-3 h-3 fill-current" />
                                     <span>
                                       {isAr
                                         ? `جاري التكرار (${hifzCurrentLoop}/${hifzLoopTarget})`
@@ -1244,8 +1480,8 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                                   </>
                                 ) : (
                                   <>
-                                    <Play className="w-3 h-3" />
-                                    <span>{isAr ? `استمع وكرر (${hifzLoopTarget}x)` : `Play (${hifzLoopTarget}x)`}</span>
+                                    <Play className="w-3 h-3 fill-current" />
+                                    <span>{isAr ? `تكرار الآية (${hifzLoopTarget}x)` : `Play (${hifzLoopTarget}x)`}</span>
                                   </>
                                 )}
                               </button>
@@ -1281,7 +1517,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                                     haptic.vibrateLight();
                                     setRevealedWordKeys((prev) => ({ ...prev, [wordKey]: true }));
                                   }}
-                                  className="px-3 py-0.5 rounded-xl bg-amber-400/15 hover:bg-amber-400/30 border border-dashed border-amber-400/45 text-amber-300 text-xs font-mono cursor-pointer transition-all active:scale-95"
+                                  className="px-3 py-0.5 rounded-xl bg-amber-100/90 hover:bg-amber-200 dark:bg-amber-500/20 border border-dashed border-amber-500 text-amber-900 dark:text-amber-300 text-xs font-mono font-bold cursor-pointer transition-all active:scale-95"
                                   title={isAr ? 'اضغط لكشف الكلمة' : 'Tap to reveal word'}
                                 >
                                   •••
@@ -1296,8 +1532,8 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                                   }}
                                   className={`px-1 rounded transition-colors ${
                                     isManuallyRevealed
-                                      ? 'text-emerald-300 bg-emerald-500/15 cursor-pointer'
-                                      : 'text-white'
+                                      ? 'text-emerald-800 dark:text-emerald-300 bg-emerald-100/80 dark:bg-emerald-500/20 border border-emerald-300 cursor-pointer'
+                                      : 'text-zinc-950 dark:text-amber-50'
                                   }`}
                                 >
                                   {word}
@@ -1327,7 +1563,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                   ].map((st) => (
                     <label
                       key={st.key}
-                      className="flex items-center gap-2 p-2 rounded-xl bg-white/85 dark:bg-zinc-900/85 border border-emerald-500/20 text-[11px] font-bold text-slate-800 dark:text-zinc-200 cursor-pointer"
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white/90 dark:bg-zinc-900/85 border border-emerald-500/25 text-[11px] font-bold text-zinc-900 dark:text-zinc-200 cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -1336,13 +1572,52 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
                           soundSynth.playTactileClick();
                           setHifzStepsDone((prev) => ({ ...prev, [st.key]: e.target.checked }));
                         }}
-                        className="w-4 h-4 text-emerald-600 rounded"
+                        className="w-4 h-4 accent-emerald-600 rounded"
                       />
                       <span>{st.labelAr}</span>
                     </label>
                   ))}
                 </div>
               </div>
+
+              {/* 5. Saved Hifz Mastery Log (سجل المحفوظات المتقنة والمراجعة السريعة) */}
+              {hifzMasteryLog.length > 0 && (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-50/90 via-white to-emerald-50/80 dark:from-zinc-900 dark:to-emerald-950/30 border-2 border-amber-300/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-zinc-950 dark:text-amber-200">
+                      📜 {isAr ? `سجل المحفوظات المتقنة (${hifzMasteryLog.length} نصاب محفوظ)` : 'Saved Hifz Mastery Log'}
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
+                      {isAr ? 'اضغط على أي نصاب لمراجعته وتسميعه فوراً' : 'Tap any entry to review'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                    {hifzMasteryLog.map((entry) => (
+                      <button
+                        key={entry.id}
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setHifzSurahNumber(entry.surahNumber);
+                          setHifzStartAyah(entry.startAyah);
+                          setHifzEndAyah(entry.endAyah);
+                          setHifzMaskLevel('blind_recall');
+                          setRevealedWordKeys({});
+                        }}
+                        className="px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 hover:bg-emerald-50 border border-amber-300 text-start shrink-0 cursor-pointer shadow-2xs transition-all active:scale-95"
+                      >
+                        <div className="text-xs font-bold text-emerald-950 dark:text-white">
+                          سورة {entry.surahNameAr} ({entry.startAyah}-{entry.endAyah})
+                        </div>
+                        <div className="text-[10px] font-bold text-amber-800 dark:text-amber-300">
+                          ✅ تم التثبيت ({entry.reviewCount}x) • {entry.dateFormatted}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

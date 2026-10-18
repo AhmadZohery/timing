@@ -1325,8 +1325,20 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const { language } = useTranslation();
   const isAr = language === 'ar';
 
+  // Load persisted Atheer Studio preferences
+  const savedStudioPrefs = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('midmar_atheer_studio_prefs_v1');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const [audioState, setAudioState] = useState<GymFaithAudioState>(gymFaithAudio.getState());
-  const [viewMode, setViewMode] = useState<'tracks' | 'paths' | 'youtube' | 'soundcloud' | 'scholars'>('tracks');
+  const [viewMode, setViewMode] = useState<'tracks' | 'paths' | 'youtube' | 'soundcloud' | 'scholars'>(
+    savedStudioPrefs?.viewMode || 'tracks'
+  );
   const [selectedSoundCloudDeck, setSelectedSoundCloudDeck] = useState<SoundCloudScholarDeck>(
     VERIFIED_SOUNDCLOUD_DECKS[0]
   );
@@ -1340,8 +1352,10 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const [conciergeDuration, setConciergeDuration] = useState<'short' | 'medium' | 'deep'>('medium');
 
   // WebAudio Ambient Nature Mixer State (Rain / Dawn Breeze / Warm Sanctuary)
-  const [ambientMode, setAmbientMode] = useState<'off' | 'rain' | 'breeze' | 'warmth'>('off');
-  const [ambientVolume, setAmbientVolume] = useState<number>(0.18);
+  const [ambientMode, setAmbientMode] = useState<'off' | 'rain' | 'breeze' | 'warmth'>(
+    savedStudioPrefs?.ambientMode || 'off'
+  );
+  const [ambientVolume, setAmbientVolume] = useState<number>(savedStudioPrefs?.ambientVolume ?? 0.18);
   const ambientCtxRef = React.useRef<AudioContext | null>(null);
   const ambientGainRef = React.useRef<GainNode | null>(null);
 
@@ -1365,7 +1379,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const [gemDraftTrack, setGemDraftTrack] = useState<MobileAudioTrack | null>(null);
   const [gemDraftText, setGemDraftText] = useState('');
 
-  const [selectedScholarId, setSelectedScholarId] = useState<string>('ayman_abdelrahim');
+  const [selectedScholarId, setSelectedScholarId] = useState<string>(
+    savedStudioPrefs?.selectedScholarId || 'ayman_abdelrahim'
+  );
   const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>('series_ayman_zawaj_bayt_muslim');
   const [activeCategory, setActiveCategory] = useState<
     | 'all'
@@ -1380,13 +1396,29 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     | 'adhkar'
     | 'tazkiyah'
     | 'radio'
-  >('all');
+  >(savedStudioPrefs?.activeCategory || 'all');
   const [searchQuery, setSearchQuery] = useState('');
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => gymFaithAudio.getFavorites());
   const [customSeriesList, setCustomSeriesList] = useState<FaithAudioSeries[]>(() =>
     gymFaithAudio.getCustomSeries()
   );
+
+  // Auto-persist studio preferences
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        'midmar_atheer_studio_prefs_v1',
+        JSON.stringify({
+          viewMode,
+          selectedScholarId,
+          activeCategory,
+          ambientMode,
+          ambientVolume,
+        })
+      );
+    } catch {}
+  }, [viewMode, selectedScholarId, activeCategory, ambientMode, ambientVolume]);
 
   // Sleep Timer State
   const [sleepSecondsLeft, setSleepSecondsLeft] = useState<number | null>(null);
@@ -1783,7 +1815,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         descriptionAr: trimmed,
         soundcloudUrl: trimmed,
         rating: '5.0 ⭐',
-        listenersAr: 'مباشر',
+        listenersAr: 'محفوظ',
         badgeAr: '☁️ ساوند كلاود خاص',
         emoji: '☁️',
       });
@@ -1791,16 +1823,23 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       setCustomLinkInput('');
       setCustomTitleInput('');
       setIsCustomDrawerOpen(false);
-      onRewardToast?.('☁️ جاري فتح المقطع في مشغل ساوند كلاود المدمج');
+      onRewardToast?.('☁️ جاري فتح وحفظ المقطع في مشغل ساوند كلاود المدمج');
       return;
     }
 
     const title = customTitleInput.trim() || 'درس مضاف (يوتيوب / صوتي)';
-    gymFaithAudio.playCustomUrl(trimmed, title, 'محراب الوعي');
+    gymFaithAudio.addCustomSeries({
+      titleAr: title,
+      sheikhAr: 'مكتبتي الخاصة • محراب الوعي',
+      audioUrl: trimmed,
+      descriptionAr: 'محاضرة محفوظة في مكتبتك الخاصة.',
+    });
+    setCustomSeriesList(gymFaithAudio.getCustomSeries());
+    gymFaithAudio.playCustomUrl(trimmed, title, 'مكتبتي الخاصة');
     setCustomLinkInput('');
     setCustomTitleInput('');
     setIsCustomDrawerOpen(false);
-    onRewardToast?.(`▶️ جاري تشغيل: ${title}`);
+    onRewardToast?.(`💾▶️ تم الحفظ في مكتبتك وجاري تشغيل: ${title}`);
   };
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
