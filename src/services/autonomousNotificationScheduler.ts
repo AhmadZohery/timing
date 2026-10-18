@@ -590,7 +590,7 @@ class AutonomousNotificationScheduler {
       }
 
       // ----------------------------------------------------
-      // 9. CUSTOM USER REMINDERS (Evaluated for BOTH Today & Tomorrow)
+      // 9. CUSTOM USER REMINDERS, OCCASIONS, PRE-EVENT PREP & POST-SATISFACTION
       // ----------------------------------------------------
       if (settings?.customRemindersEnabled ?? true) {
         try {
@@ -598,9 +598,13 @@ class AutonomousNotificationScheduler {
             .filter((r) => r.enabled)
             .toArray();
 
+          const dayAfterTomorrow = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000);
+          const dayAfterTomorrowStr = formatLocalDate(dayAfterTomorrow);
+
           const daysToCheck = [
             { date: now, dateStr: todayDateStr, isWeekend: now.getDay() === 5 || now.getDay() === 6 },
             { date: tomorrow, dateStr: tomorrowDateStr, isWeekend: tomorrow.getDay() === 5 || tomorrow.getDay() === 6 },
+            { date: dayAfterTomorrow, dateStr: dayAfterTomorrowStr, isWeekend: dayAfterTomorrow.getDay() === 5 || dayAfterTomorrow.getDay() === 6 },
           ];
 
           for (const day of daysToCheck) {
@@ -610,6 +614,11 @@ class AutonomousNotificationScheduler {
                 shouldSchedule = true;
               } else if (rem.recurrence === 'weekdays' && !day.isWeekend) {
                 shouldSchedule = true;
+              } else if (rem.recurrence === 'weekly' && rem.date) {
+                const origDay = new Date(`${rem.date}T00:00:00`).getDay();
+                if (origDay === day.date.getDay()) shouldSchedule = true;
+              } else if (rem.recurrence === 'yearly' && rem.date) {
+                if (rem.date.slice(5) === day.dateStr.slice(5)) shouldSchedule = true;
               } else if (rem.recurrence === 'once' && (!rem.date || rem.date === day.dateStr)) {
                 shouldSchedule = true;
               }
@@ -619,18 +628,67 @@ class AutonomousNotificationScheduler {
                 const reminderTime = new Date(day.date);
                 reminderTime.setHours(rH || 0, rM || 0, 0, 0);
 
+                // A) Pre-Event Preparation / Gift / Carry-Items Reminder
+                if (
+                  !rem.prepCompleted &&
+                  ((rem.prepChecklist && rem.prepChecklist.length > 0) ||
+                    (rem.prepReminderLeadMinutes && rem.prepReminderLeadMinutes > 0))
+                ) {
+                  const leadMins = rem.prepReminderLeadMinutes || 120;
+                  const prepTimestamp = reminderTime.getTime() - leadMins * 60 * 1000;
+                  if (prepTimestamp > now.getTime()) {
+                    const prepSummary =
+                      rem.prepChecklist && rem.prepChecklist.length > 0
+                        ? rem.prepChecklist.join(' • ')
+                        : 'جهز هديتك أو مستلزماتك قبل الموعد بوقت كافٍ';
+                    alarms.push({
+                      id: `custom_prep_${rem.id}_${day.dateStr}`,
+                      title: `🎁 تذكير تحضير قبل الموعد: ${rem.title}`,
+                      body: `قبل الموعد: لا تنسَ (${prepSummary})`,
+                      timestampMs: prepTimestamp,
+                      tag: `custom-prep-${rem.id}`,
+                      url: '/?station=HOME',
+                      icon: DEFAULT_ALARM_ICON,
+                      actions: [{ action: 'mark_done', title: 'جهزت كل حاجة ✔' }],
+                      data: { reminderId: rem.id, type: 'prep' },
+                    });
+                  }
+                }
+
+                // B) Exact Appointment / Occasion Time Notification
                 if (reminderTime.getTime() > now.getTime()) {
+                  const prepHint =
+                    rem.prepChecklist && rem.prepChecklist.length > 0
+                      ? ` • تذكر أخذ: ${rem.prepChecklist.slice(0, 2).join('، ')}`
+                      : '';
                   alarms.push({
                     id: `custom_${rem.id}_${day.dateStr}`,
-                    title: `${rem.title} ⏳`,
-                    body: rem.notes || 'تذكير مخصص من جدولك في مِضمار في موعدك المحدد.',
+                    title: `📅 حان الآن موعد: ${rem.title}`,
+                    body: (rem.notes || 'موعد مسجل في مفكرتك اليومية في مِضمار.') + prepHint,
                     timestampMs: reminderTime.getTime(),
                     tag: `custom-${rem.id}`,
                     url: '/?station=HOME',
                     icon: DEFAULT_ALARM_ICON,
-                    actions: [{ action: 'mark_done', title: 'تم الإنجاز ✔' }],
+                    actions: [{ action: 'mark_done', title: 'تم الحضور / الإنجاز ✔' }],
                     data: { reminderId: rem.id },
                   });
+                }
+
+                // C) Post-Appointment Satisfaction Check-In (90 mins after appointment)
+                if (rem.satisfactionScore === undefined) {
+                  const rateTimestamp = reminderTime.getTime() + 90 * 60 * 1000;
+                  if (rateTimestamp > now.getTime() && day.dateStr !== dayAfterTomorrowStr) {
+                    alarms.push({
+                      id: `custom_rate_${rem.id}_${day.dateStr}`,
+                      title: `🌟 كيف كان موعدك: ${rem.title}؟`,
+                      body: 'افتح مِضمار وسجل نسبة رضاك عن هذا الموعد أو المناسبة في ثانية واحدة!',
+                      timestampMs: rateTimestamp,
+                      tag: `custom-rate-${rem.id}`,
+                      url: '/?station=HOME',
+                      icon: DEFAULT_ALARM_ICON,
+                      data: { reminderId: rem.id, type: 'rate' },
+                    });
+                  }
                 }
               }
             }

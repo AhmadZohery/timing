@@ -312,20 +312,38 @@ export interface WorkdayTask {
   isDeleted?: boolean;
 }
 
-export type ReminderRecurrence = 'once' | 'daily' | 'weekdays';
-export type ReminderCategory = 'custom' | 'work' | 'health' | 'spiritual' | 'fitness' | 'learning';
+export type ReminderRecurrence = 'once' | 'daily' | 'weekdays' | 'weekly' | 'yearly';
+export type ReminderCategory =
+  | 'custom'
+  | 'work'
+  | 'occasion'
+  | 'outing'
+  | 'errand'
+  | 'family'
+  | 'health'
+  | 'spiritual'
+  | 'fitness'
+  | 'learning';
 
 export interface CustomReminderItem {
   id: string;
   title: string;
   time: string; // "HH:mm" e.g. "15:30"
-  date?: string; // "YYYY-MM-DD" for 'once' or start date
+  date?: string; // "YYYY-MM-DD" for 'once' or specific date
   recurrence: ReminderRecurrence;
   category: ReminderCategory;
   enabled: boolean;
   notes?: string;
   completedDates?: string[];
   createdAt: number;
+  // Smart Appointments, Occasions, Pre-Prep & Post-Satisfaction fields
+  prepChecklist?: string[]; // e.g. ["🎁 شراء هدية", "🎒 أخذ الشاحن والأوراق"]
+  prepReminderLeadMinutes?: number; // e.g. 1440 (24h before), 180 (3h before), 60 (1h before), 30 (30m before)
+  prepCompleted?: boolean;
+  satisfactionScore?: number; // 0-100% rating after the appointment
+  satisfactionNote?: string; // Reflection note after the appointment
+  ratedAt?: number;
+  location?: string;
 }
 
 export type FocusSessionMode =

@@ -67,6 +67,8 @@ import { WeeklyBarakahReportModal } from '../modals/WeeklyBarakahReportModal';
 import { FridayKahfModal } from '../spiritual/FridayKahfModal';
 import { FlexibleQuranTrackerModal } from '../spiritual/FlexibleQuranTrackerModal';
 import { checkIsFridaySalawatWindow } from '../../utils/tasbihEngine';
+import { SmartAppointmentsModal } from '../modals/SmartAppointmentsModal';
+import { SmartDailyAppointmentsWidget } from './SmartDailyAppointmentsWidget';
 
 interface HomeDashboardViewProps {
   userState?: UserState;
@@ -331,6 +333,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const [isQuickScheduleOpen, setIsQuickScheduleOpen] = useState(false);
   const [isChessLabOpen, setIsChessLabOpen] = useState(false);
   const [isBookSanctuaryOpen, setIsBookSanctuaryOpen] = useState(false);
+  const [isSmartAppointmentsOpen, setIsSmartAppointmentsOpen] = useState(false);
 
   const todayBioDate = getBiologicalDate();
   const activeManualOverride: StationId | null =
@@ -2176,6 +2179,18 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
+                  setIsSmartAppointmentsOpen(true);
+                }}
+                className="px-3.5 py-2 rounded-full bg-gradient-to-r from-amber-500 to-rose-600 text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
+              >
+                <span>📅</span>
+                <span>{isAr ? 'مفكرة المواعيد والمناسبات والهدايا 🎁' : 'Appointments & Occasions 🎁'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
                   setIsBookSanctuaryOpen(true);
                 }}
                 className="px-3.5 py-2 rounded-full bg-gradient-to-r from-[#1eb814] to-emerald-700 text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
@@ -2232,6 +2247,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
               </button>
             </div>
           </div>
+
+          {/* 1.15 Smart Daily Appointments, Occasions, Pre-Event Gift Prep & Post-Satisfaction Hub */}
+          <SmartDailyAppointmentsWidget
+            onOpenFullModal={() => setIsSmartAppointmentsOpen(true)}
+            onRewardToast={onRewardToast}
+          />
 
           {/* 1.2 Official 5-Prayer Strip & Detailed Khushu Logger */}
           <PrayerTimesBar
@@ -3672,6 +3693,13 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
         isOpen={isBookSanctuaryOpen}
         onClose={() => setIsBookSanctuaryOpen(false)}
         isAr={isAr}
+        onRewardToast={onRewardToast}
+      />
+
+      {/* Smart Daily Appointments, Occasions, Pre-Prep Gift Assistant & Post-Satisfaction Modal */}
+      <SmartAppointmentsModal
+        isOpen={isSmartAppointmentsOpen}
+        onClose={() => setIsSmartAppointmentsOpen(false)}
         onRewardToast={onRewardToast}
       />
     </div>
