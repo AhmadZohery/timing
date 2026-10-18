@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import {
   COMBAT_DRILLS,
+  FIGHTER_ACCESSORY_EXERCISES,
   ROUND_PRESETS,
   STRIKING_COMBOS,
   type CombatDiscipline,
@@ -303,53 +304,30 @@ export const CombatSportsModule: React.FC<CombatSportsModuleProps> = ({
       {/* 1. Discipline Selector & Mode Controls */}
       <div className="flex items-center justify-between gap-2 flex-wrap p-2 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              setDiscipline('boxing');
-            }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              discipline === 'boxing'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
-            }`}
-          >
-            <span>🥊</span>
-            <span>{isAr ? 'ملاكمة (Boxing)' : 'Boxing'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              setDiscipline('muay_thai');
-            }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              discipline === 'muay_thai'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
-            }`}
-          >
-            <span>🥋</span>
-            <span>{isAr ? 'موي تاي (Muay Thai)' : 'Muay Thai'}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              setDiscipline('bjj');
-            }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              discipline === 'bjj'
-                ? 'bg-rose-600 text-white shadow-xs'
-                : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
-            }`}
-          >
-            <span>🥋</span>
-            <span>{isAr ? 'جيوجيتسو (BJJ)' : 'BJJ'}</span>
-          </button>
+          {[
+            { id: 'boxing' as const, icon: '🥊', labelAr: 'ملاكمة (Boxing)', labelEn: 'Boxing' },
+            { id: 'kickboxing' as const, icon: '🦵', labelAr: 'كيك بوكسينج (Kickboxing)', labelEn: 'Kickboxing' },
+            { id: 'muay_thai' as const, icon: '🔥', labelAr: 'مواي تاي (Muay Thai)', labelEn: 'Muay Thai' },
+            { id: 'bjj' as const, icon: '🥋', labelAr: 'جيوجيتسو (BJJ)', labelEn: 'BJJ' },
+            { id: 'mma' as const, icon: '🤼', labelAr: 'مصارعة و MMA', labelEn: 'MMA & Wrestling' },
+          ].map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setDiscipline(d.id);
+              }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                discipline === d.id
+                  ? 'bg-rose-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-200'
+              }`}
+            >
+              <span>{d.icon}</span>
+              <span>{isAr ? d.labelAr : d.labelEn}</span>
+            </button>
+          ))}
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -621,7 +599,19 @@ export const CombatSportsModule: React.FC<CombatSportsModuleProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-lg">🎯</span>
             <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-              {isAr ? `تتابعات وتمارين ${discipline === 'boxing' ? 'الملاكمة' : discipline === 'muay_thai' ? 'الموي تاي' : 'الجيوجيتسو'}` : 'Technique & Drills'}
+              {isAr
+                ? `تتابعات وتمارين ${
+                    discipline === 'boxing'
+                      ? 'الملاكمة'
+                      : discipline === 'kickboxing'
+                      ? 'الكيك بوكسينج'
+                      : discipline === 'muay_thai'
+                      ? 'المواي تاي'
+                      : discipline === 'bjj'
+                      ? 'الجيوجيتسو البرازيلي'
+                      : 'المصارعة و MMA'
+                  }`
+                : 'Technique & Drills'}
             </h4>
           </div>
           <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">
@@ -652,11 +642,77 @@ export const CombatSportsModule: React.FC<CombatSportsModuleProps> = ({
                   {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                 </div>
 
-                <div className="space-y-0.5 min-w-0">
-                  <div className="text-xs font-bold leading-tight truncate">{drill.nameAr}</div>
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="text-xs font-bold leading-tight truncate">{drill.nameAr}</div>
+                    {drill.level && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 text-[9px] font-bold shrink-0">
+                        {drill.level === 'beginner'
+                          ? isAr ? 'مبتدئ' : 'Beginner'
+                          : drill.level === 'intermediate'
+                          ? isAr ? 'متوسط' : 'Interm.'
+                          : isAr ? 'متقدم' : 'Advanced'}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[10px] text-slate-500 dark:text-zinc-400 line-clamp-2">
                     {drill.descriptionAr}
                   </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3.5 Fighter Strength & Conditioning Accessory Exercises */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-white dark:via-zinc-900 to-rose-500/10 border border-amber-400/35 space-y-3">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⚡</span>
+            <div>
+              <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
+                {isAr
+                  ? 'تمارين التقوية البدنية المساعدة للمقاتل (Fighter Strength & Power)'
+                  : 'Fighter Strength & Conditioning Assistance'}
+              </h4>
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                {isAr
+                  ? 'تمارين حديد وكاليستنكس مخصصة لرفع قوة الضربة والركلة وتحمل الجوجيتسو'
+                  : 'Targeted strength & calisthenics exercises to boost striking power and grappling endurance'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {FIGHTER_ACCESSORY_EXERCISES.filter(
+            (ex) => ex.discipline === discipline || ex.discipline === 'all'
+          ).map((acc) => {
+            const done = !!checkedDrills[acc.id];
+            return (
+              <div
+                key={acc.id}
+                onClick={() => handleToggleDrill(acc.id)}
+                className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-2.5 ${
+                  done
+                    ? 'bg-emerald-500/15 border-emerald-400/50 text-emerald-950 dark:text-emerald-200'
+                    : 'bg-white/90 dark:bg-zinc-950/90 border-amber-300/40 dark:border-zinc-800'
+                }`}
+              >
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      {done && '✓ '}
+                      {acc.nameAr}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-mono font-bold">
+                      {acc.setsReps}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-600 dark:text-zinc-400 leading-relaxed">
+                    💡 {acc.benefitAr}
+                  </p>
                 </div>
               </div>
             );

@@ -52,27 +52,194 @@ interface GymAnchorViewProps {
   onOpenNiyyahModal?: (pillar?: NiyyahPillar) => void;
 }
 
-type RoutineType = 'push' | 'pull' | 'legs' | 'cardio' | 'survival';
+type RoutineType = 'push' | 'pull' | 'legs' | 'upper' | 'arms_delts' | 'cardio' | 'survival';
+export type BodyGoalType = 'bulking' | 'cutting' | 'recomp' | 'combat_hybrid';
+export type AthleteLevelType = 'beginner' | 'intermediate' | 'advanced';
+export type SecondarySportType = 'none' | 'boxing' | 'kickboxing' | 'bjj' | 'calisthenics';
+export type CalisthenicsSkillTrack = 'pull_muscleup' | 'handstand_push' | 'frontlever_core' | 'street_shred';
 
-const getRoutineDefaultExercises = (routine: RoutineType, isAr: boolean): WorkoutExercise[] => {
+interface CalisthenicsExerciseItem {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  target: string;
+  roleAr: string;
+  roleEn: string;
+  level: AthleteLevelType;
+  done: boolean;
+}
+
+const CALISTHENICS_SKILL_TRACKS: Record<
+  CalisthenicsSkillTrack,
+  {
+    titleAr: string;
+    titleEn: string;
+    badgeAr: string;
+    coachTipAr: string;
+    exercises: Record<AthleteLevelType, Omit<CalisthenicsExerciseItem, 'done'>[]>;
+  }
+> = {
+  pull_muscleup: {
+    titleAr: '🔥 العقلة الانفجارية والـ Muscle-Up',
+    titleEn: 'Explosive Pull-up & Muscle-Up Track',
+    badgeAr: 'سحب انفجاري + انتقال فوق البار',
+    coachTipAr: 'سر الـ Muscle-Up ليس العقلة العادية، بل السحب الانفجاري إلى أسفل الصدر (High Pull) مع تقوية الغطس المستقيم (Straight Bar Dips) وقبضة الـ False Grip.',
+    exercises: {
+      beginner: [
+        { id: 'cal-mu-b1', nameAr: 'سحب أسترالي مائل (Australian Pull-ups)', nameEn: 'Australian Rows', target: '4 × 12', roleAr: 'بناء قاعدة السحب للظهر والبايسبس', roleEn: 'Pulling foundation', level: 'beginner' },
+        { id: 'cal-mu-b2', nameAr: 'عقلة سلبية بطيئة 5 ثوانٍ (Negative Pull-ups)', nameEn: '5s Eccentric Pull-ups', target: '4 × 5', roleAr: 'تقوية الأوتار والعضلات في مرحلة النزول', roleEn: 'Tendon & eccentric strength', level: 'beginner' },
+        { id: 'cal-mu-b3', nameAr: 'تفعيل لوح الكتف بالتعلق (Scapular Pulls)', nameEn: 'Scapular Pulls & Dead Hang', target: '3 × 12 + 30s', roleAr: 'تقوية القبضة وبداية السحب الانفجاري', roleEn: 'Grip & scapular activation', level: 'beginner' },
+        { id: 'cal-mu-b4', nameAr: 'متوازي غطس كامل أو بمساعدة (Parallel Bar Dips)', nameEn: 'Parallel Dips', target: '3 × 10', roleAr: 'قوة الدفع العلوية اللازمة فوق البار', roleEn: 'Lockout pushing power', level: 'beginner' },
+      ],
+      intermediate: [
+        { id: 'cal-mu-i1', nameAr: 'عقلة انفجارية للصدر (Chest-to-Bar Explosive Pull-ups)', nameEn: 'Chest-to-Bar Pull-ups', target: '4 × 6-8', roleAr: 'التمرين الأهم لكسر حاجز الانتقال فوق البار', roleEn: 'Explosive pull height', level: 'intermediate' },
+        { id: 'cal-mu-i2', nameAr: 'غطس على البار المستقيم (Straight Bar Dips)', nameEn: 'Straight Bar Dips', target: '4 × 10', roleAr: 'محاكاة مرحلة الدفع العلوية للـ Muscle-Up', roleEn: 'Top-bar lockout simulation', level: 'intermediate' },
+        { id: 'cal-mu-i3', nameAr: 'تعلق بقبضة الماسل أب (False Grip Hang & Pulls)', nameEn: 'False Grip Chins', target: '3 × 25s', roleAr: 'تسهيل قلب المعصم فوق العقلة بسلاسة', roleEn: 'Wrist transition mastery', level: 'intermediate' },
+        { id: 'cal-mu-i4', nameAr: 'رفع الركبة والبطن على العقلة (Toes-to-Bar / L-Raises)', nameEn: 'Hanging Leg Raises', target: '3 × 12', roleAr: 'ربط قوة الجذع مع السحب العلوي', roleEn: 'Core-to-bar compression', level: 'intermediate' },
+      ],
+      advanced: [
+        { id: 'cal-mu-a1', nameAr: 'ماسل أب كامل أو بوزن (Strict / Weighted Muscle-Ups)', nameEn: 'Strict Bar Muscle-Ups', target: '5 × 3-5', roleAr: 'أداء المهارة بتحكم كامل بدون مرجحة مفرطة', roleEn: 'Skill mastery & power', level: 'advanced' },
+        { id: 'cal-mu-a2', nameAr: 'عقلة بوزن إضافي أو لبطن المعدة (Waist Pull-ups / Weighted)', nameEn: 'High Waist Pull-ups', target: '4 × 6', roleAr: 'قوة انفجارية فائقة تتجاوز مستوى الصدر', roleEn: 'Supra-maximal pull power', level: 'advanced' },
+        { id: 'cal-mu-a3', nameAr: 'عقلة آرشر أحادية الذراع (Archer Pull-ups)', nameEn: 'Archer Pull-ups', target: '3 × 6 لكل ذراع', roleAr: 'تحضير للـ One-Arm Pull-up وتوازن القوة', roleEn: 'Unilateral pulling strength', level: 'advanced' },
+        { id: 'cal-mu-a4', nameAr: 'ثبات إل-سيت على العقلة (L-Sit Pull-ups)', nameEn: 'L-Sit Pull-ups', target: '3 × 8', roleAr: 'عزل تام لقوة الظهر والبطن معاً', roleEn: 'Zero-momentum strict pull', level: 'advanced' },
+      ],
+    },
+  },
+  handstand_push: {
+    titleAr: '🤸‍♂️ الوقوف على اليدين (Handstand) والدفع',
+    titleEn: 'Handstand & Overhead Push Track',
+    badgeAr: 'توازن الأكتاف + قوة الدفع العمودي',
+    coachTipAr: 'الوقوف على اليدين يعتمد 60% على توازن الأصابع وشد الجذع (Hollow Body)، و40% على قوة الأكتاف الأمامية وتمارين الـ Pike Push-ups.',
+    exercises: {
+      beginner: [
+        { id: 'cal-hs-b1', nameAr: 'ضغط بايك للأكتاف (Pike Push-ups)', nameEn: 'Pike Push-ups', target: '4 × 10', roleAr: 'بناء القوة العمودية للأكتاف والترايسبس', roleEn: 'Vertical shoulder strength', level: 'beginner' },
+        { id: 'cal-hs-b2', nameAr: 'ثبات الجذع المجوف (Hollow Body Hold)', nameEn: 'Hollow Body Hold', target: '4 × 40s', roleAr: 'منع تقوس أسفل الظهر أثناء الوقوف على اليدين', roleEn: 'Straight-line core alignment', level: 'beginner' },
+        { id: 'cal-hs-b3', nameAr: 'مشية الدب وتسلق الحائط الجزئي (Wall Walks)', nameEn: 'Wall Walks', target: '3 × 4', roleAr: 'التعود الآمن على وضع الانقلاب وتحمل وزن الجسم', roleEn: 'Inversion confidence', level: 'beginner' },
+        { id: 'cal-hs-b4', nameAr: 'تقوية المعصم والأصابع (Wrist & Finger Push-ups)', nameEn: 'Wrist Conditioning', target: '3 × 15', roleAr: 'حماية المفاصل والتحكم في التوازن بالأصابع', roleEn: 'Wrist & finger braking', level: 'beginner' },
+      ],
+      intermediate: [
+        { id: 'cal-hs-i1', nameAr: 'وقوف على اليدين والبطن للحائط (Chest-to-Wall Handstand)', nameEn: 'Chest-to-Wall Hold', target: '4 × 45s', roleAr: 'ضبط استقامة الجسم 180 درجة وتدريب كبح الأصابع', roleEn: 'Alignment & heel pulls', level: 'intermediate' },
+        { id: 'cal-hs-i2', nameAr: 'ضغط بايك مرتفع القدمين (Elevated Pike Push-ups)', nameEn: 'Box Pike Push-ups', target: '4 × 8', roleAr: 'مضاعفة الحمل على الكتف الأمامي والجانبي', roleEn: 'Heavy vertical press', level: 'intermediate' },
+        { id: 'cal-hs-i3', nameAr: 'ضغط مايل للأمام (Pseudo Planche Push-ups)', nameEn: 'Pseudo Planche Push-ups', target: '3 × 10', roleAr: 'تقوية وتر البايسبس والكتف الأمامي بعمق', roleEn: 'Anterior delt & tendon load', level: 'intermediate' },
+        { id: 'cal-hs-i4', nameAr: 'ثبات الضفدع على الكوعين (Crow / Frog Stand)', nameEn: 'Crow Stand Balance', target: '4 × 30s', roleAr: 'إتقان التوازن الحر بدون حائط', roleEn: 'Freestanding balance feel', level: 'intermediate' },
+      ],
+      advanced: [
+        { id: 'cal-hs-a1', nameAr: 'وقوف حر على اليدين (Freestanding Handstand Hold)', nameEn: 'Freestanding Handstand', target: '6 × 30s', roleAr: 'إتقان التوازن الحر والتحكم العصبي الكامل', roleEn: 'Freestanding mastery', level: 'advanced' },
+        { id: 'cal-hs-a2', nameAr: 'ضغط كامل بالوقوف على اليدين (Wall / Free HSPU)', nameEn: 'Handstand Push-ups (HSPU)', target: '4 × 6-8', roleAr: 'أقصى قوة دفع عمودية بوزن الجسم الكامل', roleEn: 'Full bodyweight overhead press', level: 'advanced' },
+        { id: 'cal-hs-a3', nameAr: 'انحناء ضغط التسعين درجة (90-Degree Push-up Negatives)', nameEn: '90-Degree Eccentrics', target: '3 × 4', roleAr: 'الربط بين الوقوف على اليدين والبلانش', roleEn: 'HSPU to Planche transition', level: 'advanced' },
+        { id: 'cal-hs-a4', nameAr: 'رفع من إل-سيت إلى الوقوف (Bent-Arm Press to Handstand)', nameEn: 'Press to Handstand', target: '4 × 4', roleAr: 'قوة تحكم فائقة في الأكتاف والـ Core', roleEn: 'Slow controlled press', level: 'advanced' },
+      ],
+    },
+  },
+  frontlever_core: {
+    titleAr: '⚡ الفرونت ليفر والبلانش وشد الجذع',
+    titleEn: 'Front Lever, Planche & Core Track',
+    badgeAr: 'ثبات أفقي خارق + ذراع مستقيمة',
+    coachTipAr: 'المهارات الأفقية (Front Lever & Planche) تعتمد على قوة الذراع المستقيمة (Straight-Arm Strength). لا تثنِ كوعك أبداً أثناء تمارين الثبات!',
+    exercises: {
+      beginner: [
+        { id: 'cal-fl-b1', nameAr: 'ثبات التاك فرونت ليفر (Tuck Front Lever Hold)', nameEn: 'Tuck Front Lever', target: '4 × 15s', roleAr: 'الخطوة الأولى لتعلم السحب الأفقي بالظهر', roleEn: 'Horizontal lat engagement', level: 'beginner' },
+        { id: 'cal-fl-b2', nameAr: 'ميلان البلانش بذراع مستقيمة (Planche Lean)', nameEn: 'Planche Leans', target: '4 × 25s', roleAr: 'تهيئة أوتار الكوع والكتف الأمامي للبلانش', roleEn: 'Straight-arm shoulder load', level: 'beginner' },
+        { id: 'cal-fl-b3', nameAr: 'إل-سيت على الأرض أو المتوازي (Tuck / Full L-Sit)', nameEn: 'Parallettes L-Sit', target: '4 × 20s', roleAr: 'ضغط عضلات البطن السفلية وتثبيت لوح الكتف', roleEn: 'Core compression & depression', level: 'beginner' },
+        { id: 'cal-fl-b4', nameAr: 'سحب أسترالي واسع للظهر (Wide Inverted Rows)', nameEn: 'Wide Body Rows', target: '3 × 12', roleAr: 'تسميك عضلات المجنص وأعلى الظهر', roleEn: 'Mid-back & rear delt mass', level: 'beginner' },
+      ],
+      intermediate: [
+        { id: 'cal-fl-i1', nameAr: 'فرونت ليفر متقدم بزاوية 90 (Advanced Tuck Front Lever)', nameEn: 'Adv. Tuck Front Lever', target: '5 × 12s', roleAr: 'مضاعفة عزم القوة على المجنص والبطن', roleEn: 'Extended lever torque', level: 'intermediate' },
+        { id: 'cal-fl-i2', nameAr: 'دراجون فلاج للبطن (Dragon Flags)', nameEn: 'Dragon Flags', target: '4 × 6', roleAr: 'أقوى تمرين جذع يحاكي استقامة الفرونت ليفر', roleEn: 'Anti-extension core power', level: 'intermediate' },
+        { id: 'cal-fl-i3', nameAr: 'ثبات تاك بلانش (Tuck Planche Hold)', nameEn: 'Tuck Planche', target: '5 × 10s', roleAr: 'رفع القدمين عن الأرض بالاعتماد على الكتف الأمامي', roleEn: 'Floating straight-arm hold', level: 'intermediate' },
+        { id: 'cal-fl-i4', nameAr: 'رفعات آيس كريم ميكر على العقلة (Ice Cream Makers)', nameEn: 'Front Lever Swings', target: '3 × 8', roleAr: 'تقوية ديناميكية لعضلات الظهر في الوضع الأفقي', roleEn: 'Dynamic horizontal pull', level: 'intermediate' },
+      ],
+      advanced: [
+        { id: 'cal-fl-a1', nameAr: 'فرونت ليفر كامل أو مفتوح الساقين (Straddle / Full Front Lever)', nameEn: 'Straddle / Full Front Lever', target: '5 × 8-10s', roleAr: 'ثبات أفقي كامل بقوة الظهر والجذع', roleEn: 'Full horizontal mastery', level: 'advanced' },
+        { id: 'cal-fl-a2', nameAr: 'سحب في وضع الفرونت ليفر (Front Lever Rows)', nameEn: 'Tuck / Adv. FL Rows', target: '4 × 6', roleAr: 'قوة سحب أفقية خارقة في الهواء', roleEn: 'Mid-air horizontal rowing', level: 'advanced' },
+        { id: 'cal-fl-a3', nameAr: 'بلانش متقدم أو مفتوح (Adv. Tuck / Straddle Planche)', nameEn: 'Adv. Tuck / Straddle Planche', target: '5 × 8s', roleAr: 'قمة القوة الأمامية للأكتاف والأوتار', roleEn: 'Elite straight-arm push', level: 'advanced' },
+        { id: 'cal-fl-a4', nameAr: 'إل-سيت إلى في-سيت (V-Sit Compression)', nameEn: 'V-Sit Hold', target: '4 × 10s', roleAr: 'أقصى ضغط للجذع والترايسبس', roleEn: 'Maximum core compression', level: 'advanced' },
+      ],
+    },
+  },
+  street_shred: {
+    titleAr: '💪 تضخيم وتنشيف بوزن الجسم (Street Hypertrophy)',
+    titleEn: 'Street Workout Hypertrophy & Shred',
+    badgeAr: 'بناء عضلي صافي + لياقة عالية',
+    coachTipAr: 'لبناء العضلات بوزن الجسم، تحكّم في سرعة النزول (3 ثوانٍ نزول + ثانية صعود) واقترب من الفشل العضلي في كل جولة مع راحة 60-90 ثانية.',
+    exercises: {
+      beginner: [
+        { id: 'cal-sh-b1', nameAr: 'ضغط صدر كلاسيكي وواسع (Standard & Wide Push-ups)', nameEn: 'Push-ups Hypertrophy', target: '4 × 15', roleAr: 'بناء الصدر والترايسبس والكتف الأمامي', roleEn: 'Chest & triceps volume', level: 'beginner' },
+        { id: 'cal-sh-b2', nameAr: 'سحب أسترالي وعقلة معكوسة للبايسبس (Chin-ups / Rows)', nameEn: 'Chin-ups & Rows', target: '4 × 10', roleAr: 'تضخيم البايسبس وعرض الظهر', roleEn: 'Biceps & lat hypertrophy', level: 'beginner' },
+        { id: 'cal-sh-b3', nameAr: 'سكوات بلغاري لكل ساق (Bulgarian Split Squats)', nameEn: 'Bulgarian Split Squats', target: '3 × 12 لكل ساق', roleAr: 'تضخيم الأفخاذ والأرداف بدون الحاجة لأوزان ثقيلة', roleEn: 'Single-leg quad builder', level: 'beginner' },
+        { id: 'cal-sh-b4', nameAr: 'بلانك ديناميكي ولمس الأكتاف (Plank Shoulder Taps)', nameEn: 'Plank Shoulder Taps', target: '3 × 45s', roleAr: 'نحت البطن وتثبيت الحوض', roleEn: 'Core stability & shred', level: 'beginner' },
+      ],
+      intermediate: [
+        { id: 'cal-sh-i1', nameAr: 'ضغط دايموند + متوازي صدر (Diamond Push-ups & Chest Dips)', nameEn: 'Dips & Diamond Push-ups', target: '4 × 12', roleAr: 'تفجير الصدر السفلي والترايسبس', roleEn: 'Lower chest & triceps mass', level: 'intermediate' },
+        { id: 'cal-sh-i2', nameAr: 'عقلة واسعة وعقلة ضيقة سوبرسيت (Wide + Close Pull-ups)', nameEn: 'Pull-up Mechanical Drop Set', target: '4 × 8+6', roleAr: 'استهداف كل زوايا الظهر والذراعين حتى الإجهاد', roleEn: 'Complete back thickness', level: 'intermediate' },
+        { id: 'cal-sh-i3', nameAr: 'سكوات أحادي الساق على صندوق (Box Pistol Squats)', nameEn: 'Box Pistol Squats', target: '4 × 8 لكل ساق', roleAr: 'قوة وتوازن وضخامة للأرجل', roleEn: 'Unilateral leg power', level: 'intermediate' },
+        { id: 'cal-sh-i4', nameAr: 'رفع الأرجل المعلق للبطن (Hanging Leg Raises)', nameEn: 'Strict Leg Raises', target: '4 × 12', roleAr: 'إبراز عضلات البطن السفلية (6-Pack)', roleEn: 'Lower abs definition', level: 'intermediate' },
+      ],
+      advanced: [
+        { id: 'cal-sh-a1', nameAr: 'متوازي وعقلة بوزن أو تحكم بطيء (Weighted / Tempo Dips & Pulls)', nameEn: 'Weighted / Tempo Calisthenics', target: '5 × 10', roleAr: 'تضخيم عضلي ينافس الحديد الثقيل', roleEn: 'Elite street hypertrophy', level: 'advanced' },
+        { id: 'cal-sh-a2', nameAr: 'ضغط آرشر وضغط بيد واحدة (Archer / One-Arm Push-ups)', nameEn: 'Archer Push-ups', target: '4 × 8 لكل جانب', roleAr: 'تطوير قوة صدر وكتف استثنائية', roleEn: 'Unilateral chest mastery', level: 'advanced' },
+        { id: 'cal-sh-a3', nameAr: 'بيستول سكوات كامل + قفز انفجاري (Full Pistol Squats)', nameEn: 'Full Pistol Squats', target: '4 × 8 لكل ساق', roleAr: 'أقصى قوة ومرونة للمفاصل والأرجل', roleEn: 'Full range single-leg squat', level: 'advanced' },
+        { id: 'cal-sh-a4', nameAr: 'مساحات الزجاج على العقلة للبطن (Hanging Windshield Wipers)', nameEn: 'Windshield Wipers', target: '4 × 10', roleAr: 'نحت الخواصر (Obliques) وجذع فولاذي', roleEn: 'Oblique & rotational core', level: 'advanced' },
+      ],
+    },
+  },
+};
+
+const getRoutineDefaultExercises = (
+  routine: RoutineType,
+  isAr: boolean,
+  bodyGoal: BodyGoalType = 'bulking',
+  athleteLevel: AthleteLevelType = 'intermediate'
+): WorkoutExercise[] => {
+  const wMult = athleteLevel === 'beginner' ? 0.65 : athleteLevel === 'advanced' ? 1.25 : 1.0;
+  const rW = (base: number) => Math.max(5, Math.round((base * wMult) / 2.5) * 2.5);
+  const mainReps = bodyGoal === 'bulking' ? 8 : bodyGoal === 'cutting' ? 12 : bodyGoal === 'combat_hybrid' ? 6 : 10;
+  const isoReps = bodyGoal === 'bulking' ? 10 : bodyGoal === 'cutting' ? 15 : 12;
+
   switch (routine) {
     case 'pull':
       return [
         {
           id: 'pull-1',
-          name: isAr ? 'Barbell Row (سحب بار للظهر)' : 'Barbell Bent-Over Row',
+          name: isAr ? 'Barbell Row (سحب بار للظهر - تمرين أساسي)' : 'Barbell Bent-Over Row',
           sets: [
-            { weight: 55, reps: 10, done: false },
-            { weight: 60, reps: 8, done: false },
-            { weight: 60, reps: 8, done: false },
+            { weight: rW(55), reps: mainReps, done: false },
+            { weight: rW(60), reps: mainReps, done: false },
+            { weight: rW(65), reps: Math.max(6, mainReps - 2), done: false },
           ],
         },
         {
           id: 'pull-2',
-          name: isAr ? 'Lat Pulldown (سحب عريض للظهر)' : 'Wide-Grip Lat Pulldown',
+          name: isAr ? 'Lat Pulldown / Weighted Pull-up (سحب عريض للمجنص)' : 'Wide-Grip Lat Pulldown',
           sets: [
-            { weight: 50, reps: 12, done: false },
-            { weight: 55, reps: 10, done: false },
+            { weight: rW(50), reps: mainReps + 2, done: false },
+            { weight: rW(55), reps: mainReps, done: false },
+            { weight: rW(55), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'pull-3',
+          name: isAr ? 'Seated Cable Row (سحب أرضي ضيق لعمق الظهر)' : 'Seated Cable Row',
+          sets: [
+            { weight: rW(50), reps: isoReps, done: false },
+            { weight: rW(55), reps: isoReps, done: false },
+          ],
+        },
+        {
+          id: 'pull-4',
+          name: isAr ? 'Face Pulls & Rear Delt (سحب للوجه والكتف الخلفي)' : 'Cable Face Pulls',
+          sets: [
+            { weight: rW(22.5), reps: 15, done: false },
+            { weight: rW(25), reps: 15, done: false },
+          ],
+        },
+        {
+          id: 'pull-5',
+          name: isAr ? 'Incline DB / EZ-Bar Curl (بايسبس بالبار أو الدمبل)' : 'EZ-Bar / Incline Bicep Curl',
+          sets: [
+            { weight: rW(30), reps: isoReps, done: false },
+            { weight: rW(32.5), reps: isoReps, done: false },
+            { weight: rW(32.5), reps: Math.max(8, isoReps - 2), done: false },
           ],
         },
       ];
@@ -80,19 +247,121 @@ const getRoutineDefaultExercises = (routine: RoutineType, isAr: boolean): Workou
       return [
         {
           id: 'legs-1',
-          name: isAr ? 'Barbell Squat (سكوات بالبار)' : 'Barbell Back Squat',
+          name: isAr ? 'Barbell Squat / Hack Squat (سكوات أساسي للأفخاذ)' : 'Barbell Back Squat',
           sets: [
-            { weight: 70, reps: 10, done: false },
-            { weight: 80, reps: 8, done: false },
-            { weight: 85, reps: 6, done: false },
+            { weight: rW(70), reps: mainReps, done: false },
+            { weight: rW(80), reps: mainReps, done: false },
+            { weight: rW(85), reps: Math.max(5, mainReps - 2), done: false },
           ],
         },
         {
           id: 'legs-2',
-          name: isAr ? 'Romanian Deadlift (رفعة رومانية للخلفيات)' : 'Romanian Deadlift',
+          name: isAr ? 'Romanian Deadlift (رفعة رومانية للخلفيات والأوتار)' : 'Romanian Deadlift (RDL)',
           sets: [
-            { weight: 65, reps: 10, done: false },
-            { weight: 70, reps: 10, done: false },
+            { weight: rW(65), reps: mainReps + 2, done: false },
+            { weight: rW(70), reps: mainReps, done: false },
+            { weight: rW(75), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'legs-3',
+          name: isAr ? 'Leg Press / Bulgarian Split Squat (دفع الأرجل والضخامة)' : 'Leg Press / Split Squat',
+          sets: [
+            { weight: rW(120), reps: isoReps, done: false },
+            { weight: rW(140), reps: isoReps, done: false },
+          ],
+        },
+        {
+          id: 'legs-4',
+          name: isAr ? 'Lying Leg Curl & Calf Raises (مرجحة خلفيات + سمانة)' : 'Leg Curl & Standing Calves',
+          sets: [
+            { weight: rW(45), reps: isoReps, done: false },
+            { weight: rW(50), reps: isoReps, done: false },
+            { weight: rW(50), reps: isoReps, done: false },
+          ],
+        },
+      ];
+    case 'upper':
+      return [
+        {
+          id: 'up-1',
+          name: isAr ? 'Incline Barbell / DB Press (ضغط صدر علوي)' : 'Incline Chest Press',
+          sets: [
+            { weight: rW(55), reps: mainReps, done: false },
+            { weight: rW(60), reps: mainReps, done: false },
+            { weight: rW(62.5), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'up-2',
+          name: isAr ? 'Weighted Pull-ups / Lat Pulldown (عقلة أو سحب مجنص)' : 'Weighted Pull-ups / Pulldown',
+          sets: [
+            { weight: rW(55), reps: mainReps, done: false },
+            { weight: rW(60), reps: mainReps, done: false },
+            { weight: rW(60), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'up-3',
+          name: isAr ? 'Overhead Shoulder Press (ضغط أكتاف عسكري)' : 'Overhead Shoulder Press',
+          sets: [
+            { weight: rW(40), reps: mainReps, done: false },
+            { weight: rW(42.5), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'up-4',
+          name: isAr ? 'Chest-Supported Row (سحب ظهر مسنود الصدر)' : 'Chest-Supported Row',
+          sets: [
+            { weight: rW(50), reps: isoReps, done: false },
+            { weight: rW(55), reps: isoReps, done: false },
+          ],
+        },
+        {
+          id: 'up-5',
+          name: isAr ? 'Arms Superset: Hammer Curl + Rope Pushdown (سوبرسيت ذراع)' : 'Biceps + Triceps Superset',
+          sets: [
+            { weight: rW(22.5), reps: isoReps, done: false },
+            { weight: rW(25), reps: isoReps, done: false },
+          ],
+        },
+      ];
+    case 'arms_delts':
+      return [
+        {
+          id: 'ad-1',
+          name: isAr ? 'Seated DB Shoulder Press (ضغط أكتاف بالدمبل)' : 'Seated DB Shoulder Press',
+          sets: [
+            { weight: rW(22.5), reps: mainReps, done: false },
+            { weight: rW(25), reps: mainReps, done: false },
+            { weight: rW(25), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'ad-2',
+          name: isAr ? 'Cable / DB Lateral Raises (رفرفة جانبي لتعريض الكتف)' : 'Lateral Raises (3D Delts)',
+          sets: [
+            { weight: rW(12.5), reps: 15, done: false },
+            { weight: rW(12.5), reps: 15, done: false },
+            { weight: rW(15), reps: 12, done: false },
+          ],
+        },
+        {
+          id: 'ad-3',
+          name: isAr ? 'Skullcrushers / Overhead Extension (ترايسبس للرأس الطويل)' : 'EZ-Bar Skullcrushers',
+          sets: [
+            { weight: rW(30), reps: isoReps, done: false },
+            { weight: rW(32.5), reps: isoReps, done: false },
+            { weight: rW(35), reps: 10, done: false },
+          ],
+        },
+        {
+          id: 'ad-4',
+          name: isAr ? 'Preacher Curl & Hammer Curl (بايسبس ارتكاز + هامر للساعد)' : 'Preacher & Hammer Curls',
+          sets: [
+            { weight: rW(27.5), reps: isoReps, done: false },
+            { weight: rW(30), reps: isoReps, done: false },
+            { weight: rW(30), reps: 10, done: false },
           ],
         },
       ];
@@ -100,9 +369,26 @@ const getRoutineDefaultExercises = (routine: RoutineType, isAr: boolean): Workou
       return [
         {
           id: 'cardio-1',
-          name: isAr ? 'Incline Treadmill Walk (مشي مائل عالي الكفاءة)' : 'Incline Treadmill Zone 2',
+          name: isAr ? 'Incline Treadmill Walk (مشي مائل لحرق الدهون الصافي Zone 2)' : 'Incline Treadmill Zone 2',
           sets: [
             { weight: 0, reps: 20, done: false },
+            { weight: 0, reps: 15, done: false },
+          ],
+        },
+        {
+          id: 'cardio-2',
+          name: isAr ? 'HIIT Assault Bike / Rower (جولات سرعة لرفع الـ VO2 Max)' : 'HIIT Conditioning Intervals',
+          sets: [
+            { weight: 0, reps: 10, done: false },
+            { weight: 0, reps: 10, done: false },
+          ],
+        },
+        {
+          id: 'cardio-3',
+          name: isAr ? 'Hanging Leg Raises & Ab Wheel (نحت عضلات البطن والـ Core)' : 'Core & Abs Finisher',
+          sets: [
+            { weight: 0, reps: 15, done: false },
+            { weight: 0, reps: 15, done: false },
             { weight: 0, reps: 15, done: false },
           ],
         },
@@ -111,7 +397,7 @@ const getRoutineDefaultExercises = (routine: RoutineType, isAr: boolean): Workou
       return [
         {
           id: 'surv-1',
-          name: isAr ? 'Push-ups & Core MVD (حد الكفاية البدني)' : 'MVD Push-ups & Core',
+          name: isAr ? 'Push-ups & Core MVD (حد الكفاية البدني في 5 دقائق)' : 'MVD Push-ups & Core',
           sets: [
             { weight: 0, reps: 15, done: false },
             { weight: 0, reps: 15, done: false },
@@ -123,19 +409,45 @@ const getRoutineDefaultExercises = (routine: RoutineType, isAr: boolean): Workou
       return [
         {
           id: 'ex-1',
-          name: isAr ? 'Bench Press (ضغط الصدر بالبار)' : 'Barbell Bench Press',
+          name: isAr ? 'Bench Press (ضغط الصدر بالبار - تمرين القوة الأساسي)' : 'Barbell Bench Press',
           sets: [
-            { weight: 60, reps: 10, done: true },
-            { weight: 65, reps: 8, done: true },
-            { weight: 70, reps: 6, done: false },
+            { weight: rW(60), reps: mainReps, done: false },
+            { weight: rW(65), reps: mainReps, done: false },
+            { weight: rW(70), reps: Math.max(6, mainReps - 2), done: false },
           ],
         },
         {
           id: 'ex-2',
-          name: isAr ? 'Incline Dumbbell Press (تجميع بالدمبل مائل)' : 'Incline DB Press',
+          name: isAr ? 'Incline Dumbbell Press (تجميع بالدمبل مائل للصدر العلوي)' : 'Incline DB Press',
           sets: [
-            { weight: 22, reps: 10, done: false },
-            { weight: 22, reps: 10, done: false },
+            { weight: rW(22.5), reps: mainReps + 2, done: false },
+            { weight: rW(25), reps: mainReps, done: false },
+            { weight: rW(25), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'ex-3',
+          name: isAr ? 'Overhead Shoulder Press / Dips (ضغط أكتاف أو متوازي)' : 'Overhead Press / Weighted Dips',
+          sets: [
+            { weight: rW(40), reps: mainReps, done: false },
+            { weight: rW(42.5), reps: mainReps, done: false },
+          ],
+        },
+        {
+          id: 'ex-4',
+          name: isAr ? 'Lateral Raises (رفرفة جانبي لتعريض الأكتاف)' : 'Dumbbell Lateral Raises',
+          sets: [
+            { weight: rW(10), reps: isoReps + 2, done: false },
+            { weight: rW(12.5), reps: isoReps, done: false },
+            { weight: rW(12.5), reps: isoReps, done: false },
+          ],
+        },
+        {
+          id: 'ex-5',
+          name: isAr ? 'Tricep Rope Pushdown (سحب حبل للترايسبس)' : 'Tricep Rope Pushdowns',
+          sets: [
+            { weight: rW(25), reps: isoReps, done: false },
+            { weight: rW(27.5), reps: isoReps, done: false },
           ],
         },
       ];
@@ -175,13 +487,32 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
     localStorage.setItem('midmar_movement_cat', cat);
   };
 
-  // Home calisthenics state
-  const [homeExercises, setHomeExercises] = useState([
-    { id: 'h1', name: isAr ? 'ضغط الكفين (Push-ups)' : 'Push-ups', target: '3 × 12', done: false },
-    { id: 'h2', name: isAr ? 'قرفصاء الأرجل (Bodyweight Squats)' : 'Squats', target: '3 × 15', done: false },
-    { id: 'h3', name: isAr ? 'بلانك الثبات (Plank Hold)' : 'Plank Hold', target: '3 × 45s', done: false },
-    { id: 'h4', name: isAr ? 'طعنات المشي (Walking Lunges)' : 'Lunges', target: '3 × 10 لكل ساق', done: false },
-  ]);
+  // Personalized Bodybuilding & Hybrid Athlete Profile
+  const [bodyGoal, setBodyGoal] = useState<BodyGoalType>(() => {
+    return (localStorage.getItem('midmar_body_goal') as BodyGoalType) || 'bulking';
+  });
+  const [athleteLevel, setAthleteLevel] = useState<AthleteLevelType>(() => {
+    return (localStorage.getItem('midmar_athlete_level') as AthleteLevelType) || 'intermediate';
+  });
+  const [secondarySport, setSecondarySport] = useState<SecondarySportType>(() => {
+    return (localStorage.getItem('midmar_secondary_sport') as SecondarySportType) || 'boxing';
+  });
+
+  // Calisthenics Skill & Level Progression State
+  const [calisthenicsSkill, setCalisthenicsSkill] = useState<CalisthenicsSkillTrack>(() => {
+    return (localStorage.getItem('midmar_calisthenics_skill') as CalisthenicsSkillTrack) || 'pull_muscleup';
+  });
+  const [homeExercises, setHomeExercises] = useState<CalisthenicsExerciseItem[]>(() => {
+    const initialTrack = (localStorage.getItem('midmar_calisthenics_skill') as CalisthenicsSkillTrack) || 'pull_muscleup';
+    const initialLvl = (localStorage.getItem('midmar_athlete_level') as AthleteLevelType) || 'intermediate';
+    const list = CALISTHENICS_SKILL_TRACKS[initialTrack]?.exercises[initialLvl] || CALISTHENICS_SKILL_TRACKS.pull_muscleup.exercises.intermediate;
+    return list.map((item) => ({ ...item, done: false }));
+  });
+
+  const syncCalisthenicsTrack = (track: CalisthenicsSkillTrack, lvl: AthleteLevelType) => {
+    const list = CALISTHENICS_SKILL_TRACKS[track]?.exercises[lvl] || CALISTHENICS_SKILL_TRACKS.pull_muscleup.exercises.intermediate;
+    setHomeExercises(list.map((item) => ({ ...item, done: false })));
+  };
 
   // Outdoor walk state
   const [walkMinutes, setWalkMinutes] = useState(30);
@@ -368,8 +699,8 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         loggedSets = homeExercises.filter((h) => h.done).length || 4;
         loggedExercises = homeExercises.map((h) => ({
           id: h.id,
-          name: h.name,
-          sets: [{ reps: 15, weight: 0, done: h.done }],
+          name: isAr ? h.nameAr : h.nameEn,
+          sets: [{ reps: 12, weight: 0, done: h.done }],
         }));
       }
 
@@ -614,7 +945,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           }`}
         >
           <span>🏋️</span>
-          <span>{isAr ? 'حديد وجيم' : 'Gym'}</span>
+          <span>{isAr ? 'كمال أجسام وحديد' : 'Bodybuilding & Gym'}</span>
         </button>
 
         <button
@@ -627,7 +958,20 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
           }`}
         >
           <span>🥊</span>
-          <span>{isAr ? 'فنون قتالية وبوكس' : 'Combat & Boxing'}</span>
+          <span>{isAr ? 'فنون قتالية (بوكس / كيك / جوجيتسو)' : 'Combat Sports'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectMovementCat('home')}
+          className={`py-2 px-3.5 rounded-[18px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
+            movementCategory === 'home'
+              ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-sm'
+              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+          }`}
+        >
+          <span>🤸‍♂️</span>
+          <span>{isAr ? 'كاليستنكس ووزن الجسم' : 'Calisthenics'}</span>
         </button>
 
         <button
@@ -654,19 +998,6 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         >
           <span>⏱️</span>
           <span>{isAr ? 'كلاس فيتنس و HIIT' : 'Fitness Class'}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleSelectMovementCat('home')}
-          className={`py-2 px-3.5 rounded-[18px] text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer ${
-            movementCategory === 'home'
-              ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-sm'
-              : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-          }`}
-        >
-          <span>🏠</span>
-          <span>{isAr ? 'تمارين منزلية' : 'Calisthenics'}</span>
         </button>
 
         <button
@@ -767,7 +1098,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         </div>
       </div>
 
-      {/* Movement View: Combat Sports (Boxing, Muay Thai, BJJ) */}
+      {/* Movement View: Combat Sports (Boxing, Kickboxing, Muay Thai, BJJ, MMA) */}
       {movementCategory === 'combat' && (
         <CombatSportsModule onRewardToast={onRewardToast} />
       )}
@@ -782,31 +1113,154 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         <FitnessIntervalEngine onRewardToast={onRewardToast} />
       )}
 
-      {/* Movement View: Home Calisthenics */}
+      {/* Movement View: Calisthenics Skill & Level Progression Coach */}
       {movementCategory === 'home' && (
-        <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="text-xl">🏠</span>
+        <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-[#141517] dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center text-xl shadow-sm shrink-0">
+                🤸‍♂️
+              </div>
               <div>
                 <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-zinc-100">
-                  {isAr ? 'دائرة التمارين المنزلية بوزن الجسم' : 'Bodyweight Calisthenics Circuit'}
+                  {isAr
+                    ? 'مدرب مهارات الكاليستنكس المتدرج (Calisthenics Skill Coach)'
+                    : 'Calisthenics Skill & Level Progression Coach'}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {isAr ? 'تنشيط عضلي متكامل في غرفتك دون أي أجهزة' : 'Full-body workout with zero equipment'}
+                  {isAr
+                    ? 'حدد المهارة المستهدفة ومستواك الحالي ليقترح لك النظام التمارين المساعدة الدقيقة التي توصلك لإتقانها'
+                    : 'Select your target skill & level for exact prerequisite and assistance progressions'}
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => handleStartRest(45)}
-              className="py-2 px-3.5 rounded-full bg-[#fde6d8] dark:bg-amber-950/45 text-zinc-950 dark:text-amber-200 font-mono text-xs font-bold border border-amber-400/35 cursor-pointer tabular-nums"
-            >
-              ⏱️ 45s {isAr ? 'استراحة' : 'Rest'}
-            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleStartRest(60)}
+                className="py-2 px-3.5 rounded-full bg-[#fde6d8] dark:bg-amber-950/45 text-zinc-950 dark:text-amber-200 font-mono text-xs font-bold border border-amber-400/35 cursor-pointer tabular-nums"
+              >
+                ⏱️ 60s {isAr ? 'استراحة' : 'Rest'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playCompletionChime();
+                  haptic.vibrateMedium();
+                  const mapped: WorkoutExercise[] = homeExercises.map((ex, i) => ({
+                    id: `cal-log-${Date.now()}-${i}`,
+                    name: isAr ? `${ex.nameAr} (${ex.target})` : `${ex.nameEn} (${ex.target})`,
+                    sets: [
+                      { weight: 0, reps: 10, done: false },
+                      { weight: 0, reps: 10, done: false },
+                      { weight: 0, reps: 10, done: false },
+                    ],
+                  }));
+                  saveExercises(mapped);
+                  handleSelectMovementCat('gym');
+                  if (onRewardToast) {
+                    onRewardToast(
+                      isAr
+                        ? '🤸‍♂️ تم نقل تمارين الكاليستنكس إلى سجل الجولات الرئيسي لتتبع التكرارات!'
+                        : '🤸‍♂️ Loaded Calisthenics track into main workout logger!'
+                    );
+                  }
+                }}
+                className="py-2 px-3.5 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 text-xs font-bold cursor-pointer shadow-xs"
+              >
+                {isAr ? 'نقل لسجل الجولات 📋' : 'Load to Logger 📋'}
+              </button>
+            </div>
           </div>
 
+          {/* 1. Target Skill Selector */}
+          <div className="space-y-2">
+            <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+              {isAr ? '١. اختر المهارة أو الهدف في الكاليستنكس:' : '1. Choose Target Calisthenics Skill:'}
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              {(
+                [
+                  { id: 'pull_muscleup', label: isAr ? '🔥 العقلة والـ Muscle-Up' : '🔥 Pull-up & Muscle-Up' },
+                  { id: 'handstand_push', label: isAr ? '🤸‍♂️ الوقوف على اليدين والدفع' : '🤸‍♂️ Handstand & HSPU' },
+                  { id: 'frontlever_core', label: isAr ? '⚡ الفرونت ليفر والبلانش' : '⚡ Front Lever & Planche' },
+                  { id: 'street_shred', label: isAr ? '💪 تضخيم وتنشيف بوزن الجسم' : '💪 Street Hypertrophy' },
+                ] as const
+              ).map((sk) => (
+                <button
+                  key={sk.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    setCalisthenicsSkill(sk.id);
+                    localStorage.setItem('midmar_calisthenics_skill', sk.id);
+                    syncCalisthenicsTrack(sk.id, athleteLevel);
+                  }}
+                  className={`py-2.5 px-3 rounded-2xl text-xs font-bold transition-all cursor-pointer text-start border ${
+                    calisthenicsSkill === sk.id
+                      ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-transparent shadow-sm'
+                      : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:border-[#ff5500]'
+                  }`}
+                >
+                  {sk.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. Athlete Level Selector */}
+          <div className="flex flex-wrap items-center justify-between gap-2 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800">
+            <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+              {isAr ? '٢. مستواك الحالي في المهارة:' : '2. Your Current Skill Level:'}
+            </span>
+            <div className="flex items-center gap-1.5">
+              {(
+                [
+                  { id: 'beginner', labelAr: '🌱 مبتدئ (تأسيس القوة)', labelEn: '🌱 Beginner' },
+                  { id: 'intermediate', labelAr: '⚡ متوسط (بناء المهارة)', labelEn: '⚡ Intermediate' },
+                  { id: 'advanced', labelAr: '🏆 متقدم (إتقان وتحكم)', labelEn: '🏆 Advanced' },
+                ] as const
+              ).map((lvl) => (
+                <button
+                  key={lvl.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    setAthleteLevel(lvl.id);
+                    localStorage.setItem('midmar_athlete_level', lvl.id);
+                    syncCalisthenicsTrack(calisthenicsSkill, lvl.id);
+                  }}
+                  className={`py-1.5 px-3 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    athleteLevel === lvl.id
+                      ? 'bg-[#ff5500] text-white shadow-xs'
+                      : 'bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800'
+                  }`}
+                >
+                  {isAr ? lvl.labelAr : lvl.labelEn}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Coach Biomechanical Advice */}
+          <div className="bento-3d-amber p-4 rounded-2xl border border-amber-400/35 flex items-start gap-3">
+            <span className="text-lg shrink-0">💡</span>
+            <div className="space-y-0.5">
+              <span className="text-xs font-bold text-zinc-950 dark:text-amber-200 block">
+                {isAr
+                  ? `روشتة المدرب لمسار (${CALISTHENICS_SKILL_TRACKS[calisthenicsSkill].titleAr}):`
+                  : `Coach Prescription (${CALISTHENICS_SKILL_TRACKS[calisthenicsSkill].titleEn}):`}
+              </span>
+              <p className="text-xs text-zinc-700 dark:text-zinc-200 leading-relaxed">
+                {CALISTHENICS_SKILL_TRACKS[calisthenicsSkill].coachTipAr}
+              </p>
+            </div>
+          </div>
+
+          {/* 3. Progressive Assistance Exercises Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {homeExercises.map((ex) => (
+            {homeExercises.map((ex, idx) => (
               <div
                 key={ex.id}
                 onClick={() => {
@@ -816,27 +1270,40 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                     prev.map((item) => (item.id === ex.id ? { ...item, done: !item.done } : item))
                   );
                 }}
-                className={`p-4 rounded-[20px] border transition-all cursor-pointer flex items-center justify-between ${
+                className={`p-4 rounded-[22px] border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
                   ex.done
                     ? 'bg-[#d4f5dc]/80 dark:bg-emerald-950/40 border-[#1eb814]/40 text-zinc-950 dark:text-emerald-200'
                     : 'bg-zinc-50 dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:border-[#ff5500]'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={`w-5 h-5 rounded-lg flex items-center justify-center border ${
-                      ex.done
-                        ? 'bg-habit-green-ink border-[#1eb814] text-white'
-                        : 'border-zinc-300 dark:border-zinc-700'
-                    }`}
-                  >
-                    {ex.done && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-2.5">
+                    <div
+                      className={`w-5 h-5 mt-0.5 rounded-lg flex items-center justify-center border shrink-0 ${
+                        ex.done
+                          ? 'bg-habit-green-ink border-[#1eb814] text-white'
+                          : 'border-zinc-300 dark:border-zinc-700'
+                      }`}
+                    >
+                      {ex.done ? (
+                        <CheckCircle className="w-3.5 h-3.5 text-white" />
+                      ) : (
+                        <span className="text-[10px] font-mono font-bold text-zinc-400">{idx + 1}</span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-xs sm:text-sm font-bold block">
+                        {isAr ? ex.nameAr : ex.nameEn}
+                      </span>
+                      <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium block mt-0.5">
+                        🎯 {isAr ? `الفائدة للمهارة: ${ex.roleAr}` : `Role: ${ex.roleEn}`}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-xs font-bold">{ex.name}</span>
+                  <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-[#ff5500] dark:text-orange-300 text-xs font-mono font-bold tabular-nums shrink-0">
+                    {ex.target}
+                  </span>
                 </div>
-                <span className="text-xs font-mono text-[#ff5500] dark:text-orange-400 font-bold tabular-nums">
-                  {ex.target}
-                </span>
               </div>
             ))}
           </div>
@@ -988,9 +1455,245 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         </div>
       )}
 
-      {/* Movement View: Gym (Anti-Couch & Routine Selector) */}
+      {/* Movement View: Gym (Smart Bodybuilding & Hybrid Sport Planner + Routine Selector) */}
       {movementCategory === 'gym' && (
         <>
+          {/* Smart Bodybuilding Goal, Level & Hybrid Sport Planner */}
+          <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-[#141517] dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center font-bold text-lg shrink-0">
+                  🏋️‍♂️
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-zinc-100">
+                    {isAr
+                      ? 'المخطط الذكي لكمال الأجسام والرياضات المدمجة'
+                      : 'Smart Bodybuilding & Hybrid Athlete Planner'}
+                  </h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {isAr
+                      ? 'اضبط هدفك (تضخيم / تنشيف) ومستواك ونشاطك الإضافي (بوكس / جوجيتسو / كاليستنكس) ليضبط النظام جدولك تلقائياً'
+                      : 'Customize your goal, level, and secondary sport for tailored daily workouts'}
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold">
+                {athleteLevel === 'beginner'
+                  ? isAr ? '🌱 مستوى مبتدئ' : '🌱 Beginner'
+                  : athleteLevel === 'intermediate'
+                  ? isAr ? '⚡ مستوى متوسط' : '⚡ Intermediate'
+                  : isAr ? '🏆 مستوى متقدم' : '🏆 Advanced'}
+              </span>
+            </div>
+
+            {/* Row 1: Primary Body Goal (تضخيم / تنشيف / إعادة تشكيل / قوة قتالية) */}
+            <div className="space-y-1.5">
+              <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+                {isAr ? '١. هدفك الجسدي الحالي:' : '1. Primary Physique Goal:'}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {(
+                  [
+                    {
+                      id: 'bulking',
+                      titleAr: '💪 تضخيم وبناء عضلي',
+                      subAr: 'فائض سعرات + أوزان ثقيلة (6-10 عدات)',
+                      titleEn: '💪 Clean Bulking',
+                    },
+                    {
+                      id: 'cutting',
+                      titleAr: '🔥 تنشيف وحرق دهون',
+                      subAr: 'عجز سعرات + كثافة عالية (12-15 عدة)',
+                      titleEn: '🔥 Shred & Cutting',
+                    },
+                    {
+                      id: 'recomp',
+                      titleAr: '⚡ تضخيم صافي (Recomp)',
+                      subAr: 'بناء عضل وحرق دهون معاً (8-12 عدة)',
+                      titleEn: '⚡ Body Recomp',
+                    },
+                    {
+                      id: 'combat_hybrid',
+                      titleAr: '🥊 قوة وانفجار قتالي',
+                      subAr: 'قوة عصبية بدون ثقل يبطئ الحركة (5-8 عدات)',
+                      titleEn: '🥊 Hybrid Fighter Power',
+                    },
+                  ] as const
+                ).map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      setBodyGoal(g.id);
+                      localStorage.setItem('midmar_body_goal', g.id);
+                      saveExercises(getRoutineDefaultExercises(selectedRoutine, isAr, g.id, athleteLevel));
+                    }}
+                    className={`p-3 rounded-2xl border text-start transition-all cursor-pointer ${
+                      bodyGoal === g.id
+                        ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-transparent shadow-sm'
+                        : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-zinc-800 hover:border-[#ff5500]'
+                    }`}
+                  >
+                    <span className="text-xs font-bold block">{isAr ? g.titleAr : g.titleEn}</span>
+                    <span
+                      className={`text-[10px] block mt-0.5 ${
+                        bodyGoal === g.id ? 'text-zinc-300 dark:text-zinc-600' : 'text-zinc-500 dark:text-zinc-400'
+                      }`}
+                    >
+                      {g.subAr}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Row 2: Athlete Level & Secondary Sport */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* Level */}
+              <div className="lg:col-span-5 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 space-y-2">
+                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+                  {isAr ? '٢. مستواك في الحديد (يضبط الأوزان تلقائياً):' : '2. Experience Level:'}
+                </span>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {(
+                    [
+                      { id: 'beginner', labelAr: '🌱 مبتدئ', labelEn: 'Beginner' },
+                      { id: 'intermediate', labelAr: '⚡ متوسط', labelEn: 'Intermediate' },
+                      { id: 'advanced', labelAr: '🏆 متقدم', labelEn: 'Advanced' },
+                    ] as const
+                  ).map((lvl) => (
+                    <button
+                      key={lvl.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setAthleteLevel(lvl.id);
+                        localStorage.setItem('midmar_athlete_level', lvl.id);
+                        saveExercises(getRoutineDefaultExercises(selectedRoutine, isAr, bodyGoal, lvl.id));
+                        syncCalisthenicsTrack(calisthenicsSkill, lvl.id);
+                      }}
+                      className={`py-2 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        athleteLevel === lvl.id
+                          ? 'bg-[#ff5500] text-white shadow-xs'
+                          : 'bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800'
+                      }`}
+                    >
+                      {isAr ? lvl.labelAr : lvl.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Secondary Sport (نشاط إضافي بجانب الحديد) */}
+              <div className="lg:col-span-7 p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 space-y-2">
+                <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+                  {isAr ? '٣. نشاط إضافي تلعبُه بجانب كمال الأجسام:' : '3. Secondary Sport Alongside Gym:'}
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {(
+                    [
+                      { id: 'none', labelAr: '🏋️ حديد فقط', labelEn: 'Gym Only' },
+                      { id: 'boxing', labelAr: '🥊 + ملاكمة (Boxing)', labelEn: '+ Boxing' },
+                      { id: 'kickboxing', labelAr: '🦵 + كيك بوكسينج / مواي تاي', labelEn: '+ Kickboxing' },
+                      { id: 'bjj', labelAr: '🥋 + جوجيتسو ومصارعة (BJJ)', labelEn: '+ BJJ / Grappling' },
+                      { id: 'calisthenics', labelAr: '🤸‍♂️ + مهارات كاليستنكس', labelEn: '+ Calisthenics' },
+                    ] as const
+                  ).map((sp) => (
+                    <button
+                      key={sp.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setSecondarySport(sp.id);
+                        localStorage.setItem('midmar_secondary_sport', sp.id);
+                      }}
+                      className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        secondarySport === sp.id
+                          ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                          : 'bg-white dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800'
+                      }`}
+                    >
+                      {isAr ? sp.labelAr : sp.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Live Smart Prescription Banner for Goal + Secondary Sport */}
+            <div className="bento-3d-mint p-4 rounded-2xl border border-[#1eb814]/35 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5">
+                  <span>🧭</span>
+                  <span>
+                    {isAr
+                      ? 'خطة المدرب الذكية لدمج هدفك ونشاطك بدون إجهاد عصبي:'
+                      : 'Smart Coach Prescription & Hybrid Schedule:'}
+                  </span>
+                </span>
+                {secondarySport !== 'none' && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleSelectMovementCat(secondarySport === 'calisthenics' ? 'home' : 'combat')
+                    }
+                    className="px-3 py-1 rounded-full bg-habit-green-ink text-white text-[11px] font-bold cursor-pointer shadow-2xs"
+                  >
+                    {secondarySport === 'calisthenics'
+                      ? isAr
+                        ? 'افتح مدرب الكاليستنكس 🤸‍♂️ ←'
+                        : 'Open Calisthenics 🤸‍♂️ →'
+                      : isAr
+                      ? 'افتح حلبة القتال والتقوية 🥊 ←'
+                      : 'Open Combat Arena 🥊 →'}
+                  </button>
+                )}
+              </div>
+
+              <p className="text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                {bodyGoal === 'bulking' &&
+                  (isAr
+                    ? '• التغذية والتضخيم: استهدف فائضاً حرارياً (+300 إلى +450 سعرة فوق ثباتك) مع 1.8 إلى 2.2 جرام بروتين لكل كجم من وزنك. ركّز على زيادة الأوزان تدريجياً في نطاق 6-10 عدات وراحة 2-3 دقائق.'
+                    : '• Bulking: +300-450 kcal surplus, 2g/kg protein, progressive overload in 6-10 rep range.')}
+                {bodyGoal === 'cutting' &&
+                  (isAr
+                    ? '• التغذية والتنشيف: استهدف عجزاً حرارياً معتدلاً (-400 إلى -500 سعرة) مع رفع البروتين إلى 2.2 جرام/كجم للحفاظ على الكتلة العضلية، وحافظ على أوزانك في التمارين الأساسية مع 15-20 دقيقة مشي مائل بعد الحديد.'
+                    : '• Cutting: -400-500 kcal deficit, 2.2g/kg protein to preserve muscle, keep compound weights high.')}
+                {bodyGoal === 'recomp' &&
+                  (isAr
+                    ? '• إعادة تشكيل الجسم (Recomp): تناول سعرات الثبات أو عجزاً طفيفاً جداً (-150 سعرة) مع بروتين عالٍ (2.2 جرام/كجم) ونوم عميق 7.5 ساعات لبناء عضل صافي وحرق الدهون في آن واحد.'
+                    : '• Recomp: Eat at maintenance calories with 2.2g/kg protein and progressive strength training.')}
+                {bodyGoal === 'combat_hybrid' &&
+                  (isAr
+                    ? '• القوة القتالية المدمجة: ركّز على القوة الانفجارية (5-8 عدات سريعة الصعود) وتجنب الفشل العضلي التام في الأكتاف والأرجل قبل أيام النزال حتى لا تثقل حركتك.'
+                    : '• Combat Hybrid: Focus on explosive concentric reps (5-8 reps, RPE 8) to avoid soreness before sparring.')}
+              </p>
+
+              {secondarySport !== 'none' && (
+                <p className="text-[11px] font-bold text-emerald-900 dark:text-emerald-300 pt-1 border-t border-emerald-500/20">
+                  {secondarySport === 'boxing' &&
+                    (isAr
+                      ? '🥊 تنسيق الملاكمة مع الحديد: لا تلعب تمرين دفع/أكتاف ثقيل (Push) في نفس يوم البوكس قبل الحصة مباشرة؛ اجعل الحديد ٤ أيام (علوي/سفلي أو دفع/سحب/أرجل) والبوكس ٢-٣ أيام، وأضف تمارين الرقبة والـ Core الدوار.'
+                      : '🥊 Boxing + Gym: Avoid heavy shoulder pressing right before boxing rounds. Use a 3-4 day gym split.')}
+                  {secondarySport === 'kickboxing' &&
+                    (isAr
+                      ? '🦵 تنسيق الكيك بوكسينج مع الحديد: افصل يوم الأرجل الثقيل (Legs) بـ 24-48 ساعة عن حصص الركل والـ Sparring، وركّز على مرونة الحوض وتقوية السمانة وأوتار الركبة.'
+                      : '🦵 Kickboxing + Gym: Separate heavy Squat/Leg day by 24-48h from heavy kicking sessions.')}
+                  {secondarySport === 'bjj' &&
+                    (isAr
+                      ? '🥋 تنسيق الجوجيتسو والمصارعة مع الحديد: الجوجيتسو يستهلك قبضة اليد والظهر؛ استخدم (Straps) في تمارين الظهر الثقيلة لحماية أصابعك، وركّز على تقوية الرقبة، جسر الحوض (Hip Thrust)، والسحب المتوازن.'
+                      : '🥋 BJJ + Gym: Protect grip fatigue and focus on hip bridge power, isometric rows, and neck strength.')}
+                  {secondarySport === 'calisthenics' &&
+                    (isAr
+                      ? '🤸‍♂️ تنسيق الكاليستنكس مع الحديد: ابدأ حصتك بـ 15 دقيقة لتدريب المهارة (مثل الـ Handstand أو الـ Muscle-Up أو الـ Front Lever) وأنت بكامل طاقتك العصبية، ثم انتقل لتمارين الحديد والتضخيم!'
+                      : '🤸‍♂️ Calisthenics + Gym: Practice skill work (Handstand/Muscle-Up/Levers) for 15 mins first while CNS is fresh, then lift weights!')}
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Anti-Couch Inertia & 3-Step Friction Destroyer Protocol — Habitline Soft Amber Surface */}
           <div className="bento-3d-amber p-5 sm:p-6 rounded-[28px] border border-amber-400/30 space-y-4">
             <div className="flex items-start gap-3">
@@ -1067,18 +1770,31 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
             )}
           </div>
 
-          {/* Routine Selector Tabs — Crisp White Habitline Bento */}
+          {/* Routine Selector Tabs — 7 Comprehensive Bodybuilding Splits */}
           <div className="p-4 sm:p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3">
-            <h3 className="text-xs font-bold text-zinc-950 dark:text-zinc-100">
-              {t('routine_select_title')}
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <h3 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">
+                {isAr ? 'اختر تقسيمة تمرين اليوم (تتكيف تلقائياً مع هدفك ومستواك):' : t('routine_select_title')}
+              </h3>
+              <span className="text-[11px] font-bold text-[#ff5500]">
+                {bodyGoal === 'bulking'
+                  ? isAr ? 'نظام تضخيم (6-10 عدات)' : 'Bulking Split'
+                  : bodyGoal === 'cutting'
+                  ? isAr ? 'نظام تنشيف (12-15 عدة)' : 'Cutting Split'
+                  : bodyGoal === 'combat_hybrid'
+                  ? isAr ? 'نظام قتالي (5-8 عدات انفجارية)' : 'Fighter Split'
+                  : isAr ? 'نظام صافي (8-12 عدة)' : 'Recomp Split'}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
               {(
                 [
-                  { id: 'push', label: t('routine_push') },
-                  { id: 'pull', label: t('routine_pull') },
-                  { id: 'legs', label: t('routine_legs') },
-                  { id: 'cardio', label: t('routine_cardio') },
+                  { id: 'push', label: isAr ? '💪 دفع (صدر/كتف/تراي)' : 'Push Day' },
+                  { id: 'pull', label: isAr ? '🦅 سحب (ظهر/باي/خلفي)' : 'Pull Day' },
+                  { id: 'legs', label: isAr ? '🦵 أرجل وقطنية (Legs)' : 'Legs Day' },
+                  { id: 'upper', label: isAr ? '🔥 علوي شامل (Upper)' : 'Upper Body' },
+                  { id: 'arms_delts', label: isAr ? '💥 ذراع وأكتاف (Arms)' : 'Arms & Delts' },
+                  { id: 'cardio', label: isAr ? '🏃 حرق وبطن (Shred)' : 'Cardio & Core' },
                   { id: 'survival', label: t('routine_survival') },
                 ] as const
               ).map((rt) => (
@@ -1088,9 +1804,9 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                   onClick={() => {
                     soundSynth.playTactileClick();
                     setSelectedRoutine(rt.id);
-                    saveExercises(getRoutineDefaultExercises(rt.id, isAr));
+                    saveExercises(getRoutineDefaultExercises(rt.id, isAr, bodyGoal, athleteLevel));
                   }}
-                  className={`min-h-[44px] py-2 px-3 rounded-full text-xs font-bold transition-all cursor-pointer text-center truncate ${
+                  className={`min-h-[44px] py-2 px-3 rounded-2xl text-xs font-bold transition-all cursor-pointer text-center truncate ${
                     selectedRoutine === rt.id
                       ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-sm'
                       : 'bg-zinc-50 dark:bg-zinc-950 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 hover:border-[#ff5500]'

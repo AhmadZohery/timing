@@ -54,6 +54,7 @@ import { SurahMulkModal } from '../spiritual/SurahMulkModal';
 import { FastingReminderModal } from '../spiritual/FastingReminderModal';
 import { NawafilGuideModal, type NafilaTab } from '../spiritual/NawafilGuideModal';
 import { ActiveStudyCourseWidget } from './ActiveStudyCourseWidget';
+import { ChessTacticalLabModal } from '../modals/ChessTacticalLabModal';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
 import { getHijriDateDetails } from '../../utils/prayerCalculator';
@@ -323,6 +324,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
       : Math.max(18, userWorkEndHour);
 
   const [isQuickScheduleOpen, setIsQuickScheduleOpen] = useState(false);
+  const [isChessLabOpen, setIsChessLabOpen] = useState(false);
 
   const todayBioDate = getBiologicalDate();
   const activeManualOverride: StationId | null =
@@ -2052,6 +2054,18 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
               <button
                 type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setIsChessLabOpen(true);
+                }}
+                className="px-3.5 py-2 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 text-xs font-bold shrink-0 cursor-pointer shadow-xs active:scale-95 transition-transform flex items-center gap-1.5"
+              >
+                <span>♟️</span>
+                <span>{isAr ? 'مختبر الشطرنج والخطط' : 'Chess Lab & Plans'}</span>
+              </button>
+              <button
+                type="button"
                 onClick={() => onOpenSmartTasbih('khitam_salah')}
                 className="px-3.5 py-2 rounded-full surface-card-3d border border-zinc-200/80 dark:border-white/10 text-xs font-bold text-zinc-800 dark:text-zinc-200 shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-transform"
               >
@@ -2095,7 +2109,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
 
           {/* ============================================================== */}
           {/* 1.3 MOTIVATING 3-CARD DAILY HIGHLIGHTS BENTO (ومضات اليوم)      */}
-          {/* Instant 1-tap access to Daily Ayah, Vocab Word & Mental Model  */}
+          {/* Instant 1-tap access to Vocab Word, Mental Model & Chess Lab   */}
           {/* ============================================================== */}
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between px-1">
@@ -2103,12 +2117,12 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 {isAr ? 'ومضات وإلهام اليوم' : 'Daily Highlights'}
               </h2>
               <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
-                {isAr ? 'تغذية الروح والعقل واللسان' : 'Soul, Mind & Language'}
+                {isAr ? 'تغذية العقل واللسان والتركيز التكتيكي' : 'Mind, Language & Tactical Focus'}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {/* Highlight 2: Word of the Day with 1-Tap Audio & Quiz Modal (Soft Lavender #e2defc) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Highlight 1: Word of the Day with 1-Tap Audio & Quiz Modal (Soft Lavender #e2defc) */}
               <div
                 onClick={() => {
                   soundSynth.playTactileClick();
@@ -2157,7 +2171,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </span>
               </div>
 
-              {/* Highlight 3: Mental Model & Daily Wisdom (Soft Amber #fde6d8) */}
+              {/* Highlight 2: Mental Model & Daily Wisdom (Soft Amber #fde6d8) */}
               <button
                 type="button"
                 onClick={() => {
@@ -2185,6 +2199,40 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                 </div>
                 <span className="text-[11px] font-bold text-amber-900 dark:text-amber-300 flex items-center justify-between">
                   <span>{isAr ? 'الشرح والتطبيق العملي' : 'Deep Dive'}</span>
+                  <span>{isAr ? '←' : '→'}</span>
+                </span>
+              </button>
+
+              {/* Highlight 3: Chess Tactical Lab & Opening Plans (Soft Mint #d4f5dc) */}
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setIsChessLabOpen(true);
+                }}
+                className="bento-3d-mint p-4 rounded-[24px] border border-white/50 dark:border-emerald-500/25 text-start flex flex-col justify-between gap-2.5 cursor-pointer active:scale-[0.98] transition-all"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-habit-green-ink text-white text-[10px] font-bold">
+                      ♟️ {isAr ? 'شطرنج وتركيز' : 'Chess Lab'}
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-950 dark:text-emerald-200">
+                      {isAr ? '+20 XP للغز' : '+20 XP'}
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                    {isAr ? 'ملف خطط الشطرنج وهنتات التركيز' : 'Opening Repertoire & Tactical Puzzles'}
+                  </p>
+                  <p className="text-[11px] text-zinc-700 dark:text-emerald-100/80 line-clamp-1">
+                    {isAr
+                      ? 'ألغاز تكتيكية سريعة بهنتات ذكية + خطط الأبيض والأسود ورقعة حرة'
+                      : 'Quick focus puzzles with hints + opening plans & free board'}
+                  </p>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-900 dark:text-emerald-300 flex items-center justify-between">
+                  <span>{isAr ? 'افتح الرقعة التفاعلية والخطط' : 'Open Board & Plans'}</span>
                   <span>{isAr ? '←' : '→'}</span>
                 </span>
               </button>
@@ -3440,6 +3488,14 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Chess Tactical Lab & Opening Repertoire Modal */}
+      <ChessTacticalLabModal
+        isOpen={isChessLabOpen}
+        onClose={() => setIsChessLabOpen(false)}
+        isAr={isAr}
+        onRewardToast={onRewardToast}
+      />
     </div>
   );
 };
