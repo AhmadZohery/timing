@@ -327,6 +327,20 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
   const nextPrayer = getNextPrayer(prayerTimes, currentTime, isAr);
 
+  // Interactive Mamluk Astrolabe Focused Prayer (defaults to current/next prayer; user can tap any station)
+  const [focusedPrayer, setFocusedPrayer] = useState<PrayerName>(() => {
+    const np = nextPrayer.name as PrayerName;
+    return ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(np) ? np : 'fajr';
+  });
+  const [lampSwingKey, setLampSwingKey] = useState<number>(0);
+
+  useEffect(() => {
+    const np = nextPrayer.name as PrayerName;
+    if (['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].includes(np)) {
+      setFocusedPrayer(np);
+    }
+  }, [nextPrayer.name]);
+
   // Astronomical Night Intervals (Last Third of Night & Midnight)
   const nightIntervals: NightIntervals = calculateNightIntervals(
     prayerTimes.maghrib,
@@ -694,531 +708,641 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
       </div>
 
       {/* ============================================================ */}
-      {/* 1.5 ARCHITECTURAL 12-RAK'AH SUNNAH RAWATIB & FARD PROGRESS   */}
-      {/* Grouped by Prayer (2 Fajr • 4+2 Dhuhr • 2 Maghrib • 2 Isha)  */}
+      {/* 2. THE LIVING MAMLUK ASTROLABE & ILLUMINATED SHAMSA MIHRAB   */}
+      {/* Mobile-First Full-Width Stage + Girih Arabesque Geometry     */}
+      {/* + 12-Pointed Shamsa Seal + Direct Sunnah Wings + 5-Star Dock */}
       {/* ============================================================ */}
-      <button
-        type="button"
-        onClick={() => {
+      {(() => {
+        const activeCard = prayerCards.find((c) => c.name === focusedPrayer) || prayerCards[0];
+        const activeRecord = prayers[activeCard.name];
+        const isActiveDone = Boolean(
+          activeRecord &&
+            (activeRecord.status === 'on_time' ||
+              activeRecord.status === 'in_group' ||
+              activeRecord.status === 'late' ||
+              activeRecord.status === 'excused')
+        );
+        const isActiveNext =
+          nextPrayer.arabicName === activeCard.title ||
+          (activeCard.isJumuah && nextPrayer.arabicName.includes('الجمعة'));
+
+        const activeTimeFormatted = formatPrayerTime(activeCard.timeDate, isAr);
+        const activeQabliyah = activeRecord?.sunnahQabliyahRakats ?? 0;
+        const activeBadiyah = activeRecord?.sunnahBadiyahRakats ?? 0;
+        const activeWitr = activeRecord?.witrRakats ?? 0;
+
+        // Target Sunnah configuration for the interactive wings flanking the Shamsa
+        const sunnahTargets =
+          activeCard.name === 'fajr'
+            ? { qabliyah: 2, badiyah: 0, witr: 0 }
+            : activeCard.name === 'dhuhr'
+            ? { qabliyah: 4, badiyah: 2, witr: 0 }
+            : activeCard.name === 'asr'
+            ? { qabliyah: 4, badiyah: 0, witr: 0 }
+            : activeCard.name === 'maghrib'
+            ? { qabliyah: 0, badiyah: 2, witr: 0 }
+            : { qabliyah: 0, badiyah: 2, witr: 3 };
+
+        // Authentic Circadian Mamluk Dome Atmosphere per focused prayer
+        const domeAtmosphere =
+          activeCard.name === 'fajr'
+            ? 'from-[#0d132a] via-[#241942] to-[#3a1636]'
+            : activeCard.name === 'dhuhr'
+            ? 'from-[#14202e] via-[#2f2311] to-[#191713]'
+            : activeCard.name === 'asr'
+            ? 'from-[#1e1510] via-[#3a1d11] to-[#161312]'
+            : activeCard.name === 'maghrib'
+            ? 'from-[#150d26] via-[#3a122f] to-[#111622]'
+            : 'from-[#080c17] via-[#121930] to-[#1d163b]';
+
+        // Direct 1-Tap handler for Qabliyah / Badiyah / Witr wings around the Shamsa
+        const handleToggleSunnahWing = async (type: 'qabliyah' | 'badiyah' | 'witr') => {
           soundSynth.playTactileClick();
           haptic.vibrateLight();
-          setNawafilModalTab('rawatib');
-          setIsNawafilModalOpen(true);
-        }}
-        className="w-full rounded-[22px] bg-gradient-to-r from-emerald-950/[0.05] via-amber-500/[0.07] to-emerald-950/[0.05] dark:from-zinc-900/95 dark:via-emerald-950/35 dark:to-zinc-900/95 hover:from-emerald-500/12 hover:to-amber-500/12 border border-emerald-600/25 dark:border-emerald-500/30 px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 cursor-pointer active:scale-[0.99] transition-all text-start shadow-2xs"
-      >
-        <div className="flex items-center justify-between sm:justify-start gap-2.5 min-w-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/25 to-emerald-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2c-4 3.5-7 7.5-7 11.5V21h14v-7.5C19 9.5 16 5.5 12 2Z" />
-                <path d="M9 21v-5a3 3 0 0 1 6 0v5" />
-              </svg>
-            </span>
-            <div className="min-w-0">
-              <span className="block text-[11px] sm:text-xs font-bold text-zinc-900 dark:text-white truncate">
-                {isAr
-                  ? 'قصر في الجنة • ١٢ ركعة سنة راتبة مؤكدة'
-                  : 'Palace in Jannah • 12 Sunnah Rawatib'}
-              </span>
-              <span className="block text-[10px] text-zinc-600 dark:text-zinc-400 truncate">
-                {isAr ? '٢ الفجر • ٤+٢ الظهر • ٢ المغرب • ٢ العشاء' : '2 Fajr • 4+2 Dhuhr • 2 Maghrib • 2 Isha'}
-              </span>
-            </div>
-          </div>
+          const currentStatus =
+            activeRecord?.status &&
+            activeRecord.status !== 'pending' &&
+            activeRecord.status !== 'missed'
+              ? activeRecord.status
+              : 'in_group';
+          const nextQ =
+            type === 'qabliyah'
+              ? activeQabliyah >= sunnahTargets.qabliyah
+                ? 0
+                : sunnahTargets.qabliyah
+              : activeQabliyah;
+          const nextB =
+            type === 'badiyah'
+              ? activeBadiyah >= sunnahTargets.badiyah
+                ? 0
+                : sunnahTargets.badiyah
+              : activeBadiyah;
+          const nextW =
+            type === 'witr' ? (activeWitr > 0 ? 0 : 3) : activeWitr;
 
-          <span className="sm:hidden text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
-            {isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5 Fard`}
-          </span>
-        </div>
+          await handleMarkPrayer(activeCard.name, currentStatus, {
+            sunnahPerformed: nextQ + nextB > 0,
+            qabliyahRakats: nextQ,
+            badiyahRakats: nextB,
+            witrRakats: nextW,
+          });
+        };
 
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
-          {/* 12 Archway Dome Jewels for 12 Rak'ahs (Grouped 2 | 6 | 2 | 2) */}
+        return (
           <div
-            className="flex items-center gap-1 flex-1 sm:flex-initial"
-            title={isAr ? `${totalSunnahRakatsCompleted} من 12 ركعة سنة راتبة` : `${totalSunnahRakatsCompleted}/12 Rak'ahs`}
+            className={`relative rounded-[28px] bg-gradient-to-b ${domeAtmosphere} text-white border border-amber-400/40 shadow-[0_18px_42px_-10px_rgba(0,0,0,0.6)] overflow-hidden transition-colors duration-500`}
           >
-            {Array.from({ length: 12 }).map((_, idx) => {
-              const isFilled = idx < totalSunnahRakatsCompleted;
-              const isGroupDivider = idx === 1 || idx === 7 || idx === 9;
-              return (
-                <React.Fragment key={idx}>
-                  <span
-                    className={`h-3 flex-1 sm:w-2.5 sm:flex-initial rounded-t-full rounded-b-xs transition-all duration-300 ${
-                      isFilled
-                        ? 'bg-gradient-to-t from-emerald-600 via-emerald-400 to-amber-300 shadow-[0_0_8px_rgba(16,185,129,0.55)] scale-y-110'
-                        : 'bg-zinc-300/85 dark:bg-zinc-700/75'
-                    }`}
+            {/* ========================================================== */}
+            {/* LAYER 1: AUTHENTIC MAMLUK GIRIH LATTICE & MUQARNAS ARCH    */}
+            {/* ========================================================== */}
+            <svg
+              className="pointer-events-none absolute inset-0 w-full h-full"
+              viewBox="0 0 400 320"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <defs>
+                {/* Authentic 8-Fold Islamic Star-and-Polygon Girih Lattice */}
+                <pattern
+                  id="mamlukGirihPattern"
+                  width="40"
+                  height="40"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M20 0 L26 14 L40 20 L26 26 L20 40 L14 26 L0 20 L14 14 Z M0 0 L14 14 M40 0 L26 14 M0 40 L14 26 M40 40 L26 26"
+                    fill="none"
+                    stroke="#fbbf24"
+                    strokeWidth="0.65"
+                    strokeOpacity="0.14"
                   />
-                  {isGroupDivider && (
-                    <span className="w-0.5 h-2 rounded-full bg-amber-500/40 dark:bg-amber-400/30 shrink-0 mx-0.5" />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
+                  <circle
+                    cx="20"
+                    cy="20"
+                    r="3.2"
+                    fill="none"
+                    stroke="#fbbf24"
+                    strokeWidth="0.5"
+                    strokeOpacity="0.12"
+                  />
+                </pattern>
 
-          <span className="text-[11px] font-mono font-bold text-emerald-800 dark:text-emerald-300 shrink-0">
-            <bdi dir="ltr">{totalSunnahRakatsCompleted}/12</bdi>
-          </span>
+                <linearGradient id="mamlukBrassGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#fde68a" stopOpacity="0.9" />
+                  <stop offset="50%" stopColor="#d97706" stopOpacity="0.65" />
+                  <stop offset="100%" stopColor="#fef3c7" stopOpacity="0.9" />
+                </linearGradient>
 
-          <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-900 dark:text-emerald-200 bg-emerald-500/20 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
-            <span>{isAr ? `${completedPrayersCount}/5 فرائض` : `${completedPrayersCount}/5 Fard`}</span>
-          </span>
-        </div>
-      </button>
+                <radialGradient id="shamsaCoreGlow" cx="50%" cy="44%" r="46%">
+                  <stop
+                    offset="0%"
+                    stopColor={isActiveDone ? '#10b981' : '#f59e0b'}
+                    stopOpacity="0.34"
+                  />
+                  <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+                </radialGradient>
 
-      {/* ============================================================ */}
-      {/* 2. CELESTIAL MIHRAB HOROLOGY GALLERY (5 ARCHWAY PORTALS)     */}
-      {/* Rich Circadian Sky Canvases + Sculpted Mihrab + Jewel Seal   */}
-      {/* ============================================================ */}
-      <div className="relative py-1">
-        {/* Continuous Celestial Solar-Lunar Horizon Thread connecting all 5 Mihrab Portals */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[54%] inset-x-3 -translate-y-1/2 h-[3px] rounded-full bg-gradient-to-r from-indigo-500/40 via-amber-400/60 via-orange-500/50 via-rose-500/55 to-purple-600/45 z-0 shadow-[0_0_12px_rgba(251,191,36,0.3)]"
-        />
+                <linearGradient id="mishkatLightCone" x1="0.5" y1="0" x2="0.5" y2="1">
+                  <stop
+                    offset="0%"
+                    stopColor={isActiveDone ? '#34d399' : '#fde68a'}
+                    stopOpacity="0.22"
+                  />
+                  <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+                </linearGradient>
+              </defs>
 
-        <div className="relative z-10 grid grid-cols-5 gap-1.5 sm:gap-2.5">
-          {prayerCards.map((p) => {
-            const record = prayers[p.name];
-            const isDone = Boolean(
-              record &&
-                (record.status === 'on_time' ||
-                  record.status === 'in_group' ||
-                  record.status === 'late' ||
-                  record.status === 'excused')
-            );
-            const isJumuah = p.isJumuah;
-            const isNext =
-              nextPrayer.arabicName === p.title || (isJumuah && nextPrayer.arabicName.includes('الجمعة'));
+              {/* Seamless Girih Arabesque Tessellation */}
+              <rect x="0" y="0" width="400" height="320" fill="url(#mamlukGirihPattern)" />
 
-            const timeFormatted = formatPrayerTime(p.timeDate, isAr);
-            const timeParts = timeFormatted.split(' ');
-            const timeDigits = timeParts[0] || timeFormatted;
+              {/* Warm Radial Cone of Light from the Hanging Mishkat Lamp */}
+              <polygon points="200,28 75,235 325,235" fill="url(#mishkatLightCone)" />
 
-            const sunnahLogged =
-              (record?.sunnahQabliyahRakats || 0) + (record?.sunnahBadiyahRakats || 0);
+              {/* Sacred Glow behind the 12-Pointed Shamsa */}
+              <circle cx="200" cy="134" r="135" fill="url(#shamsaCoreGlow)" />
 
-            // Compact, zero-truncation bottom label
-            const statusMicroLabel = isDone
-              ? record?.status === 'in_group'
-                ? isAr
-                  ? 'جماعة ★'
-                  : 'Group ★'
-                : record?.status === 'on_time'
-                ? isAr
-                  ? 'في الوقت ✓'
-                  : 'On time ✓'
-                : isAr
-                ? 'تمت ✓'
-                : 'Done ✓'
-              : p.name === 'fajr'
-              ? isAr
-                ? '٢ سنة'
-                : '2 Sunnah'
-              : p.name === 'dhuhr'
-              ? isAr
-                ? '٦ سنن'
-                : '6 Sunnah'
-              : p.name === 'asr'
-              ? isAr
-                ? '٤ سنن'
-                : '4 Sunnah'
-              : p.name === 'maghrib'
-              ? isAr
-                ? '٢ سنة'
-                : '2 Sunnah'
-              : isAr
-              ? '٢ + وتر'
-              : '2 + Witr';
+              {/* Upper Spandrel Arabesque Rosettes (زخرفة الكوشة الركنية المملوكية) */}
+              <g stroke="url(#mamlukBrassGrad)" strokeWidth="0.85" fill="none" opacity="0.55">
+                <circle cx="34" cy="36" r="18" />
+                <circle cx="34" cy="36" r="11.5" strokeDasharray="2 2" />
+                <path d="M34 14 L38 30 L54 36 L38 42 L34 58 L30 42 L14 36 L30 30 Z" />
+                <circle cx="366" cy="36" r="18" />
+                <circle cx="366" cy="36" r="11.5" strokeDasharray="2 2" />
+                <path d="M366 14 L370 30 L386 36 L370 42 L366 58 L362 42 L346 36 L362 30 Z" />
+              </g>
 
-            // Rich Atmospheric Circadian Sky Palette per prayer (No more sterile white/gray rectangles!)
-            const circadianPendingSurface =
-              p.name === 'fajr'
-                ? 'bg-gradient-to-b from-[#e0e7ff] via-[#fce7f3]/80 to-[#f5f3ff] dark:from-[#171c3a] dark:via-[#291736] dark:to-[#121320] border-indigo-300/90 dark:border-indigo-500/35'
-                : p.name === 'dhuhr'
-                ? 'bg-gradient-to-b from-[#fef3c7] via-[#e0f2fe]/75 to-[#fffbeb] dark:from-[#2e2210] dark:via-[#152636] dark:to-[#14161d] border-amber-300/90 dark:border-amber-500/35'
-                : p.name === 'asr'
-                ? 'bg-gradient-to-b from-[#ffedd5] via-[#fef3c7]/80 to-[#fff7ed] dark:from-[#331b11] dark:via-[#271b11] dark:to-[#151418] border-orange-300/90 dark:border-orange-500/35'
-                : p.name === 'maghrib'
-                ? 'bg-gradient-to-b from-[#ffe4e6] via-[#f3e8ff]/80 to-[#fff1f2] dark:from-[#341328] dark:via-[#231433] dark:to-[#13131f] border-rose-300/90 dark:border-rose-500/35'
-                : 'bg-gradient-to-b from-[#e0e7ff] via-[#ede9fe]/85 to-[#f1f5f9] dark:from-[#0f172a] dark:via-[#1e1b4b] dark:to-[#111322] border-indigo-300/90 dark:border-indigo-500/35';
+              {/* Sculpted Multi-Cusped Moorish / Mamluk Mihrab Archway */}
+              <path
+                d="M 16 315 V 116 C 16 80 50 56 94 40 C 134 24 172 12 200 3 C 228 12 266 24 306 40 C 350 56 384 80 384 116 V 315"
+                fill="none"
+                stroke="url(#mamlukBrassGrad)"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+              />
+              <path
+                d="M 24 315 V 120 C 24 86 56 63 99 47 C 138 32 174 20 200 10 C 226 20 262 32 301 47 C 344 63 376 86 376 120 V 315"
+                fill="none"
+                stroke="#fde68a"
+                strokeOpacity="0.38"
+                strokeWidth="0.9"
+                strokeDasharray="4 3"
+                vectorEffect="non-scaling-stroke"
+              />
 
-            const circadianNextHeroSurface =
-              p.name === 'fajr'
-                ? 'bg-gradient-to-b from-[#0f172a] via-[#261a47] to-[#3b1238] border-amber-300/80 ring-2 ring-indigo-400/50 shadow-[0_14px_30px_-6px_rgba(99,102,241,0.55)]'
-                : p.name === 'dhuhr'
-                ? 'bg-gradient-to-b from-[#1c1917] via-[#362610] to-[#122229] border-amber-300/85 ring-2 ring-amber-400/55 shadow-[0_14px_30px_-6px_rgba(245,158,11,0.5)]'
-                : p.name === 'asr'
-                ? 'bg-gradient-to-b from-[#23140e] via-[#3d1e10] to-[#1b1412] border-amber-300/85 ring-2 ring-orange-400/55 shadow-[0_14px_30px_-6px_rgba(249,115,22,0.5)]'
-                : p.name === 'maghrib'
-                ? 'bg-gradient-to-b from-[#1a0f26] via-[#3d1431] to-[#131c24] border-amber-300/85 ring-2 ring-rose-400/55 shadow-[0_14px_30px_-6px_rgba(244,63,94,0.5)]'
-                : 'bg-gradient-to-b from-[#090d18] via-[#17203d] to-[#231942] border-amber-300/80 ring-2 ring-indigo-400/55 shadow-[0_14px_30px_-6px_rgba(129,140,248,0.55)]';
+              {/* Engraved Brass Astrolabe Degree Arc across the lower horizon */}
+              <path
+                d="M 20 232 Q 200 192 380 232"
+                fill="none"
+                stroke="url(#mamlukBrassGrad)"
+                strokeWidth="1.5"
+                strokeOpacity="0.7"
+              />
+              <path
+                d="M 28 237 Q 200 197 372 237"
+                fill="none"
+                stroke="#fde68a"
+                strokeWidth="1"
+                strokeDasharray="1.5 5"
+                strokeOpacity="0.5"
+              />
+            </svg>
 
-            const celestialIconAccent = isDone
-              ? 'text-emerald-700 dark:text-emerald-300'
-              : isNext
-              ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.75)]'
-              : p.name === 'fajr'
-              ? 'text-indigo-700 dark:text-indigo-300'
-              : p.name === 'dhuhr'
-              ? 'text-amber-700 dark:text-amber-300'
-              : p.name === 'asr'
-              ? 'text-orange-700 dark:text-orange-300'
-              : p.name === 'maghrib'
-              ? 'text-rose-700 dark:text-rose-300'
-              : 'text-indigo-700 dark:text-indigo-300';
-
-            const sealPendingStyle =
-              p.name === 'fajr'
-                ? 'bg-gradient-to-br from-indigo-500/20 to-rose-500/20 border-indigo-400/60 dark:border-indigo-400/45 text-indigo-800 dark:text-indigo-200'
-                : p.name === 'dhuhr'
-                ? 'bg-gradient-to-br from-amber-500/25 to-sky-500/15 border-amber-400/70 dark:border-amber-400/45 text-amber-900 dark:text-amber-200'
-                : p.name === 'asr'
-                ? 'bg-gradient-to-br from-orange-500/25 to-amber-500/20 border-orange-400/70 dark:border-orange-400/45 text-orange-900 dark:text-orange-200'
-                : p.name === 'maghrib'
-                ? 'bg-gradient-to-br from-rose-500/25 to-purple-500/20 border-rose-400/70 dark:border-rose-400/45 text-rose-900 dark:text-rose-200'
-                : 'bg-gradient-to-br from-indigo-500/25 to-purple-500/25 border-indigo-400/65 dark:border-indigo-400/45 text-indigo-900 dark:text-indigo-200';
-
-            // Bespoke Celestial SVG Icon per prayer
-            const renderCelestialSvg = () => {
-              const iconClass = `w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform duration-300 group-hover:scale-110 ${celestialIconAccent}`;
-              if (p.name === 'fajr') {
-                return (
-                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v4" />
-                    <path d="m4.93 10.93 1.41 1.41" />
-                    <path d="M2 18h2" />
-                    <path d="M20 18h2" />
-                    <path d="m19.07 10.93-1.41 1.41" />
-                    <path d="M22 22H2" />
-                    <path d="M8 18a4 4 0 0 1 8 0" />
-                  </svg>
-                );
-              }
-              if (p.name === 'dhuhr') {
-                return (
-                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="4" />
-                    <path d="M12 2v2" />
-                    <path d="M12 20v2" />
-                    <path d="m4.93 4.93 1.41 1.41" />
-                    <path d="m17.66 17.66 1.41 1.41" />
-                    <path d="M2 12h2" />
-                    <path d="M20 12h2" />
-                    <path d="m6.34 17.66-1.41 1.41" />
-                    <path d="m19.07 4.93-1.41 1.41" />
-                  </svg>
-                );
-              }
-              if (p.name === 'asr') {
-                return (
-                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="4" />
-                    <path d="M12 3v1" />
-                    <path d="M12 20v1" />
-                    <path d="M3 12h1" />
-                    <path d="M20 12h1" />
-                    <path d="m18.364 5.636-.707.707" />
-                    <path d="m6.343 17.657-.707.707" />
-                  </svg>
-                );
-              }
-              if (p.name === 'maghrib') {
-                return (
-                  <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 10V2" />
-                    <path d="m4.93 10.93 1.41 1.41" />
-                    <path d="M2 18h2" />
-                    <path d="M20 18h2" />
-                    <path d="m19.07 10.93-1.41 1.41" />
-                    <path d="M22 22H2" />
-                    <path d="M16 18a4 4 0 0 0-8 0" />
-                  </svg>
-                );
-              }
-              return (
-                <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-                </svg>
-              );
-            };
-
-            return (
-              <div
-                key={p.name}
-                role="button"
-                tabIndex={0}
+            {/* ========================================================== */}
+            {/* LAYER 2: TOP FRIEZE — 12-PEARL JANNAH NECKLACE & FARD      */}
+            {/* ========================================================== */}
+            <div className="relative z-10 px-3.5 pt-3 pb-1 flex items-center justify-between gap-2">
+              {/* Start: 12-Pearl Jannah Rawatib Necklace Trigger */}
+              <button
+                type="button"
                 onClick={() => {
                   soundSynth.playTactileClick();
                   haptic.vibrateLight();
-                  handleOpenPrayerModal(p.name);
+                  setNawafilModalTab('rawatib');
+                  setIsNawafilModalOpen(true);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleOpenPrayerModal(p.name);
-                  }
-                }}
-                className={`group relative pt-4 pb-2.5 px-1.5 sm:px-2.5 sm:pt-4.5 sm:pb-3 rounded-t-[34px] rounded-b-[20px] border transition-all duration-300 flex flex-col items-center justify-between text-center gap-2 cursor-pointer select-none active:scale-95 overflow-hidden ${
-                  isDone
-                    ? 'bg-gradient-to-b from-[#bbf7d0] via-[#dcfce7] to-[#f0fdf4] dark:from-emerald-950/95 dark:via-emerald-900/60 dark:to-[#0c1915] border-emerald-500/65 dark:border-emerald-400/55 text-zinc-900 dark:text-emerald-50 shadow-[0_10px_24px_-6px_rgba(16,185,129,0.32)]'
-                    : isNext
-                    ? `${circadianNextHeroSurface} text-white -translate-y-1`
-                    : `${circadianPendingSurface} hover:-translate-y-0.5 hover:shadow-md text-zinc-900 dark:text-zinc-100`
-                }`}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 hover:bg-black/55 border border-amber-300/35 text-[10px] font-bold text-amber-200 cursor-pointer active:scale-95 transition-all"
                 title={
                   isAr
-                    ? `${p.title} (${timeFormatted}) — اضغط للسنن والتفاصيل، أو اضغط الختم الأوسط للتوثيق الفوري`
-                    : `${p.title} (${timeFormatted}) — Tap card for details or center seal for 1-tap log`
+                    ? 'قصر في الجنة • ١٢ ركعة سنة راتبة مؤكدة'
+                    : 'Palace in Jannah • 12 Sunnah Rawatib'
                 }
               >
-                {/* Sculpted Double-Line Andalusian Ogee Mihrab Archway & Celestial Scenery SVG */}
-                <svg
-                  className="pointer-events-none absolute inset-0 w-full h-full"
-                  viewBox="0 0 100 150"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  {/* Soft Celestial Glow Orb at Mihrab Crown */}
-                  <circle
-                    cx="50"
-                    cy="28"
-                    r="24"
-                    fill="currentColor"
-                    className={
-                      isDone
-                        ? 'text-emerald-400/20'
-                        : isNext
-                        ? 'text-amber-400/25'
-                        : p.name === 'fajr'
-                        ? 'text-rose-400/15'
-                        : p.name === 'dhuhr'
-                        ? 'text-amber-400/20'
-                        : p.name === 'asr'
-                        ? 'text-orange-400/20'
-                        : p.name === 'maghrib'
-                        ? 'text-rose-500/20'
-                        : 'text-indigo-400/20'
-                    }
-                  />
-
-                  {/* Outer Sculpted Pointed Mihrab Arch */}
-                  <path
-                    d="M 4 148 V 46 C 4 24 25 13 50 3 C 75 13 96 24 96 46 V 148"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    className={
-                      isDone
-                        ? 'text-emerald-600/45 dark:text-emerald-400/45'
-                        : isNext
-                        ? 'text-amber-300/65'
-                        : 'text-zinc-600/25 dark:text-white/20'
-                    }
-                    vectorEffect="non-scaling-stroke"
-                  />
-
-                  {/* Inner Fine Filigree Mihrab Arch */}
-                  <path
-                    d="M 9 148 V 48 C 9 28 28 18 50 8 C 72 18 91 28 91 48 V 148"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.8"
-                    strokeDasharray="3 2"
-                    className={
-                      isDone
-                        ? 'text-emerald-600/30 dark:text-emerald-300/25'
-                        : isNext
-                        ? 'text-amber-200/40'
-                        : 'text-zinc-500/20 dark:text-white/10'
-                    }
-                    vectorEffect="non-scaling-stroke"
-                  />
-
-                  {/* Hanging Mishkat (قنديل المحراب) Chain from Apex */}
-                  <line
-                    x1="50"
-                    y1="3"
-                    x2="50"
-                    y2="16"
-                    stroke="currentColor"
-                    strokeWidth="1.1"
-                    strokeDasharray="1.5 1.5"
-                    className={
-                      isNext
-                        ? 'text-amber-300/85'
-                        : isDone
-                        ? 'text-emerald-600/60 dark:text-emerald-400/60'
-                        : 'text-zinc-500/35 dark:text-white/25'
-                    }
-                  />
-
-                  {/* Starlight micro-dots for Fajr, Maghrib, and Isha */}
-                  {(p.name === 'fajr' || p.name === 'maghrib' || p.name === 'isha') && (
-                    <g
-                      fill="currentColor"
-                      className={isNext ? 'text-amber-200/70' : 'text-indigo-500/35 dark:text-amber-200/40'}
-                    >
-                      <circle cx="22" cy="28" r="1" />
-                      <circle cx="78" cy="26" r="1.2" />
-                      <circle cx="26" cy="46" r="0.8" />
-                      <circle cx="75" cy="44" r="0.9" />
-                    </g>
-                  )}
-                </svg>
-
-                {/* Top Golden Crown Badge for Next Prayer (Eliminates bottom text truncation!) */}
-                {isNext && !isDone && (
-                  <span className="absolute top-0 inset-x-3 py-[1.5px] rounded-b-lg bg-gradient-to-r from-amber-300 via-amber-400 to-amber-300 text-zinc-950 text-[8px] sm:text-[9px] font-black tracking-tight shadow-sm">
-                    {isAr ? 'القادمة' : 'NEXT'}
-                  </span>
-                )}
-
-                {/* Top Completed Crown Dot */}
-                {isDone && (
-                  <span className="absolute top-0 inset-x-5 h-1 rounded-b-full bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-500" />
-                )}
-
-                {/* Top Celestial Mishkat Lantern Medallion + Prayer Name */}
-                <div className="relative z-10 flex flex-col items-center gap-1 w-full mt-0.5">
-                  <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all shadow-2xs ${
-                      isDone
-                        ? 'bg-emerald-600/20 dark:bg-emerald-400/20 ring-1 ring-emerald-500/40'
-                        : isNext
-                        ? 'bg-amber-400/20 ring-1 ring-amber-300/60 shadow-[0_0_12px_rgba(251,191,36,0.35)]'
-                        : 'bg-white/80 dark:bg-white/10 ring-1 ring-black/5 dark:ring-white/15'
-                    }`}
-                  >
-                    {renderCelestialSvg()}
-                  </div>
-                  <span
-                    className={`text-xs sm:text-[13px] font-bold truncate w-full leading-tight ${
-                      isDone
-                        ? 'text-emerald-950 dark:text-emerald-50'
-                        : isNext
-                        ? 'text-white'
-                        : 'text-zinc-900 dark:text-white'
-                    }`}
-                  >
-                    {p.title}
-                  </span>
+                <span>🕌</span>
+                <span>{isAr ? 'الرواتب:' : 'Sunnah:'}</span>
+                <bdi dir="ltr" className="font-mono text-emerald-300 font-extrabold">
+                  {totalSunnahRakatsCompleted}/12
+                </bdi>
+                <div className="flex items-center gap-0.5 ms-0.5">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`w-1 sm:w-1.5 h-2.5 rounded-t-full transition-all ${
+                        i < totalSunnahRakatsCompleted
+                          ? 'bg-gradient-to-t from-emerald-500 to-amber-300 shadow-[0_0_5px_#10b981]'
+                          : 'bg-white/20'
+                      }`}
+                    />
+                  ))}
                 </div>
+              </button>
 
-                {/* Horology Time Pill */}
-                <span
-                  className={`relative z-10 text-[10px] sm:text-xs font-mono font-bold tabular-nums leading-none px-2 py-1 rounded-lg border ${
-                    isDone
-                      ? 'text-emerald-950 dark:text-emerald-200 bg-white/75 dark:bg-emerald-950/80 border-emerald-500/35'
-                      : isNext
-                      ? 'text-amber-200 bg-black/45 border-amber-300/45 shadow-inner'
-                      : 'text-zinc-800 dark:text-zinc-200 bg-white/85 dark:bg-zinc-900/80 border-black/10 dark:border-white/15 shadow-2xs'
+              {/* End: Fard Counter & Khushu Modal Trigger */}
+              <button
+                type="button"
+                onClick={() => handleOpenPrayerModal(activeCard.name)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 hover:bg-black/55 border border-white/15 text-[10px] font-bold text-zinc-100 cursor-pointer active:scale-95 transition-all"
+              >
+                <span className="text-emerald-400">✦</span>
+                <span>
+                  {isAr
+                    ? `${completedPrayersCount}/5 فرائض`
+                    : `${completedPrayersCount}/5 Fard`}
+                </span>
+                <span className="text-amber-300 underline decoration-dotted ms-0.5">
+                  {isAr ? 'الخشوع ⚙' : 'Details ⚙'}
+                </span>
+              </button>
+            </div>
+
+            {/* ========================================================== */}
+            {/* LAYER 3: MOBILE-FIRST INTERACTIVE SHAMSA & MISHKAT STAGE   */}
+            {/* ========================================================== */}
+            <div className="relative z-10 px-3 sm:px-5 pt-1 pb-3 flex flex-col items-center text-center">
+              {/* Hanging Mamluk Mishkat Lamp (Swings when switching prayers) */}
+              <div
+                key={lampSwingKey}
+                className="flex flex-col items-center origin-top animate-[pulse_4s_ease-in-out_infinite]"
+              >
+                <div className="w-[1.5px] h-3 bg-gradient-to-b from-amber-300/90 to-amber-500/40" />
+                <div
+                  className={`px-3 py-1 rounded-full border text-[11px] font-bold flex items-center gap-1.5 shadow-md ${
+                    isActiveDone
+                      ? 'bg-emerald-950/90 border-emerald-400/65 text-emerald-200 shadow-[0_0_16px_rgba(16,185,129,0.4)]'
+                      : isActiveNext
+                      ? 'bg-amber-950/90 border-amber-300/80 text-amber-200 shadow-[0_0_16px_rgba(251,191,36,0.4)]'
+                      : 'bg-black/50 border-amber-300/35 text-amber-100'
                   }`}
                 >
-                  <bdi dir="ltr">{timeDigits}</bdi>
-                </span>
+                  <span>{CELESTIAL_THEMES[activeCard.name]?.celestialIcon || '🕌'}</span>
+                  <span>
+                    {isActiveDone
+                      ? isAr
+                        ? `تم توثيق ${activeCard.title} ✓`
+                        : `${activeCard.title} Logged ✓`
+                      : isActiveNext
+                      ? isAr
+                        ? `الميقات القادم • ${activeCard.title}`
+                        : `Next • ${activeCard.title}`
+                      : isAr
+                      ? `محراب صلاة ${activeCard.title}`
+                      : `${activeCard.title} Mihrab`}
+                  </span>
+                  <span className="font-mono font-extrabold text-amber-300 border-s border-white/20 ps-1.5">
+                    <bdi dir="ltr">{activeTimeFormatted}</bdi>
+                  </span>
+                </div>
+              </div>
 
-                {/* 1-Tap Tactile Jewel Medallion (Sculpted Seal — NEVER an empty white circle!) */}
+              {/* Centerpiece: 12-Pointed Mamluk Shamsa Seal + Left/Right Interactive Sunnah Wings */}
+              <div className="my-2.5 flex items-center justify-center gap-2 sm:gap-4 w-full max-w-md mx-auto">
+                {/* Right Wing: Direct 1-Tap Qabliyah Sunnah Toggle */}
+                {sunnahTargets.qabliyah > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => handleToggleSunnahWing('qabliyah')}
+                    className={`flex-1 min-h-[58px] py-2 px-2 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center ${
+                      activeQabliyah >= sunnahTargets.qabliyah
+                        ? 'bg-gradient-to-br from-emerald-600/45 to-amber-500/25 border-amber-300/80 text-white shadow-[0_0_16px_rgba(16,185,129,0.35)]'
+                        : 'bg-black/40 hover:bg-black/55 border-amber-300/25 text-zinc-200'
+                    }`}
+                    title={
+                      isAr
+                        ? 'اضغط بلمسة واحدة لتوثيق السنة القبلية'
+                        : '1-Tap to toggle Qabliyah Sunnah'
+                    }
+                  >
+                    <span className="block text-[10px] text-amber-300 font-bold">
+                      {isAr ? 'سنة قبلية' : 'Before Fard'}
+                    </span>
+                    <span className="block text-xs font-extrabold mt-0.5">
+                      {activeQabliyah >= sunnahTargets.qabliyah
+                        ? isAr
+                          ? `✓ ${sunnahTargets.qabliyah} ركعات`
+                          : `✓ ${sunnahTargets.qabliyah} Rak'ahs`
+                        : isAr
+                        ? `+ ${sunnahTargets.qabliyah} ركعات`
+                        : `+ ${sunnahTargets.qabliyah} Rak'ahs`}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      onOpenSmartTasbih?.('khitam_salah');
+                    }}
+                    className="flex-1 min-h-[58px] py-2 px-2 rounded-2xl bg-black/40 hover:bg-black/55 border border-amber-300/25 text-center transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center"
+                  >
+                    <span className="block text-[10px] text-amber-300 font-bold">
+                      {isAr ? 'أذكار الختام' : 'Post-Prayer'}
+                    </span>
+                    <span className="block text-xs font-extrabold text-white mt-0.5">
+                      {isAr ? 'مسبحة الختام 📿' : 'Tasbih 📿'}
+                    </span>
+                  </button>
+                )}
+
+                {/* CENTER 12-POINTED GEOMETRIC MAMLUK SHAMSA SEAL (Thumb Zone 1-Tap Stamp) */}
                 <button
                   type="button"
                   onClick={async (e) => {
-                    e.stopPropagation();
                     soundSynth.playStreakMilestoneChime();
                     haptic.vibrateSprintCelebration();
-                    if (!isDone) {
-                      const defaultQabliyah =
-                        p.name === 'fajr' ? 2 : p.name === 'dhuhr' ? 4 : 0;
-                      const defaultBadiyah =
-                        p.name === 'dhuhr'
-                          ? 2
-                          : p.name === 'maghrib'
-                          ? 2
-                          : p.name === 'isha'
-                          ? 2
-                          : 0;
+                    if (!isActiveDone) {
                       await handleMarkPrayer(
-                        p.name,
+                        activeCard.name,
                         'in_group',
                         {
-                          sunnahPerformed: defaultQabliyah + defaultBadiyah > 0,
-                          qabliyahRakats: defaultQabliyah,
-                          badiyahRakats: defaultBadiyah,
-                          witrRakats: p.name === 'isha' ? 3 : 0,
+                          sunnahPerformed: sunnahTargets.qabliyah + sunnahTargets.badiyah > 0,
+                          qabliyahRakats: sunnahTargets.qabliyah,
+                          badiyahRakats: sunnahTargets.badiyah,
+                          witrRakats: sunnahTargets.witr,
                         },
                         e
                       );
                     } else {
-                      handleOpenPrayerModal(p.name);
+                      handleOpenPrayerModal(activeCard.name);
                     }
                   }}
-                  className={`relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all cursor-pointer active:scale-90 border ${
-                    isDone
-                      ? 'bg-gradient-to-br from-[#22c55e] via-[#16a34a] to-[#15803d] text-white border-amber-300/70 shadow-[0_4px_12px_rgba(34,197,94,0.45)] ring-2 ring-emerald-400/40'
-                      : isNext
-                      ? 'bg-gradient-to-br from-amber-400 via-amber-500 to-emerald-500 hover:from-emerald-400 hover:to-emerald-600 text-zinc-950 border-white/80 shadow-[0_0_18px_rgba(251,191,36,0.55)]'
-                      : `${sealPendingStyle} hover:bg-emerald-600 hover:text-white hover:border-emerald-500 shadow-xs`
-                  }`}
+                  className="group relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center shrink-0 cursor-pointer active:scale-90 transition-transform"
                   title={
-                    isDone
+                    isActiveDone
                       ? isAr
-                        ? 'تم توثيق الصلاة ✓ (اضغط لتعديل الحالة أو السنن)'
-                        : 'Prayer logged ✓ (Tap to edit)'
+                        ? 'تم توثيق الفريضة ✓ (اضغط لتعديل الحالة أو السنن)'
+                        : 'Fard logged ✓ (Tap to customize)'
                       : isAr
-                      ? `توثيق فوري لصلاة ${p.title} في جماعة مع السنن (+30 XP)`
-                      : `1-Tap log ${p.title} in group (+30 XP)`
+                      ? `اضغط لختم صلاة ${activeCard.title} في جماعة مع السنن (+30 XP)`
+                      : `Tap to stamp ${activeCard.title} in group (+30 XP)`
                   }
                 >
-                  {isDone ? (
-                    <Check className="w-4 h-4 stroke-[3]" />
-                  ) : isNext ? (
-                    <>
-                      <span className="absolute -inset-1 rounded-full border border-amber-300/70 animate-ping opacity-50" />
-                      <Check className="w-4 h-4 stroke-[3]" />
-                    </>
-                  ) : (
-                    /* Intricate Rub el Hizb 8-Pointed Star + Check Emblem so pending cards look like sculpted medallions */
-                    <svg
-                      className="w-4 h-4 opacity-85 group-hover:scale-110 transition-transform"
-                      viewBox="0 0 24 24"
+                  {/* Authentic 12-Pointed Mamluk Shamsa SVG (3 Interlocking Squares at 0°, 30°, 60°) */}
+                  <svg
+                    className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:rotate-12"
+                    viewBox="0 0 100 100"
+                    aria-hidden="true"
+                  >
+                    {/* Outer Astrolabe Degree Ring */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="46"
                       fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polygon
-                        points="12,2 14.8,8.2 21.5,9.2 16.5,14 17.8,20.8 12,17.5 6.2,20.8 7.5,14 2.5,9.2 9.2,8.2"
-                        fill="currentColor"
-                        fillOpacity="0.18"
+                      stroke={isActiveDone ? '#34d399' : '#fbbf24'}
+                      strokeWidth="0.9"
+                      strokeDasharray="2 3"
+                      strokeOpacity="0.65"
+                      className="animate-[spin_32s_linear_infinite]"
+                    />
+                    {/* 3 Rotated Squares forming the 12-Pointed Mamluk Star {12/3} */}
+                    {[0, 30, 60].map((deg) => (
+                      <rect
+                        key={deg}
+                        x="18"
+                        y="18"
+                        width="64"
+                        height="64"
+                        rx="3.5"
+                        transform={`rotate(${deg} 50 50)`}
+                        fill={
+                          isActiveDone
+                            ? 'rgba(16, 185, 129, 0.32)'
+                            : isActiveNext
+                            ? 'rgba(245, 158, 11, 0.25)'
+                            : 'rgba(255, 255, 255, 0.08)'
+                        }
+                        stroke={isActiveDone ? '#34d399' : '#fbbf24'}
+                        strokeWidth="1.5"
                       />
-                      <path d="m9 12 2 2 4-4" strokeWidth="2.4" />
-                    </svg>
-                  )}
+                    ))}
+                    {/* Inner Scalloped Medallion */}
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="30"
+                      fill={isActiveDone ? '#065f46' : '#141720'}
+                      stroke="#fde68a"
+                      strokeWidth="1.6"
+                    />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="25.5"
+                      fill="none"
+                      stroke="#fde68a"
+                      strokeWidth="0.7"
+                      strokeDasharray="2 2"
+                    />
+                  </svg>
+
+                  {/* Calligraphic Core inside the 12-Pointed Shamsa */}
+                  <div className="relative z-10 flex flex-col items-center justify-center text-center px-1">
+                    {isActiveDone ? (
+                      <>
+                        <Check className="w-6 h-6 text-emerald-300 stroke-[3]" />
+                        <span className="text-[10px] font-extrabold text-amber-200 leading-tight mt-0.5">
+                          {activeRecord?.status === 'in_group'
+                            ? isAr
+                              ? 'في جماعة ★'
+                              : 'Group ★'
+                            : isAr
+                            ? 'مكتملة ✓'
+                            : 'Done ✓'}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-sm sm:text-base font-black text-amber-300 leading-none">
+                          {activeCard.title}
+                        </span>
+                        <span className="text-[9px] font-bold text-emerald-300 mt-1 px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/35">
+                          {isAr ? 'اضغط للختم ✓' : 'Stamp ✓'}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </button>
 
-                {/* Clean Sunnah / Status Tag (Zero truncation!) */}
-                <span
-                  className={`relative z-10 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap leading-none border ${
-                    isDone
-                      ? 'bg-emerald-600/20 text-emerald-950 dark:text-emerald-100 border-emerald-600/35'
-                      : isNext
-                      ? 'bg-amber-400/20 text-amber-200 border-amber-300/40'
-                      : 'bg-white/75 dark:bg-black/35 text-zinc-800 dark:text-zinc-200 border-black/10 dark:border-white/10'
-                  }`}
-                >
-                  {isDone && sunnahLogged > 0
-                    ? isAr
-                      ? `${statusMicroLabel} +${sunnahLogged}س`
-                      : `${statusMicroLabel} +${sunnahLogged}S`
-                    : statusMicroLabel}
-                </span>
+                {/* Left Wing: Direct 1-Tap Badiyah / Witr Toggle */}
+                {sunnahTargets.badiyah > 0 || sunnahTargets.witr > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleToggleSunnahWing(sunnahTargets.badiyah > 0 ? 'badiyah' : 'witr')
+                    }
+                    className={`flex-1 min-h-[58px] py-2 px-2 rounded-2xl border text-center transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center ${
+                      (sunnahTargets.badiyah > 0 && activeBadiyah >= sunnahTargets.badiyah) ||
+                      (sunnahTargets.witr > 0 && activeWitr > 0)
+                        ? 'bg-gradient-to-br from-emerald-600/45 to-amber-500/25 border-amber-300/80 text-white shadow-[0_0_16px_rgba(16,185,129,0.35)]'
+                        : 'bg-black/40 hover:bg-black/55 border-amber-300/25 text-zinc-200'
+                    }`}
+                    title={
+                      isAr
+                        ? 'اضغط بلمسة واحدة لتوثيق السنة البعدية / الوتر'
+                        : '1-Tap to toggle Badiyah / Witr'
+                    }
+                  >
+                    <span className="block text-[10px] text-amber-300 font-bold">
+                      {sunnahTargets.witr > 0
+                        ? isAr
+                          ? 'بعدية + وتر'
+                          : 'After + Witr'
+                        : isAr
+                        ? 'سنة بعدية'
+                        : 'After Fard'}
+                    </span>
+                    <span className="block text-xs font-extrabold mt-0.5">
+                      {(sunnahTargets.badiyah > 0 && activeBadiyah >= sunnahTargets.badiyah) ||
+                      (sunnahTargets.witr > 0 && activeWitr > 0)
+                        ? isAr
+                          ? `✓ ${sunnahTargets.badiyah + sunnahTargets.witr} ركعات`
+                          : `✓ ${sunnahTargets.badiyah + sunnahTargets.witr} Rak'ahs`
+                        : isAr
+                        ? `+ ${sunnahTargets.badiyah || sunnahTargets.witr} ركعات`
+                        : `+ ${sunnahTargets.badiyah || sunnahTargets.witr} Rak'ahs`}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPrayerModal(activeCard.name)}
+                    className="flex-1 min-h-[58px] py-2 px-2 rounded-2xl bg-black/40 hover:bg-black/55 border border-amber-300/25 text-center transition-all cursor-pointer active:scale-95 flex flex-col items-center justify-center"
+                  >
+                    <span className="block text-[10px] text-amber-300 font-bold">
+                      {isAr ? 'حالة الأداء' : 'Status'}
+                    </span>
+                    <span className="block text-xs font-extrabold text-white mt-0.5">
+                      {isAr ? 'جماعة / بوقتها ⚙' : 'Customize ⚙'}
+                    </span>
+                  </button>
+                )}
               </div>
-            );
-          })}
-        </div>
-      </div>
+
+              {/* Prophetic Virtue Inscription under the Shamsa */}
+              <p className="text-[11px] text-amber-100/85 font-medium max-w-md mx-auto leading-relaxed">
+                «
+                {isAr
+                  ? CELESTIAL_THEMES[activeCard.name]?.virtueAr
+                  : CELESTIAL_THEMES[activeCard.name]?.virtueEn}
+                »
+              </p>
+            </div>
+
+            {/* ========================================================== */}
+            {/* LAYER 4: CONNECTED BRASS ASTROLABE 5-STAR HORIZON DOCK     */}
+            {/* Tap any Rub el Hizb station to rotate Astrolabe & Lamp     */}
+            {/* ========================================================== */}
+            <div className="relative z-10 bg-black/50 backdrop-blur-md border-t border-amber-300/30 px-1.5 py-2">
+              <div className="grid grid-cols-5 divide-x divide-amber-400/15 rtl:divide-x-reverse">
+                {prayerCards.map((p) => {
+                  const rec = prayers[p.name];
+                  const isDone = Boolean(
+                    rec &&
+                      (rec.status === 'on_time' ||
+                        rec.status === 'in_group' ||
+                        rec.status === 'late' ||
+                        rec.status === 'excused')
+                  );
+                  const isFocused = focusedPrayer === p.name;
+                  const isNext =
+                    nextPrayer.arabicName === p.title ||
+                    (p.isJumuah && nextPrayer.arabicName.includes('الجمعة'));
+                  const tDigits = formatPrayerTime(p.timeDate, isAr).split(' ')[0];
+
+                  return (
+                    <button
+                      key={p.name}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        if (focusedPrayer === p.name) {
+                          handleOpenPrayerModal(p.name);
+                        } else {
+                          setFocusedPrayer(p.name);
+                          setLampSwingKey((k) => k + 1);
+                        }
+                      }}
+                      className={`relative min-h-[60px] py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition-all cursor-pointer select-none active:scale-95 ${
+                        isFocused
+                          ? 'bg-gradient-to-b from-amber-400/25 to-amber-500/10 ring-1 ring-amber-300/75 shadow-[0_0_14px_rgba(251,191,36,0.28)]'
+                          : 'hover:bg-white/5 opacity-80 hover:opacity-100'
+                      }`}
+                    >
+                      {/* Astrolabe Pointer Diamond when focused */}
+                      {isFocused && (
+                        <span className="absolute -top-1 w-2 h-2 rotate-45 bg-amber-300 shadow-[0_0_6px_#fbbf24]" />
+                      )}
+
+                      {/* Rub el Hizb 8-Pointed Islamic Star Node */}
+                      <div className="relative w-6 h-6 flex items-center justify-center">
+                        <svg className="w-6 h-6" viewBox="0 0 24 24" aria-hidden="true">
+                          <rect
+                            x="5"
+                            y="5"
+                            width="14"
+                            height="14"
+                            rx="1.5"
+                            fill={isDone ? '#10b981' : isFocused ? '#f59e0b' : '#27272a'}
+                            stroke={
+                              isDone ? '#6ee7b7' : isFocused || isNext ? '#fde68a' : '#71717a'
+                            }
+                            strokeWidth="1.3"
+                          />
+                          <rect
+                            x="5"
+                            y="5"
+                            width="14"
+                            height="14"
+                            rx="1.5"
+                            transform="rotate(45 12 12)"
+                            fill={isDone ? '#059669' : isFocused ? '#d97706' : '#18181b'}
+                            stroke={
+                              isDone ? '#6ee7b7' : isFocused || isNext ? '#fde68a' : '#71717a'
+                            }
+                            strokeWidth="1.3"
+                          />
+                        </svg>
+                        <span className="relative z-10 text-[10px] font-black text-white">
+                          {isDone ? '✓' : isNext ? '•' : ''}
+                        </span>
+                      </div>
+
+                      {/* Prayer Title */}
+                      <span
+                        className={`text-[11px] font-bold leading-none ${
+                          isFocused
+                            ? 'text-amber-200'
+                            : isDone
+                            ? 'text-emerald-300'
+                            : 'text-zinc-200'
+                        }`}
+                      >
+                        {p.title}
+                      </span>
+
+                      {/* Tabular Time */}
+                      <span className="text-[10px] font-mono text-zinc-400 leading-none">
+                        <bdi dir="ltr">{tDigits}</bdi>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ============================================================ */}
       {/* 2.5 ATMOSPHERIC BENTO NAWAFIL & DHIKR QUICK TILES            */}
