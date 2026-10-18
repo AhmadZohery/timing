@@ -17,7 +17,6 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
-  Headphones,
 } from 'lucide-react';
 import {
   gymFaithAudio,
@@ -979,73 +978,304 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     Boolean(playingTrackId || audioState.isPlaying || audioState.isLoading || audioState.currentTime > 0) &&
     audioState.mediaType !== 'youtube';
 
-  return (
-    <div className="flex flex-col h-[92vh] sm:h-[86vh] max-h-[860px] w-full bg-[#141517] text-white rounded-[32px] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.75)] border border-white/12 relative">
-      {/* 1. Impeccable Habitline Obsidian Studio Header */}
-      <div className="celestial-obsidian-stage p-4 sm:p-5 border-b border-white/10 flex items-center justify-between gap-3 shrink-0 relative overflow-hidden">
-        <div className="pointer-events-none absolute -top-12 -end-12 w-40 h-40 rounded-full bg-[#bce8c2]/10 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-12 -start-12 w-36 h-36 rounded-full bg-[#e2defc]/10 blur-2xl" />
+  // Quick Live Radio Stations for 1-Tap Tuning in the Top Mihrab Stage
+  const quickRadioTracks = useMemo(
+    () => allCombinedTracks.filter((t) => t.category === 'radio').slice(0, 4),
+    [allCombinedTracks]
+  );
 
-        <div className="flex items-center gap-3 relative z-10 min-w-0">
-          <div className="w-11 h-11 rounded-2xl bg-[#bce8c2] text-zinc-950 flex items-center justify-center font-bold shrink-0 shadow-md">
-            <Headphones className="w-5 h-5 stroke-[2.2]" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-sm sm:text-base font-bold text-white line-clamp-2 leading-[1.7]">
-                {isAr ? 'استوديو أثير الوعي والدروس الإيمانية' : 'Midmar Faith & Awareness Audio Studio'}
+  // Spiritual Mood / Intent Prescriptions for 1-Tap Filtering
+  const moodPrescriptions = useMemo(
+    () => [
+      {
+        id: 'quran',
+        emoji: '🌿',
+        titleAr: 'سكينة القلب',
+        subAr: 'تلاوات خاشعة',
+        activeClass: 'bg-emerald-600 text-white border-emerald-700 shadow-sm',
+        idleClass: 'bg-emerald-50/90 hover:bg-emerald-100/80 text-emerald-950 border-emerald-300/80',
+      },
+      {
+        id: 'men_fiqh',
+        emoji: '🧔',
+        titleAr: 'فقه وفتوة الرجل',
+        subAr: 'القوامة والعمل',
+        activeClass: 'bg-amber-600 text-white border-amber-700 shadow-sm',
+        idleClass: 'bg-amber-50/90 hover:bg-amber-100/80 text-amber-950 border-amber-300/80',
+      },
+      {
+        id: 'women_fiqh',
+        emoji: '🧕',
+        titleAr: 'فقه وسكينة المرأة',
+        subAr: 'الأنوثة والبيت',
+        activeClass: 'bg-rose-600 text-white border-rose-700 shadow-sm',
+        idleClass: 'bg-rose-50/90 hover:bg-rose-100/80 text-rose-950 border-rose-300/80',
+      },
+      {
+        id: 'mindset',
+        emoji: '🧠',
+        titleAr: 'بناء الوعي والفكر',
+        subAr: 'تأسيس معرفي',
+        activeClass: 'bg-indigo-600 text-white border-indigo-700 shadow-sm',
+        idleClass: 'bg-indigo-50/90 hover:bg-indigo-100/80 text-indigo-950 border-indigo-300/80',
+      },
+      {
+        id: 'tazkiyah',
+        emoji: '🔥',
+        titleAr: 'شحذ الهمة',
+        subAr: 'تزكية ورقائق',
+        activeClass: 'bg-orange-600 text-white border-orange-700 shadow-sm',
+        idleClass: 'bg-orange-50/90 hover:bg-orange-100/80 text-orange-950 border-orange-300/80',
+      },
+      {
+        id: 'zawaj',
+        emoji: '🏡',
+        titleAr: 'البيت المسلم',
+        subAr: 'مودة وتأهيل',
+        activeClass: 'bg-teal-600 text-white border-teal-700 shadow-sm',
+        idleClass: 'bg-teal-50/90 hover:bg-teal-100/80 text-teal-950 border-teal-300/80',
+      },
+    ],
+    []
+  );
+
+  // Color-coded 3D Bento card palette per track category (eliminating monotonous black bars)
+  const getCategoryCardTheme = (cat: MobileAudioTrack['category']) => {
+    switch (cat) {
+      case 'quran':
+      case 'adhkar':
+        return {
+          card: 'bg-gradient-to-br from-emerald-50/95 via-white to-teal-50/70 dark:from-emerald-950/45 dark:via-zinc-900 dark:to-teal-950/35 border-emerald-300/80 dark:border-emerald-500/30 hover:border-emerald-400',
+          iconBox: 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 border-emerald-300/70',
+          sheikhText: 'text-emerald-800 dark:text-emerald-300',
+          badge: 'bg-emerald-100/90 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 border-emerald-300/60',
+          playBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_6px_16px_-4px_rgba(5,150,105,0.55)]',
+        };
+      case 'men_fiqh':
+        return {
+          card: 'bg-gradient-to-br from-amber-50/95 via-white to-orange-50/70 dark:from-amber-950/45 dark:via-zinc-900 dark:to-orange-950/35 border-amber-300/85 dark:border-amber-500/30 hover:border-amber-400',
+          iconBox: 'bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border-amber-300/70',
+          sheikhText: 'text-amber-900 dark:text-amber-300',
+          badge: 'bg-amber-100/90 dark:bg-amber-900/50 text-amber-950 dark:text-amber-200 border-amber-300/60',
+          playBtn: 'bg-amber-600 hover:bg-amber-700 text-white shadow-[0_6px_16px_-4px_rgba(217,119,6,0.55)]',
+        };
+      case 'women_fiqh':
+        return {
+          card: 'bg-gradient-to-br from-rose-50/95 via-white to-pink-50/70 dark:from-rose-950/45 dark:via-zinc-900 dark:to-pink-950/35 border-rose-300/85 dark:border-rose-500/30 hover:border-rose-400',
+          iconBox: 'bg-rose-100 dark:bg-rose-900/60 text-rose-900 dark:text-rose-200 border-rose-300/70',
+          sheikhText: 'text-rose-800 dark:text-rose-300',
+          badge: 'bg-rose-100/90 dark:bg-rose-900/50 text-rose-950 dark:text-rose-200 border-rose-300/60',
+          playBtn: 'bg-rose-600 hover:bg-rose-700 text-white shadow-[0_6px_16px_-4px_rgba(225,29,72,0.5)]',
+        };
+      case 'mindset':
+      case 'siyra':
+        return {
+          card: 'bg-gradient-to-br from-indigo-50/95 via-white to-violet-50/70 dark:from-indigo-950/45 dark:via-zinc-900 dark:to-violet-950/35 border-indigo-300/80 dark:border-indigo-500/30 hover:border-indigo-400',
+          iconBox: 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-200 border-indigo-300/70',
+          sheikhText: 'text-indigo-800 dark:text-indigo-300',
+          badge: 'bg-indigo-100/90 dark:bg-indigo-900/50 text-indigo-950 dark:text-indigo-200 border-indigo-300/60',
+          playBtn: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_6px_16px_-4px_rgba(79,70,229,0.5)]',
+        };
+      case 'radio':
+        return {
+          card: 'bg-gradient-to-br from-sky-50/95 via-white to-cyan-50/75 dark:from-sky-950/45 dark:via-zinc-900 dark:to-cyan-950/35 border-sky-300/85 dark:border-sky-500/30 hover:border-sky-400',
+          iconBox: 'bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-200 border-sky-300/70',
+          sheikhText: 'text-sky-800 dark:text-sky-300',
+          badge: 'bg-sky-100/90 dark:bg-sky-900/50 text-sky-950 dark:text-sky-200 border-sky-300/60',
+          playBtn: 'bg-sky-600 hover:bg-sky-700 text-white shadow-[0_6px_16px_-4px_rgba(2,132,199,0.5)]',
+        };
+      default:
+        return {
+          card: 'bg-gradient-to-br from-orange-50/90 via-white to-amber-50/65 dark:from-orange-950/40 dark:via-zinc-900 dark:to-amber-950/30 border-orange-300/80 dark:border-orange-500/30 hover:border-orange-400',
+          iconBox: 'bg-orange-100 dark:bg-orange-900/60 text-orange-900 dark:text-orange-200 border-orange-300/70',
+          sheikhText: 'text-orange-900 dark:text-orange-300',
+          badge: 'bg-orange-100/90 dark:bg-orange-900/50 text-orange-950 dark:text-orange-200 border-orange-300/60',
+          playBtn: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-[0_6px_16px_-4px_rgba(5,150,105,0.5)]',
+        };
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[93vh] sm:h-[88vh] max-h-[880px] w-full bg-[#faf7f0] dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 rounded-[32px] overflow-hidden shadow-[0_24px_80px_rgba(6,78,59,0.28)] border-2 border-amber-300/80 dark:border-amber-500/30 relative">
+      {/* Subtle Mamluk Geometric Watermark */}
+      <div className="pointer-events-none absolute inset-0 bg-islamic-pattern opacity-[0.045] dark:opacity-[0.03]" />
+
+      {/* 1. Illuminated Mamluk Shamsa Acoustic Mihrab Stage Header */}
+      <div className="bg-gradient-to-br from-[#ecfdf5] via-[#fef9c3]/70 to-[#e0e7ff]/75 dark:from-emerald-950/90 dark:via-zinc-900 dark:to-indigo-950/85 px-3.5 pt-3.5 pb-3 border-b-2 border-amber-300/70 dark:border-amber-500/25 shrink-0 relative overflow-hidden">
+        {/* Decorative Top Gold & Emerald Filigree Arch Line */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-amber-400 to-indigo-500" />
+        <div className="pointer-events-none absolute -top-12 -end-12 w-40 h-40 rounded-full bg-amber-300/25 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-12 -start-12 w-36 h-36 rounded-full bg-emerald-400/20 blur-2xl" />
+
+        {/* Top Bar: Interactive Rotating Mamluk Shamsa Vinyl + Title + Sleep Timer & Close */}
+        <div className="flex items-center justify-between gap-2.5 relative z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Interactive Rotating Mamluk Shamsa Acoustic Disc */}
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                if (audioState.isPlaying || audioState.currentTitleAr) {
+                  gymFaithAudio.togglePlay();
+                } else if (filteredTracks.length > 0) {
+                  handleTogglePlayTrack(filteredTracks[0]);
+                }
+              }}
+              title={isAr ? 'اضغط للتشغيل أو الإيقاف المؤقت' : 'Tap to Play / Pause'}
+              className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 cursor-pointer group shadow-[0_6px_18px_rgba(6,78,59,0.25)] active:scale-95 transition-transform"
+            >
+              <svg
+                viewBox="0 0 100 100"
+                className={`w-full h-full ${
+                  audioState.isPlaying ? 'animate-[spin_9s_linear_infinite]' : ''
+                }`}
+              >
+                <defs>
+                  <radialGradient id="shamsaDiscGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#fef3c7" />
+                    <stop offset="45%" stopColor="#059669" />
+                    <stop offset="82%" stopColor="#064e3b" />
+                    <stop offset="100%" stopColor="#d97706" />
+                  </radialGradient>
+                </defs>
+                {/* Outer Gold Scalloped Rim */}
+                <circle cx="50" cy="50" r="48" fill="url(#shamsaDiscGrad)" stroke="#f59e0b" strokeWidth="2.5" />
+                {/* Vinyl Acoustic Grooves */}
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#fde68a" strokeWidth="0.7" strokeDasharray="4 3" opacity="0.7" />
+                <circle cx="50" cy="50" r="33" fill="none" stroke="#a7f3d0" strokeWidth="0.7" strokeDasharray="6 2" opacity="0.65" />
+                {/* 8-Pointed Rub el Hizb Star Filigree */}
+                <rect x="26" y="26" width="48" height="48" rx="4" fill="none" stroke="#fbbf24" strokeWidth="1.4" opacity="0.85" />
+                <rect x="26" y="26" width="48" height="48" rx="4" fill="none" stroke="#fbbf24" strokeWidth="1.4" opacity="0.85" transform="rotate(45 50 50)" />
+                {/* Center Golden Hub */}
+                <circle cx="50" cy="50" r="15" fill="#fffbeb" stroke="#d97706" strokeWidth="2" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center text-emerald-900">
+                {audioState.isPlaying ? (
+                  <Pause className="w-4 h-4 fill-current" />
+                ) : (
+                  <Play className="w-4 h-4 fill-current ms-0.5" />
+                )}
+              </div>
+              {audioState.isPlaying && (
+                <span className=" -top-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-ping absolute" />
+              )}
+            </button>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300/80">
+                  {isAr ? '۞ مِحراب الصوت والوعي' : '۞ Audio Mihrab'}
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 border border-emerald-300/80">
+                  {isAr ? '✓ 45 مادة موثقة + إذاعات حية' : 'Verified Library'}
+                </span>
+              </div>
+              <h2 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white truncate mt-0.5">
+                {audioState.isPlaying && audioState.currentTitleAr
+                  ? audioState.currentTitleAr
+                  : isAr
+                  ? 'استوديو أثير الوعي والدروس الإيمانية'
+                  : 'Midmar Faith & Awareness Studio'}
               </h2>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#bce8c2]/15 text-[#bce8c2] border border-[#bce8c2]/30">
-                {isAr ? '✓ موثق ومفحوص 100%' : '100% Verified Audio'}
-              </span>
+              <p className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 truncate">
+                {audioState.isPlaying && audioState.currentSheikhAr
+                  ? `🔊 يعمل الآن: ${audioState.currentSheikhAr}`
+                  : isAr
+                  ? 'اختر إذاعة حية، أو بوصلة قلبك، أو سلسلة علمية كاملة'
+                  : 'Choose a live radio, spiritual mood, or full scholar series'}
+              </p>
             </div>
-            <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-2 leading-[1.8]">
-              {isAr
-                ? 'تشغيل فوري مستقر بدون تقطيع'
-                : 'Instant, uninterrupted streaming'}
-            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Sleep Timer Trigger Pill */}
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                setIsSleepModalOpen(true);
+              }}
+              className={`flex items-center gap-1 px-2.5 py-2 rounded-full border text-[11px] font-bold transition-all cursor-pointer shadow-2xs ${
+                sleepSecondsLeft !== null
+                  ? 'bg-indigo-600 text-white border-indigo-700 font-mono animate-pulse'
+                  : 'bg-white/90 dark:bg-zinc-800 hover:bg-amber-50 text-zinc-800 dark:text-zinc-200 border-amber-300/80 dark:border-zinc-700'
+              }`}
+              title={isAr ? 'مؤقت النوم لإيقاف الصوت تلقائياً' : 'Sleep Timer'}
+            >
+              <Moon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" />
+              <span className="tabular-nums hidden sm:inline">
+                {sleepSecondsLeft !== null
+                  ? `${Math.floor(sleepSecondsLeft / 60)}:${String(sleepSecondsLeft % 60).padStart(2, '0')}`
+                  : isAr
+                  ? 'مؤقت النوم'
+                  : 'Sleep'}
+              </span>
+              {sleepSecondsLeft !== null && (
+                <span className="tabular-nums sm:hidden">
+                  {Math.floor(sleepSecondsLeft / 60)}:{String(sleepSecondsLeft % 60).padStart(2, '0')}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={isAr ? 'إغلاق الاستوديو' : 'Close Studio'}
+              className="w-9 h-9 rounded-full bg-white/90 dark:bg-zinc-800 hover:bg-rose-50 text-zinc-700 dark:text-zinc-200 hover:text-rose-700 border border-zinc-300/80 dark:border-zinc-700 flex items-center justify-center transition-colors cursor-pointer shrink-0 shadow-2xs"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 relative z-10 shrink-0">
-          {/* Sleep Timer Trigger Pill */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              setIsSleepModalOpen(true);
-            }}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full border text-xs font-bold transition-all cursor-pointer ${
-              sleepSecondsLeft !== null
-                ? 'bg-[#e2defc] text-zinc-950 border-[#e2defc] font-mono shadow-sm animate-pulse'
-                : 'bg-white/[0.07] hover:bg-white/[0.12] text-zinc-200 border-white/10'
-            }`}
-            title={isAr ? 'مؤقت النوم لإيقاف الصوت تلقائياً' : 'Sleep Timer'}
-          >
-            <Moon className="w-3.5 h-3.5" />
-            <span className="tabular-nums">
-              {sleepSecondsLeft !== null
-                ? `${Math.floor(sleepSecondsLeft / 60)}:${String(sleepSecondsLeft % 60).padStart(2, '0')}`
-                : isAr
-                ? 'مؤقت النوم'
-                : 'Sleep'}
+        {/* 1-Tap Live Radio Dial Strip right inside the Stage */}
+        <div className="mt-2.5 pt-2 border-t border-emerald-300/50 dark:border-white/10 relative z-10">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            <span className="text-[10px] font-bold text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/50 px-2 py-1 rounded-full shrink-0 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping" />
+              {isAr ? 'بث إذاعي فوري:' : 'Live Radio:'}
             </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={isAr ? 'إغلاق الاستوديو' : 'Close Studio'}
-            className="w-10 h-10 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-          >
-            <X className="w-4 h-4" />
-          </button>
+            {quickRadioTracks.map((radioTrack) => {
+              const isRadioPlaying =
+                audioState.isPlaying &&
+                (playingTrackId === radioTrack.id ||
+                  audioState.currentTitleAr === radioTrack.titleAr ||
+                  (audioState.mode === 'channel' &&
+                    audioState.currentChannelId === radioTrack.id.replace('track_radio_', '')));
+              return (
+                <button
+                  key={radioTrack.id}
+                  type="button"
+                  onClick={() => handleTogglePlayTrack(radioTrack)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
+                    isRadioPlaying
+                      ? 'bg-emerald-700 text-white border-amber-400 shadow-xs ring-2 ring-amber-300/60'
+                      : 'bg-white/90 dark:bg-zinc-800/90 hover:bg-emerald-50 text-zinc-900 dark:text-zinc-100 border-emerald-300/70 dark:border-zinc-700 shadow-2xs'
+                  }`}
+                >
+                  <span>{radioTrack.icon}</span>
+                  <span>
+                    {radioTrack.titleAr
+                      .replace('إذاعة ', '')
+                      .replace('بث ', '')
+                      .slice(0, 22)}
+                  </span>
+                  {isRadioPlaying ? (
+                    <Pause className="w-3 h-3 fill-current text-amber-300" />
+                  ) : (
+                    <Play className="w-3 h-3 fill-current text-emerald-600 dark:text-emerald-400" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* View Mode Segmented Pill Switcher: Quick Tracks vs Scholars & Full Series */}
-      <div className="px-3.5 py-2.5 bg-[#191b1f] border-b border-white/10 shrink-0">
-        <div className="flex items-center bg-[#101114] p-1 rounded-full border border-white/[0.08] gap-1">
+      {/* 2. View Mode Segmented Pill Switcher: Curated Tracks & Compass vs Scholars Encyclopedia */}
+      <div className="px-3.5 py-2 bg-[#f3efe4] dark:bg-zinc-900 border-b border-amber-300/60 dark:border-zinc-800 shrink-0">
+        <div className="flex items-center bg-white/90 dark:bg-zinc-950 p-1 rounded-2xl border border-amber-300/70 dark:border-zinc-800 gap-1.5 shadow-inner">
           <button
             type="button"
             onClick={() => {
@@ -1053,14 +1283,14 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               haptic.vibrateLight();
               setViewMode('tracks');
             }}
-            className={`flex-1 py-2 px-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               viewMode === 'tracks'
-                ? 'bg-[#bce8c2] text-zinc-950 shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs'
+                : 'text-zinc-700 dark:text-zinc-400 hover:bg-amber-50/70 dark:hover:bg-zinc-800'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isAr ? 'المختارات السريعة والإذاعات 🎧' : 'Curated Audio & Radios'}</span>
+            <span>{isAr ? 'بوصلة الوعي والمختارات 🎧' : 'Spiritual Compass & Tracks'}</span>
           </button>
 
           <button
@@ -1070,48 +1300,87 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               haptic.vibrateLight();
               setViewMode('scholars');
             }}
-            className={`flex-1 py-2 px-3 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               viewMode === 'scholars'
-                ? 'bg-[#e2defc] text-zinc-950 shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xs'
+                : 'text-zinc-700 dark:text-zinc-400 hover:bg-indigo-50/70 dark:hover:bg-zinc-800'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>{isAr ? 'موسوعة الشيوخ والسلاسل الكاملة 🏛️' : 'Scholars & Full Series'}</span>
+            <span>{isAr ? 'موسوعة العلماء والسلاسل 🏛️' : 'Scholars & Full Series'}</span>
           </button>
         </div>
       </div>
 
       {/* Active YouTube Audio / Video Player */}
       {audioState.mediaType === 'youtube' && audioState.youtubeVideoId && (
-        <div className="p-3 bg-[#101114] border-b border-white/10 shrink-0">
+        <div className="p-3 bg-[#f7f3e8] dark:bg-zinc-900 border-b border-amber-300/60 dark:border-zinc-800 shrink-0">
           <YouTubeAudioPlayer onRewardToast={onRewardToast} />
         </div>
       )}
 
       {viewMode === 'tracks' ? (
         <>
-          {/* 2. Search & Category Horizontal Scroller */}
-          <div className="p-3.5 bg-[#18191d] border-b border-white/[0.08] space-y-2.5 shrink-0">
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="w-4 h-4 text-zinc-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={isAr ? 'ابحث عن محاضرة، شيخ، تلاوة، أو إذاعة...' : 'Search lecture, scholar, recitation, or radio...'}
-                className="w-full h-10 ps-10 pe-9 rounded-2xl bg-[#101114] border border-white/10 focus:border-[#bce8c2] text-xs text-white placeholder-zinc-500 focus:outline-none transition-colors"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
+          {/* 3. Spiritual Mood Compass + Search + Category Filter Bar */}
+          <div className="px-3.5 py-2.5 bg-[#f7f4eb] dark:bg-zinc-900/90 border-b border-amber-200/80 dark:border-zinc-800 space-y-2 shrink-0">
+            {/* Spiritual Mood / Intent Prescription Pills (بوصلة القلب السريعة) */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 -mx-3.5 px-3.5">
+              {moodPrescriptions.map((mood) => {
+                const isSelected = activeCategory === mood.id;
+                return (
+                  <button
+                    key={mood.id}
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      setActiveCategory(isSelected ? 'all' : (mood.id as any));
+                    }}
+                    className={`px-2.5 py-1.5 rounded-2xl border text-start transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                      isSelected ? mood.activeClass : mood.idleClass
+                    }`}
+                  >
+                    <span className="text-base leading-none">{mood.emoji}</span>
+                    <div className="leading-tight">
+                      <div className="text-[11px] font-bold">{mood.titleAr}</div>
+                      <div
+                        className={`text-[9px] font-semibold ${
+                          isSelected ? 'text-white/85' : 'text-zinc-600 dark:text-zinc-400'
+                        }`}
+                      >
+                        {mood.subAr}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Search Input & Category Pills Row */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-emerald-700 dark:text-emerald-400 absolute start-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={
+                    isAr
+                      ? 'ابحث عن درس، شيخ، تلاوة، فقه الرجل أو المرأة...'
+                      : 'Search lecture, scholar, recitation...'
+                  }
+                  className="w-full h-9 ps-9 pe-8 rounded-xl bg-white dark:bg-zinc-950 border border-amber-300/80 dark:border-zinc-700 focus:border-emerald-600 text-xs font-bold text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none transition-colors shadow-2xs"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute end-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white p-1"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Horizontal Category Pills */}
@@ -1127,16 +1396,18 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       haptic.vibrateLight();
                       setActiveCategory(cat.id as any);
                     }}
-                    className={`snap-start min-h-[36px] px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
+                    className={`snap-start min-h-[32px] px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border ${
                       isActive
-                        ? 'bg-[#fde6d8] text-zinc-950 border-[#fde6d8] shadow-xs'
-                        : 'bg-white/[0.05] hover:bg-white/[0.09] text-zinc-300 border-white/[0.08]'
+                        ? 'bg-zinc-900 dark:bg-amber-400 text-amber-300 dark:text-zinc-950 border-zinc-900 dark:border-amber-400 shadow-xs'
+                        : 'bg-white dark:bg-zinc-800/90 hover:bg-amber-50/80 text-zinc-800 dark:text-zinc-200 border-amber-300/70 dark:border-zinc-700'
                     }`}
                   >
                     <span>{cat.label}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                        isActive ? 'bg-zinc-950/15 text-zinc-950 font-bold' : 'bg-white/10 text-zinc-400'
+                        isActive
+                          ? 'bg-amber-400/25 dark:bg-zinc-950/20 text-amber-200 dark:text-zinc-950 font-bold'
+                          : 'bg-amber-100 dark:bg-zinc-700 text-amber-950 dark:text-zinc-300'
                       }`}
                     >
                       {cat.count}
@@ -1147,15 +1418,17 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
             </div>
           </div>
 
-          {/* 3. Feed Track Cards */}
+          {/* 4. Color-Coded Tactile 3D Bento Track Cards */}
           <div
-            className={`flex-1 overflow-y-auto p-3.5 space-y-2.5 overscroll-contain ${
+            className={`flex-1 overflow-y-auto p-3.5 space-y-2.5 overscroll-contain relative z-10 ${
               hasActiveStudioDeck ? 'pb-36' : 'pb-8'
             }`}
           >
             {filteredTracks.length === 0 ? (
-              <div className="text-center py-16 text-zinc-400 text-xs">
-                {isAr ? 'لم يتم العثور على أي مقطع مطابق لبحثك' : 'No tracks found matching your query'}
+              <div className="text-center py-14 px-4 rounded-3xl bg-white/80 dark:bg-zinc-900/60 border border-amber-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-bold">
+                {isAr
+                  ? 'لم يتم العثور على أي مقطع مطابق لبحثك — جرب اختيار تصنيف آخر أعلاه'
+                  : 'No tracks found matching your query'}
               </div>
             ) : (
               filteredTracks.map((track) => {
@@ -1168,24 +1441,25 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                         audioState.currentTitleAr === track.titleAr)) ||
                     audioState.currentTitleAr === track.titleAr);
                 const isFav = favoriteIds.includes(track.id);
+                const theme = getCategoryCardTheme(track.category);
 
                 return (
                   <div
                     key={track.id}
                     onClick={() => handleTogglePlayTrack(track)}
-                    className={`p-3 sm:p-3.5 rounded-[22px] transition-all flex items-center justify-between gap-3 cursor-pointer border ${
+                    className={`p-3 sm:p-3.5 rounded-[22px] transition-all flex items-center justify-between gap-3 cursor-pointer border-2 ${
                       isPlayingThis
-                        ? 'bg-[#bce8c2] text-zinc-950 border-[#1eb814]/50 shadow-[0_0_0_1px_rgba(30,184,20,0.35),0_12px_30px_-8px_rgba(30,184,20,0.5)]'
-                        : 'bg-gradient-to-b from-[#1e2025] to-[#16171b] hover:from-[#23262c] hover:to-[#1a1c20] text-white border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_10px_22px_-12px_rgba(0,0,0,0.8)]'
+                        ? 'bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white border-amber-400 shadow-[0_12px_28px_-6px_rgba(5,150,105,0.45)] ring-2 ring-amber-300/60'
+                        : `${theme.card} text-zinc-900 dark:text-zinc-100 shadow-[0_6px_16px_-8px_rgba(24,24,27,0.12)]`
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      {/* Category / Sheikh Icon */}
+                      {/* Category / Sheikh Icon Emblem */}
                       <div
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 transition-transform ${
+                        className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 border transition-transform ${
                           isPlayingThis
-                            ? 'bg-zinc-950 text-[#bce8c2] shadow-sm'
-                            : 'bg-white/[0.07] text-zinc-200 border border-white/[0.08]'
+                            ? 'bg-amber-400 text-zinc-950 border-amber-200 shadow-sm'
+                            : theme.iconBox
                         }`}
                       >
                         {isPlayingThis ? (
@@ -1199,8 +1473,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span
-                            className={`text-xs sm:text-sm font-bold line-clamp-2 leading-[1.75] max-w-[210px] sm:max-w-md ${
-                              isPlayingThis ? 'text-zinc-950' : 'text-white'
+                            className={`text-xs sm:text-sm font-bold line-clamp-2 leading-[1.7] max-w-[215px] sm:max-w-md ${
+                              isPlayingThis ? 'text-white' : 'text-zinc-950 dark:text-white'
                             }`}
                           >
                             {track.titleAr}
@@ -1209,25 +1483,28 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
                         <div
                           className={`flex items-center gap-1.5 mt-1 text-[11px] flex-wrap ${
-                            isPlayingThis ? 'text-zinc-800' : 'text-zinc-400'
+                            isPlayingThis ? 'text-emerald-100' : 'text-zinc-600 dark:text-zinc-400'
                           }`}
                         >
                           <span
                             className={`font-bold truncate ${
-                              isPlayingThis ? 'text-zinc-950' : 'text-[#bce8c2]'
+                              isPlayingThis ? 'text-amber-300' : theme.sheikhText
                             }`}
                           >
                             {track.sheikhAr}
                           </span>
-                          <span aria-hidden="true" className="w-1 h-1 rounded-full bg-current opacity-40 shrink-0" />
-                          <bdi dir="ltr" className="font-mono text-[10px] tabular-nums">
+                          <span
+                            aria-hidden="true"
+                            className="w-1 h-1 rounded-full bg-current opacity-40 shrink-0"
+                          />
+                          <bdi dir="ltr" className="font-mono text-[10px] font-bold tabular-nums">
                             {track.durationFormatted}
                           </bdi>
                           <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
                               isPlayingThis
-                                ? 'bg-zinc-950/10 text-zinc-900'
-                                : 'bg-white/[0.07] text-zinc-300'
+                                ? 'bg-white/15 text-amber-200 border-amber-300/40'
+                                : theme.badge
                             }`}
                           >
                             {track.badgeAr}
@@ -1237,19 +1514,19 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     </div>
 
                     {/* Right Actions: Favorite & Play/Pause */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                       <button
                         type="button"
                         onClick={(e) => toggleFavorite(track.id, e)}
                         aria-label={isAr ? 'مفضلة' : 'Favorite'}
-                        className={`touch-target w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                        className={`touch-target w-9 h-9 rounded-full flex items-center justify-center transition-colors border ${
                           isFav
                             ? isPlayingThis
-                              ? 'text-rose-700 bg-rose-950/15'
-                              : 'text-rose-400 bg-rose-500/15'
+                              ? 'text-rose-200 bg-rose-500/30 border-rose-300/50'
+                              : 'text-rose-600 bg-rose-100 dark:bg-rose-950/60 border-rose-300'
                             : isPlayingThis
-                            ? 'text-zinc-700 hover:text-zinc-950'
-                            : 'text-zinc-500 hover:text-zinc-300'
+                            ? 'text-white/80 hover:text-white border-white/20 bg-white/10'
+                            : 'text-zinc-500 hover:text-rose-600 bg-white/80 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700'
                         }`}
                       >
                         <Heart className={`w-4 h-4 ${isFav ? 'fill-current' : ''}`} />
@@ -1257,11 +1534,19 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
                       <button
                         type="button"
-                        aria-label={isPlayingThis ? (isAr ? 'إيقاف مؤقت' : 'Pause') : (isAr ? 'تشغيل' : 'Play')}
+                        aria-label={
+                          isPlayingThis
+                            ? isAr
+                              ? 'إيقاف مؤقت'
+                              : 'Pause'
+                            : isAr
+                            ? 'تشغيل'
+                            : 'Play'
+                        }
                         className={`touch-target w-11 h-11 rounded-full flex items-center justify-center transition-transform active:scale-95 ${
                           isPlayingThis
-                            ? 'bg-zinc-950 text-[#bce8c2] shadow-sm'
-                            : 'bg-habit-green-ink hover:bg-habit-green-ink-deep text-white shadow-[0_8px_18px_-6px_rgba(30,184,20,0.65)]'
+                            ? 'bg-amber-400 text-zinc-950 shadow-md font-bold'
+                            : theme.playBtn
                         }`}
                       >
                         {isPlayingThis ? (
@@ -1278,21 +1563,25 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
         </>
       ) : (
-        /* Scholars & Full Series Encyclopedia View */
+        /* Scholars & Full Series Encyclopedia View (Luminous Ivory & Royal Indigo-Emerald Bento) */
         <div
-          className={`flex-1 overflow-y-auto p-3.5 space-y-3 overscroll-contain ${
+          className={`flex-1 overflow-y-auto p-3.5 space-y-3 overscroll-contain relative z-10 ${
             hasActiveStudioDeck ? 'pb-36' : 'pb-8'
           }`}
         >
           {/* Horizontal Scholar Selector Chips */}
           <div className="space-y-1.5">
-            <span className="text-[11px] text-zinc-400 font-bold px-1 block">
-              {isAr ? 'اختر العالم أو المفكر لعرض سلاسله ومحاضراته الموثقة:' : 'Select Scholar to view verified series:'}
+            <span className="text-[11px] text-zinc-700 dark:text-zinc-300 font-bold px-1 block">
+              {isAr
+                ? 'اختر العالم أو المفكر لعرض سلاسله ومحاضراته الموثقة كاملة:'
+                : 'Select Scholar to view verified series:'}
             </span>
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
               {SCHOLARS_DIRECTORY.map((scholar) => {
                 const isSelected = selectedScholarId === scholar.id;
-                const seriesCount = FAITH_AUDIO_SERIES.filter((s) => s.scholarId === scholar.id).length;
+                const seriesCount = FAITH_AUDIO_SERIES.filter(
+                  (s) => s.scholarId === scholar.id
+                ).length;
                 return (
                   <button
                     key={scholar.id}
@@ -1301,20 +1590,24 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       soundSynth.playTactileClick();
                       haptic.vibrateLight();
                       setSelectedScholarId(scholar.id);
-                      const firstSeries = FAITH_AUDIO_SERIES.find((s) => s.scholarId === scholar.id);
+                      const firstSeries = FAITH_AUDIO_SERIES.find(
+                        (s) => s.scholarId === scholar.id
+                      );
                       if (firstSeries) setExpandedSeriesId(firstSeries.id);
                     }}
-                    className={`px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 cursor-pointer border ${
+                    className={`px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 cursor-pointer border-2 ${
                       isSelected
-                        ? 'bg-[#e2defc] text-zinc-950 border-[#e2defc] shadow-sm'
-                        : 'bg-[#1b1d22] hover:bg-[#24272e] text-zinc-300 border-white/[0.08]'
+                        ? 'bg-indigo-600 text-white border-amber-400 shadow-sm'
+                        : 'bg-white dark:bg-zinc-900 hover:bg-indigo-50 text-zinc-800 dark:text-zinc-200 border-indigo-200 dark:border-zinc-700 shadow-2xs'
                     }`}
                   >
                     <span>{scholar.avatarEmoji}</span>
                     <span>{scholar.nameAr}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                        isSelected ? 'bg-zinc-950/15 text-zinc-950 font-bold' : 'bg-white/10 text-[#e2defc]'
+                        isSelected
+                          ? 'bg-amber-400 text-zinc-950 font-bold'
+                          : 'bg-indigo-100 dark:bg-zinc-800 text-indigo-900 dark:text-indigo-300'
                       }`}
                     >
                       {seriesCount}
@@ -1326,22 +1619,26 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
 
           {/* Scholar Bio Header Bento Card */}
-          <div className="p-4 rounded-[24px] bg-[#e2defc] text-zinc-950 border border-indigo-300/60 space-y-1.5 shadow-sm">
+          <div className="p-4 rounded-[24px] bg-gradient-to-br from-indigo-50 via-white to-amber-50/70 dark:from-indigo-950/60 dark:via-zinc-900 dark:to-amber-950/30 text-zinc-950 dark:text-white border-2 border-indigo-300/80 dark:border-indigo-500/30 space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-11 h-11 rounded-2xl bg-zinc-950 text-[#e2defc] flex items-center justify-center text-2xl shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-xs border border-amber-300/60">
                   {currentScholar.avatarEmoji}
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-zinc-950">{currentScholar.nameAr}</h3>
-                  <p className="text-[11px] text-indigo-900 font-bold">{currentScholar.specialityAr}</p>
+                  <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white">
+                    {currentScholar.nameAr}
+                  </h3>
+                  <p className="text-[11px] text-indigo-800 dark:text-indigo-300 font-bold">
+                    {currentScholar.specialityAr}
+                  </p>
                 </div>
               </div>
-              <span className="text-[10px] px-2.5 py-1 rounded-full bg-zinc-950 text-[#e2defc] font-bold shrink-0">
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-950 dark:text-amber-200 border border-amber-300 font-bold shrink-0">
                 {scholarSeriesList.length} {isAr ? 'سلاسل كاملة' : 'Series'}
               </span>
             </div>
-            <p className="text-xs text-zinc-800 leading-relaxed pt-0.5">
+            <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed pt-0.5 font-medium">
               {currentScholar.descriptionAr}
             </p>
           </div>
@@ -1349,8 +1646,10 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           {/* Scholar's Series List */}
           <div className="space-y-2.5">
             {scholarSeriesList.length === 0 ? (
-              <div className="text-center py-10 text-zinc-400 text-xs">
-                {isAr ? 'لا توجد سلاسل مسجلة حالياً لهذا الشيخ' : 'No series available for this scholar currently'}
+              <div className="text-center py-10 text-zinc-500 text-xs font-bold">
+                {isAr
+                  ? 'لا توجد سلاسل مسجلة حالياً لهذا الشيخ'
+                  : 'No series available for this scholar currently'}
               </div>
             ) : (
               scholarSeriesList.map((series) => {
@@ -1359,7 +1658,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 return (
                   <div
                     key={series.id}
-                    className="rounded-[24px] border border-white/10 bg-[#1b1d22] overflow-hidden text-start transition-all"
+                    className="rounded-[24px] border-2 border-amber-300/80 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden text-start transition-all shadow-xs"
                   >
                     {/* Series Header Bar */}
                     <div
@@ -1367,38 +1666,46 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                         soundSynth.playTactileClick();
                         setExpandedSeriesId(isExpanded ? null : series.id);
                       }}
-                      className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-colors"
+                      className="p-3.5 bg-gradient-to-r from-amber-50/70 via-white to-emerald-50/60 dark:from-zinc-900 dark:to-zinc-800/80 flex items-center justify-between cursor-pointer hover:from-amber-100/60 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-11 rounded-2xl bg-[#fde6d8] text-zinc-950 flex items-center justify-center text-lg shrink-0 font-bold">
+                        <div className="w-11 h-11 rounded-2xl bg-amber-100 dark:bg-amber-900/50 text-amber-950 dark:text-amber-200 border border-amber-300 flex items-center justify-center text-lg shrink-0 font-bold">
                           {series.icon}
                         </div>
                         <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-2 leading-[1.75] max-w-[220px] sm:max-w-md">
+                          <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-white line-clamp-2 leading-[1.7] max-w-[220px] sm:max-w-md">
                             {series.titleAr}
                           </h4>
-                          <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-0.5">
-                            <span className="text-[#fde6d8] font-bold">{series.badgeAr}</span>
+                          <div className="flex items-center gap-2 text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
+                            <span className="text-emerald-800 dark:text-emerald-300 font-bold">
+                              {series.badgeAr}
+                            </span>
                             <span>•</span>
-                            <span>{series.episodes.length} {isAr ? 'مجالس صوتية' : 'Episodes'}</span>
+                            <span className="font-bold">
+                              {series.episodes.length} {isAr ? 'مجالس صوتية' : 'Episodes'}
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="w-8 h-8 rounded-full bg-white/[0.07] text-zinc-300 flex items-center justify-center shrink-0">
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      <div className="w-8 h-8 rounded-full bg-amber-100/80 dark:bg-zinc-800 text-amber-950 dark:text-zinc-200 border border-amber-300/70 flex items-center justify-center shrink-0">
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
                       </div>
                     </div>
 
                     {/* Series Episodes List */}
                     {isExpanded && (
-                      <div className="px-3.5 pb-3.5 space-y-2 border-t border-white/[0.08] pt-3 animate-in fade-in duration-150">
-                        <p className="text-xs text-zinc-400 px-1 leading-relaxed">
+                      <div className="px-3.5 pb-3.5 space-y-2 border-t border-amber-200/80 dark:border-zinc-800 pt-3 bg-[#fcfaf5] dark:bg-zinc-950/60 animate-in fade-in duration-150">
+                        <p className="text-xs text-zinc-700 dark:text-zinc-300 px-1 leading-relaxed font-medium">
                           {series.descriptionAr}
                         </p>
 
                         <div className="space-y-2 pt-1">
-                          {series.episodes.map((ep) => {
+                          {series.episodes.map((ep, epIdx) => {
                             const isEpSelected =
                               audioState.currentSeriesId === series.id &&
                               audioState.currentEpisodeId === ep.id;
@@ -1408,18 +1715,18 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                               <div
                                 key={ep.id}
                                 onClick={() => handlePlayScholarEpisode(series, ep)}
-                                className={`p-3 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all ${
+                                className={`p-3 rounded-2xl border-2 flex items-center justify-between gap-3 cursor-pointer transition-all ${
                                   isEpSelected
-                                    ? 'bg-[#bce8c2] border-[#1eb814]/40 text-zinc-950 font-bold shadow-sm'
-                                    : 'bg-[#141517] hover:bg-white/[0.06] border-white/[0.07] text-zinc-200'
+                                    ? 'bg-gradient-to-r from-emerald-700 to-teal-700 border-amber-400 text-white font-bold shadow-md'
+                                    : 'bg-white dark:bg-zinc-900 hover:bg-emerald-50/60 dark:hover:bg-zinc-800 border-emerald-200/80 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs'
                                 }`}
                               >
                                 <div className="flex items-center gap-3 min-w-0">
                                   <div
-                                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs shrink-0 ${
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                                       isEpSelected
-                                        ? 'bg-zinc-950 text-[#bce8c2]'
-                                        : 'bg-white/10 text-zinc-200'
+                                        ? 'bg-amber-400 text-zinc-950'
+                                        : 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-900 dark:text-emerald-200 border border-emerald-300/70'
                                     }`}
                                   >
                                     {isEpSelected && audioState.isLoading ? (
@@ -1427,32 +1734,40 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                                     ) : isEpPlaying ? (
                                       <Pause className="w-4 h-4 fill-current" />
                                     ) : (
-                                      <Play className="w-4 h-4 fill-current ms-0.5" />
+                                      <span>{epIdx + 1}</span>
                                     )}
                                   </div>
 
                                   <div className="min-w-0">
                                     <div
-                                      className={`text-xs sm:text-sm font-bold line-clamp-2 leading-[1.75] max-w-[205px] sm:max-w-sm ${
-                                        isEpSelected ? 'text-zinc-950' : 'text-white'
+                                      className={`text-xs sm:text-sm font-bold line-clamp-2 leading-[1.7] max-w-[205px] sm:max-w-sm ${
+                                        isEpSelected
+                                          ? 'text-white'
+                                          : 'text-zinc-950 dark:text-white'
                                       }`}
                                     >
                                       {ep.titleAr}
                                     </div>
                                     <div
                                       className={`flex items-center gap-2 text-[10px] mt-0.5 ${
-                                        isEpSelected ? 'text-zinc-800' : 'text-zinc-400'
+                                        isEpSelected
+                                          ? 'text-emerald-100'
+                                          : 'text-zinc-600 dark:text-zinc-400'
                                       }`}
                                     >
                                       <span
                                         className={`font-mono font-bold tabular-nums ${
-                                          isEpSelected ? 'text-zinc-950' : 'text-[#bce8c2]'
+                                          isEpSelected
+                                            ? 'text-amber-300'
+                                            : 'text-emerald-700 dark:text-emerald-400'
                                         }`}
                                       >
                                         {ep.durationFormatted}
                                       </span>
                                       <span>•</span>
-                                      <span className="truncate max-w-[155px] sm:max-w-xs">{ep.summaryAr}</span>
+                                      <span className="truncate max-w-[155px] sm:max-w-xs">
+                                        {ep.summaryAr}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
@@ -1461,8 +1776,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                                   type="button"
                                   className={`px-3 py-1.5 rounded-full text-[10px] font-bold shrink-0 transition-colors ${
                                     isEpSelected
-                                      ? 'bg-zinc-950 text-[#bce8c2]'
-                                      : 'bg-white/10 hover:bg-[#bce8c2] hover:text-zinc-950 text-zinc-200'
+                                      ? 'bg-amber-400 text-zinc-950 shadow-xs'
+                                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs'
                                   }`}
                                 >
                                   {isEpPlaying
@@ -1470,7 +1785,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                                       ? 'يعمل الآن 🔊'
                                       : 'Playing'
                                     : isAr
-                                    ? 'تشغيل 🎧'
+                                    ? 'تشغيل ▶️'
                                     : 'Play'}
                                 </button>
                               </div>
@@ -1487,17 +1802,17 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       )}
 
-      {/* 4. Sticky Floating Bottom Habitline Studio Deck */}
+      {/* 5. Sticky Floating Bottom Luminous Alabaster & Emerald-Gold Studio Deck */}
       {hasActiveStudioDeck && (
-        <div className="absolute bottom-3 inset-x-3 sm:inset-x-4 bg-[#101114]/95 backdrop-blur-2xl border border-[#bce8c2]/35 rounded-[24px] p-3 sm:p-3.5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] flex flex-col gap-2 animate-in slide-in-from-bottom-4 duration-200 z-20">
+        <div className="absolute bottom-3 inset-x-3 sm:inset-x-4 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl border-2 border-emerald-500/60 dark:border-emerald-500/40 rounded-[24px] p-3 sm:p-3.5 shadow-[0_20px_50px_rgba(6,78,59,0.28)] flex flex-col gap-2 animate-in slide-in-from-bottom-4 duration-200 z-20">
           {/* Error Banner if Stream Failed */}
           {audioState.hasError && audioState.errorMessage && (
-            <div className="px-3 py-1.5 rounded-xl bg-[#fce2e6] text-rose-950 text-[11px] font-bold flex items-center justify-between gap-2">
+            <div className="px-3 py-1.5 rounded-xl bg-rose-100 text-rose-950 border border-rose-300 text-[11px] font-bold flex items-center justify-between gap-2">
               <span className="truncate">{audioState.errorMessage}</span>
               <button
                 type="button"
                 onClick={() => gymFaithAudio.togglePlay()}
-                className="px-2.5 py-0.5 rounded-full bg-zinc-950 text-white text-[10px] font-bold shrink-0 cursor-pointer"
+                className="px-2.5 py-0.5 rounded-full bg-rose-700 text-white text-[10px] font-bold shrink-0 cursor-pointer"
               >
                 {isAr ? 'إعادة المحاولة' : 'Retry'}
               </button>
@@ -1507,7 +1822,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           {/* Interactive Scrubber Bar for Series / On-Demand MP3s */}
           {audioState.duration > 0 && (
             <div className="flex items-center gap-2.5 px-1" dir="ltr">
-              <span className="text-[10px] font-mono text-zinc-400 tabular-nums shrink-0">
+              <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-400 tabular-nums shrink-0">
                 {formatSeconds(audioState.currentTime)}
               </span>
               <input
@@ -1517,9 +1832,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 value={Math.min(audioState.currentTime, audioState.duration)}
                 onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
                 aria-label={isAr ? 'شريط التقدم الصوتي' : 'Audio progress scrubber'}
-                className="flex-1 h-1.5 bg-white/15 rounded-full appearance-none cursor-pointer accent-[#bce8c2]"
+                className="flex-1 h-1.5 bg-emerald-200 dark:bg-zinc-700 rounded-full appearance-none cursor-pointer accent-emerald-600"
               />
-              <span className="text-[10px] font-mono text-zinc-400 tabular-nums shrink-0">
+              <span className="text-[10px] font-mono font-bold text-zinc-600 dark:text-zinc-400 tabular-nums shrink-0">
                 {formatSeconds(audioState.duration)}
               </span>
             </div>
@@ -1527,7 +1842,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
           <div className="flex items-center justify-between gap-2.5">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-10 h-10 rounded-2xl bg-[#bce8c2] text-zinc-950 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs border border-amber-300/60">
                 {audioState.isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
@@ -1535,10 +1850,10 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-white truncate max-w-[155px] sm:max-w-xs">
+                <p className="text-xs font-bold text-zinc-950 dark:text-white truncate max-w-[155px] sm:max-w-xs">
                   {audioState.currentTitleAr || (isAr ? 'مقطع صوتي' : 'Audio Track')}
                 </p>
-                <p className="text-[10px] text-[#bce8c2] font-bold truncate">
+                <p className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold truncate">
                   {audioState.currentSheikhAr || (isAr ? 'أثير مضمار' : 'Midmar Audio')}
                 </p>
               </div>
@@ -1551,7 +1866,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   type="button"
                   onClick={() => gymFaithAudio.playPrevEpisode()}
                   disabled={!gymFaithAudio.hasPrevEpisode()}
-                  className="hidden sm:flex w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] disabled:opacity-30 text-zinc-200 items-center justify-center cursor-pointer"
+                  className="hidden sm:flex w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 disabled:opacity-30 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 items-center justify-center cursor-pointer"
                   title={isAr ? 'الحلقة السابقة' : 'Previous Episode'}
                 >
                   <SkipBack className="w-3.5 h-3.5" />
@@ -1561,7 +1876,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               <button
                 type="button"
                 onClick={() => gymFaithAudio.seekBy(-15)}
-                className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-zinc-200 flex items-center justify-center text-xs cursor-pointer"
+                className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xs cursor-pointer"
                 title="-15s"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -1570,7 +1885,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               <button
                 type="button"
                 onClick={() => gymFaithAudio.togglePlay()}
-                className="w-10 h-10 rounded-full bg-[#bce8c2] hover:bg-[#d4f5dc] text-zinc-950 flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer"
+                className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer"
               >
                 {audioState.isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -1584,7 +1899,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               <button
                 type="button"
                 onClick={() => gymFaithAudio.seekBy(15)}
-                className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-zinc-200 flex items-center justify-center text-xs cursor-pointer"
+                className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xs cursor-pointer"
                 title="+15s"
               >
                 <RotateCw className="w-3.5 h-3.5" />
@@ -1595,7 +1910,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   type="button"
                   onClick={() => gymFaithAudio.playNextEpisode()}
                   disabled={!gymFaithAudio.hasNextEpisode()}
-                  className="hidden sm:flex w-8 h-8 rounded-full bg-white/[0.08] hover:bg-white/[0.15] disabled:opacity-30 text-zinc-200 items-center justify-center cursor-pointer"
+                  className="hidden sm:flex w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-50 disabled:opacity-30 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 items-center justify-center cursor-pointer"
                   title={isAr ? 'الحلقة التالية' : 'Next Episode'}
                 >
                   <SkipForward className="w-3.5 h-3.5" />
@@ -1605,7 +1920,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               <button
                 type="button"
                 onClick={handleSpeedCycle}
-                className="px-2.5 py-1 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-[#bce8c2] font-mono text-[11px] font-bold border border-white/10 cursor-pointer tabular-nums"
+                className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-950 dark:text-amber-200 font-mono text-[11px] font-bold border border-amber-300/80 cursor-pointer tabular-nums"
                 title={isAr ? 'سرعة التشغيل' : 'Playback speed'}
               >
                 {audioState.playbackRate}x
@@ -1618,7 +1933,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   setPlayingTrackId(null);
                 }}
                 aria-label={isAr ? 'إيقاف الصوت' : 'Stop Audio'}
-                className="w-8 h-8 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full text-zinc-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-zinc-800 flex items-center justify-center cursor-pointer"
                 title={isAr ? 'إيقاف' : 'Stop'}
               >
                 <X className="w-3.5 h-3.5" />
@@ -1628,22 +1943,22 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       )}
 
-      {/* Sleep Timer Selection Modal */}
+      {/* Sleep Timer Selection Modal (Luminous Ivory & Indigo Sanctuary Card) */}
       {isSleepModalOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs animate-fade-in"
         >
-          <div className="w-full max-w-xs rounded-[28px] bg-[#141517] border border-white/15 shadow-2xl p-5 space-y-4 text-center">
-            <div className="w-11 h-11 rounded-2xl bg-[#e2defc] text-zinc-950 flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-full max-w-xs rounded-[28px] bg-[#faf7f0] dark:bg-zinc-900 border-2 border-indigo-300 dark:border-indigo-500/40 shadow-2xl p-5 space-y-4 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto shadow-sm">
               <Moon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">
+              <h3 className="text-sm font-bold text-zinc-950 dark:text-white">
                 {isAr ? 'مؤقت النوم الهادئ 🌙' : 'Calm Sleep Timer 🌙'}
               </h3>
-              <p className="text-[11px] text-zinc-400 mt-1">
+              <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-1 font-medium">
                 {isAr
                   ? 'إيقاف تشغيل المقاطع تلقائياً بعد فترة محددة للنوم بسلام'
                   : 'Automatically pause audio after a set duration'}
@@ -1662,7 +1977,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     setIsSleepModalOpen(false);
                     onRewardToast?.(`🌙 تم ضبط مؤقت النوم على ${mins} دقيقة`);
                   }}
-                  className="py-2.5 px-3 rounded-2xl bg-white/[0.06] hover:bg-[#e2defc] hover:text-zinc-950 text-zinc-200 border border-white/10 text-xs font-bold transition-all cursor-pointer tabular-nums"
+                  className="py-2.5 px-3 rounded-2xl bg-white dark:bg-zinc-800 hover:bg-indigo-600 hover:text-white text-zinc-900 dark:text-zinc-100 border border-indigo-200 dark:border-zinc-700 text-xs font-bold transition-all cursor-pointer tabular-nums shadow-2xs"
                 >
                   {mins} {isAr ? 'دقيقة' : 'min'}
                 </button>
@@ -1678,7 +1993,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   setIsSleepModalOpen(false);
                   onRewardToast?.('تم إلغاء مؤقت النوم');
                 }}
-                className="w-full py-2.5 rounded-full bg-[#fce2e6] text-rose-950 text-xs font-bold transition-all cursor-pointer"
+                className="w-full py-2.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-950 border border-rose-300 text-xs font-bold transition-all cursor-pointer"
               >
                 {isAr ? 'إلغاء المؤقت' : 'Cancel Timer'}
               </button>
@@ -1687,7 +2002,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
             <button
               type="button"
               onClick={() => setIsSleepModalOpen(false)}
-              className="text-xs text-zinc-400 hover:text-white block mx-auto cursor-pointer"
+              className="text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white block mx-auto cursor-pointer"
             >
               {isAr ? 'إغلاق' : 'Close'}
             </button>
@@ -1697,3 +2012,4 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     </div>
   );
 };
+
