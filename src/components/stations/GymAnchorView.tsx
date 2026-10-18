@@ -17,6 +17,9 @@ import {
   Copy,
   ShieldAlert,
   Compass,
+  RefreshCw,
+  Eye,
+  Sparkles,
 } from 'lucide-react';
 import type { WorkoutExercise, WorkoutSet, UserState } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
@@ -27,6 +30,14 @@ import { CombatSportsModule } from './CombatSportsModule';
 import { TeamSportsModule } from './TeamSportsModule';
 import { FitnessIntervalEngine } from './FitnessIntervalEngine';
 import { WarmupPyramidModal } from './WarmupPyramidModal';
+import { ExerciseMovementDiagram, VisualExerciseGuideModal } from './VisualExerciseGuideModal';
+import {
+  matchExerciseToVisualAtlas,
+  computeTodaySmartRecommendation,
+  YESTERDAY_SPLIT_OPTIONS,
+  type RoutineSplitId,
+  type VisualExerciseMetadata,
+} from '../../data/visualExerciseAtlas';
 import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import confetti from 'canvas-confetti';
 import { db } from '../../db/db';
@@ -596,6 +607,29 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
   const [warmupTargetExercise, setWarmupTargetExercise] = useState('Bench Press');
   const [warmupTargetExerciseId, setWarmupTargetExerciseId] = useState<string | null>(null);
 
+  // Yesterday's Split & Smart Today Recommendation State
+  const [yesterdaySplit, setYesterdaySplit] = useState<RoutineSplitId>(() => {
+    return (localStorage.getItem('midmar_yesterday_split') as RoutineSplitId) || 'push';
+  });
+
+  // Visual Exercise Guide, 1-Tap Swapper & Custom Picker Modal State
+  const [visualModalState, setVisualModalState] = useState<{
+    isOpen: boolean;
+    exerciseId: string | null;
+    exerciseName: string;
+    tab: 'guide' | 'swap' | 'library';
+  }>({
+    isOpen: false,
+    exerciseId: null,
+    exerciseName: 'Bench Press',
+    tab: 'guide',
+  });
+
+  const smartRecommendation = React.useMemo(
+    () => computeTodaySmartRecommendation(yesterdaySplit, bodyGoal, secondarySport, athleteLevel),
+    [yesterdaySplit, bodyGoal, secondarySport, athleteLevel]
+  );
+
   // Niyyah (Intention) Consecration Engine
   const [activeBodyNiyyah, setActiveBodyNiyyah] = useState<string>(() => {
     return localStorage.getItem('midmar_body_niyyah') || 'strong_believer';
@@ -605,6 +639,85 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
   const saveExercises = (updated: WorkoutExercise[]) => {
     setExercises(updated);
     localStorage.setItem('midmar_workout_exercises', JSON.stringify(updated));
+  };
+
+  // Swap a specific exercise in today's workout with an alternative targeting the same muscle
+  const handleSwapExercise = (newMeta: VisualExerciseMetadata) => {
+    const wMult = athleteLevel === 'beginner' ? 0.65 : athleteLevel === 'advanced' ? 1.25 : 1.0;
+    const baseW =
+      newMeta.defaultBaseWeightKg > 0
+        ? Math.max(5, Math.round((newMeta.defaultBaseWeightKg * wMult) / 2.5) * 2.5)
+        : 0;
+    const targetReps =
+      bodyGoal === 'cutting' ? newMeta.defaultRepsCutting : newMeta.defaultRepsBulking;
+
+    if (visualModalState.exerciseId) {
+      const updated = exercises.map((ex) => {
+        if (ex.id === visualModalState.exerciseId) {
+          return {
+            ...ex,
+            name: isAr ? newMeta.nameAr : newMeta.nameEn,
+            sets: [
+              { weight: baseW, reps: targetReps, done: false },
+              { weight: baseW, reps: targetReps, done: false },
+              { weight: baseW, reps: targetReps, done: false },
+            ],
+          };
+        }
+        return ex;
+      });
+      saveExercises(updated);
+      if (onRewardToast) {
+        onRewardToast(
+          isAr
+            ? `🔄 تم استبدال التمرين بـ: ${newMeta.nameAr}`
+            : `🔄 Swapped exercise to: ${newMeta.nameEn}`
+        );
+      }
+    }
+  };
+
+  // Add or remove an exercise from the Visual Exercise Atlas Library
+  const handleToggleLibraryExercise = (meta: VisualExerciseMetadata) => {
+    const exists = exercises.some(
+      (ex) =>
+        ex.name === meta.nameAr ||
+        ex.name.toLowerCase().includes(meta.nameEn.split(' ')[0].toLowerCase())
+    );
+    if (exists) {
+      const filtered = exercises.filter(
+        (ex) =>
+          ex.name !== meta.nameAr &&
+          !ex.name.toLowerCase().includes(meta.nameEn.split(' ')[0].toLowerCase())
+      );
+      saveExercises(filtered);
+      if (onRewardToast) {
+        onRewardToast(isAr ? `تم إزالة ${meta.nameAr} من جدول اليوم` : `Removed ${meta.nameEn}`);
+      }
+    } else {
+      const wMult = athleteLevel === 'beginner' ? 0.65 : athleteLevel === 'advanced' ? 1.25 : 1.0;
+      const baseW =
+        meta.defaultBaseWeightKg > 0
+          ? Math.max(5, Math.round((meta.defaultBaseWeightKg * wMult) / 2.5) * 2.5)
+          : 0;
+      const targetReps =
+        bodyGoal === 'cutting' ? meta.defaultRepsCutting : meta.defaultRepsBulking;
+      const newEx: WorkoutExercise = {
+        id: `atlas-${Date.now()}`,
+        name: isAr ? meta.nameAr : meta.nameEn,
+        sets: [
+          { weight: baseW, reps: targetReps, done: false },
+          { weight: baseW, reps: targetReps, done: false },
+          { weight: baseW, reps: targetReps, done: false },
+        ],
+      };
+      saveExercises([...exercises, newEx]);
+      if (onRewardToast) {
+        onRewardToast(
+          isAr ? `✅ تمت إضافة ${meta.nameAr} لجدول تمرين اليوم!` : `✅ Added ${meta.nameEn} to today's workout!`
+        );
+      }
+    }
   };
 
   const handleApplyWarmupSets = (warmupSets: Array<{ weight: number; reps: number; done: boolean }>) => {
@@ -718,6 +831,14 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         endorphinRating: endorphinRating,
         timestamp: Date.now(),
       });
+
+      const finishedSplit: RoutineSplitId =
+        movementCategory === 'combat'
+          ? 'combat'
+          : movementCategory === 'home'
+          ? 'calisthenics'
+          : (selectedRoutine as RoutineSplitId);
+      localStorage.setItem('midmar_last_completed_split', finishedSplit);
 
       if (onRewardToast) {
         onRewardToast(
@@ -1258,54 +1379,79 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
             </div>
           </div>
 
-          {/* 3. Progressive Assistance Exercises Grid */}
+          {/* 3. Progressive Assistance Exercises Grid with Visual Movement Diagrams */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {homeExercises.map((ex, idx) => (
-              <div
-                key={ex.id}
-                onClick={() => {
-                  soundSynth.playTactileClick();
-                  haptic.vibrateLight();
-                  setHomeExercises((prev) =>
-                    prev.map((item) => (item.id === ex.id ? { ...item, done: !item.done } : item))
-                  );
-                }}
-                className={`p-4 rounded-[22px] border transition-all cursor-pointer flex flex-col justify-between gap-2.5 ${
-                  ex.done
-                    ? 'bg-[#d4f5dc]/80 dark:bg-emerald-950/40 border-[#1eb814]/40 text-zinc-950 dark:text-emerald-200'
-                    : 'bg-zinc-50 dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:border-[#ff5500]'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-start gap-2.5">
-                    <div
-                      className={`w-5 h-5 mt-0.5 rounded-lg flex items-center justify-center border shrink-0 ${
-                        ex.done
-                          ? 'bg-habit-green-ink border-[#1eb814] text-white'
-                          : 'border-zinc-300 dark:border-zinc-700'
-                      }`}
-                    >
-                      {ex.done ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-white" />
-                      ) : (
-                        <span className="text-[10px] font-mono font-bold text-zinc-400">{idx + 1}</span>
-                      )}
+            {homeExercises.map((ex, idx) => {
+              const calAtlasMeta = matchExerciseToVisualAtlas(ex.nameEn + ' ' + ex.nameAr);
+              return (
+                <div
+                  key={ex.id}
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    setHomeExercises((prev) =>
+                      prev.map((item) => (item.id === ex.id ? { ...item, done: !item.done } : item))
+                    );
+                  }}
+                  className={`p-4 rounded-[22px] border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                    ex.done
+                      ? 'bg-[#d4f5dc]/80 dark:bg-emerald-950/40 border-[#1eb814]/40 text-zinc-950 dark:text-emerald-200'
+                      : 'bg-zinc-50 dark:bg-zinc-950/80 border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:border-[#ff5500]'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2.5">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <ExerciseMovementDiagram archetype={calAtlasMeta.archetype} compact />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`w-5 h-5 rounded-md flex items-center justify-center border text-[10px] font-mono font-bold shrink-0 ${
+                              ex.done
+                                ? 'bg-habit-green-ink border-[#1eb814] text-white'
+                                : 'border-zinc-300 dark:border-zinc-700 text-zinc-500'
+                            }`}
+                          >
+                            {ex.done ? '✓' : idx + 1}
+                          </span>
+                          <span className="text-xs sm:text-sm font-bold truncate">
+                            {isAr ? ex.nameAr : ex.nameEn}
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium block mt-1">
+                          🎯 {isAr ? `الفائدة للمهارة: ${ex.roleAr}` : `Role: ${ex.roleEn}`}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-xs sm:text-sm font-bold block">
-                        {isAr ? ex.nameAr : ex.nameEn}
-                      </span>
-                      <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium block mt-0.5">
-                        🎯 {isAr ? `الفائدة للمهارة: ${ex.roleAr}` : `Role: ${ex.roleEn}`}
-                      </span>
-                    </div>
+                    <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-[#ff5500] dark:text-orange-300 text-xs font-mono font-bold tabular-nums shrink-0">
+                      {ex.target}
+                    </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-[#ff5500] dark:text-orange-300 text-xs font-mono font-bold tabular-nums shrink-0">
-                    {ex.target}
-                  </span>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-200/60 dark:border-white/10">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                      {ex.done ? (isAr ? 'تم إنجاز التمرين ✓' : 'Completed ✓') : (isAr ? 'اضغط البطاقة لتعليم الإنجاز' : 'Tap card to mark done')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        soundSynth.playTactileClick();
+                        setVisualModalState({
+                          isOpen: true,
+                          exerciseId: null,
+                          exerciseName: ex.nameEn,
+                          tab: 'guide',
+                        });
+                      }}
+                      className="px-2.5 py-1 rounded-full bg-zinc-200/80 dark:bg-zinc-800 hover:bg-[#141517] hover:text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span>{isAr ? 'شرح شكل الحركة' : 'Form Guide'}</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -1770,11 +1916,202 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
             )}
           </div>
 
+          {/* ============================================================ */}
+          {/* SMART CONTINUITY COMPASS: YESTERDAY'S WORKOUT -> TODAY'S REC */}
+          {/* ============================================================ */}
+          <div className="p-5 sm:p-6 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-xs">
+                  🧭
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-zinc-100">
+                    {isAr
+                      ? 'بوصلة الأمس واليوم والترشيح الذكي (Yesterday → Today Coach)'
+                      : 'Yesterday vs. Today Smart Split Recommender'}
+                  </h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {isAr
+                      ? 'حدد ماذا لعبت أمس ليرشح لك المدرب التمرين الأمثل لليوم بناءً على استشفاء عضلاتك، أو اختر تمرينك بحرية كاملة'
+                      : 'Select what you trained yesterday for an optimal recovery-aware recommendation today'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  haptic.vibrateLight();
+                  setVisualModalState({
+                    isOpen: true,
+                    exerciseId: null,
+                    exerciseName: exercises[0]?.name || 'Bench Press',
+                    tab: 'library',
+                  });
+                }}
+                className="px-3.5 py-2 rounded-full bg-[#141517] dark:bg-white text-white dark:text-zinc-950 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 transition-transform"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600" />
+                <span>{isAr ? 'اختر تمارين اليوم من الأطلس المصور 🎯' : 'Pick Custom Exercises 🎯'}</span>
+              </button>
+            </div>
+
+            {/* Step 1: What did you play yesterday? */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block">
+                {isAr ? '١. لعبت إيه امبارح؟ (اضغط لتحديث تمرين الأمس):' : '1. What did you train yesterday?'}
+              </span>
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                {YESTERDAY_SPLIT_OPTIONS.map((opt) => {
+                  const isYest = yesterdaySplit === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        haptic.vibrateLight();
+                        setYesterdaySplit(opt.id);
+                        localStorage.setItem('midmar_yesterday_split', opt.id);
+                      }}
+                      className={`py-2 px-3 rounded-2xl text-xs font-bold shrink-0 cursor-pointer transition-all border ${
+                        isYest
+                          ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 border-transparent shadow-xs'
+                          : 'bg-zinc-50 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:border-emerald-500'
+                      }`}
+                    >
+                      {isYest ? `✓ أمس: ${opt.shortAr}` : opt.labelAr}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Step 2: Recovery Status & Today's Recommended Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+              {/* Smart Coach Primary Recommendation Card */}
+              <div className="lg:col-span-8 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-teal-500/10 border border-emerald-500/35 flex flex-col justify-between gap-3">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="px-2.5 py-0.5 rounded-full bg-habit-green-ink text-white text-[10px] font-bold">
+                      {isAr ? '🌟 ترشيح المدرب الذكي لليوم' : "🌟 Today's #1 Smart Pick"}
+                    </span>
+                    <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+                      {isAr ? `بناءً على تمرين أمس (${smartRecommendation.yesterdayLabelAr})` : 'Recovery-optimized'}
+                    </span>
+                  </div>
+                  <h4 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white">
+                    {smartRecommendation.recommendedTitleAr}
+                  </h4>
+                  <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                    {smartRecommendation.recommendedReasonAr}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playCompletionChime();
+                      haptic.vibrateMedium();
+                      setSelectedRoutine(smartRecommendation.recommendedSplit);
+                      saveExercises(
+                        getRoutineDefaultExercises(
+                          smartRecommendation.recommendedSplit,
+                          isAr,
+                          bodyGoal,
+                          athleteLevel
+                        )
+                      );
+                      if (onRewardToast) {
+                        onRewardToast(
+                          isAr
+                            ? `⚡ تم اعتماد ترشيح اليوم (${smartRecommendation.recommendedTitleAr}) وتحميل التمارين المصورة!`
+                            : '⚡ Loaded recommended split for today!'
+                        );
+                      }
+                    }}
+                    className="py-2.5 px-4 rounded-full bg-habit-green-ink hover:bg-habit-green-ink-deep text-white text-xs font-bold cursor-pointer shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'اعتمد ترشيح اليوم وحمّل التمارين ⚡' : 'Apply Recommended Workout ⚡'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      const alt = smartRecommendation.alternativeSplit;
+                      if (alt === 'combat') {
+                        handleSelectMovementCat('combat');
+                      } else if (alt === 'calisthenics') {
+                        handleSelectMovementCat('home');
+                      } else {
+                        setSelectedRoutine(alt);
+                        saveExercises(getRoutineDefaultExercises(alt, isAr, bodyGoal, athleteLevel));
+                      }
+                      if (onRewardToast) {
+                        onRewardToast(
+                          isAr
+                            ? `🔄 تم التحويل للخيار البديل: ${smartRecommendation.alternativeTitleAr}`
+                            : '🔄 Switched to alternative workout!'
+                        );
+                      }
+                    }}
+                    className="py-2 px-3.5 rounded-full bg-white/90 dark:bg-zinc-900 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 border border-emerald-500/30 text-xs font-bold cursor-pointer active:scale-95 transition-all"
+                  >
+                    {smartRecommendation.alternativeTitleAr}
+                  </button>
+                </div>
+              </div>
+
+              {/* Muscle Recovery Radar */}
+              <div className="lg:col-span-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between gap-2.5 text-xs">
+                <div className="space-y-1">
+                  <span className="font-bold text-rose-700 dark:text-rose-400 flex items-center gap-1">
+                    <span>🔴</span>
+                    <span>{isAr ? 'عضلات في طور الاستشفاء (48س):' : 'Recovering Muscles (48h):'}</span>
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {smartRecommendation.recoveringMusclesAr.map((m) => (
+                      <span
+                        key={m}
+                        className="px-2 py-0.5 rounded-lg bg-rose-500/10 text-rose-900 dark:text-rose-200 text-[11px] font-bold border border-rose-500/20"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-zinc-200/70 dark:border-zinc-800 pt-2 space-y-1">
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                    <span>🟢</span>
+                    <span>{isAr ? 'عضلات جاهزة 100% لتمرين اليوم:' : 'Fresh & Ready Today (100%):'}</span>
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {smartRecommendation.freshMusclesAr.map((m) => (
+                      <span
+                        key={m}
+                        className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-900 dark:text-emerald-200 text-[11px] font-bold border border-emerald-500/25"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Routine Selector Tabs — 7 Comprehensive Bodybuilding Splits */}
           <div className="p-4 sm:p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <h3 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-zinc-100">
-                {isAr ? 'اختر تقسيمة تمرين اليوم (تتكيف تلقائياً مع هدفك ومستواك):' : t('routine_select_title')}
+                {isAr ? 'أو غيّر تقسيمة تمرين اليوم يدوياً بضغطة واحدة:' : t('routine_select_title')}
               </h3>
               <span className="text-[11px] font-bold text-[#ff5500]">
                 {bodyGoal === 'bulking'
@@ -1949,7 +2286,7 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
             </div>
           )}
 
-          {/* Interactive Exercise Table */}
+          {/* Interactive Exercise Table with Visual Movement Diagrams & 1-Tap Swapping */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {exercises.map((ex) => {
               const doneSets = ex.sets.filter((s) => s.done);
@@ -1957,18 +2294,101 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
               const isAtLimit = lastDone && (lastDone.rpe || 8) >= 10;
               const deloadWeight = isAtLimit ? Math.max(5, Number((lastDone.weight * 0.925).toFixed(1))) : 0;
               const reductionKg = isAtLimit ? Number((lastDone.weight - deloadWeight).toFixed(1)) : 0;
+              const atlasMeta = matchExerciseToVisualAtlas(ex.name);
 
               return (
                 <div
                   key={ex.id}
                   className="p-5 rounded-[28px] surface-card-3d border border-zinc-200/80 dark:border-white/10 space-y-3.5"
                 >
-                  <div className="flex items-center justify-between pb-2.5 border-b border-zinc-100 dark:border-zinc-800">
-                    <div className="flex items-center gap-2">
-                      <Dumbbell className="w-4 h-4 text-[#ff5500]" />
-                      <h4 className="font-bold text-sm text-zinc-950 dark:text-zinc-100">{ex.name}</h4>
+                  {/* Visual Exercise Header: SVG Movement Thumbnail + Title + Muscle Tags + Action Buttons */}
+                  <div className="space-y-2.5 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+                    <div className="flex items-start gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setVisualModalState({
+                            isOpen: true,
+                            exerciseId: ex.id,
+                            exerciseName: ex.name,
+                            tab: 'guide',
+                          });
+                        }}
+                        className="group relative cursor-pointer shrink-0"
+                        title={isAr ? 'اضغط لعرض شكل الحركة التفصيلي والعضلات المستهدفة' : 'Tap to inspect visual form'}
+                      >
+                        <ExerciseMovementDiagram archetype={atlasMeta.archetype} compact />
+                        <span className="absolute -bottom-1 -end-1 w-5 h-5 rounded-full bg-[#141517] text-emerald-400 border border-white/20 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                          <Eye className="w-3 h-3" />
+                        </span>
+                      </button>
+
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-bold text-xs sm:text-sm text-zinc-950 dark:text-zinc-100 leading-snug">
+                            {ex.name}
+                          </h4>
+                          <button
+                            onClick={() => handleDeleteExercise(ex.id)}
+                            className="p-1 rounded-full text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer shrink-0"
+                            title={isAr ? 'حذف التمرين' : 'Remove exercise'}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold">
+                            🎯 {atlasMeta.muscleLabelAr}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 text-[10px] font-bold">
+                            ⚙️ {atlasMeta.equipmentAr}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-1">
+                          💡 {atlasMeta.formCuesAr[0]}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
+
+                    {/* 3 Action Pills: Form Guide | Swap Exercise | Warmup Pyramid */}
+                    <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setVisualModalState({
+                            isOpen: true,
+                            exerciseId: ex.id,
+                            exerciseName: ex.name,
+                            tab: 'guide',
+                          });
+                        }}
+                        className="py-1 px-2.5 rounded-full bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <Eye className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>{isAr ? 'شكل الحركة والأداء' : 'Form Guide'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setVisualModalState({
+                            isOpen: true,
+                            exerciseId: ex.id,
+                            exerciseName: ex.name,
+                            tab: 'swap',
+                          });
+                        }}
+                        className="py-1 px-2.5 rounded-full bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-900 dark:text-emerald-300 border border-emerald-500/30 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <RefreshCw className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                        <span>{isAr ? 'استبدال التمرين ببديل' : 'Swap Exercise'}</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => {
@@ -1977,17 +2397,11 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                           setWarmupTargetExerciseId(ex.id);
                           setIsWarmupModalOpen(true);
                         }}
-                        className="py-1 px-3 rounded-full bg-[#fde6d8] hover:bg-[#fbd5be] dark:bg-amber-950/45 text-zinc-950 dark:text-amber-300 border border-amber-400/35 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                        className="py-1 px-2.5 rounded-full bg-[#fde6d8] hover:bg-[#fbd5be] dark:bg-amber-950/45 text-zinc-950 dark:text-amber-300 border border-amber-400/35 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors ms-auto"
                         title={isAr ? 'حساب أوزان الإحماء والهرم' : 'Calculate Warmup Pyramid'}
                       >
                         <Calculator className="w-3 h-3 text-[#ff5500]" />
                         <span>{isAr ? 'حاسبة الإحماء' : 'Warmup'}</span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteExercise(ex.id)}
-                        className="p-1.5 rounded-full text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -2247,6 +2661,18 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         onClose={() => setIsWarmupModalOpen(false)}
         exerciseName={warmupTargetExercise}
         onApplyWarmupSets={handleApplyWarmupSets}
+      />
+
+      {/* Visual Exercise Guide, Swap & Atlas Picker Modal */}
+      <VisualExerciseGuideModal
+        isOpen={visualModalState.isOpen}
+        onClose={() => setVisualModalState((prev) => ({ ...prev, isOpen: false }))}
+        initialExerciseName={visualModalState.exerciseName}
+        initialTab={visualModalState.tab}
+        currentExercisesNames={exercises.map((e) => e.name)}
+        onSwapExercise={handleSwapExercise}
+        onToggleLibraryExercise={handleToggleLibraryExercise}
+        isAr={isAr}
       />
     </div>
   );

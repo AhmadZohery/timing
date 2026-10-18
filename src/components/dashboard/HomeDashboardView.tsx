@@ -1928,8 +1928,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     }`}
                   >
                     {isAr
-                      ? 'تمارين القوة واللياقة مع أثير السيرة النبوية'
-                      : 'Strength & conditioning with prophetic biography audio'}
+                      ? 'أطلس الحركات المصوّر • ترشيح اليوم حسب تمرين الأمس وتبديل التمارين'
+                      : 'Visual movement atlas • Yesterday-to-Today coach & exercise swap'}
                   </span>
                 </div>
 
@@ -1940,7 +1940,7 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                       : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'
                   }`}
                 >
-                  {isGymDone ? (isAr ? 'اليوم ✓' : 'Today ✓') : isAr ? 'تمرين 🏋️' : 'Gym 🏋️'}
+                  {isGymDone ? (isAr ? 'اليوم ✓' : 'Today ✓') : isAr ? 'الأطلس المصور 🏋️' : 'Visual Gym 🏋️'}
                 </span>
               </div>
 
