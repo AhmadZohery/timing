@@ -1,17 +1,18 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
 const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
 
-const CACHE_NAME = 'midmar-sanctuary-v9';
+const CACHE_NAME = 'midmar-sanctuary-v10';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.webmanifest?v=20261019',
-  '/favicon.svg?v=20261019',
-  '/icons/icon-192x192.png?v=20261019',
-  '/icons/icon-512x512.png?v=20261019',
-  '/icons/notification-badge-96x96.png?v=20261019',
-  '/icons/notification-badge-192x192.png?v=20261019',
-  '/icons/apple-touch-icon.png?v=20261019',
+  '/manifest.webmanifest',
+  '/favicon.svg?v=20261020',
+  '/icons/midmar-royal-192.png',
+  '/icons/midmar-royal-512.png',
+  '/icons/midmar-royal-maskable-512.png',
+  '/icons/notification-badge-96x96.png',
+  '/icons/notification-badge-192x192.png',
+  '/icons/midmar-apple-touch.png',
   '/icons.svg',
 ];
 
@@ -67,7 +68,7 @@ async function removeAlarmFromDB(alarmId) {
   } catch {}
 }
 
-const DEFAULT_ICON = new URL('/icons/icon-192x192.png', self.location.origin).href;
+const DEFAULT_ICON = new URL('/icons/midmar-royal-192.png', self.location.origin).href;
 // Android status bar & notification header require a monochrome white silhouette on a 100% transparent background
 const DEFAULT_BADGE = new URL('/icons/notification-badge-96x96.png', self.location.origin).href;
 
