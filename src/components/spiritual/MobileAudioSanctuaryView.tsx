@@ -324,6 +324,198 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     viewsLabel: '+950K مشاهدة',
     takeawayAr: 'تجارب الحياة على ميزان السنة النبوية الصحيحة وتنقية التدين من الخرافات والبدع.',
   },
+  {
+    id: 'yt_ayman_tarikh_01',
+    titleAr: 'مدخل لدراسة التاريخ الإسلامي (1): كيف نقرأ تاريخنا بوعي؟',
+    titleEn: 'Introduction to Islamic History (1) - Eng. Ayman Abdelrahim',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'mindset',
+    audioUrl: 'https://www.youtube.com/watch?v=sZG0jXU1vhA',
+    durationFormatted: '68:10',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🧭',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+1.6M مشاهدة',
+    takeawayAr: 'تفكيك التزوير التاريخي وبناء حاسة نقدية لفهم حركة الحضارة الإسلامية وسنن الله في الأمم.',
+  },
+  {
+    id: 'yt_ayman_tarikh_02',
+    titleAr: 'مدخل لدراسة التاريخ الإسلامي (2): خريطة العالم الإسلامي والجغرافيا الحضارية',
+    titleEn: 'Introduction to Islamic History (2) - Eng. Ayman Abdelrahim',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'mindset',
+    audioUrl: 'https://www.youtube.com/watch?v=7yGDLIU9hLM',
+    durationFormatted: '74:25',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🗺️',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+1.1M مشاهدة',
+    takeawayAr: 'ربط الجغرافيا بالتاريخ لفهم مواطن القوة والضعف في الأمة الإسلامية عبر القرون.',
+  },
+  {
+    id: 'yt_sakran_jisr_taab',
+    titleAr: 'جسر التعب: لذة المجاهدة وعبور العقبات نحو معالي الأمور',
+    titleEn: 'The Bridge of Fatigue: Sweetness of Striving - Ibrahim Al-Sakran',
+    sheikhAr: 'الشيخ د. إبراهيم السكران (فك الله أسره)',
+    sheikhEn: 'Dr. Ibrahim Al-Sakran',
+    category: 'tazkiyah',
+    audioUrl: 'https://www.youtube.com/watch?v=QsqWCuaXFCU',
+    durationFormatted: '24:15',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🔥',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+780K مشاهدة',
+    takeawayAr: 'لا تُنال المعالي والرسوخ العلمي والإيماني إلا بعبور جسر التعب والصبر على المكاره.',
+  },
+  {
+    id: 'yt_sakran_maaziq_mutaraqqib',
+    titleAr: 'مأزق المترقب: علاج التسويف وانتظار الظروف المثالية للعمل',
+    titleEn: 'The Dilemma of the Waiting Procrastinator - Ibrahim Al-Sakran',
+    sheikhAr: 'الشيخ د. إبراهيم السكران (فك الله أسره)',
+    sheikhEn: 'Dr. Ibrahim Al-Sakran',
+    category: 'mindset',
+    audioUrl: 'https://www.youtube.com/watch?v=ObW7bk0M2XA',
+    durationFormatted: '21:40',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '⚡',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+640K مشاهدة',
+    takeawayAr: 'تشخيص عبقري لداء التسويف وانتظار اللحظة المثالية التي تسرق العمر دون إنتاج أو عبادة.',
+  },
+  {
+    id: 'yt_tarefe_aqeedah_02',
+    titleAr: 'شرح عقيدة أهل السنة للرازيين (2): أصول الإيمان والاتباع',
+    titleEn: 'Explanation of Ahlus-Sunnah Creed (2) - Al-Tarefe',
+    sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
+    sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
+    category: 'mindset',
+    audioUrl: 'https://www.youtube.com/watch?v=wj0v4WI_JVc',
+    durationFormatted: '51:30',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🕋',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+690K مشاهدة',
+    takeawayAr: 'بيان منهج القرون المفضلة في التلقي والاستدلال ورد تأويلات المتكلمين والأشاعرة.',
+  },
+  {
+    id: 'yt_qunaibi_husn_zann_01',
+    titleAr: 'سلسلة فن حسن الظن بالله (1): طمأنينة القلب في أوقات الأزمات',
+    titleEn: 'The Art of Good Expectation of Allah (1) - Dr. Eyad Qunaibi',
+    sheikhAr: 'د. إياد قنيبي',
+    sheikhEn: 'Dr. Eyad Qunaibi',
+    category: 'tazkiyah',
+    audioUrl: 'https://www.youtube.com/watch?v=b-xWoGhwGPc',
+    durationFormatted: '19:45',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🌿',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+1.9M مشاهدة',
+    takeawayAr: 'كيف تحول الابتلاءات والمخاوف إلى يقين عميق بحكمة الله ولطفه الخفي؟',
+  },
+  {
+    id: 'yt_qunaibi_husn_zann_02',
+    titleAr: 'فن حسن الظن بالله (2): كيف تتخلص من الخوف من المجهول والمستقبل؟',
+    titleEn: 'Good Expectation of Allah (2): Overcoming Fear of the Unknown',
+    sheikhAr: 'د. إياد قنيبي',
+    sheikhEn: 'Dr. Eyad Qunaibi',
+    category: 'tazkiyah',
+    audioUrl: 'https://www.youtube.com/watch?v=i_8o3I5O7bw',
+    durationFormatted: '22:10',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🛡️',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+1.5M مشاهدة',
+    takeawayAr: 'علاج إيماني ونفسي عملي للقلق من المستقبل عبر استحضار معية الله وتدبيره.',
+  },
+  {
+    id: 'yt_abdelmonem_yusuf_01',
+    titleAr: 'مجالس تفسير وتدبر سورة يوسف (1): أحسن القصص وسنن التمكين بعد الابتلاء',
+    titleEn: 'Tafseer Surah Yusuf (1): The Best of Stories - Dr. Ahmed Abdelmonem',
+    sheikhAr: 'د. أحمد عبد المنعم',
+    sheikhEn: 'Dr. Ahmed Abdelmonem',
+    category: 'tazkiyah',
+    audioUrl: 'https://www.youtube.com/watch?v=NdLT_P_Ykug',
+    durationFormatted: '47:15',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '📖',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+610K مشاهدة',
+    takeawayAr: 'بصائر قرآنية مذهلة في الصبر على البلاء، العفة، وحسن العاقبة لأهل التقوى والإحسان.',
+  },
+  {
+    id: 'yt_sayed_fath_makkah',
+    titleAr: 'السيرة النبوية للمصلحين: فتح مكة المكرمة وفقه التمكين والعفو',
+    titleEn: 'Seerah for Reformers: Conquest of Makkah - Sheikh Ahmad Al-Sayed',
+    sheikhAr: 'الشيخ أحمد بن يوسف السيد',
+    sheikhEn: 'Sheikh Ahmad Al-Sayed',
+    category: 'siyra',
+    audioUrl: 'https://www.youtube.com/watch?v=IxfEd1Fa9Xw',
+    durationFormatted: '43:20',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🕌',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+480K مشاهدة',
+    takeawayAr: 'كيف تعامل النبي ﷺ في لحظة النصر الأكبر؟ دروس عملية للمصلحين في التواضع لله وبناء الأمة.',
+  },
+  {
+    id: 'yt_shanqeeti_thabat_01',
+    titleAr: 'أعظم أسباب الثبات على الطاعة حتى الممات في زمن الفتن',
+    titleEn: 'Greatest Causes of Steadfastness Until Death - Al-Shanqeeti',
+    sheikhAr: 'الشيخ محمد مختار الشنقيطي',
+    sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
+    category: 'khutbah',
+    audioUrl: 'https://www.youtube.com/watch?v=H3gS9Kk0mXM',
+    durationFormatted: '31:50',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🏔️',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+1.3M مشاهدة',
+    takeawayAr: 'موعظة إيمانية عميقة تملأ القلب خشية وثباتاً وتكشف أسرار دوام الاستقامة.',
+  },
+  {
+    id: 'yt_muqaddam_salah_01',
+    titleAr: 'لماذا نصلي؟ أسرار إقامة الصلاة ومنزلتها في حياة المؤمن',
+    titleEn: 'Why Do We Pray? Secrets of Establishing Salah - Al-Muqaddam',
+    sheikhAr: 'الشيخ د. محمد إسماعيل المقدم',
+    sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
+    category: 'men_fiqh',
+    audioUrl: 'https://www.youtube.com/watch?v=gLLeNkCGL54',
+    durationFormatted: '45:10',
+    badgeAr: '▶️ يوتيوب • 5.0 ⭐',
+    icon: '🕌',
+    sourceType: 'youtube',
+    rating: '5.0 ⭐',
+    viewsLabel: '+720K مشاهدة',
+    takeawayAr: 'إحياء روح الصلاة في القلب والانتقال من مجرد أداء الحركات إلى ذوق حلاوة المناجاة.',
+  },
+  {
+    id: 'yt_muqaddam_hijab_02',
+    titleAr: 'عودة الحجاب وتاج العفة والسكينة للمرأة المسلمة',
+    titleEn: 'Return of the Hijab & Crown of Modesty - Al-Muqaddam',
+    sheikhAr: 'الشيخ د. محمد إسماعيل المقدم',
+    sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
+    category: 'women_fiqh',
+    audioUrl: 'https://www.youtube.com/watch?v=PTqDvz6qH5Y',
+    durationFormatted: '41:30',
+    badgeAr: '▶️ يوتيوب • 4.9 ⭐',
+    icon: '🧕',
+    sourceType: 'youtube',
+    rating: '4.9 ⭐',
+    viewsLabel: '+510K مشاهدة',
+    takeawayAr: 'تأصيل شرعي وتربوي رفيع لمكانة المرأة في الإسلام وحكمتها في صون المجتمع والأسرة.',
+  },
 
   // --- 1. خُطب ومواعظ مدوية (MP3 مباشر فائق السرعة) ---
   {
@@ -1029,6 +1221,98 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
   })),
 ];
 
+export interface GuidedAcademyPath {
+  id: string;
+  titleAr: string;
+  subtitleAr: string;
+  badgeAr: string;
+  emoji: string;
+  gradientClass: string;
+  scholarsSummaryAr: string;
+  trackIds: string[];
+}
+
+export const GUIDED_ACADEMY_PATHS: GuidedAcademyPath[] = [
+  {
+    id: 'path_waay_muslim',
+    titleAr: 'دبلوم تأسيس وعي المسلم المعاصر',
+    subtitleAr: 'فك الارتهان الفكري، فهم التاريخ والجغرافيا، وعلاج التسويف والشتات.',
+    badgeAr: '🧠 5 محاضرات تأسيسية',
+    emoji: '🧭',
+    gradientClass: 'from-indigo-600 via-violet-600 to-emerald-700',
+    scholarsSummaryAr: 'م. أيمن عبد الرحيم • د. إبراهيم السكران • الشيخ أحمد السيد',
+    trackIds: [
+      'yt_ayman_waay_01',
+      'yt_ayman_tarikh_01',
+      'yt_ayman_tarikh_02',
+      'yt_sakran_maaziq_mutaraqqib',
+      'yt_sayed_kamel_01',
+    ],
+  },
+  {
+    id: 'path_yaqeen_aqeedah',
+    titleAr: 'حصن اليقين والعقيدة الأثرية الصافية',
+    subtitleAr: 'تأصيل عقيدة السلف الصالح ونقض الشبهات المعاصرة والمادية.',
+    badgeAr: '🛡️ 5 مجالس عقدية',
+    emoji: '🕋',
+    gradientClass: 'from-emerald-700 via-teal-700 to-cyan-800',
+    scholarsSummaryAr: 'الشيخ عبد العزيز الطريفي • د. إياد قنيبي • الشيخ أحمد السيد',
+    trackIds: [
+      'yt_tarefe_aqeedah_01',
+      'yt_tarefe_aqeedah_02',
+      'yt_qunaibi_yaqeen_01',
+      'yt_sayed_aqwal_02',
+      'track_hawali_aqeedah_01',
+    ],
+  },
+  {
+    id: 'path_tazkiyah_quloob',
+    titleAr: 'مدرسة تزكية القلوب وترميم النفس بالقرآن',
+    subtitleAr: 'علاج قسوة القلب، الخوف من المستقبل، وبناء السكينة والخشوع.',
+    badgeAr: '🌱 6 مجالس تزكية',
+    emoji: '💎',
+    gradientClass: 'from-amber-600 via-orange-600 to-rose-700',
+    scholarsSummaryAr: 'د. أحمد عبد المنعم • الشيخ إبراهيم السكران • د. إياد قنيبي • الشيخ الحويني',
+    trackIds: [
+      'yt_abdelmonem_majales_01',
+      'yt_abdelmonem_fatiha_02',
+      'yt_abdelmonem_yusuf_01',
+      'yt_sakran_amjad_01',
+      'yt_qunaibi_husn_zann_01',
+      'yt_huwayni_hayah_01',
+    ],
+  },
+  {
+    id: 'path_bayt_muslim',
+    titleAr: 'تأهيل البيت المسلم والفتوة والعفة',
+    subtitleAr: 'اختيار شريك الحياة، فقه القوامة والمودة، وبناء الشخصية المسلمة.',
+    badgeAr: '🏡 5 مجالس أسرية',
+    emoji: '🏡',
+    gradientClass: 'from-teal-600 via-emerald-600 to-amber-600',
+    scholarsSummaryAr: 'م. أيمن عبد الرحيم • د. محمد إسماعيل المقدم • الشيخ الشنقيطي',
+    trackIds: [
+      'yt_ayman_bayt_01',
+      'track_ayman_zw_02',
+      'yt_muqaddam_salah_01',
+      'yt_muqaddam_hijab_02',
+      'yt_shanqeeti_thabat_01',
+    ],
+  },
+];
+
+export interface SavedAudioGem {
+  id: string;
+  trackId: string;
+  trackTitleAr: string;
+  sheikhAr: string;
+  timestampSec: number;
+  noteText: string;
+  createdAt: string;
+}
+
+const COMPLETED_TRACKS_STORAGE_KEY = 'midmar_completed_audio_ids_v1';
+const SAVED_GEMS_STORAGE_KEY = 'midmar_audio_gems_v1';
+
 interface MobileAudioSanctuaryViewProps {
   onClose: () => void;
   onRewardToast?: (msg: string) => void;
@@ -1042,13 +1326,45 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const isAr = language === 'ar';
 
   const [audioState, setAudioState] = useState<GymFaithAudioState>(gymFaithAudio.getState());
-  const [viewMode, setViewMode] = useState<'tracks' | 'youtube' | 'soundcloud' | 'scholars'>('tracks');
+  const [viewMode, setViewMode] = useState<'tracks' | 'paths' | 'youtube' | 'soundcloud' | 'scholars'>('tracks');
   const [selectedSoundCloudDeck, setSelectedSoundCloudDeck] = useState<SoundCloudScholarDeck>(
     VERIFIED_SOUNDCLOUD_DECKS[0]
   );
   const [customLinkInput, setCustomLinkInput] = useState('');
   const [customTitleInput, setCustomTitleInput] = useState('');
   const [isCustomDrawerOpen, setIsCustomDrawerOpen] = useState(false);
+
+  // Smart Concierge ("ماذا أسمع الآن؟") State
+  const [isSmartConciergeOpen, setIsSmartConciergeOpen] = useState(false);
+  const [conciergeMood, setConciergeMood] = useState<'futoor' | 'shubuhat' | 'waay' | 'bayt' | 'sakeenah'>('futoor');
+  const [conciergeDuration, setConciergeDuration] = useState<'short' | 'medium' | 'deep'>('medium');
+
+  // WebAudio Ambient Nature Mixer State (Rain / Dawn Breeze / Warm Sanctuary)
+  const [ambientMode, setAmbientMode] = useState<'off' | 'rain' | 'breeze' | 'warmth'>('off');
+  const [ambientVolume, setAmbientVolume] = useState<number>(0.18);
+  const ambientCtxRef = React.useRef<AudioContext | null>(null);
+  const ambientGainRef = React.useRef<GainNode | null>(null);
+
+  // Completed Lectures & Timestamped Gems Notebook State
+  const [completedTrackIds, setCompletedTrackIds] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(COMPLETED_TRACKS_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [savedGems, setSavedGems] = useState<SavedAudioGem[]>(() => {
+    try {
+      const raw = localStorage.getItem(SAVED_GEMS_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [gemDraftTrack, setGemDraftTrack] = useState<MobileAudioTrack | null>(null);
+  const [gemDraftText, setGemDraftText] = useState('');
+
   const [selectedScholarId, setSelectedScholarId] = useState<string>('ayman_abdelrahim');
   const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>('series_ayman_zawaj_bayt_muslim');
   const [activeCategory, setActiveCategory] = useState<
@@ -1085,11 +1401,93 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     return () => unsub();
   }, []);
 
+  // WebAudio Ambient Sanctuary Synthesizer (Gentle Rain / Dawn Breeze / Warm Hum)
+  useEffect(() => {
+    if (ambientMode === 'off') {
+      if (ambientCtxRef.current) {
+        ambientCtxRef.current.close().catch(() => {});
+        ambientCtxRef.current = null;
+        ambientGainRef.current = null;
+      }
+      return;
+    }
+
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+
+      if (ambientCtxRef.current) {
+        ambientCtxRef.current.close().catch(() => {});
+      }
+
+      const ctx = new AudioCtx();
+      const bufferSize = 2 * ctx.sampleRate;
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+
+      // Generate soothing pink/brown noise texture
+      let lastOut = 0.0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        output[i] = (lastOut + 0.02 * white) / 1.02;
+        lastOut = output[i];
+        output[i] *= 2.4;
+      }
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      if (ambientMode === 'rain') {
+        filter.type = 'bandpass';
+        filter.frequency.value = 950;
+        filter.Q.value = 0.65;
+      } else if (ambientMode === 'breeze') {
+        filter.type = 'lowpass';
+        filter.frequency.value = 480;
+        filter.Q.value = 0.9;
+      } else {
+        filter.type = 'lowpass';
+        filter.frequency.value = 240;
+        filter.Q.value = 1.2;
+      }
+
+      const gainNode = ctx.createGain();
+      gainNode.gain.value = ambientVolume;
+
+      whiteNoise.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      whiteNoise.start(0);
+
+      ambientCtxRef.current = ctx;
+      ambientGainRef.current = gainNode;
+    } catch {
+      // Ignore if autoplay policy blocks before interaction
+    }
+
+    return () => {
+      if (ambientCtxRef.current) {
+        ambientCtxRef.current.close().catch(() => {});
+        ambientCtxRef.current = null;
+        ambientGainRef.current = null;
+      }
+    };
+  }, [ambientMode]);
+
+  useEffect(() => {
+    if (ambientGainRef.current) {
+      ambientGainRef.current.gain.value = ambientVolume;
+    }
+  }, [ambientVolume]);
+
   // Sleep timer countdown effect
   useEffect(() => {
     if (sleepSecondsLeft === null) return;
     if (sleepSecondsLeft <= 0) {
       gymFaithAudio.pause();
+      setAmbientMode('off');
       setSleepSecondsLeft(null);
       onRewardToast?.(isAr ? '🌙 تم إيقاف الصوت تلقائياً عبر مؤقت النوم' : 'Audio stopped by Sleep Timer');
       return;
@@ -1101,6 +1499,83 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
     return () => clearInterval(timer);
   }, [sleepSecondsLeft, isAr, onRewardToast]);
+
+  const toggleCompletedTrack = (trackId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    soundSynth.playTactileClick();
+    haptic.vibrateMedium();
+    setCompletedTrackIds((prev) => {
+      const exists = prev.includes(trackId);
+      const next = exists ? prev.filter((id) => id !== trackId) : [...prev, trackId];
+      try {
+        localStorage.setItem(COMPLETED_TRACKS_STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      if (!exists) {
+        onRewardToast?.(isAr ? '🎓 ما شاء الله! تم تسجيل إتمام هذا المجلس في سجل البناء المعرفي (+25 XP)' : 'Lecture marked completed! (+25 XP)');
+      }
+      return next;
+    });
+  };
+
+  const handleSaveGem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gemDraftTrack || !gemDraftText.trim()) return;
+    soundSynth.playTactileClick();
+    haptic.vibrateMedium();
+
+    const newGem: SavedAudioGem = {
+      id: 'gem_' + Date.now(),
+      trackId: gemDraftTrack.id,
+      trackTitleAr: gemDraftTrack.titleAr,
+      sheikhAr: gemDraftTrack.sheikhAr,
+      timestampSec: Math.floor(audioState.currentTime || 0),
+      noteText: gemDraftText.trim(),
+      createdAt: new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }),
+    };
+
+    setSavedGems((prev) => {
+      const next = [newGem, ...prev];
+      try {
+        localStorage.setItem(SAVED_GEMS_STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    setGemDraftText('');
+    setGemDraftTrack(null);
+    onRewardToast?.(isAr ? '💎 تم حفظ الفائدة بختم الوقت في كشكول البصائر!' : 'Insight saved with timestamp!');
+  };
+
+  const handleDeleteGem = (gemId: string) => {
+    soundSynth.playTactileClick();
+    setSavedGems((prev) => {
+      const next = prev.filter((g) => g.id !== gemId);
+      try {
+        localStorage.setItem(SAVED_GEMS_STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const handleShareDawahCard = (track: MobileAudioTrack, e: React.MouseEvent) => {
+    e.stopPropagation();
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const shareText = [
+      `۞ مِحراب الوعي — مِضمار ۞`,
+      `🎙️ المجلس: ${track.titleAr}`,
+      `🏛️ العالم/المفكر: ${track.sheikhAr}`,
+      track.takeawayAr ? `💡 خلاصة البصيرة: ${track.takeawayAr}` : '',
+      `🔗 رابط الاستماع: ${track.audioUrl}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(shareText).then(() => {
+        onRewardToast?.(isAr ? '📋 تم نسخ البطاقة الدعوية مع الخلاصة والرابط لمشاركتها!' : 'Dawah card copied to clipboard!');
+      });
+    }
+  };
 
   // Combine VERIFIED_FAITH_TRACKS with any custom tracks added by the user
   const allCombinedTracks = useMemo<MobileAudioTrack[]>(() => {
@@ -1120,6 +1595,75 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     );
     return [...customTracks, ...VERIFIED_FAITH_TRACKS];
   }, [customSeriesList]);
+
+  // Smart Heart & Time Prescription Engine
+  const smartRecommendedTrack = useMemo(() => {
+    let targetId = 'yt_sakran_jisr_taab';
+    let reasonAr = 'جرعة مركزة توقظ القلب وتكسر فتور النفس عبر فقه المجاهدة.';
+
+    if (conciergeMood === 'futoor') {
+      if (conciergeDuration === 'short') {
+        targetId = 'yt_sakran_jisr_taab';
+        reasonAr = '٢٤ دقيقة فقط مع الشيخ إبراهيم السكران تشحن همتك لعبور جسر التعب وكسر الكسل.';
+      } else if (conciergeDuration === 'medium') {
+        targetId = 'yt_shanqeeti_thabat_01';
+        reasonAr = 'موعظة تهز القلب للشيخ محمد مختار الشنقيطي حول أعظم أسباب الثبات على الطاعة.';
+      } else {
+        targetId = 'yt_huwayni_hayah_01';
+        reasonAr = 'مجلس عميق للشيخ أبي إسحاق الحويني (يا نفس جِدّي) يعيد ترتيب أولويات الآخرة في قلبك.';
+      }
+    } else if (conciergeMood === 'shubuhat') {
+      if (conciergeDuration === 'short') {
+        targetId = 'yt_qunaibi_yaqeen_01';
+        reasonAr = '٢٨ دقيقة برهانية مكثفة مع د. إياد قنيبي لبناء الدعائم العقلية والفطرية لليقين.';
+      } else if (conciergeDuration === 'medium') {
+        targetId = 'yt_sayed_aqwal_02';
+        reasonAr = 'تأصيل منهجي رائع للشيخ أحمد السيد في كيفية التعامل مع الشبهات والأقوال المعاصرة.';
+      } else {
+        targetId = 'yt_tarefe_aqeedah_01';
+        reasonAr = 'تأصيل عقدي أثري راسخ مع الشيخ عبد العزيز الطريفي في شرح عقيدة أهل السنة للرازيين.';
+      }
+    } else if (conciergeMood === 'waay') {
+      if (conciergeDuration === 'short') {
+        targetId = 'yt_sakran_maaziq_mutaraqqib';
+        reasonAr = '٢١ دقيقة كاشفة مع د. إبراهيم السكران لعلاج مأزق الانتظار والتسويف الفكري.';
+      } else if (conciergeDuration === 'medium') {
+        targetId = 'yt_sayed_kamel_01';
+        reasonAr = 'بناء كامل الصورة الفكرية والمنهجية مع الشيخ أحمد بن يوسف السيد.';
+      } else {
+        targetId = 'yt_ayman_waay_01';
+        reasonAr = 'المحاضرة التأسيسية الأشهر للمهندس أيمن عبد الرحيم في بناء وعي المسلم المعاصر.';
+      }
+    } else if (conciergeMood === 'bayt') {
+      if (conciergeDuration === 'short') {
+        targetId = 'track_quran_luqman_dosari';
+        reasonAr = 'تلاوة خاشعة لسورة لقمان ووصاياه التربوية الخالدة لبناء الأسرة.';
+      } else if (conciergeDuration === 'medium') {
+        targetId = 'yt_muqaddam_hijab_02';
+        reasonAr = 'تأصيل تربوي وأسري رفيع للشيخ د. محمد إسماعيل المقدم.';
+      } else {
+        targetId = 'yt_ayman_bayt_01';
+        reasonAr = 'دورة البيت المسلم المعاصر للمهندس أيمن عبد الرحيم — خريطة طريق لبناء أسرة راسخة.';
+      }
+    } else {
+      // sakeenah
+      if (conciergeDuration === 'short') {
+        targetId = 'yt_qunaibi_husn_zann_01';
+        reasonAr = '١٩ دقيقة تملأ فؤادك بحسن الظن بالله والسكينة وسط تقلبات الحياة.';
+      } else if (conciergeDuration === 'medium') {
+        targetId = 'yt_abdelmonem_fatiha_02';
+        reasonAr = 'مجلس تدبري روحاني مع د. أحمد عبد المنعم في أسرار سورة الفاتحة.';
+      } else {
+        targetId = 'yt_abdelmonem_yusuf_01';
+        reasonAr = 'تفسير وتدبر سورة يوسف مع د. أحمد عبد المنعم — بلسم القلوب المحزونة.';
+      }
+    }
+
+    const found =
+      allCombinedTracks.find((t) => t.id === targetId) ||
+      allCombinedTracks[0];
+    return { track: found, reasonAr };
+  }, [conciergeMood, conciergeDuration, allCombinedTracks]);
 
   const youtubeOnlyTracks = useMemo(
     () => allCombinedTracks.filter((t) => t.sourceType === 'youtube' || t.audioUrl.includes('youtube.com')),
@@ -1420,9 +1964,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         <div className="pointer-events-none absolute -top-12 -end-12 w-40 h-40 rounded-full bg-amber-300/25 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-12 -start-12 w-36 h-36 rounded-full bg-emerald-400/20 blur-2xl" />
 
-        {/* Top Bar: Interactive Rotating Mamluk Shamsa Vinyl + Title + Sleep Timer & Close */}
-        <div className="flex items-center justify-between gap-2.5 relative z-10">
-          <div className="flex items-center gap-3 min-w-0">
+        {/* Top Bar: Interactive Rotating Mamluk Shamsa Vinyl + Title + Smart Tools & Close */}
+        <div className="flex items-center justify-between gap-2 relative z-10">
+          <div className="flex items-center gap-2.5 min-w-0">
             {/* Interactive Rotating Mamluk Shamsa Acoustic Disc */}
             <button
               type="button"
@@ -1436,7 +1980,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 }
               }}
               title={isAr ? 'اضغط للتشغيل أو الإيقاف المؤقت' : 'Tap to Play / Pause'}
-              className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 cursor-pointer group shadow-[0_6px_18px_rgba(6,78,59,0.25)] active:scale-95 transition-transform"
+              className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shrink-0 cursor-pointer group shadow-[0_6px_18px_rgba(6,78,59,0.25)] active:scale-95 transition-transform"
             >
               <svg
                 viewBox="0 0 100 100"
@@ -1471,7 +2015,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 )}
               </div>
               {audioState.isPlaying && (
-                <span className=" -top-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-ping absolute" />
+                <span className="-top-0.5 -end-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-ping absolute" />
               )}
             </button>
 
@@ -1480,28 +2024,49 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200 border border-amber-300/80">
                   {isAr ? '۞ مِحراب الصوت والوعي' : '۞ Audio Mihrab'}
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 border border-emerald-300/80">
-                  {isAr ? '🛡️ منهج أهل السنة الصافي • يوتيوب وساوند كلاود' : 'Pure Sunni Athari Library'}
-                </span>
+                {completedTrackIds.length > 0 && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-950 dark:text-indigo-200 border border-indigo-300">
+                    {isAr ? `🎓 أتممت ${completedTrackIds.length} مجالس` : `${completedTrackIds.length} Completed`}
+                  </span>
+                )}
               </div>
               <h2 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white truncate mt-0.5">
                 {audioState.isPlaying && audioState.currentTitleAr
                   ? audioState.currentTitleAr
                   : isAr
-                  ? 'استوديو أثير الوعي والدروس الإيمانية'
-                  : 'Midmar Faith & Awareness Studio'}
+                  ? 'أكاديمية واستوديو أثير الوعي'
+                  : 'Midmar Faith & Awareness Academy'}
               </h2>
               <p className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 truncate">
                 {audioState.isPlaying && audioState.currentSheikhAr
                   ? `🔊 يعمل الآن: ${audioState.currentSheikhAr}`
                   : isAr
-                  ? 'محاضرات يوتيوب (5.0⭐) • أرشيف ساوند كلاود • سلاسل العلماء'
-                  : 'Top-rated YouTube lectures, SoundCloud decks & Scholar series'}
+                  ? 'مسارات تأسيسية • يوتيوب 5.0⭐ • ساوند كلاود • مستشار القلب الذكي'
+                  : 'Guided Paths • 5.0⭐ YouTube • SoundCloud • Smart Concierge'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Smart Heart & Time Concierge Trigger ("رشّح لي") */}
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                setIsSmartConciergeOpen((prev) => !prev);
+              }}
+              className={`px-2.5 py-2 rounded-full border text-[11px] font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1 ${
+                isSmartConciergeOpen
+                  ? 'bg-indigo-600 text-white border-amber-300 ring-2 ring-amber-300/60'
+                  : 'bg-gradient-to-r from-amber-100 to-emerald-100 dark:from-indigo-950 dark:to-emerald-950 hover:from-amber-200 text-zinc-950 dark:text-amber-200 border-amber-400/90'
+              }`}
+              title={isAr ? 'المستشار الذكي: رشّح لي مجلساً يناسب قلبي ووقتي الآن' : 'Smart Lecture Concierge'}
+            >
+              <span>🧭</span>
+              <span>{isAr ? 'رشّح لي' : 'Advise'}</span>
+            </button>
+
             {/* Add Custom YouTube / SoundCloud Link Pill */}
             <button
               type="button"
@@ -1509,14 +2074,14 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 soundSynth.playTactileClick();
                 setIsCustomDrawerOpen((prev) => !prev);
               }}
-              className={`px-2.5 py-2 rounded-full border text-[11px] font-bold transition-all cursor-pointer shadow-2xs ${
+              className={`px-2 py-2 rounded-full border text-[11px] font-bold transition-all cursor-pointer shadow-2xs ${
                 isCustomDrawerOpen
                   ? 'bg-emerald-700 text-white border-emerald-800'
                   : 'bg-white/90 dark:bg-zinc-800 hover:bg-emerald-50 text-emerald-900 dark:text-emerald-200 border-emerald-300/80 dark:border-zinc-700'
               }`}
               title={isAr ? 'تشغيل رابط يوتيوب أو ساوند كلاود خاص' : 'Play Custom Link'}
             >
-              {isAr ? '➕ رابط خاص' : '+ Link'}
+              {isAr ? '➕ رابط' : '+ Link'}
             </button>
 
             {/* Sleep Timer Trigger Pill */}
@@ -1526,7 +2091,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 soundSynth.playTactileClick();
                 setIsSleepModalOpen(true);
               }}
-              className={`flex items-center gap-1 px-2.5 py-2 rounded-full border text-[11px] font-bold transition-all cursor-pointer shadow-2xs ${
+              className={`flex items-center gap-1 px-2 py-2 rounded-full border text-[11px] font-bold transition-all cursor-pointer shadow-2xs ${
                 sleepSecondsLeft !== null
                   ? 'bg-indigo-600 text-white border-indigo-700 font-mono animate-pulse'
                   : 'bg-white/90 dark:bg-zinc-800 hover:bg-amber-50 text-zinc-800 dark:text-zinc-200 border-amber-300/80 dark:border-zinc-700'
@@ -1534,15 +2099,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               title={isAr ? 'مؤقت النوم لإيقاف الصوت تلقائياً' : 'Sleep Timer'}
             >
               <Moon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-300" />
-              <span className="tabular-nums hidden sm:inline">
-                {sleepSecondsLeft !== null
-                  ? `${Math.floor(sleepSecondsLeft / 60)}:${String(sleepSecondsLeft % 60).padStart(2, '0')}`
-                  : isAr
-                  ? 'مؤقت النوم'
-                  : 'Sleep'}
-              </span>
               {sleepSecondsLeft !== null && (
-                <span className="tabular-nums sm:hidden">
+                <span className="tabular-nums">
                   {Math.floor(sleepSecondsLeft / 60)}:{String(sleepSecondsLeft % 60).padStart(2, '0')}
                 </span>
               )}
@@ -1558,6 +2116,112 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
             </button>
           </div>
         </div>
+
+        {/* Smart Heart-State & Time-Window Concierge Drawer ("ماذا أسمع الآن؟") */}
+        {isSmartConciergeOpen && (
+          <div className="mt-2.5 p-3 rounded-2xl bg-gradient-to-br from-white via-amber-50/70 to-emerald-50/80 dark:from-zinc-900 dark:via-indigo-950/50 dark:to-emerald-950/40 border-2 border-amber-400/90 shadow-lg space-y-2.5 relative z-10 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold text-zinc-950 dark:text-amber-200 flex items-center gap-1.5">
+                <span>🧭</span>
+                <span>{isAr ? 'مستشار البصيرة الذكي: اختر حال قلبك ووقتك المتاح الآن' : 'Smart Heart & Time Concierge'}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsSmartConciergeOpen(false)}
+                className="text-[11px] font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
+              >
+                {isAr ? 'إغلاق ✕' : 'Close ✕'}
+              </button>
+            </div>
+
+            {/* Step 1: Heart State */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+              {[
+                { id: 'futoor', label: '🌧️ فتور وتشتت' },
+                { id: 'shubuhat', label: '🛡️ شبهات وحيرة' },
+                { id: 'waay', label: '🧠 شغف بالوعي والتاريخ' },
+                { id: 'bayt', label: '🏡 بناء بيت وأسرة' },
+                { id: 'sakeenah', label: '🌿 سكينة وخشوع' },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    setConciergeMood(m.id as any);
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer border transition-all ${
+                    conciergeMood === m.id
+                      ? 'bg-emerald-700 text-white border-amber-300 shadow-xs'
+                      : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-amber-300/70'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Step 2: Time Available */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 shrink-0">
+                {isAr ? 'الوقت المتاح:' : 'Time:'}
+              </span>
+              {[
+                { id: 'short', label: '⚡ ١٥-٢٥ دقيقة' },
+                { id: 'medium', label: '🎯 ٣٠-٤٥ دقيقة' },
+                { id: 'deep', label: '🏛️ مجلس عميق (+٤٥د)' },
+              ].map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    setConciergeDuration(d.id as any);
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap cursor-pointer border transition-all ${
+                    conciergeDuration === d.id
+                      ? 'bg-indigo-600 text-white border-amber-300 shadow-2xs'
+                      : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-indigo-200 dark:border-zinc-700'
+                  }`}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Prescribed Result Card */}
+            {smartRecommendedTrack.track && (
+              <div className="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-800 via-teal-800 to-indigo-900 text-white border border-amber-300/80 flex items-center justify-between gap-3 shadow-sm">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950">
+                      ✨ الترشيح الأمثل لك الآن
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-200">
+                      {smartRecommendedTrack.track.sheikhAr}
+                    </span>
+                  </div>
+                  <p className="text-xs font-bold text-white truncate mt-1">
+                    {smartRecommendedTrack.track.titleAr}
+                  </p>
+                  <p className="text-[10px] text-emerald-100 mt-0.5 leading-relaxed">
+                    💡 {smartRecommendedTrack.reasonAr}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleTogglePlayTrack(smartRecommendedTrack.track);
+                    setIsSmartConciergeOpen(false);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold shrink-0 cursor-pointer shadow-md"
+                >
+                  {isAr ? 'تشغيل ▶️' : 'Play ▶️'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Inline Custom YouTube / SoundCloud Link Launcher Drawer */}
         {isCustomDrawerOpen && (
@@ -1589,12 +2253,12 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </form>
         )}
 
-        {/* 1-Tap Live Radio Dial Strip right inside the Stage */}
-        <div className="mt-2.5 pt-2 border-t border-emerald-300/50 dark:border-white/10 relative z-10">
+        {/* 1-Tap Live Radio Dial + WebAudio Ambient Nature Mixer Strip */}
+        <div className="mt-2.5 pt-2 border-t border-emerald-300/50 dark:border-white/10 relative z-10 flex flex-col gap-1.5">
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
             <span className="text-[10px] font-bold text-emerald-950 dark:text-emerald-200 bg-emerald-200/70 dark:bg-emerald-900/50 px-2 py-1 rounded-full shrink-0 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping" />
-              {isAr ? 'بث إذاعي فوري:' : 'Live Radio:'}
+              {isAr ? 'إذاعة حية:' : 'Live:'}
             </span>
             {quickRadioTracks.map((radioTrack) => {
               const isRadioPlaying =
@@ -1619,7 +2283,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     {radioTrack.titleAr
                       .replace('إذاعة ', '')
                       .replace('بث ', '')
-                      .slice(0, 22)}
+                      .slice(0, 20)}
                   </span>
                   {isRadioPlaying ? (
                     <Pause className="w-3 h-3 fill-current text-amber-300" />
@@ -1629,6 +2293,57 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                 </button>
               );
             })}
+
+            {/* Ambient Nature Soundscape Mixer Pills (غيث السكينة • نسيم الفجر • دفء الخلوة) */}
+            <span className="text-[10px] font-bold text-indigo-950 dark:text-indigo-200 bg-indigo-200/70 dark:bg-indigo-900/50 px-2 py-1 rounded-full shrink-0 ms-1">
+              {isAr ? '🌧️ أجواء الخشوع:' : 'Ambience:'}
+            </span>
+            {[
+              { id: 'rain', label: isAr ? '🌧️ مطر السكينة' : 'Rain' },
+              { id: 'breeze', label: isAr ? '🍃 نسيم الفجر' : 'Breeze' },
+              { id: 'warmth', label: isAr ? '🕯️ دفء الخلوة' : 'Warmth' },
+            ].map((amb) => {
+              const isActive = ambientMode === amb.id;
+              return (
+                <button
+                  key={amb.id}
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    haptic.vibrateLight();
+                    const next = isActive ? 'off' : (amb.id as any);
+                    setAmbientMode(next);
+                    if (next !== 'off') {
+                      onRewardToast?.(isAr ? `${amb.label} يعمل بهدوء في خلفية المجلس` : `${amb.label} ambience enabled`);
+                    }
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer border ${
+                    isActive
+                      ? 'bg-indigo-600 text-white border-amber-300 shadow-xs'
+                      : 'bg-white/85 dark:bg-zinc-800/90 text-indigo-950 dark:text-indigo-200 border-indigo-300/70 dark:border-zinc-700'
+                  }`}
+                >
+                  {amb.label}
+                </button>
+              );
+            })}
+            {ambientMode !== 'off' && (
+              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-100/90 dark:bg-indigo-950/70 border border-indigo-300 shrink-0">
+                <span className="text-[9px] font-bold text-indigo-950 dark:text-indigo-200">
+                  {Math.round(ambientVolume * 100)}%
+                </span>
+                <input
+                  type="range"
+                  min={0.05}
+                  max={0.45}
+                  step={0.02}
+                  value={ambientVolume}
+                  onChange={(e) => setAmbientVolume(Number(e.target.value))}
+                  aria-label="Ambient Sound Volume"
+                  className="w-14 h-1 bg-indigo-300 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1664,9 +2379,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       )}
 
-      {/* 2. 4-Mode Interactive Studio Switcher: Curated Tracks • YouTube Masterpieces • SoundCloud • Scholars */}
-      <div className="px-3.5 py-2 bg-[#f3efe4] dark:bg-zinc-900 border-b border-amber-300/60 dark:border-zinc-800 shrink-0">
-        <div className="grid grid-cols-4 bg-white/95 dark:bg-zinc-950 p-1 rounded-2xl border border-amber-300/70 dark:border-zinc-800 gap-1 shadow-inner">
+      {/* 2. 5-Mode Interactive Studio Switcher: Curated • Academy Paths • YouTube 5.0⭐ • SoundCloud • Scholars */}
+      <div className="px-3 py-2 bg-[#f3efe4] dark:bg-zinc-900 border-b border-amber-300/60 dark:border-zinc-800 shrink-0">
+        <div className="grid grid-cols-5 bg-white/95 dark:bg-zinc-950 p-1 rounded-2xl border border-amber-300/70 dark:border-zinc-800 gap-1 shadow-inner">
           <button
             type="button"
             onClick={() => {
@@ -1674,14 +2389,30 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               haptic.vibrateLight();
               setViewMode('tracks');
             }}
-            className={`py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            className={`py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               viewMode === 'tracks'
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs'
                 : 'text-zinc-700 dark:text-zinc-400 hover:bg-amber-50/70 dark:hover:bg-zinc-800'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <Sparkles className="w-3 h-3 shrink-0 hidden sm:inline" />
             <span className="truncate">{isAr ? 'المختارات 🎧' : 'Curated'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              haptic.vibrateLight();
+              setViewMode('paths');
+            }}
+            className={`py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+              viewMode === 'paths'
+                ? 'bg-gradient-to-r from-amber-600 to-emerald-600 text-white shadow-xs'
+                : 'text-zinc-700 dark:text-zinc-400 hover:bg-amber-50/70 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <span className="truncate">{isAr ? 'مسارات 🎓' : 'Paths'}</span>
           </button>
 
           <button
@@ -1691,14 +2422,13 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               haptic.vibrateLight();
               setViewMode('youtube');
             }}
-            className={`py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            className={`py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               viewMode === 'youtube'
                 ? 'bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-xs'
                 : 'text-zinc-700 dark:text-zinc-400 hover:bg-rose-50/70 dark:hover:bg-zinc-800'
             }`}
           >
-            <span>▶️</span>
-            <span className="truncate">{isAr ? 'يوتيوب 5.0⭐' : 'YouTube'}</span>
+            <span className="truncate">{isAr ? 'يوتيوب ⭐' : 'YouTube'}</span>
           </button>
 
           <button
@@ -1708,14 +2438,13 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               haptic.vibrateLight();
               setViewMode('soundcloud');
             }}
-            className={`py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            className={`py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               viewMode === 'soundcloud'
                 ? 'bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-xs'
                 : 'text-zinc-700 dark:text-zinc-400 hover:bg-orange-50/70 dark:hover:bg-zinc-800'
             }`}
           >
-            <span>☁️</span>
-            <span className="truncate">{isAr ? 'ساوند كلاود' : 'SoundCloud'}</span>
+            <span className="truncate">{isAr ? 'ساوند كلاود ☁️' : 'SoundCloud'}</span>
           </button>
 
           <button
@@ -1725,13 +2454,13 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
               haptic.vibrateLight();
               setViewMode('scholars');
             }}
-            className={`py-2 px-2 rounded-xl text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            className={`py-2 px-1.5 rounded-xl text-[10px] sm:text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
               viewMode === 'scholars'
                 ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xs'
                 : 'text-zinc-700 dark:text-zinc-400 hover:bg-indigo-50/70 dark:hover:bg-zinc-800'
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5 shrink-0" />
+            <BookOpen className="w-3 h-3 shrink-0 hidden sm:inline" />
             <span className="truncate">{isAr ? 'العلماء 🏛️' : 'Scholars'}</span>
           </button>
         </div>
@@ -1744,7 +2473,269 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       )}
 
-      {viewMode === 'soundcloud' ? (
+      {/* Inline Timestamped Gem Modal when user taps ✍️ دوّن فائدة */}
+      {gemDraftTrack && (
+        <form
+          onSubmit={handleSaveGem}
+          className="mx-3.5 mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-emerald-50 dark:from-zinc-900 dark:to-emerald-950/50 border-2 border-amber-400 shadow-lg space-y-2 shrink-0 relative z-20"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
+              ✍️ تدوين فائدة من: <span className="text-emerald-800 dark:text-emerald-300">{gemDraftTrack.titleAr}</span>
+              {audioState.currentTime > 0 && (
+                <span className="ms-1.5 px-2 py-0.5 rounded-full bg-amber-200/80 text-zinc-950 font-mono text-[10px]">
+                  ⏱️ {formatSeconds(audioState.currentTime)}
+                </span>
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={() => setGemDraftTrack(null)}
+              className="text-xs font-bold text-zinc-500 hover:text-zinc-900 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              required
+              value={gemDraftText}
+              onChange={(e) => setGemDraftText(e.target.value)}
+              placeholder={isAr ? 'اكتب الدرة أو البصيرة التي لمست قلبك في هذه المحاضرة...' : 'Write your key insight from this lecture...'}
+              className="flex-1 h-9 px-3 rounded-xl bg-white dark:bg-zinc-950 border border-amber-300 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white"
+            />
+            <button
+              type="submit"
+              className="h-9 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shrink-0 cursor-pointer"
+            >
+              {isAr ? 'حفظ الدرة 💎' : 'Save 💎'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {viewMode === 'paths' ? (
+        /* Guided Mastery Academy Paths + Saved Timestamped Gems Notebook */
+        <div
+          className={`flex-1 overflow-y-auto p-3.5 space-y-3.5 overscroll-contain relative z-10 ${
+            hasActiveStudioDeck ? 'pb-36' : 'pb-8'
+          }`}
+        >
+          {/* Academy Header Banner */}
+          <div className="p-4 rounded-[26px] bg-gradient-to-r from-emerald-900 via-teal-900 to-indigo-950 text-white border-2 border-amber-400/80 shadow-md flex items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-bold">
+                  🎓 أكاديمية البناء المنهجي
+                </span>
+                <span className="text-[11px] font-bold text-amber-200">
+                  {completedTrackIds.length < 3
+                    ? 'الرتبة: طالب وعي مجتهد 🌱'
+                    : completedTrackIds.length < 8
+                    ? 'الرتبة: بصيرة راسخة 🛡️'
+                    : 'الرتبة: فقيه النفس والوعي 👑'}
+                </span>
+              </div>
+              <h3 className="text-sm sm:text-base font-bold text-white">
+                {isAr
+                  ? 'مسارات منهجية متدرجة لبناء العقيدة والوعي وتزكية النفس'
+                  : 'Structured Mastery Curriculums'}
+              </h3>
+              <p className="text-[11px] text-emerald-100/90 leading-relaxed">
+                {isAr
+                  ? 'اختر مساراً واستمع لمحاضراته بالترتيب وعلّم على كل محاضرة بـ (✔ أتممت) لمتابعة تقدمك.'
+                  : 'Follow curated step-by-step curriculums and track your completion.'}
+              </p>
+            </div>
+            <div className="w-14 h-14 rounded-2xl bg-white/10 border border-amber-300/50 flex flex-col items-center justify-center shrink-0">
+              <span className="text-base font-bold text-amber-300 tabular-nums">
+                {completedTrackIds.length}
+              </span>
+              <span className="text-[9px] text-emerald-100 font-bold">مجلس مكتمل</span>
+            </div>
+          </div>
+
+          {/* 4 Structured Academy Paths */}
+          {GUIDED_ACADEMY_PATHS.map((path) => {
+            const pathTracks = path.trackIds
+              .map((tid) => allCombinedTracks.find((t) => t.id === tid))
+              .filter((t): t is MobileAudioTrack => Boolean(t));
+            const doneCount = pathTracks.filter((t) => completedTrackIds.includes(t.id)).length;
+            const pct = pathTracks.length > 0 ? Math.round((doneCount / pathTracks.length) * 100) : 0;
+
+            return (
+              <div
+                key={path.id}
+                className="rounded-[26px] border-2 border-amber-300/80 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm"
+              >
+                <div className={`p-4 bg-gradient-to-r ${path.gradientClass} text-white space-y-2`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-11 h-11 rounded-2xl bg-white/15 border border-white/30 flex items-center justify-center text-xl shrink-0">
+                        {path.emoji}
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/25 text-amber-200">
+                          {path.badgeAr}
+                        </span>
+                        <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                          {path.titleAr}
+                        </h4>
+                        <p className="text-[11px] text-amber-100 font-semibold">
+                          {path.scholarsSummaryAr}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full bg-amber-400 text-zinc-950 font-mono text-xs font-bold shrink-0">
+                      {pct}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/90 leading-relaxed">{path.subtitleAr}</p>
+                  <div className="w-full h-2 rounded-full bg-black/30 overflow-hidden">
+                    <div
+                      className="h-full bg-amber-300 transition-all duration-300"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Path Steps List */}
+                <div className="p-3 space-y-2 bg-[#fcfaf5] dark:bg-zinc-950/60">
+                  {pathTracks.map((track, idx) => {
+                    const isDone = completedTrackIds.includes(track.id);
+                    const isPlayingThis =
+                      audioState.isPlaying &&
+                      (playingTrackId === track.id || audioState.currentTitleAr === track.titleAr);
+
+                    return (
+                      <div
+                        key={track.id}
+                        onClick={() => handleTogglePlayTrack(track)}
+                        className={`p-3 rounded-2xl border-2 flex items-center justify-between gap-2.5 cursor-pointer transition-all ${
+                          isPlayingThis
+                            ? 'bg-emerald-700 text-white border-amber-400 shadow-md'
+                            : isDone
+                            ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-400/70 text-zinc-900 dark:text-zinc-100'
+                            : 'bg-white dark:bg-zinc-900 border-amber-200/80 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                              isDone
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-amber-100 dark:bg-zinc-800 text-amber-950 dark:text-amber-300'
+                            }`}
+                          >
+                            {isDone ? '✔' : idx + 1}
+                          </span>
+                          <div className="min-w-0">
+                            <p
+                              className={`text-xs font-bold line-clamp-1 ${
+                                isPlayingThis ? 'text-white' : 'text-zinc-950 dark:text-white'
+                              }`}
+                            >
+                              {track.titleAr}
+                            </p>
+                            <p
+                              className={`text-[10px] font-semibold truncate ${
+                                isPlayingThis ? 'text-amber-200' : 'text-emerald-800 dark:text-emerald-300'
+                              }`}
+                            >
+                              {track.sheikhAr} • {track.durationFormatted}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={(e) => toggleCompletedTrack(track.id, e)}
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer ${
+                              isDone
+                                ? 'bg-emerald-600 text-white border-emerald-700'
+                                : 'bg-amber-100/90 dark:bg-zinc-800 text-amber-950 dark:text-amber-200 border-amber-300'
+                            }`}
+                          >
+                            {isDone ? 'مكتمل ✔' : 'أتممت؟'}
+                          </button>
+                          <button
+                            type="button"
+                            className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0"
+                          >
+                            {isPlayingThis ? (
+                              <Pause className="w-3.5 h-3.5 fill-current" />
+                            ) : (
+                              <Play className="w-3.5 h-3.5 fill-current ms-0.5" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Saved Timestamped Insights Notebook (كشكول الدرر والفوائد المختومة بالوقت) */}
+          <div className="p-4 rounded-[26px] bg-gradient-to-br from-amber-50 via-white to-emerald-50 dark:from-zinc-900 dark:to-zinc-900 border-2 border-amber-300/80 dark:border-zinc-700 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-white flex items-center gap-1.5">
+                <span>💎</span>
+                <span>{isAr ? 'كشكول الفوائد والدرر المختومة بالوقت' : 'Timestamped Insights Notebook'}</span>
+              </h4>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-zinc-950">
+                {savedGems.length} {isAr ? 'فائدة' : 'gems'}
+              </span>
+            </div>
+            {savedGems.length === 0 ? (
+              <p className="text-[11px] text-zinc-600 dark:text-zinc-400">
+                {isAr
+                  ? 'اضغط على زر (✍️ دوّن فائدة) في أي محاضرة لحفظ الفوائد بختم الدقيقة والثانية والرجوع إليها بضغطة واحدة.'
+                  : 'Tap (✍️ Note) on any lecture card to save timestamped insights.'}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {savedGems.map((gem) => (
+                  <div
+                    key={gem.id}
+                    className="p-3 rounded-2xl bg-white dark:bg-zinc-950 border border-amber-300/70 dark:border-zinc-800 space-y-1"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 truncate">
+                        {gem.trackTitleAr} — {gem.sheikhAr}
+                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {gem.timestampSec > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => gymFaithAudio.seekTo(gem.timestampSec)}
+                            className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-950 font-mono text-[10px] font-bold cursor-pointer"
+                          >
+                            ⏱️ {formatSeconds(gem.timestampSec)}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteGem(gem.id)}
+                          className="text-[10px] text-rose-600 hover:underline cursor-pointer"
+                        >
+                          حذف
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 leading-relaxed">
+                      «{gem.noteText}»
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : viewMode === 'soundcloud' ? (
         /* SoundCloud Interactive Embedded Sanctuary View */
         <div
           className={`flex-1 overflow-y-auto p-3.5 space-y-3 overscroll-contain relative z-10 ${
@@ -1886,7 +2877,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   <div>
                     <h3 className="text-xs font-bold text-zinc-950 dark:text-white">
                       {isAr
-                        ? 'محاضرات وسلاسل يوتيوب الأعلى تقييماً (تعمل صوتياً بالخلفية أو فيديو)'
+                        ? 'محاضرات وسلاسل يوتيوب الأعلى تقييماً (٢٤ محاضرة مرئية وصوتية بالخلفية)'
                         : 'Top-Rated YouTube Lectures (Background Audio & Video)'}
                     </h3>
                     <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">
@@ -1942,7 +2933,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
                     isAr
-                      ? 'ابحث عن درس، شيخ (أيمن عبد الرحيم، أحمد السيد، القنيبي، الطريفي...)'
+                      ? 'ابحث عن درس، شيخ (أيمن عبد الرحيم، أحمد السيد، القنيبي، الطريفي، السكران...)'
                       : 'Search lecture, scholar, recitation...'
                   }
                   className="w-full h-9 ps-9 pe-8 rounded-xl bg-white dark:bg-zinc-950 border border-amber-300/80 dark:border-zinc-700 focus:border-emerald-600 text-xs font-bold text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none transition-colors shadow-2xs"
@@ -2019,6 +3010,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                         audioState.currentTitleAr === track.titleAr)) ||
                     audioState.currentTitleAr === track.titleAr);
                 const isFav = favoriteIds.includes(track.id);
+                const isDone = completedTrackIds.includes(track.id);
                 const theme = getCategoryCardTheme(track.category);
 
                 return (
@@ -2161,6 +3153,54 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                           💡 خلاصة المحاضرة:
                         </span>
                         {track.takeawayAr}
+                      </div>
+                    )}
+
+                    {/* Interactive Action Strip: دوّن فائدة • أتممت السماع • مشاركة البطاقة الدعوية */}
+                    {track.category !== 'radio' && (
+                      <div className="flex items-center justify-between gap-1.5 pt-1 border-t border-amber-200/50 dark:border-zinc-800/80">
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              soundSynth.playTactileClick();
+                              setGemDraftTrack(track);
+                            }}
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                              isPlayingThis
+                                ? 'bg-white/15 hover:bg-white/25 text-white border-white/25'
+                                : 'bg-white/90 dark:bg-zinc-800 hover:bg-amber-100 text-zinc-800 dark:text-zinc-200 border-amber-300/70 dark:border-zinc-700'
+                            }`}
+                          >
+                            {isAr ? '✍️ دوّن فائدة' : '✍️ Note'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleCompletedTrack(track.id, e)}
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                              isDone
+                                ? 'bg-emerald-600 text-white border-emerald-700'
+                                : isPlayingThis
+                                ? 'bg-white/15 text-amber-200 border-white/25'
+                                : 'bg-emerald-50/90 dark:bg-zinc-800 text-emerald-900 dark:text-emerald-300 border-emerald-300/70 dark:border-zinc-700'
+                            }`}
+                          >
+                            {isDone ? (isAr ? '✔ أتممت المجلس' : '✔ Completed') : isAr ? '🎓 سجّل إتمام' : 'Mark Done'}
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleShareDawahCard(track, e)}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                            isPlayingThis
+                              ? 'bg-amber-400/25 text-amber-100 border-amber-300/40'
+                              : 'bg-amber-50/90 dark:bg-zinc-800 text-amber-900 dark:text-amber-300 border-amber-300/70 dark:border-zinc-700'
+                          }`}
+                        >
+                          {isAr ? '📋 مشاركة البطاقة' : '📋 Share'}
+                        </button>
                       </div>
                     )}
                   </div>
