@@ -141,7 +141,23 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
   const [faithAudioState, setFaithAudioState] = useState(() => gymFaithAudio.getState());
   const faithPlaying = Boolean(faithAudioState.isPlaying);
   useEffect(() => {
-    const unsubscribe = gymFaithAudio.subscribe((s) => setFaithAudioState(s));
+    const unsubscribe = gymFaithAudio.subscribe((s) => {
+      setFaithAudioState((prev) => {
+        if (
+          prev.isPlaying === s.isPlaying &&
+          prev.isLoading === s.isLoading &&
+          prev.mode === s.mode &&
+          prev.currentChannelId === s.currentChannelId &&
+          prev.currentSeriesId === s.currentSeriesId &&
+          prev.currentEpisodeId === s.currentEpisodeId &&
+          prev.currentTitleAr === s.currentTitleAr &&
+          prev.currentSheikhAr === s.currentSheikhAr
+        ) {
+          return prev;
+        }
+        return s;
+      });
+    });
     return () => {
       unsubscribe();
     };

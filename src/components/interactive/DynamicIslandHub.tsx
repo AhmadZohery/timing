@@ -201,9 +201,26 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
 
   // Faith Audio Live Activity State
   const [audioState, setAudioState] = useState<GymFaithAudioState>(() => gymFaithAudio.getState());
+  const isExpandedRef = useRef(isExpanded);
+  useEffect(() => {
+    isExpandedRef.current = isExpanded;
+  }, [isExpanded]);
 
   useEffect(() => {
-    return gymFaithAudio.subscribe(setAudioState);
+    return gymFaithAudio.subscribe((s) => {
+      setAudioState((prev) => {
+        if (
+          !isExpandedRef.current &&
+          prev.isPlaying === s.isPlaying &&
+          prev.currentTitleAr === s.currentTitleAr &&
+          prev.currentSheikhAr === s.currentSheikhAr &&
+          prev.mode === s.mode
+        ) {
+          return prev;
+        }
+        return s;
+      });
+    });
   }, []);
 
   // Pre-Adhan 10-minute alert toggle state

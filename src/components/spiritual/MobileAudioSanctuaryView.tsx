@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Play,
@@ -153,7 +153,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=ei9FVKHZxxM',
-    durationFormatted: '92:15',
+    durationFormatted: '2:02:21',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🧠',
     sourceType: 'youtube',
@@ -169,7 +169,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'zawaj',
     audioUrl: 'https://www.youtube.com/watch?v=QGCpSj3CvcM',
-    durationFormatted: '51:00',
+    durationFormatted: '49:10',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🏡',
     sourceType: 'youtube',
@@ -185,7 +185,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=WRn9vB8A8xI',
-    durationFormatted: '44:30',
+    durationFormatted: '11:19',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '💡',
     sourceType: 'youtube',
@@ -201,7 +201,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=WI10HLTY9r8',
-    durationFormatted: '39:15',
+    durationFormatted: '07:25',
     badgeAr: '▶️ يوتيوب • 4.9 ⭐',
     icon: '🛡️',
     sourceType: 'youtube',
@@ -217,7 +217,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Eyad Qunaibi',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=tePvGHNP5Gw',
-    durationFormatted: '28:40',
+    durationFormatted: '05:22',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🌟',
     sourceType: 'youtube',
@@ -233,7 +233,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ahmed Abdelmonem',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=b7rzFL1Q4iM',
-    durationFormatted: '42:10',
+    durationFormatted: '41:14',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🌱',
     sourceType: 'youtube',
@@ -249,7 +249,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ahmed Abdelmonem',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=lIHL1w6x1iM',
-    durationFormatted: '38:25',
+    durationFormatted: '39:50',
     badgeAr: '▶️ يوتيوب • 4.9 ⭐',
     icon: '📖',
     sourceType: 'youtube',
@@ -265,7 +265,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=9ZmGjCNgk_g',
-    durationFormatted: '54:10',
+    durationFormatted: '32:53',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🕋',
     sourceType: 'youtube',
@@ -281,7 +281,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Ibrahim Al-Sakran & Sheikh Amjad Samir',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=H6I73xiyGbo',
-    durationFormatted: '46:00',
+    durationFormatted: '32:26',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '💎',
     sourceType: 'youtube',
@@ -297,7 +297,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Samir Mostafa',
     category: 'siyra',
     audioUrl: 'https://www.youtube.com/watch?v=C5x-iy8BcR0',
-    durationFormatted: '49:30',
+    durationFormatted: '1:23:38',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🕌',
     sourceType: 'youtube',
@@ -313,7 +313,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abu Ishaq Al-Huwayni',
     category: 'khutbah',
     audioUrl: 'https://www.youtube.com/watch?v=_F_mBa4NufU',
-    durationFormatted: '48:20',
+    durationFormatted: '59:19',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🦁',
     sourceType: 'youtube',
@@ -329,7 +329,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=sZG0jXU1vhA',
-    durationFormatted: '68:10',
+    durationFormatted: '1:47:09',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🧭',
     sourceType: 'youtube',
@@ -345,7 +345,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=7yGDLIU9hLM',
-    durationFormatted: '74:25',
+    durationFormatted: '2:07:41',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🗺️',
     sourceType: 'youtube',
@@ -361,7 +361,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ibrahim Al-Sakran',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=QsqWCuaXFCU',
-    durationFormatted: '24:15',
+    durationFormatted: '30:06',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🔥',
     sourceType: 'youtube',
@@ -377,7 +377,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ibrahim Al-Sakran',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=ObW7bk0M2XA',
-    durationFormatted: '21:40',
+    durationFormatted: '15:54',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '⚡',
     sourceType: 'youtube',
@@ -393,7 +393,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'mindset',
     audioUrl: 'https://www.youtube.com/watch?v=wj0v4WI_JVc',
-    durationFormatted: '51:30',
+    durationFormatted: '27:24',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🕋',
     sourceType: 'youtube',
@@ -409,7 +409,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Eyad Qunaibi',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=b-xWoGhwGPc',
-    durationFormatted: '19:45',
+    durationFormatted: '02:46',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🌿',
     sourceType: 'youtube',
@@ -425,7 +425,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Eyad Qunaibi',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=i_8o3I5O7bw',
-    durationFormatted: '22:10',
+    durationFormatted: '06:14',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🛡️',
     sourceType: 'youtube',
@@ -441,7 +441,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ahmed Abdelmonem',
     category: 'tazkiyah',
     audioUrl: 'https://www.youtube.com/watch?v=NdLT_P_Ykug',
-    durationFormatted: '47:15',
+    durationFormatted: '45:20',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '📖',
     sourceType: 'youtube',
@@ -457,7 +457,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'siyra',
     audioUrl: 'https://www.youtube.com/watch?v=IxfEd1Fa9Xw',
-    durationFormatted: '43:20',
+    durationFormatted: '58:06',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🕌',
     sourceType: 'youtube',
@@ -473,7 +473,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
     category: 'khutbah',
     audioUrl: 'https://www.youtube.com/watch?v=H3gS9Kk0mXM',
-    durationFormatted: '31:50',
+    durationFormatted: '1:08:23',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🏔️',
     sourceType: 'youtube',
@@ -489,7 +489,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
     category: 'men_fiqh',
     audioUrl: 'https://www.youtube.com/watch?v=gLLeNkCGL54',
-    durationFormatted: '45:10',
+    durationFormatted: '1:05:39',
     badgeAr: '▶️ يوتيوب • 5.0 ⭐',
     icon: '🕌',
     sourceType: 'youtube',
@@ -505,7 +505,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
     category: 'women_fiqh',
     audioUrl: 'https://www.youtube.com/watch?v=PTqDvz6qH5Y',
-    durationFormatted: '41:30',
+    durationFormatted: '07:30',
     badgeAr: '▶️ يوتيوب • 4.9 ⭐',
     icon: '🧕',
     sourceType: 'youtube',
@@ -523,7 +523,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/109_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '85:33',
+    durationFormatted: '1:25:34',
     badgeAr: '🔥 محبة المصطفى ﷺ',
     icon: '🎙️',
   },
@@ -547,7 +547,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/257_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '89:40',
+    durationFormatted: '1:29:41',
     badgeAr: '🛡️ بيت النبوة',
     icon: '🎙️',
   },
@@ -559,7 +559,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/006_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '87:27',
+    durationFormatted: '1:27:27',
     badgeAr: '✨ فاستقم كما أمرت',
     icon: '🎙️',
   },
@@ -571,7 +571,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Khaled Al-Rashed',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/way2sona_20160319_1746/1-qableanadam.mp3',
-    durationFormatted: '54:01',
+    durationFormatted: '54:02',
     badgeAr: '💔 موعظة مبكية',
     icon: '🔥',
   },
@@ -583,7 +583,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Khaled Al-Rashed',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/way2sona_20160319_1746/1-al-thabat.mp3',
-    durationFormatted: '59:59',
+    durationFormatted: '1:00:00',
     badgeAr: '🌱 ثبات ويقين',
     icon: '🔥',
   },
@@ -595,7 +595,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Badr Al-Meshari',
     category: 'siyra',
     audioUrl: 'https://archive.org/download/alwaldin_gmail_201504/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%A8%D8%AF%D8%B1%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A%20-%20%D9%85%D8%AD%D9%85%D8%AF%20%D8%B1%D8%B3%D9%88%D9%84%20%D8%A7%D9%84%D9%84%D9%87.MP3',
-    durationFormatted: '86:06',
+    durationFormatted: '1:26:07',
     badgeAr: '🕌 سيرة المصطفى',
     icon: '🕌',
   },
@@ -619,7 +619,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Samir Mostafa',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/mn-hm-samir/mn-hm-samir.mp3',
-    durationFormatted: '74:45',
+    durationFormatted: '1:14:46',
     badgeAr: '🚀 شحذ الهمة',
     icon: '⚡',
   },
@@ -631,7 +631,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Safar Al-Hawali',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/006_20240819/001.mp3',
-    durationFormatted: '68:29',
+    durationFormatted: '1:08:29',
     badgeAr: '🕋 صفاء العقيدة',
     icon: '🏛️',
   },
@@ -839,7 +839,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Authentic Adhkar',
     category: 'adhkar',
     audioUrl: 'https://archive.org/download/TvQuran.com__Athkar/TvQuran.com_athkar_02.mp3',
-    durationFormatted: '05:54',
+    durationFormatted: '05:55',
     badgeAr: '🌙 طمأنينة المساء',
     icon: '🌸',
   },
@@ -851,7 +851,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Comprehensive Ruqyah',
     category: 'adhkar',
     audioUrl: 'https://archive.org/download/rqa_iiih/Rqa_iiih1.mp3',
-    durationFormatted: '71:03',
+    durationFormatted: '1:11:03',
     badgeAr: '💎 شفاء وسكينة',
     icon: '📿',
   },
@@ -865,7 +865,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ibn Uthaymeen',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/011_20210928_202109/001.mp3',
-    durationFormatted: '41:07',
+    durationFormatted: '41:08',
     badgeAr: '⚖️ تصحيح النوايا',
     icon: '💖',
   },
@@ -877,7 +877,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ibn Uthaymeen',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/011_20210928_202109/002.mp3',
-    durationFormatted: '44:12',
+    durationFormatted: '44:13',
     badgeAr: '🌿 باب التوبة',
     icon: '💖',
   },
@@ -913,7 +913,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Ahmed Abdelmonem',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/Majales-elQuran-surat-elkahf_Ahmed-Abdelmoneem-mp3/001-%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%83%D9%87%D9%81%20%281%29%20%D9%85%D9%82%D8%AF%D9%85%D8%A9%20%D9%87%D8%A7%D9%85%D8%A9%20_%20%D8%A7%D9%84%D8%AF%D9%83%D8%AA%D9%88%D8%B1%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3',
-    durationFormatted: '65:08',
+    durationFormatted: '1:05:09',
     badgeAr: '📖 تدبر عميق',
     icon: '🌱',
   },
@@ -937,7 +937,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Amjad Samir',
     category: 'tazkiyah',
     audioUrl: 'https://archive.org/download/media-way2allah-_3780/bnwd_alslh_alhdebea_alshekh_ahmd_smer_h17_-_knaa_alnde_alfdaeaea.mp3',
-    durationFormatted: '16:27',
+    durationFormatted: '16:28',
     badgeAr: '🌿 فقه النفس',
     icon: '🌿',
   },
@@ -963,7 +963,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'zawaj',
     audioUrl: 'https://archive.org/download/03_20191120_20191120/02.mp3',
-    durationFormatted: '103:04',
+    durationFormatted: '1:43:04',
     badgeAr: '🏡 البيت المسلم 2',
     icon: '💍',
   },
@@ -975,7 +975,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'zawaj',
     audioUrl: 'https://archive.org/download/03_20191120_20191120/03.mp3',
-    durationFormatted: '142:15',
+    durationFormatted: '2:22:16',
     badgeAr: '🏡 البيت المسلم 3',
     icon: '💍',
   },
@@ -987,7 +987,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'zawaj',
     audioUrl: 'https://archive.org/download/03_20191120_20191120/04.mp3',
-    durationFormatted: '135:48',
+    durationFormatted: '2:15:48',
     badgeAr: '🏡 البيت المسلم 4',
     icon: '💍',
   },
@@ -999,7 +999,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'zawaj',
     audioUrl: 'https://archive.org/download/03_20191120_20191120/05.mp3',
-    durationFormatted: '109:42',
+    durationFormatted: '1:49:42',
     badgeAr: '🏡 البيت المسلم 5',
     icon: '💍',
   },
@@ -1011,7 +1011,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/Establishing_contemporary_Muslim_awareness/01.mp3',
-    durationFormatted: '99:25',
+    durationFormatted: '1:39:25',
     badgeAr: '🧭 تأسيس الوعي',
     icon: '🧠',
   },
@@ -1023,7 +1023,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/Establishing_contemporary_Muslim_awareness/02.mp3',
-    durationFormatted: '115:50',
+    durationFormatted: '1:55:50',
     badgeAr: '🧭 سنن النهوض',
     icon: '🧠',
   },
@@ -1035,7 +1035,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/NAFS-2017/01-NAFS.mp3',
-    durationFormatted: '106:55',
+    durationFormatted: '1:46:55',
     badgeAr: '🏛️ مدخل علم النفس',
     icon: '⚔️',
   },
@@ -1049,7 +1049,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ahmad Al-Sayed',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/hadith_/1.mp3',
-    durationFormatted: '69:41',
+    durationFormatted: '1:09:41',
     badgeAr: '💡 بناء اليقين',
     icon: '🌱',
   },
@@ -1085,7 +1085,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
     category: 'mindset',
     audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/002.mp3',
-    durationFormatted: '72:01',
+    durationFormatted: '1:12:01',
     badgeAr: '🛡️ سنن الله',
     icon: '🌟',
   },
@@ -1109,7 +1109,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Hazem Shouman',
     category: 'khutbah',
     audioUrl: 'https://archive.org/download/way2sona_20160330_2010/1--.mp3',
-    durationFormatted: '72:55',
+    durationFormatted: '1:12:55',
     badgeAr: '🤲 محتاج أصلي',
     icon: '🔥',
   },
@@ -1135,7 +1135,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
     category: 'men_fiqh',
     audioUrl: 'https://archive.org/download/Shnghiti_by_hassan/016estqama.mp3',
-    durationFormatted: '72:31',
+    durationFormatted: '1:12:32',
     badgeAr: '🧔 فقه وبناء الرجل',
     icon: '🧔',
   },
@@ -1147,7 +1147,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Eng. Ayman Abdelrahim',
     category: 'men_fiqh',
     audioUrl: 'https://archive.org/download/03_20191120_20191120/07.mp3',
-    durationFormatted: '103:36',
+    durationFormatted: '1:43:36',
     badgeAr: '🛡️ القوامة والمسؤولية',
     icon: '⚔️',
   },
@@ -1159,7 +1159,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
     category: 'men_fiqh',
     audioUrl: 'https://archive.org/download/3olow-hemmuh/07.mp3',
-    durationFormatted: '85:57',
+    durationFormatted: '1:25:58',
     badgeAr: '🦁 همة الفتى المسلم',
     icon: '🧔',
   },
@@ -1173,7 +1173,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Dr. Muhammad Ismail Al-Muqaddam',
     category: 'women_fiqh',
     audioUrl: 'https://archive.org/download/ana-sal-mokadim-jahloh/003.mp3',
-    durationFormatted: '112:39',
+    durationFormatted: '1:52:40',
     badgeAr: '🌸 فقه وطهارة المرأة',
     icon: '🧕',
   },
@@ -1185,7 +1185,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Abdul Hamid Kishk',
     category: 'women_fiqh',
     audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/137_uP_bY_mUSLEm.Ettounssi.mp3',
-    durationFormatted: '87:50',
+    durationFormatted: '1:27:50',
     badgeAr: '👑 قدوات نساء الإسلام',
     icon: '🌸',
   },
@@ -1197,7 +1197,7 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     sheikhEn: 'Sheikh Ibn Baz',
     category: 'women_fiqh',
     audioUrl: 'https://archive.org/download/Ibn_Baz_uP_bY_mUSLEm/014-_up_by_muslem.mp3',
-    durationFormatted: '94:33',
+    durationFormatted: '1:34:34',
     badgeAr: '💎 الفتاوى النسائية',
     icon: '🧕',
   },
@@ -1465,19 +1465,29 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     } catch {}
   }, [viewMode, selectedScholarId, activeCategory, ambientMode, ambientVolume]);
 
-  // Persist per-track listening timestamp every 5 seconds of playback
+  // Persist per-track listening timestamp without triggering full list re-renders every 5s during active playback
+  const trackProgressRef = useRef<Record<string, number>>(trackProgressMap);
   useEffect(() => {
-    if (!playingTrackId || !audioState.isPlaying || audioState.currentTime < 10) return;
+    trackProgressRef.current = trackProgressMap;
+  }, [trackProgressMap]);
+
+  useEffect(() => {
+    if (!playingTrackId) return;
+    if (!audioState.isPlaying) {
+      // Sync ref to state when paused so resume badges update cleanly
+      setTrackProgressMap({ ...trackProgressRef.current });
+      return;
+    }
+    if (audioState.currentTime < 10) return;
     const sec = Math.floor(audioState.currentTime);
     if (sec % 5 !== 0) return;
-    setTrackProgressMap((prev) => {
-      if (prev[playingTrackId] === sec) return prev;
-      const next = { ...prev, [playingTrackId]: sec };
+    if (trackProgressRef.current[playingTrackId] !== sec) {
+      const next = { ...trackProgressRef.current, [playingTrackId]: sec };
+      trackProgressRef.current = next;
       try {
         localStorage.setItem('midmar_atheer_track_progress_v1', JSON.stringify(next));
       } catch {}
-      return next;
-    });
+    }
   }, [playingTrackId, audioState.isPlaying, audioState.currentTime]);
 
   // Sleep Timer State
@@ -1487,20 +1497,6 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   useEffect(() => {
     const unsub = gymFaithAudio.subscribe((st) => {
       setAudioState(st);
-      setFavoriteIds((prev) => {
-        const next = gymFaithAudio.getFavorites();
-        if (prev.length === next.length && prev.every((id, idx) => id === next[idx])) {
-          return prev;
-        }
-        return next;
-      });
-      setCustomSeriesList((prev) => {
-        const next = gymFaithAudio.getCustomSeries();
-        if (prev.length === next.length && prev.every((s, idx) => s.id === next[idx]?.id)) {
-          return prev;
-        }
-        return next;
-      });
     });
     return () => unsub();
   }, []);
@@ -1890,7 +1886,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     if (conciergeMood === 'futoor') {
       if (conciergeDuration === 'short') {
         targetId = 'yt_sakran_jisr_taab';
-        reasonAr = '٢٤ دقيقة فقط مع الشيخ إبراهيم السكران تشحن همتك لعبور جسر التعب وكسر الكسل.';
+        reasonAr = '٣٠ دقيقة مركزة مع الشيخ إبراهيم السكران تشحن همتك لعبور جسر التعب وكسر الكسل.';
       } else if (conciergeDuration === 'medium') {
         targetId = 'yt_shanqeeti_thabat_01';
         reasonAr = 'موعظة تهز القلب للشيخ محمد مختار الشنقيطي حول أعظم أسباب الثبات على الطاعة.';
@@ -1901,7 +1897,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     } else if (conciergeMood === 'shubuhat') {
       if (conciergeDuration === 'short') {
         targetId = 'yt_qunaibi_yaqeen_01';
-        reasonAr = '٢٨ دقيقة برهانية مكثفة مع د. إياد قنيبي لبناء الدعائم العقلية والفطرية لليقين.';
+        reasonAr = '٥ دقائق برهانية مكثفة مع د. إياد قنيبي لبناء الدعائم العقلية والفطرية لليقين.';
       } else if (conciergeDuration === 'medium') {
         targetId = 'yt_sayed_aqwal_02';
         reasonAr = 'تأصيل منهجي رائع للشيخ أحمد السيد في كيفية التعامل مع الشبهات والأقوال المعاصرة.';
@@ -1912,7 +1908,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
     } else if (conciergeMood === 'waay') {
       if (conciergeDuration === 'short') {
         targetId = 'yt_sakran_maaziq_mutaraqqib';
-        reasonAr = '٢١ دقيقة كاشفة مع د. إبراهيم السكران لعلاج مأزق الانتظار والتسويف الفكري.';
+        reasonAr = '١٦ دقيقة كاشفة مع د. إبراهيم السكران لعلاج مأزق الانتظار والتسويف الفكري.';
       } else if (conciergeDuration === 'medium') {
         targetId = 'yt_sayed_kamel_01';
         reasonAr = 'بناء كامل الصورة الفكرية والمنهجية مع الشيخ أحمد بن يوسف السيد.';
@@ -1935,7 +1931,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       // sakeenah
       if (conciergeDuration === 'short') {
         targetId = 'yt_qunaibi_husn_zann_01';
-        reasonAr = '١٩ دقيقة تملأ فؤادك بحسن الظن بالله والسكينة وسط تقلبات الحياة.';
+        reasonAr = '٣ دقائق مركزة تملأ فؤادك بحسن الظن بالله والسكينة وسط تقلبات الحياة.';
       } else if (conciergeDuration === 'medium') {
         targetId = 'yt_abdelmonem_fatiha_02';
         reasonAr = 'مجلس تدبري روحاني مع د. أحمد عبد المنعم في أسرار سورة الفاتحة.';
@@ -2514,11 +2510,18 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       if (!completedTrackIds.includes(playingTrackId)) {
         toggleCompletedTrack(playingTrackId);
       }
-      if (upNextQueueIds.length > 0) {
+      if (upNextQueueIds.length > 0 && audioState.seriesPlayMode === 'all') {
         handlePlayNextInQueue();
       }
     }
-  }, [audioState.currentTime, audioState.duration, playingTrackId, upNextQueueIds, completedTrackIds]);
+  }, [
+    audioState.currentTime,
+    audioState.duration,
+    audioState.seriesPlayMode,
+    playingTrackId,
+    upNextQueueIds,
+    completedTrackIds,
+  ]);
 
   // 🧠 Interactive Spaced-Repetition "Mudarasah" Flashcard Deck & 1-Tap Timestamp Audio Seek
   const handleJumpToGemTimestamp = (gem: SavedAudioGem) => {
@@ -4209,8 +4212,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
             </div>
           )}
 
-          {/* B. Sticky Frosted-Glass Search & Compact Category Filter Strip (Sticks cleanly while scrolling) */}
-          <div className="sticky top-0 z-20 px-3.5 py-2 bg-[#faf7f0]/92 dark:bg-zinc-950/92 backdrop-blur-xl border-b border-amber-300/70 dark:border-zinc-800 space-y-1.5 shadow-2xs">
+          {/* B. Sticky Search & Compact Category Filter Strip (Opaque surface prevents GPU backdrop-filter flashing over video) */}
+          <div className="sticky top-0 z-20 px-3.5 py-2 bg-[#faf7f0]/98 dark:bg-zinc-950/98 border-b border-amber-300/70 dark:border-zinc-800 space-y-1.5 shadow-2xs">
             {/* Compact Search Row + Mood Compass Toggle */}
             <div className="flex items-center gap-1.5">
               <div className="relative flex-1">
@@ -4400,7 +4403,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                               className="w-1 h-1 rounded-full bg-current opacity-40 shrink-0"
                             />
                             <bdi dir="ltr" className="font-mono text-[10px] font-bold tabular-nums">
-                              {track.durationFormatted}
+                              {isPlayingThis && audioState.duration > 0
+                                ? formatSeconds(audioState.duration)
+                                : track.durationFormatted}
                             </bdi>
                             <span
                               className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
@@ -4783,10 +4788,108 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     </div>
 
                     {isExpanded && (
-                      <div className="px-3.5 pb-3.5 space-y-2 border-t border-amber-200/80 dark:border-zinc-800 pt-3 bg-[#fcfaf5] dark:bg-zinc-950/60 animate-in fade-in duration-150">
+                      <div className="px-3.5 pb-3.5 space-y-2.5 border-t border-amber-200/80 dark:border-zinc-800 pt-3 bg-[#fcfaf5] dark:bg-zinc-950/60">
                         <p className="text-xs text-zinc-700 dark:text-zinc-300 px-1 leading-relaxed font-medium">
                           {series.descriptionAr}
                         </p>
+
+                        {/* 🔁 Series Playback Mode Control Bar: Whole Series vs Single Lesson Only */}
+                        <div className="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-amber-50/70 to-emerald-50 dark:from-zinc-900 dark:via-zinc-900 dark:to-emerald-950/40 border border-amber-300/80 dark:border-zinc-700 flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundSynth.playTactileClick();
+                                haptic.vibrateMedium();
+                                gymFaithAudio.setSeriesPlayMode('all');
+                                if (series.episodes[0]) {
+                                  handlePlayScholarEpisode(series, series.episodes[0]);
+                                }
+                                onRewardToast?.(
+                                  isAr
+                                    ? `▶️ بدأ تشغيل السلسلة كاملة بالتتابع: ${series.titleAr}`
+                                    : `▶️ Playing full series: ${series.titleEn}`
+                                );
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-amber-200 border border-amber-400/80 text-[10px] font-bold cursor-pointer shadow-2xs flex items-center gap-1"
+                            >
+                              <span>▶️</span>
+                              <span>{isAr ? 'تشغيل السلسلة كاملة' : 'Play Full Series'}</span>
+                            </button>
+
+                            {series.episodes[0] && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  soundSynth.playTactileClick();
+                                  haptic.vibrateLight();
+                                  gymFaithAudio.setSeriesPlayMode('single');
+                                  const targetEp =
+                                    series.episodes.find(
+                                      (ep) =>
+                                        audioState.currentSeriesId === series.id &&
+                                        audioState.currentEpisodeId === ep.id
+                                    ) || series.episodes[0];
+                                  handlePlayScholarEpisode(series, targetEp);
+                                  onRewardToast?.(
+                                    isAr
+                                      ? `🎯 تشغيل هذا الدرس فقط (سيتوقف تلقائياً بعد انتهائه): ${targetEp.titleAr}`
+                                      : `🎯 Playing single lesson only: ${targetEp.titleEn}`
+                                  );
+                                }}
+                                className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-800 hover:bg-amber-50 text-zinc-900 dark:text-zinc-100 border border-amber-300 dark:border-zinc-700 text-[10px] font-bold cursor-pointer flex items-center gap-1"
+                              >
+                                <span>🎯</span>
+                                <span>{isAr ? 'الدرس الحالي فقط' : 'This Lesson Only'}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="inline-flex items-center rounded-xl bg-white dark:bg-zinc-800 p-0.5 border border-amber-300/80 dark:border-zinc-700">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundSynth.playTactileClick();
+                                gymFaithAudio.setSeriesPlayMode('all');
+                                onRewardToast?.(
+                                  isAr
+                                    ? '🔁 وضع السلسلة: استماع متتابع لجميع دروس السلسلة'
+                                    : '🔁 Series Mode: Play All Continuously'
+                                );
+                              }}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all ${
+                                audioState.seriesPlayMode === 'all'
+                                  ? 'bg-emerald-700 text-white shadow-2xs'
+                                  : 'text-zinc-600 dark:text-zinc-300 hover:text-zinc-950'
+                              }`}
+                            >
+                              {isAr ? '🔁 السلسلة كاملة' : '🔁 All Series'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                soundSynth.playTactileClick();
+                                gymFaithAudio.setSeriesPlayMode('single');
+                                onRewardToast?.(
+                                  isAr
+                                    ? '🎯 وضع السلسلة: سماع الدرس المختار فقط دون انتقال تلقائي'
+                                    : '🎯 Series Mode: Single Lesson Only'
+                                );
+                              }}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all ${
+                                audioState.seriesPlayMode === 'single'
+                                  ? 'bg-amber-400 text-zinc-950 shadow-2xs'
+                                  : 'text-zinc-600 dark:text-zinc-300 hover:text-zinc-950'
+                              }`}
+                            >
+                              {isAr ? '🎯 هذا الدرس فقط' : '🎯 Single Only'}
+                            </button>
+                          </div>
+                        </div>
 
                         <div className="space-y-2 pt-1">
                           {series.episodes.map((ep, epIdx) => {
@@ -4846,7 +4949,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                                             : 'text-emerald-700 dark:text-emerald-400'
                                         }`}
                                       >
-                                        {ep.durationFormatted}
+                                        {isEpSelected && audioState.duration > 0
+                                          ? formatSeconds(audioState.duration)
+                                          : ep.durationFormatted}
                                       </span>
                                       <span>•</span>
                                       <span className="truncate max-w-[155px] sm:max-w-xs">
@@ -4886,9 +4991,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       )}
 
-      {/* 5. Unified Collapsible Bottom Studio Dock (Handles Both Audio & YouTube without blocking the screen!) */}
+      {/* 5. Unified Collapsible Bottom Studio Dock (Opaque surface prevents GPU backdrop-blur flicker over video!) */}
       {hasActiveStudioDeck && (
-        <div className="absolute bottom-2.5 inset-x-3 sm:inset-x-4 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl border-2 border-emerald-500/70 dark:border-emerald-500/40 rounded-[22px] p-2.5 sm:p-3 shadow-[0_18px_45px_rgba(6,78,59,0.3)] flex flex-col gap-1.5 animate-in slide-in-from-bottom-4 duration-200 z-30 overflow-hidden">
+        <div className="absolute bottom-2.5 inset-x-3 sm:inset-x-4 bg-white/98 dark:bg-zinc-900/98 border-2 border-emerald-500/70 dark:border-emerald-500/40 rounded-[22px] p-2.5 sm:p-3 shadow-[0_18px_45px_rgba(6,78,59,0.3)] flex flex-col gap-1.5 z-30 overflow-hidden transform-gpu">
           {/* Thin Live Golden Progress Ribbon along the top edge when collapsed */}
           {!isBottomDeckExpanded && audioState.duration > 0 && (
             <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-emerald-100 dark:bg-zinc-800">
@@ -4917,7 +5022,7 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
 
           {/* Expandable Scrubber + Semantic Chapter Milestones + Studio Utility & Queue Tray */}
           {isBottomDeckExpanded && (
-            <div className="space-y-2 pt-0.5 pb-1 border-b border-emerald-200/70 dark:border-zinc-800 animate-in fade-in duration-150">
+            <div className="space-y-2 pt-0.5 pb-1 border-b border-emerald-200/70 dark:border-zinc-800">
               {audioState.duration > 0 && (
                 <>
                   <div className="flex items-center gap-2 px-1" dir="ltr">
@@ -5003,6 +5108,29 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                     className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-950 dark:text-amber-200 font-mono text-[10px] font-bold border border-amber-300/80 cursor-pointer tabular-nums"
                   >
                     ⚡ السرعة: {audioState.playbackRate}x
+                  </button>
+
+                  {/* 🔁 / 🎯 Series vs Single Lesson Mode Toggle right inside the player dock */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      haptic.vibrateLight();
+                      const nextMode = gymFaithAudio.toggleSeriesPlayMode();
+                      onRewardToast?.(
+                        nextMode === 'all'
+                          ? '🔁 وضع التشغيل: السلسلة كاملة (ينتقل للدرس التالي تلقائياً)'
+                          : '🎯 وضع التشغيل: هذا الدرس فقط (يتوقف عند انتهاء الدرس الحالي)'
+                      );
+                    }}
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-colors ${
+                      audioState.seriesPlayMode === 'all'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-950 dark:text-emerald-200 border-emerald-400/80'
+                        : 'bg-amber-200 dark:bg-amber-900/60 text-zinc-950 dark:text-amber-100 border-amber-400'
+                    }`}
+                    title="اختر بين تشغيل السلسلة كاملة بالتتابع أو هذا الدرس فقط"
+                  >
+                    {audioState.seriesPlayMode === 'all' ? '🔁 السلسلة كاملة' : '🎯 هذا الدرس فقط'}
                   </button>
 
                   <button
@@ -5121,13 +5249,36 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                   {audioState.currentTitleAr || (isAr ? 'مقطع صوتي' : 'Audio Track')}
                 </p>
                 <div className="flex items-center gap-1.5 text-[10px] text-emerald-700 dark:text-emerald-300 font-bold">
-                  <span className="truncate max-w-[115px] sm:max-w-[200px]">
+                  <span className="truncate max-w-[105px] sm:max-w-[190px]">
                     {audioState.currentSheikhAr || (isAr ? 'أثير مضمار' : 'Midmar Audio')}
                   </span>
                   {audioState.duration > 0 && (
                     <span className="font-mono text-[9px] text-amber-800 dark:text-amber-300 tabular-nums shrink-0">
-                      • {formatSeconds(audioState.currentTime)}
+                      • {formatSeconds(audioState.currentTime)} / {formatSeconds(audioState.duration)}
                     </span>
+                  )}
+                  {audioState.mode === 'series' && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        soundSynth.playTactileClick();
+                        const nextMode = gymFaithAudio.toggleSeriesPlayMode();
+                        onRewardToast?.(
+                          nextMode === 'all'
+                            ? '🔁 وضع التشغيل: السلسلة كاملة بالتتابع'
+                            : '🎯 وضع التشغيل: هذا الدرس فقط'
+                        );
+                      }}
+                      className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold shrink-0 cursor-pointer border ${
+                        audioState.seriesPlayMode === 'all'
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 border-emerald-300'
+                          : 'bg-amber-200 dark:bg-amber-900 text-zinc-950 dark:text-amber-100 border-amber-400'
+                      }`}
+                      title="تبديل بين تشغيل السلسلة كاملة أو هذا الدرس فقط"
+                    >
+                      {audioState.seriesPlayMode === 'all' ? '🔁 السلسلة' : '🎯 درس واحد'}
+                    </button>
                   )}
                   {upNextQueueIds.length > 0 && (
                     <span className="px-1.5 py-0.2 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-900 dark:text-indigo-200 text-[9px] font-bold shrink-0">

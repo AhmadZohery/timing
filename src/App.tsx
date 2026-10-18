@@ -1495,8 +1495,10 @@ export function App() {
       {/* Persistent Global YouTube Player Host (Keeps Audio Playing Across All Modals & Views) */}
       <PersistentYouTubeHost />
 
-      {/* Global Floating Audio Capsule (Smart Next/Prev, Speed, Mini Bar) */}
-      <GlobalAudioCapsule onOpenFaithHub={() => setIsFaithAudioModalOpen(true)} />
+      {/* Global Floating Audio Capsule (Hidden while full FaithAudioSanctuaryModal is open to prevent duplicate player & backdrop-blur flicker) */}
+      {!isFaithAudioModalOpen && (
+        <GlobalAudioCapsule onOpenFaithHub={() => setIsFaithAudioModalOpen(true)} />
+      )}
 
       {/* Living Ambient Generative Soundscape Floating Player */}
       <AmbientSoundscapeBar />

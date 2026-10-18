@@ -70,6 +70,7 @@ export interface GymFaithAudioState {
   youtubePlaylistId: string | null;
   youtubeUrl: string | null;
   isAudioOnlyMode: boolean;
+  seriesPlayMode: 'all' | 'single';
   currentChannelId: string;
   currentCustomUrl: string | null;
   currentSeriesId: string | null;
@@ -94,6 +95,7 @@ const STORAGE_VOL_KEY = 'midmar_gym_audio_vol';
 const STORAGE_RESUME_KEY = 'midmar_faith_audio_resume';
 const STORAGE_CUSTOM_SERIES_KEY = 'midmar_custom_faith_series';
 const STORAGE_FAVORITES_KEY = 'midmar_faith_favorites';
+const STORAGE_SERIES_PLAY_MODE_KEY = 'midmar_faith_series_play_mode';
 
 class GymFaithAudioService {
   private audio: HTMLAudioElement | null = null;
@@ -135,6 +137,8 @@ class GymFaithAudioService {
     const rawSavedChannel = localStorage.getItem(STORAGE_CHANNEL_KEY);
     const savedSpeed = Number(localStorage.getItem(STORAGE_SPEED_KEY) || '1');
     const savedVol = Number(localStorage.getItem(STORAGE_VOL_KEY) || '0.85');
+    const savedSeriesMode =
+      localStorage.getItem(STORAGE_SERIES_PLAY_MODE_KEY) === 'single' ? 'single' : 'all';
 
     const initialChannel =
       GYM_FAITH_CHANNELS.find((c) => c.id === rawSavedChannel) || GYM_FAITH_CHANNELS[0];
@@ -191,6 +195,7 @@ class GymFaithAudioService {
       youtubePlaylistId: isYtResume ? (extractYouTubeId(resumePoint!.audioUrl).playlistId || null) : null,
       youtubeUrl: isYtResume ? resumePoint!.audioUrl : null,
       isAudioOnlyMode: true,
+      seriesPlayMode: savedSeriesMode,
       currentChannelId,
       currentCustomUrl,
       currentSeriesId,
@@ -219,6 +224,12 @@ class GymFaithAudioService {
       const nextPlaying = typeof isPlaying === 'boolean' ? isPlaying : this.state.isPlaying;
       const clearErr = Boolean(nextPlaying && this.state.hasError);
 
+      const now = Date.now();
+      if (now - this.lastSaveTime > 3000 || (typeof isPlaying === 'boolean' && !isPlaying)) {
+        this.lastSaveTime = now;
+        this.saveResumePoint(false);
+      }
+
       if (
         cur !== this.state.currentTime ||
         dur !== this.state.duration ||
@@ -236,12 +247,6 @@ class GymFaithAudioService {
         }
         this.updateState(updates);
       }
-
-      const now = Date.now();
-      if (now - this.lastSaveTime > 3000 || (typeof isPlaying === 'boolean' && !isPlaying)) {
-        this.lastSaveTime = now;
-        this.saveResumePoint();
-      }
     }
   }
 
@@ -258,6 +263,19 @@ class GymFaithAudioService {
 
   public setAudioOnlyMode(val: boolean) {
     this.updateState({ isAudioOnlyMode: val });
+  }
+
+  public setSeriesPlayMode(mode: 'all' | 'single') {
+    try {
+      localStorage.setItem(STORAGE_SERIES_PLAY_MODE_KEY, mode);
+    } catch {}
+    this.updateState({ seriesPlayMode: mode });
+  }
+
+  public toggleSeriesPlayMode(): 'all' | 'single' {
+    const next = this.state.seriesPlayMode === 'all' ? 'single' : 'all';
+    this.setSeriesPlayMode(next);
+    return next;
   }
 
   private initAudio() {
@@ -321,16 +339,16 @@ class GymFaithAudioService {
         this.lastPositionUpdateTime = Date.now();
       }
 
-      // Smooth real-time state update
-      if (cur !== this.state.currentTime || dur !== this.state.duration) {
-        this.updateState({ currentTime: cur, duration: dur, isLoading: false });
-      }
-
       // Throttle persistent localStorage save to once every 3 seconds
       const now = Date.now();
       if (now - this.lastSaveTime > 3000) {
         this.lastSaveTime = now;
-        this.saveResumePoint();
+        this.saveResumePoint(false);
+      }
+
+      // Smooth real-time state update
+      if (cur !== this.state.currentTime || dur !== this.state.duration) {
+        this.updateState({ currentTime: cur, duration: dur, isLoading: false });
       }
     });
 
@@ -439,12 +457,17 @@ class GymFaithAudioService {
   }
 
   private handleTrackEnded() {
-    if (this.state.mode === 'series' && this.state.currentSeriesId && this.state.currentEpisodeId) {
+    if (
+      this.state.mode === 'series' &&
+      this.state.seriesPlayMode === 'all' &&
+      this.state.currentSeriesId &&
+      this.state.currentEpisodeId
+    ) {
       const series = this.getAllSeries().find((s) => s.id === this.state.currentSeriesId);
       if (series) {
         const curIdx = series.episodes.findIndex((e) => e.id === this.state.currentEpisodeId);
         if (curIdx >= 0 && curIdx < series.episodes.length - 1) {
-          // Auto advance to next episode!
+          // Auto advance to next episode when seriesPlayMode === 'all'!
           const nextEp = series.episodes[curIdx + 1];
           this.playEpisode(series.id, nextEp.id, 0);
           return;
@@ -513,7 +536,7 @@ class GymFaithAudioService {
     } catch {}
   }
 
-  private saveResumePoint() {
+  private saveResumePoint(notify = true) {
     const isYt = this.state.mediaType === 'youtube';
     if (!this.audio && !isYt) return;
 
@@ -561,7 +584,11 @@ class GymFaithAudioService {
 
     try {
       localStorage.setItem(STORAGE_RESUME_KEY, JSON.stringify(resume));
-      this.updateState({ resumePoint: resume });
+      if (notify) {
+        this.updateState({ resumePoint: resume });
+      } else {
+        this.state = { ...this.state, resumePoint: resume };
+      }
     } catch {}
   }
 

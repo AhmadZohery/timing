@@ -1048,21 +1048,81 @@ export const GymFaithAudioPlayer: React.FC<GymFaithAudioPlayerProps> = ({
               {/* Selected Series Episodes List (Guarded against leaks) */}
               {effectiveSeries && filteredSeries.some((s) => s.id === effectiveSeries.id) && (
                 <div className="p-4 rounded-[22px] bg-white/[0.04] border border-white/10 space-y-3">
-                  <div className="flex items-center justify-between pb-2.5 border-b border-white/10">
-                    <div className="flex items-center gap-2.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-white/10">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <span className="text-base">{effectiveSeries.icon}</span>
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-black text-white">
+                      <div className="min-w-0">
+                        <h4 className="text-xs sm:text-sm font-black text-white truncate">
                           {effectiveSeries.titleAr} ({effectiveSeries.sheikhAr})
                         </h4>
-                        <p className="text-[10px] text-zinc-400">
+                        <p className="text-[10px] text-zinc-400 line-clamp-1">
                           {effectiveSeries.descriptionAr}
                         </p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full bg-[#bce8c2] text-[#141517]">
-                      {effectiveSeries.totalEpisodes} {isAr ? 'حلقات' : 'episodes'}
-                    </span>
+
+                    <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateMedium();
+                          gymFaithAudio.setSeriesPlayMode('all');
+                          if (effectiveSeries.episodes[0]) {
+                            handleSelectEpisode(effectiveSeries, effectiveSeries.episodes[0]);
+                          }
+                          onRewardToast?.(
+                            isAr
+                              ? `▶️ بدأ تشغيل السلسلة كاملة بالتتابع: ${effectiveSeries.titleAr}`
+                              : `▶️ Playing full series: ${effectiveSeries.titleEn}`
+                          );
+                        }}
+                        className="px-2.5 py-1 rounded-full text-[10px] font-black bg-[#bce8c2] hover:bg-[#d4f5dc] text-[#141517] cursor-pointer transition-colors"
+                      >
+                        {isAr ? '▶️ تشغيل السلسلة كاملة' : '▶️ Play Full Series'}
+                      </button>
+
+                      <div className="inline-flex items-center rounded-full bg-white/10 p-0.5 border border-white/15">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            soundSynth.playTactileClick();
+                            gymFaithAudio.setSeriesPlayMode('all');
+                            onRewardToast?.(
+                              isAr
+                                ? '🔁 وضع التشغيل: السلسلة كاملة (ينتقل للدرس التالي تلقائياً)'
+                                : '🔁 Series Mode: Continuous'
+                            );
+                          }}
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-black cursor-pointer transition-colors ${
+                            audioState.seriesPlayMode === 'all'
+                              ? 'bg-[#e2defc] text-[#141517]'
+                              : 'text-zinc-300 hover:text-white'
+                          }`}
+                        >
+                          {isAr ? '🔁 السلسلة كاملة' : '🔁 All Episodes'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            soundSynth.playTactileClick();
+                            gymFaithAudio.setSeriesPlayMode('single');
+                            onRewardToast?.(
+                              isAr
+                                ? '🎯 وضع التشغيل: هذا الدرس فقط (يتوقف عند انتهاء الدرس)'
+                                : '🎯 Series Mode: Single Episode Only'
+                            );
+                          }}
+                          className={`px-2 py-0.5 rounded-full text-[9px] font-black cursor-pointer transition-colors ${
+                            audioState.seriesPlayMode === 'single'
+                              ? 'bg-[#fde6d8] text-[#141517]'
+                              : 'text-zinc-300 hover:text-white'
+                          }`}
+                        >
+                          {isAr ? '🎯 هذا الدرس فقط' : '🎯 Single Lesson'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">

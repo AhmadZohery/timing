@@ -42,7 +42,19 @@ export const PersistentYouTubeHost: React.FC = () => {
   useEffect(() => {
     return gymFaithAudio.subscribe((state) => {
       audioStateRef.current = state;
-      setAudioState(state);
+      setAudioState((prev) => {
+        if (
+          prev.mediaType === state.mediaType &&
+          prev.youtubeVideoId === state.youtubeVideoId &&
+          prev.isAudioOnlyMode === state.isAudioOnlyMode &&
+          prev.isPlaying === state.isPlaying &&
+          prev.currentTitleAr === state.currentTitleAr &&
+          prev.seriesPlayMode === state.seriesPlayMode
+        ) {
+          return prev;
+        }
+        return state;
+      });
     });
   }, []);
 
@@ -95,7 +107,10 @@ export const PersistentYouTubeHost: React.FC = () => {
       } catch {}
       gymFaithAudio.updateYouTubeProgress(cur, undefined, false);
       // 100 / 101 / 150 = removed or embedding disabled: skip to the next episode rather than freezing
-      if (gymFaithAudio.hasNextEpisode()) {
+      if (
+        audioStateRef.current.seriesPlayMode === 'all' &&
+        gymFaithAudio.hasNextEpisode()
+      ) {
         gymFaithAudio.playNextEpisode();
       } else {
         gymFaithAudio.reportYouTubeError('تعذّر تشغيل هذا المقطع (محذوف أو غير مسموح بتشغيله خارج يوتيوب). جرّب مقطعًا آخر.');
@@ -187,8 +202,11 @@ export const PersistentYouTubeHost: React.FC = () => {
                 const cur = p?.getCurrentTime() || 0;
                 gymFaithAudio.updateYouTubeProgress(cur, undefined, false);
               } else if (event.data === 0) {
-                // Video ended: auto-advance inside a series, otherwise settle in the paused state
-                if (!gymFaithAudio.playNextEpisode()) {
+                // Video ended: auto-advance inside a series only when seriesPlayMode === 'all'
+                const advanced =
+                  audioStateRef.current.seriesPlayMode === 'all' &&
+                  gymFaithAudio.playNextEpisode();
+                if (!advanced) {
                   const dur = p?.getDuration() || 0;
                   gymFaithAudio.updateYouTubeProgress(dur, undefined, false);
                 }
@@ -254,7 +272,7 @@ export const PersistentYouTubeHost: React.FC = () => {
           gymFaithAudio.updateYouTubeProgress(cur, dur, true);
         }
       } catch {}
-    }, 600);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -275,18 +293,39 @@ export const PersistentYouTubeHost: React.FC = () => {
     };
   }, []);
 
-  // Audio-only mode keeps a real 200x200 player parked off-screen: browsers throttle or pause
-  // embedded players that are 1px / fully hidden, which was cutting the audio.
+  // Audio-only mode keeps a real 200x200 player parked off-screen without opacity-0 GPU alpha compositing.
+  // When video mode is active (!isAudioOnlyMode), render at z-[80] above modals with a clean header bar.
+  const showFloatingVideo = isYouTube && !audioState.isAudioOnlyMode;
+
   return (
     <div
-      aria-hidden="true"
+      aria-hidden={!showFloatingVideo}
       className={
-        isYouTube && !audioState.isAudioOnlyMode
-          ? 'fixed z-40 bottom-24 end-4 w-72 h-44 rounded-2xl overflow-hidden shadow-2xl border border-amber-500/40 bg-black'
-          : 'fixed top-0 -left-[9999px] w-[200px] h-[200px] opacity-0 pointer-events-none'
+        showFloatingVideo
+          ? 'fixed z-[80] bottom-28 end-3 sm:end-6 w-80 sm:w-96 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.75)] border-2 border-amber-400/80 bg-zinc-950 flex flex-col'
+          : 'fixed -top-[9999px] -left-[9999px] w-[200px] h-[200px] pointer-events-none overflow-hidden'
       }
     >
-      <div ref={hostRef} className="w-full h-full" />
+      {showFloatingVideo && (
+        <div
+          dir="rtl"
+          className="flex items-center justify-between gap-2 px-3 py-1.5 bg-gradient-to-r from-emerald-950 via-zinc-900 to-emerald-950 border-b border-amber-400/30 text-white"
+        >
+          <span className="text-[11px] font-bold text-amber-300 truncate">
+            📺 {audioState.currentTitleAr || 'العرض المرئي للمحاضرة'}
+          </span>
+          <button
+            type="button"
+            onClick={() => gymFaithAudio.setAudioOnlyMode(true)}
+            className="px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 text-[10px] font-bold shrink-0 cursor-pointer transition-colors"
+          >
+            🎧 صوت فقط (إخفاء الفيديو)
+          </button>
+        </div>
+      )}
+      <div className={showFloatingVideo ? 'w-full h-48 sm:h-56 bg-black' : 'w-full h-full'}>
+        <div ref={hostRef} className="w-full h-full" />
+      </div>
     </div>
   );
 };

@@ -575,7 +575,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: باب الإخلاص وإحضار النية في كل عمل (إنما الأعمال بالنيات)",
         "titleEn": "The Sincerity of Intention in Every Action",
-        "durationFormatted": "31:20",
+        "durationFormatted": "41:08",
         "audioUrl": "https://archive.org/download/011_20210928_202109/001.mp3",
         "summaryAr": "شرح حديث عمر بن الخطاب؛ حقيقة الإخلاص وكيف تصبح العادات اليومية والرياضة طاعات مأجورة."
       },
@@ -584,7 +584,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: باب التوبة وشروط الرجوع الصادق إلى الله",
         "titleEn": "Repentance and Returning to Allah",
-        "durationFormatted": "29:45",
+        "durationFormatted": "44:13",
         "audioUrl": "https://archive.org/download/011_20210928_202109/002.mp3",
         "summaryAr": "سعة رحمة الله تعالى وقبول التوبة من التائبين، والتخلص من الإصرار على المعاصي."
       },
@@ -593,7 +593,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: باب الصبر عند الصدمة الأولى وقوة التحمل",
         "titleEn": "Patience and Resilience",
-        "durationFormatted": "33:10",
+        "durationFormatted": "46:18",
         "audioUrl": "https://archive.org/download/011_20210928_202109/003.mp3",
         "summaryAr": "أنواع الصبر الثلاثة: على طاعة الله، وعن معصية الله، وعلى أقدار الله المؤلمة بالرضا والاحتساب."
       },
@@ -602,7 +602,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "الدرس 4: باب الصدق واليقين في المعاملة والقول",
         "titleEn": "Truthfulness and Firm Certainty",
-        "durationFormatted": "28:50",
+        "durationFormatted": "45:50",
         "audioUrl": "https://archive.org/download/011_20210928_202109/004.mp3",
         "summaryAr": "الصدق يهدي إلى البر وإن البر يهدي إلى الجنة؛ بناء شخصية المسلم المستقيمة في السر والعلن."
       }
@@ -627,7 +627,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: يا نفس جِدِّي — اليقظة الإيمانية واغتنام الأعمار",
         "titleEn": "O Soul Strive Hard: Spiritual Awakening",
-        "durationFormatted": "48:20",
+        "durationFormatted": "59:19",
         "audioUrl": "https://www.youtube.com/watch?v=_F_mBa4NufU",
         "summaryAr": "محاسبة النفس ومجاهدتها على طاعة الله قبل فوات الأوان، والاعتبار بتجارب الحياة."
       },
@@ -636,7 +636,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: الفراسة الإيمانية ونور البصيرة بنور الوحي",
         "titleEn": "Faith-Based Insight & Spiritual Discernment",
-        "durationFormatted": "52:10",
+        "durationFormatted": "1:01:59",
         "audioUrl": "https://www.youtube.com/watch?v=DPO-zWty9VM",
         "summaryAr": "كيف يرزق الله المؤمن الصادق المتبع للسنة نوراً يميز به بين الحق والباطل."
       },
@@ -645,7 +645,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: أنت الجماعة وإن كنت وحدك — الثبات على السنة النبوية",
         "titleEn": "You Are the Jama'ah Even If Alone: Firmness on the Sunnah",
-        "durationFormatted": "87:40",
+        "durationFormatted": "30:23",
         "audioUrl": "https://archive.org/download/anta_algama3a_wa_en_konta_wa7dak_S/anta-walgma3a.mp3",
         "summaryAr": "بيان صفاء منهج أهل السنة والجماعة في التزكية والاتباع بعيداً عن البدع والخرافات."
       }
@@ -670,7 +670,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: أريد أن أستقيم ولكن — عقبات الطريق وكيف نتجاوزها",
         "titleEn": "I Want to Be Steadfast, But: Overcoming Obstacles",
-        "durationFormatted": "29:15",
+        "durationFormatted": "19:00",
         "audioUrl": "https://archive.org/download/Mohamed-Sayed-Hajj/%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%86%20%D8%A7%D8%B3%D8%AA%D9%82%D9%8A%D9%85%20%D9%88%D9%84%D9%83%D9%86.mp3",
         "summaryAr": "انتباه القلب من رقدة الغفلة وكسر العوائق النفسية التي تحول بين الشاب والاستقامة."
       },
@@ -679,7 +679,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: الطريق إلى الهداية والإنابة الصادقة إلى الله",
         "titleEn": "The Path to Guidance and Sincere Return to Allah",
-        "durationFormatted": "26:50",
+        "durationFormatted": "59:25",
         "audioUrl": "https://archive.org/download/Mohamed-Sayed-Hajj/%D8%A7%D9%84%D8%B7%D8%B1%D9%8A%D9%82%20%D8%A7%D9%84%D9%89%20%D8%A7%D9%84%D9%87%D8%AF%D8%A7%D9%8A%D8%A9.mp3",
         "summaryAr": "شروط التوبة النصوح، تذوق حلاوة القرب من الله، وتطهير الصحائف بالاستغفار والعمل الصالح."
       },
@@ -688,7 +688,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: الصلة بالله وعمارة الباطن بالتقوى والإخلاص",
         "titleEn": "Connection with Allah and Inner Piety",
-        "durationFormatted": "12:15",
+        "durationFormatted": "20:57",
         "audioUrl": "https://archive.org/download/Mohamed-Sayed-Hajj/%D8%A7%D9%84%D8%B5%D9%84%D8%A9%20%D8%A8%D8%A7%D9%84%D9%84%D9%87.mp3",
         "summaryAr": "حاسبوا أنفسكم قبل أن تحاسبوا؛ تقوية الصلة بالله في الخلوات وتثبيت القدم على الصراط المستقيم."
       },
@@ -697,7 +697,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المجلس 4: الانشغال بالذكر وحياة القلب بذكر الرحمن",
         "titleEn": "Busying the Tongue and Heart with Dhikr",
-        "durationFormatted": "19:30",
+        "durationFormatted": "41:39",
         "audioUrl": "https://archive.org/download/Mohamed-Sayed-Hajj/%D8%A7%D9%84%D8%A7%D9%86%D8%B4%D8%BA%D8%A7%D9%84%20%D8%A8%D8%A7%D9%84%D8%B0%D9%83%D8%B1.mp3",
         "summaryAr": "مثل الذي يذكر ربه والذي لا يذكر ربه مثل الحي والميت؛ أثر الذكر في طمأنينة الفؤاد."
       }
@@ -722,7 +722,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "مجلس 1: بنود صلح الحديبية وفقه النفوس والتسليم لله",
         "titleEn": "Treaty of Hudaybiyyah and Soul Submission",
-        "durationFormatted": "33:15",
+        "durationFormatted": "16:28",
         "audioUrl": "https://archive.org/download/media-way2allah-_3780/bnwd_alslh_alhdebea_alshekh_ahmd_smer_h17_-_knaa_alnde_alfdaeaea.mp3",
         "summaryAr": "فهم أغوار النفس البشرية في مواجهة الشدائد والظنون، وجمال التسليم للوحي وعواقب الصبر المحمود."
       },
@@ -731,7 +731,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "مجلس 2: يا أبا جندل اصبر واحتسب - الصبر على مرارة الأقدار",
         "titleEn": "Patience in the Face of Trials",
-        "durationFormatted": "29:40",
+        "durationFormatted": "15:54",
         "audioUrl": "https://archive.org/download/media-way2allah-_3791/ea_aba_gndl_asbr_wahtsb_alhdebea_alshekh_ahmd_smer_h18_-_knaa_alnde_alfdaeaea.mp3",
         "summaryAr": "مداواة جراح النفس وآلام الابتلاء، كيف يجعل الله من المحنة منحة، وسكينة القلب بحسن التوكل."
       }
@@ -756,7 +756,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "خطبة 1: شجاعة علي بن أبي طالب وبطولة الصحابة الكرام",
         "titleEn": "Courage of Ali ibn Abi Talib and the Companions",
-        "durationFormatted": "41:20",
+        "durationFormatted": "1:29:26",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/008_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "شجاعة الصحابة في اليرموك والقادسية وخيبر، ومواجهة الشدائد برأس مرفوع ويقين بالخالق."
       },
@@ -765,7 +765,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "خطبة 2: الإمام أحمد بن حنبل وثبات أهل السنة كالجبال",
         "titleEn": "Imam Ahmad ibn Hanbal and Steadfastness",
-        "durationFormatted": "38:50",
+        "durationFormatted": "1:30:26",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/003_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "محنة خلق القرآن وصبر إمام أهل السنة أحمد بن حنبل تحت السياط دفاعاً عن الشريعة والوحي."
       },
@@ -774,7 +774,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "خطبة 3: فضل قيام الليل وعظمة التبتل في الأسحار",
         "titleEn": "Virtues of Night Prayer and Solitude with Allah",
-        "durationFormatted": "36:15",
+        "durationFormatted": "42:06",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/004_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "شرف المؤمن قيامه بالليل وعزه استغناؤه عن الناس؛ أسرار المناجاة والدموع الخاشعة."
       },
@@ -783,7 +783,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "خطبة 4: حقوق الوالدين وبرهم ومفتاح الجنان",
         "titleEn": "Honoring Parents: The Key to Paradise",
-        "durationFormatted": "44:10",
+        "durationFormatted": "29:42",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/002_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "وقضى ربك ألا تعبدوا إلا إياه وبالوالدين إحساناً؛ عظمة البر وأثره في التوفيق وسعة الرزق."
       }
@@ -808,7 +808,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "خطبة 1: الصلاة تشتكي - عظمة الوقوف بين يدي الله",
         "titleEn": "The Cry of the Prayer: Standing Before Allah",
-        "durationFormatted": "37:25",
+        "durationFormatted": "49:19",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/1-asalat.mp3",
         "summaryAr": "الصلاة عمود الدين وأول ما يحاسب عليه العبد؛ نداء مدوٍ لكل من فرط في صلاته أو تهاون فيها."
       },
@@ -817,7 +817,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "خطبة 2: قوافل العائدين - الرجوع الصادق إلى الله",
         "titleEn": "Caravans of the Returning: Sincere Repentance",
-        "durationFormatted": "42:15",
+        "durationFormatted": "1:20:28",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/1-qawafela3aiedeen.mp3",
         "summaryAr": "قصص ومواعظ مبكية لأبطال أقبلوا على التوبة بدموع الندم ووجدوا حلاوة الطاعة والقرب من الله."
       },
@@ -826,7 +826,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "خطبة 3: الثبات على الحق في زمن الفتن والمغريات",
         "titleEn": "Firmness on the Truth Amidst Temptations",
-        "durationFormatted": "35:40",
+        "durationFormatted": "1:00:00",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/1-al-thabat.mp3",
         "summaryAr": "يا مقلب القلوب ثبت قلبي على دينك؛ قواعد الثبات في زمن الغربة والشهوات والشبهات."
       },
@@ -835,7 +835,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "خطبة 4: قبل الندم - اغتنام الشباب والصحة قبل الفوات",
         "titleEn": "Before Regret: Seizing Youth and Good Health",
-        "durationFormatted": "33:50",
+        "durationFormatted": "54:02",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/1-qableanadam.mp3",
         "summaryAr": "وصية شاحذة للهمم تحث على ترك الكسل والتسويف، وبناء النفس والعمل للآخرة قبل فوات الأوان."
       }
@@ -860,7 +860,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: معالم اعتقاد السلف في التوحيد والرسالة (عقيدة الرازيين ١)",
         "titleEn": "The Creed of the Early Muslims in Monotheism (Part 1)",
-        "durationFormatted": "55:10",
+        "durationFormatted": "2:08:27",
         "audioUrl": "https://archive.org/download/3azamitAllah/abo-hatem-3akedah-masr-1.mp3",
         "summaryAr": "بيان أسس العقيدة السلفية النقية في الإيمان بالله وملائكته وكتبه ورسله واليوم الآخر."
       },
@@ -869,7 +869,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: الإيمان بالقدر وحكمة الله في خلقه وأمره (عقيدة الرازيين ٢)",
         "titleEn": "Faith in Divine Decree and Divine Wisdom (Part 2)",
-        "durationFormatted": "74:45",
+        "durationFormatted": "1:35:28",
         "audioUrl": "https://archive.org/download/3azamitAllah/abo-hatem-3akedah-masr-2.mp3",
         "summaryAr": "كيف يثمر الإيمان بالقدر شجاعة في النفس وسكينة عند المصائب، وترك الجزع والاعتراض."
       },
@@ -878,7 +878,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: استعن بالله ولا تعجز - مفتاح القوة والعزيمة",
         "titleEn": "Seek Allah’s Help and Do Not Falter",
-        "durationFormatted": "31:50",
+        "durationFormatted": "1:01:51",
         "audioUrl": "https://archive.org/download/3azamitAllah/ista3in-billah-jordan.mp3",
         "summaryAr": "شرح وصية النبي ﷺ الجامعة؛ التحرر من العجز والكسل، وبذل الأسباب مع صدق التوكل."
       }
@@ -903,7 +903,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الحلقة 1: القرآن والتربية - كيف يصنع الوحي النفوس العظيمة؟",
         "titleEn": "The Quran and Soul Cultivation",
-        "durationFormatted": "38:20",
+        "durationFormatted": "37:35",
         "audioUrl": "https://archive.org/download/Mo1440abo3mr/%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D9%88%D8%A7%D9%84%D8%AA%D8%B1%D8%A8%D9%8A%D8%A9%20-%20%D8%AF.%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D8%A7%D9%86.mp3",
         "summaryAr": "أثر معايشة القرآن وتدبر آياته في تربية الإرادة وصقل الشخصية وتجاوز المغريات."
       },
@@ -912,7 +912,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الحلقة 2: كيف السبيل للفرار من الفتن في هذا الزمان؟",
         "titleEn": "How to Flee from Tribulations in Modern Times",
-        "durationFormatted": "35:45",
+        "durationFormatted": "45:21",
         "audioUrl": "https://archive.org/download/Mo1440abo3mr/%D9%83%D9%8A%D9%81%20%D8%A7%D9%84%D8%B3%D8%A8%D9%8A%D9%84%20%D9%84%D9%84%D9%81%D8%B1%D8%A7%D8%B1%20%D9%85%D9%86%20%D8%A7%D9%84%D9%81%D8%AA%D9%86%20%D9%81%D9%8A%20%D9%87%D8%B0%D8%A7%20%D8%A7%D9%84%D8%B2%D9%85%D8%A7%D9%86%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D8%A7%D9%86.mp3",
         "summaryAr": "بصائر قرآنية ونبوية في النجاة من أمواج الشبهات والشهوات وصيانة الإيمان في زمن الغربة."
       },
@@ -921,7 +921,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الحلقة 3: أولا يرون أنهم يفتنون في كل عام مرة أو مرتين - الاعتبار بالأقدار",
         "titleEn": "Taking Heed from Life Trials and Ups and Downs",
-        "durationFormatted": "42:10",
+        "durationFormatted": "45:21",
         "audioUrl": "https://archive.org/download/Mo1440abo3mr/%D8%AC%D8%A7%D9%85%D8%B9%20%D8%A7%D9%84%D9%88%D8%A7%D8%A8%D9%84%20-%20%D9%85%D8%AD%D8%A7%D8%B6%D8%B1%D8%A9%20%D8%A8%D8%B9%D9%86%D9%88%D8%A7%D9%86%20%D8%A3%D9%88%D9%84%D8%A7%20%D9%8A%D8%B1%D9%88%D9%86%20%D8%A3%D9%86%D9%87%D9%85%20%D9%8A%D9%81%D8%AA%D9%86%D9%88%D9%86%20%D9%81%D9%8A%20%D9%83%D9%84%20%D8%B9%D8%A7%D9%85%20%D9%85%D8%B1%D8%A9%20%D8%A3%D9%88%20%D9%85%D8%B1%D8%AA%D9%8A%D9%86%20%D9%84%D9%84%D8%B4%D9%8A%D8%AE%20%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D8%A7%D9%86.mp3",
         "summaryAr": "تفسير سنن الابتلاء والتمحيص، وكيف يستيقظ القلب المؤمن من غفلته ليتدارك أيامه وأهدافه."
       }
@@ -946,7 +946,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "مجلس 1: فكرة برنامج هدى للناس وتبسيط القرآن لهداية القلوب",
         "titleEn": "Introduction to Guidance for Mankind & Contemplating the Quran",
-        "durationFormatted": "12:15",
+        "durationFormatted": "12:43",
         "audioUrl": "https://archive.org/download/islampodcst-UCDlHNz7RAK0vAl5eIKNxrjg-PLx8eSI7UgsiFNFbZ6BlxZjqpGxSvM0Aq_/001%20%D9%81%D9%83%D8%B1%D8%A9%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D9%87%D8%AF%D9%89%20%D9%84%D9%84%D9%86%D8%A7%D8%B3%20%EF%BD%9C%20%D8%AA%D8%A8%D8%B3%D9%8A%D8%B7%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%D9%84%D9%87%D8%AF%D8%A7%D9%8A%D8%A9%20%D8%A7%D9%84%D9%86%D8%A7%D8%B3%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "كيف نتجاوز التلاوة العابرة إلى التلقي والعمل، ومقاصد سور القرآن في إصلاح النفس والواقع."
       },
@@ -955,7 +955,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "مجلس 2: تفسير وتدبر سورة الفاتحة - أعظم سور القرآن",
         "titleEn": "Tafsir and Contemplation of Surah Al-Fatihah",
-        "durationFormatted": "34:20",
+        "durationFormatted": "30:50",
         "audioUrl": "https://archive.org/download/islampodcst-UCDlHNz7RAK0vAl5eIKNxrjg-PLx8eSI7UgsiFNFbZ6BlxZjqpGxSvM0Aq_/002%20%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D8%AD%D8%A9%20%EF%BD%9C%20%D9%87%D8%AF%D9%89%20%D9%84%D9%84%D9%86%D8%A7%D8%B3%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "أسرار أم الكتاب ومنازل إياك نعبد وإياك نستعين وسبيل المهتدين."
       },
@@ -964,7 +964,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "مجلس 3: تفسير سورة الحجرات - دستور الأخلاق وبناء المجتمع",
         "titleEn": "Tafsir of Surah Al-Hujurat: Ethics & Community",
-        "durationFormatted": "31:45",
+        "durationFormatted": "43:07",
         "audioUrl": "https://archive.org/download/islampodcst-UCDlHNz7RAK0vAl5eIKNxrjg-PLx8eSI7UgsiFNFbZ6BlxZjqpGxSvM0Aq_/003%20%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AD%D8%AC%D8%B1%D8%A7%D8%AA%20%281%29%20%EF%BD%9C%20%D9%87%D8%AF%D9%89%20%D9%84%D9%84%D9%86%D8%A7%D8%B3%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "توقير الوحي، التثبت من الأخبار، وحفظ الأخوة الإيمانية من الظنون والغيبة."
       },
@@ -973,7 +973,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "مجلس 4: تفسير سورة ق - إيقاظ القلوب واستحضار الآخرة",
         "titleEn": "Tafsir of Surah Qaf: Awakening the Heart",
-        "durationFormatted": "33:15",
+        "durationFormatted": "35:22",
         "audioUrl": "https://archive.org/download/islampodcst-UCDlHNz7RAK0vAl5eIKNxrjg-PLx8eSI7UgsiFNFbZ6BlxZjqpGxSvM0Aq_/005%20%D8%AA%D9%81%D8%B3%D9%8A%D8%B1%20%D8%B3%D9%88%D8%B1%D8%A9%20%D9%82%20%281%29%20%EF%BD%9C%20%D8%AA%D8%AE%D8%A7%D8%B7%D8%A8%20%D9%88%D8%AA%D8%AD%D8%A7%D8%B5%D8%B1%20%D8%A7%D9%84%D9%85%D8%B9%D8%B1%D8%B6%D9%8A%D9%86%20%D8%AD%D8%AA%D9%89%20%D9%8A%D8%AA%D9%88%D8%A8%D9%88%D8%A7%20%EF%BD%9C%20%D9%87%D8%AF%D9%89%20%D9%84%D9%84%D9%86%D8%A7%D8%B3%20%EF%BD%9C%20%D8%AF%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "فذكر بالقرآن من يخاف وعيد؛ كيف تخاطب سورة ق القلوب حتى تنيب إلى ربها."
       }
@@ -998,7 +998,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الحلقة 1: مقدمة فن حسن الظن بالله وثمراته في حياة المؤمن",
         "titleEn": "Introduction to the Art of Trusting Allah",
-        "durationFormatted": "18:30",
+        "durationFormatted": "02:46",
         "audioUrl": "https://archive.org/download/hosnzan/1-%20%D9%85%D9%82%D8%AF%D9%85%D8%A9.mp3",
         "summaryAr": "تأسيس عبادة حسن الظن بالله، وكيف تغير نظرة المسلم للابتلاءات والأقدار."
       },
@@ -1007,7 +1007,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الحلقة 2: ابنِ حبك لله على أسس سليمة وتعرف على الودود جل جلاله",
         "titleEn": "Building Love of Allah on Sound Foundations",
-        "durationFormatted": "21:40",
+        "durationFormatted": "06:24",
         "audioUrl": "https://archive.org/download/hosnzan/5-%20%D8%A7%D8%A8%D9%86%20%D8%AD%D8%A8%D9%83%20%D9%84%D9%84%D9%87%20%D8%B9%D9%84%D9%89%20%D8%A3%D8%B3%D8%B3%20%D8%B3%D9%84%D9%8A%D9%85%D8%A9.mp3",
         "summaryAr": "مشاهد تودد الله لعباده بالنعم واللطف الخفي، وكيف يستجيب القلب بالمحبة والطاعة."
       },
@@ -1016,7 +1016,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الحلقة 3: استعن بالله المعين ولا تخف من عقبات الطريق",
         "titleEn": "Seek Help from Allah the Helper and Do Not Fear",
-        "durationFormatted": "26:20",
+        "durationFormatted": "07:03",
         "audioUrl": "https://archive.org/download/hosnzan/12-%20%D8%A7%D8%B3%D8%AA%D8%B9%D9%86%20%D8%A8%D8%A7%D9%84%D9%84%D9%87%20%D8%A7%D9%84%D9%85%D8%B9%D9%8A%D9%86%20%D9%88%D9%84%D8%A7%20%D8%AA%D8%AE%D9%81.mp3",
         "summaryAr": "استمداد القوة والعون من الله وحده في مواجهة المصاعب وتحديات الحياة."
       },
@@ -1025,7 +1025,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "الحلقة 4: لا تكتئب وحول الشعور السلبي إلى قوة دافعة",
         "titleEn": "Overcoming Despair & Turning Pain into Positive Drive",
-        "durationFormatted": "25:50",
+        "durationFormatted": "09:13",
         "audioUrl": "https://archive.org/download/hosnzan/14-%20%D9%84%D8%A7%20%D8%AA%D9%83%D8%AA%D8%A6%D8%A8%21.mp3",
         "summaryAr": "العلاج الإيماني والنفسي للهموم والأحزان وتحويلها إلى وقود للعمل الصالح والإنجاز."
       }
@@ -1050,7 +1050,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "مجلس 1: اصبروا وصابروا ورابطوا - ثبات القلب وعلو الهمة",
         "titleEn": "Persevere and Endure: Steadfastness & High Zeal",
-        "durationFormatted": "34:20",
+        "durationFormatted": "42:11",
         "audioUrl": "https://archive.org/download/khotab_minbriah-sh_samir-mostafa/01_Smir_Mostafa_khotab_esbero(%D8%A7%D8%B5%D8%A8%D8%B1%D9%88%D8%A7%20%D9%88%D8%B5%D8%A7%D8%A8%D9%80%D8%B1%D9%88%D8%A7).mp3",
         "summaryAr": "همة تناطح السحاب في الصبر والمصابرة والمرابطة على ثغور الطاعة والعمل."
       },
@@ -1059,7 +1059,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "مجلس 2: أهمية دراسة السيرة النبوية في بناء الذات والهمة",
         "titleEn": "Importance of Studying Seerah for Character Building",
-        "durationFormatted": "29:50",
+        "durationFormatted": "1:23:38",
         "audioUrl": "https://archive.org/download/islami-888/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20(01-%20%D8%A3%D9%87%D9%85%D9%8A%D8%A9%20%D8%AF%D8%B1%D8%A7%D8%B3%D8%A9%20%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9)%20%D9%84%D9%81%D8%B6%D9%8A%D9%84%D8%A9%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%20%D8%B3%D9%85%D9%8A%D8%B1%20%D9%85%D8%B5%D8%B7%D9%81%D9%89.mp3",
         "summaryAr": "كيف نقتبس من سيرة النبي ﷺ وأصحابه قوة العزيمة ومقارعة الصعاب."
       },
@@ -1068,7 +1068,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "مجلس 3: شرح حديث من هم بحسنة - عظمة فضل الله ومبادرة العمل",
         "titleEn": "Hadith of Good Intentions & Urgency in Righteous Deeds",
-        "durationFormatted": "37:10",
+        "durationFormatted": "1:14:46",
         "audioUrl": "https://archive.org/download/mn-hm-samir/mn-hm-samir.mp3",
         "summaryAr": "شرح حديث من هم بحسنة فلم يعملها كتبها الله عنده حسنة كاملة؛ كيف تحول النوايا إلى أجور عظيمة."
       }
@@ -1093,7 +1093,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: مدخل تأسيس وعي المسلم وفك الارتهان الحضاري",
         "titleEn": "Deconstructing Cultural Dependency",
-        "durationFormatted": "48:30",
+        "durationFormatted": "2:04:39",
         "audioUrl": "https://archive.org/download/TASES-2017/01-Tasees-2017.mp3",
         "summaryAr": "تفكيك عقدة النقص الحضارية، وموقع المسلم المعاصر من الهيمنة الفكرية الغربية، وضرورة التحرر المعرفي."
       },
@@ -1102,7 +1102,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: طبيعة الصراع ومنظومة القيم الإسلامية",
         "titleEn": "The Nature of Conflict and Islamic Values",
-        "durationFormatted": "52:10",
+        "durationFormatted": "1:57:59",
         "audioUrl": "https://archive.org/download/TASES-2017/02-Tasees-2017.mp3",
         "summaryAr": "كيف يصوغ الوحي نظرة المسلم للكون والإنسان والحياة، ومقاصد الشريعة في بناء العمران."
       },
@@ -1111,7 +1111,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: سنن التاريخ والاجتماع البشري في ضوء الوحي",
         "titleEn": "Societal Laws of History in Revelation",
-        "durationFormatted": "46:40",
+        "durationFormatted": "1:54:43",
         "audioUrl": "https://archive.org/download/TASES-2017/03-Tasees-2017.mp3",
         "summaryAr": "سنن الصعود والسقوط للأمم، ولماذا تتكرر الأخطاء عبر العصور، والوعي بالسنن الكونية."
       },
@@ -1120,7 +1120,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المحاضرة 4: بناء الشخصية المتزنة ومواجهة الاستلاب",
         "titleEn": "Balanced Character Building",
-        "durationFormatted": "54:15",
+        "durationFormatted": "1:27:55",
         "audioUrl": "https://archive.org/download/TASES-2017/04-Tasees-2017.mp3",
         "summaryAr": "التوازن بين العقل والقلب والسلوك، وحراسة الهوية في زمن السيولة الثقافية والشبهات."
       },
@@ -1129,7 +1129,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 5,
         "titleAr": "المحاضرة 5: معالم النهوض ومسؤولية الفرد المسلم",
         "titleEn": "Roadmap for Revival and Individual Duty",
-        "durationFormatted": "49:50",
+        "durationFormatted": "1:38:50",
         "audioUrl": "https://archive.org/download/TASES-2017/05-Tasees-2017.mp3",
         "summaryAr": "خارطة طريق عملية لكل شاب: التعلم الذاتي، التزكية، ونفع الأمة بالعمل المتقن."
       }
@@ -1154,7 +1154,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "مجلس 1: كيف يسمم الإلحاد القيمة والأخلاق؟ وبراهين الفطرة",
         "titleEn": "How Atheism Poisons Value and Morality",
-        "durationFormatted": "18:40",
+        "durationFormatted": "08:19",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D9%82%D9%8A%D9%85%D8%A9.mp3",
         "summaryAr": "قواعد التلقي الواعي، مناعة المسلم العقدية، والرد على الفلسفات المادية بإحكام العقل وبصيرة الفطرة."
       },
@@ -1163,7 +1163,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "مجلس 2: كيف يسمم الإلحاد العلوم؟ والبرهان العلمي على الخلق",
         "titleEn": "How Atheism Distorts Science & Proofs of Creation",
-        "durationFormatted": "21:15",
+        "durationFormatted": "09:37",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D8%B9%D9%84%D9%88%D9%85.mp3",
         "summaryAr": "تفكيك خرافة التعارض بين العلم والإيمان، وكيف يقود العلم التجريبي الصحيح إلى تعظيم الخالق."
       }
@@ -1188,7 +1188,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: معالم صناعة الاستدلال العقدي والتأصيل",
         "titleEn": "Foundations of Islamic Epistemology & Evidence",
-        "durationFormatted": "35:10",
+        "durationFormatted": "51:14",
         "audioUrl": "https://archive.org/download/sina3at_istidlal/01.mp3",
         "summaryAr": "كيف يبني المسلم عقليته الاستدلالية المتينة، الجمع بين النص الشرعي الصريح والبرهان العقلي السليم."
       },
@@ -1197,7 +1197,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: حجية السنة النبوية والرد على منكريها",
         "titleEn": "Authority of Sunnah and Refutation of Doubts",
-        "durationFormatted": "38:20",
+        "durationFormatted": "1:14:45",
         "audioUrl": "https://archive.org/download/sina3at_istidlal/02.mp3",
         "summaryAr": "مكانة السنة في التشريع، مناهج المحدثين الصارمة في التوثيق، وتفنيد شبهات القرآنيين والمشككين."
       },
@@ -1206,7 +1206,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: أصول ترسيخ اليقين ومواجهة الشبهات المعاصرة",
         "titleEn": "Principles of Firm Conviction in Digital Age",
-        "durationFormatted": "33:45",
+        "durationFormatted": "51:49",
         "audioUrl": "https://archive.org/download/sina3at_istidlal/03.mp3",
         "summaryAr": "معالم الثبات الفكري في عصر الانفتاح الرقمي، وصناعة المحاور المسلم القادر على نصرة دينه بالحجة."
       }
@@ -1231,7 +1231,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الحلقة 1: قصة نبي الله آدم عليه السلام وبداية الخلق والاستخلاف",
         "titleEn": "Story of Prophet Adam and the Beginning of Creation",
-        "durationFormatted": "42:30",
+        "durationFormatted": "1:49:02",
         "audioUrl": "https://archive.org/download/20251028_20251028_0842/%D8%A2%D8%AF%D9%85%20%D8%B9%D9%84%D9%8A%D9%87%20%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85.mp3",
         "summaryAr": "سرد قصصي مؤثر لخلق آدم عليه السلام، عداوة إبليس، ودرس التوبة والإنابة إلى الله عز وجل."
       },
@@ -1240,7 +1240,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الحلقة 2: قصة كليم الله موسى عليه السلام ومواجهة الطغيان",
         "titleEn": "Story of Prophet Moses: Confronting Tyranny",
-        "durationFormatted": "54:15",
+        "durationFormatted": "1:51:06",
         "audioUrl": "https://archive.org/download/20240428_20240428_0452/%D9%82%D8%B5%D8%B5%20%20%D9%85%D9%88%D8%B3%D9%89%20%D8%B9%D9%84%D9%8A%D9%87%20%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%20%D8%A8%D8%AF%D8%B1%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A%20-%20%D9%85%D8%AA%D8%B9%D8%A8%20%D8%B9%D9%84%D9%8A%20%D8%A7%D9%84%D8%B5%D8%A8%D9%8A%D8%AD%D9%8A.mp3",
         "summaryAr": "نشأة موسى عليه السلام، يقينه التام بوعد الله: «كلا إن معي ربي سيهدين»، وهلاك فرعون وجنوده."
       },
@@ -1249,7 +1249,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الحلقة 3: أحسن القصص - قصة الصديق يوسف عليه السلام",
         "titleEn": "The Best of Stories: Prophet Yusuf (Joseph)",
-        "durationFormatted": "48:50",
+        "durationFormatted": "2:08:08",
         "audioUrl": "https://archive.org/download/256-kbps-ss.shabakngy.com_202404/%D8%A3%D8%AD%D8%B3%D9%86%20%D8%A7%D9%84%D9%82%D8%B5%D8%B5_%20%D9%82%D8%B5%D8%A9%20%D9%8A%D9%88%D8%B3%D9%81%20%D8%B9%D9%84%D9%8A%D9%87%20%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20_%20%D8%A8%D8%AF%D8%B1%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A%20%28256%20%20kbps%29%20%28ss.shabakngy.com%29.mp3",
         "summaryAr": "الصبر على البلاء، العفة في الشباب، وكيف يرفع الله عباده الصادقين من غيابت الجب إلى التمكين."
       }
@@ -1274,7 +1274,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الحلقة 1: سيرة الفاروق عمر بن الخطاب رضي الله عنه ومعالم العدل والعزة",
         "titleEn": "Al-Faruq Umar ibn Al-Khattab: Justice and Honor",
-        "durationFormatted": "47:50",
+        "durationFormatted": "43:59",
         "audioUrl": "https://archive.org/download/moh_said_2/13.mp3",
         "summaryAr": "دروس عظيمة من سيرة الفاروق عمر رضي الله عنه، هيبته في الحق، وعدله الذي ملأ الآفاق."
       },
@@ -1283,7 +1283,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الحلقة 2: سيرة الصحابي الجليل سعد بن عبادة رضي الله عنه وبذل الأنصار",
         "titleEn": "Sa'd ibn Ubadah: Generosity & Heroism of the Ansar",
-        "durationFormatted": "29:15",
+        "durationFormatted": "21:43",
         "audioUrl": "https://archive.org/download/Mohamed-Sayed-Hajj/%D8%B3%D8%B9%D8%AF%20%D8%A8%D9%86%20%D8%B9%D8%A8%D8%A7%D8%AF%D8%A9.mp3",
         "summaryAr": "شجاعة سيد الخزرج سعد بن عبادة رضي الله عنه، كرمه الفياض، ونصرته لرسول الله ﷺ."
       },
@@ -1292,7 +1292,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الحلقة 3: ملحمة معركة القادسية وبطولات فرسان الصحابة",
         "titleEn": "Battle of Al-Qadisiyyah & Heroism of the Companions",
-        "durationFormatted": "45:20",
+        "durationFormatted": "48:04",
         "audioUrl": "https://archive.org/download/Mohamed-Sayed-Hajj/%D9%85%D8%B9%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D9%82%D8%A7%D8%AF%D8%B3%D9%8A%D8%A9.mp3",
         "summaryAr": "فداء الصحابة تحت راية سعد بن أبي وقاص، عزة ربعي بن عامر، وكسر عرش كسرى بنور التوحيد."
       }
@@ -1317,7 +1317,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: حقيقة التوحيد وأقسامه الثلاثة في الكتاب والسنة",
         "titleEn": "The Reality and Categories of Monotheism",
-        "durationFormatted": "51:50",
+        "durationFormatted": "56:13",
         "audioUrl": "https://archive.org/download/Ibn_Baz_uP_bY_mUSLEm/009-_uP_bY_mUSLEm.mp3",
         "summaryAr": "بيان توحيد الربوبية والألوهية والأسماء والصفات، ولماذا خلق الله الثقلين، وعظمة كلمة الإخلاص."
       },
@@ -1326,7 +1326,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: الصلاة وعظم شأنها في الإسلام والتحذير من التهاون فيها",
         "titleEn": "Importance of Congregational Prayer",
-        "durationFormatted": "32:20",
+        "durationFormatted": "55:44",
         "audioUrl": "https://archive.org/download/Ibn_Baz_uP_bY_mUSLEm/013-_up_by_muslem.mp3",
         "summaryAr": "الصلاة عمود الإسلام وعهد الإيمان؛ أدلتها ووجوب أدائها في المساجد مع المسلمين في أوقاتها."
       },
@@ -1335,7 +1335,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: السنة ومكانتها في الإسلام والحذر من المحدثات",
         "titleEn": "Adhering to the Sunnah and Early Predecessors",
-        "durationFormatted": "55:10",
+        "durationFormatted": "46:13",
         "audioUrl": "https://archive.org/download/Ibn_Baz_uP_bY_mUSLEm/012-_up_by_muslem.mp3",
         "summaryAr": "عليكم بسنتي وسنة الخلفاء الراشدين؛ ضبط العمل بميزان الاتباع وترك الابتداع في الدين."
       }
@@ -1360,7 +1360,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: التوحيد أولاً ومنهاج التصفية والتربية",
         "titleEn": "Tawheed First: Purification and Cultivation",
-        "durationFormatted": "51:50",
+        "durationFormatted": "45:16",
         "audioUrl": "https://archive.org/download/Ashrita_motanawi3a_sheikh_Al-Albany___uploaded_by_Abu-Ahmad-S-A/001.albany_tawheed1.mp3",
         "summaryAr": "كيف تعود الأمة لعزتها؟ التصفية بنفي الدخيل عن الإسلام، والتربية بتنشئة الجيل على الدين الصافي."
       },
@@ -1369,7 +1369,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: تجريد الاتباع لرسول الله ﷺ ونبذ التعصب المذهبي",
         "titleEn": "Sincere Following of Revelation vs Fanaticism",
-        "durationFormatted": "63:40",
+        "durationFormatted": "43:59",
         "audioUrl": "https://archive.org/download/Ashrita_motanawi3a_sheikh_Al-Albany___uploaded_by_Abu-Ahmad-S-A/031.albany_ettebaa_a_1.mp3",
         "summaryAr": "أقوال الأئمة الأربعة في وجوب تقديم الحديث الصحيح على أقوال الرجال، وروح التفقه الدقيق في الدليل."
       },
@@ -1378,7 +1378,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: من فقه الصلاة وصفة صلاة النبي ﷺ الصحيحة",
         "titleEn": "The Prophet's Prayer Described",
-        "durationFormatted": "60:15",
+        "durationFormatted": "28:34",
         "audioUrl": "https://archive.org/download/Ashrita_motanawi3a_sheikh_Al-Albany___uploaded_by_Abu-Ahmad-S-A/005.albany_minfiqhsalah1.mp3",
         "summaryAr": "صلوا كما رأيتموني أصلي؛ تفاصيل حركات الصلاة وسكناتها بالروايات الصحيحة لتعظيم الخشوع."
       }
@@ -1403,7 +1403,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: مدخل في دراسة العقيدة السلفية وأسباب الانحراف",
         "titleEn": "Fundamentals of Orthodox Creed and Causes of Deviation",
-        "durationFormatted": "48:15",
+        "durationFormatted": "1:08:29",
         "audioUrl": "https://archive.org/download/006_20240819/001.mp3",
         "summaryAr": "أهمية فهم التوحيد كما فهمه الصحابة والتابعون، وأثر الفلسفات الدخيلة في تشتيت عقلية المسلم."
       },
@@ -1412,7 +1412,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: حقيقة الإيمان بين قول اللسان وعمل الجوارح",
         "titleEn": "The Nature of Faith: Belief, Words & Actions",
-        "durationFormatted": "45:30",
+        "durationFormatted": "42:15",
         "audioUrl": "https://archive.org/download/006_20240819/002.mp3",
         "summaryAr": "الإيمان قول وعمل يزيد بالطاعة وينقص بالمعصية؛ نقد الإرجاء والتأكيد على روح المبادرة والجهاد والعمل."
       },
@@ -1421,7 +1421,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: علو الهمة وعزة المسلم برسالته أمام الحضارات",
         "titleEn": "High Zeal and Honor in Islamic Heritage",
-        "durationFormatted": "50:20",
+        "durationFormatted": "1:25:53",
         "audioUrl": "https://archive.org/download/006_20240819/003.mp3",
         "summaryAr": "كيف تبنى الأمة القوية الشجاعة، والتخلص من التبعية الفكرية باستمداد النور من الوحي الإلهي."
       }
@@ -1446,7 +1446,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: زاد الإيمان وعظمة الوقوف بين يدي الرحمن",
         "titleEn": "Provision of Faith & Standing Before the Creator",
-        "durationFormatted": "61:20",
+        "durationFormatted": "1:20:47",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/022-zad_aleman.mp3",
         "summaryAr": "قد أفلح المؤمنون الذين هم في صلاتهم خاشعون؛ التزود بالتقوى واستحضار جلال الرب."
       },
@@ -1455,7 +1455,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: كيف ترق قلوبنا؟ أسباب حياة القلب والخشوع",
         "titleEn": "How Our Hearts Soften: Causes of Spiritual Life",
-        "durationFormatted": "58:15",
+        "durationFormatted": "22:38",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/024_MMMShnqitti_KyfaTerquAlQalob.mp3",
         "summaryAr": "أقرب ما يكون العبد من ربه وهو ساجد؛ لذة انكسار القلب للحي القيوم ومواطن رقة القلوب."
       },
@@ -1464,7 +1464,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: النجاة من المعاصي وحسن الظن بالله وملازمة الاستغفار",
         "titleEn": "Deliverance from Sins & Good Expectation of Allah",
-        "durationFormatted": "54:40",
+        "durationFormatted": "1:30:59",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/013elngaamnelmasee.mp3",
         "summaryAr": "سعة رحمة الله للتائبين، كيف يزيل الذكر قسوة القلب ويملأ الصدر سكينة وأمناً ورضا."
       }
@@ -1489,7 +1489,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: تذوق العبادات (1) - كيف تتحول الصلاة إلى قرة عين؟",
         "titleEn": "Tasting the Sweetness of Worship: Prayer",
-        "durationFormatted": "63:20",
+        "durationFormatted": "2:12:48",
         "audioUrl": "https://archive.org/download/36-1-.-63-aocldy-xo/%D9%81%D8%A7%D9%87%D9%85%2036%20_%20%D8%B3%D9%84%D8%B3%D9%84%D8%A9%20%D8%AA%D8%B0%D9%88%D9%82%20%D8%A7%D9%84%D8%B9%D8%A8%D8%A7%D8%AF%D8%A7%D8%AA%20-%20%281%29%20%D8%A7%D9%84%D8%B5%D9%84%D8%A7%D8%A9%20_%20%D9%85%D8%B9%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%20%5B63_AOCldyXo%5D.mp3",
         "summaryAr": "حوار عميق في استشعار لذة الوقوف بين يدي الله وكسر فتور العادة في أداء الصلوات."
       },
@@ -1498,7 +1498,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: نشأة الهمة وطلب العلم - من سيرة الإمام الشافعي (1)",
         "titleEn": "Developing High Zeal in Seeking Knowledge (Part 1)",
-        "durationFormatted": "41:45",
+        "durationFormatted": "29:44",
         "audioUrl": "https://archive.org/download/khaled_alridwany_3_20150411/1.mp3",
         "summaryAr": "كيف يصنع الصبر والرحلة في طلب العلم شخصية المسلم القوية المؤثرة في أمتها."
       },
@@ -1507,7 +1507,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: فقه النصرة وبناء الذات العلمية - من سيرة الإمام الشافعي (2)",
         "titleEn": "Supporting the Sunnah & Building Intellectual Grit (Part 2)",
-        "durationFormatted": "44:10",
+        "durationFormatted": "28:11",
         "audioUrl": "https://archive.org/download/khaled_alridwany_3_20150411/2.mp3",
         "summaryAr": "تجريد القصد لله عز وجل والجمع بين الفقه والأدب والعمل الصالح."
       }
@@ -1532,7 +1532,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: مقدمة - استعادة الثقة بالله واليقين بمنهج الوحي",
         "titleEn": "Restoring Trust and Certainty in Divine Guidance",
-        "durationFormatted": "38:40",
+        "durationFormatted": "1:07:03",
         "audioUrl": "https://archive.org/download/05_20200814_20200814_0611/01-%20%D9%85%D9%82%D8%AF%D9%85%D8%A9%20-%20%D8%A7%D8%B3%D8%AA%D8%B9%D8%A7%D8%AF%D8%A9%20%D8%A7%D9%84%D8%AB%D9%82%D8%A9.mp3",
         "summaryAr": "كيف يستعيد المسلم ثقته بربه ودينه في مواجهة موجات التشكيك والفتور."
       },
@@ -1541,7 +1541,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: ما قدروا الله حق قدره - تعظيم الخالق في القلوب",
         "titleEn": "Venerating Allah as He Deserves to Be Venerated",
-        "durationFormatted": "42:15",
+        "durationFormatted": "1:07:57",
         "audioUrl": "https://archive.org/download/05_20200814_20200814_0611/04-%20%D9%85%D8%A7%20%D9%82%D8%AF%D8%B1%D9%88%D8%A7%20%D8%A7%D9%84%D9%84%D9%87%20%D8%AD%D9%82%20%D9%82%D8%AF%D8%B1%D9%87.mp3",
         "summaryAr": "أصل كل انحراف أو فتور هو ضعف تعظيم الله في القلب؛ كيف نحيي هيبة الله ومحبته."
       },
@@ -1550,7 +1550,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: تصحيح تصورات الالتزام وعلاج خواء الجوف",
         "titleEn": "Correcting Misconceptions of Religious Commitment",
-        "durationFormatted": "36:50",
+        "durationFormatted": "43:20",
         "audioUrl": "https://archive.org/download/05_20200814_20200814_0611/06-%20%D8%AA%D8%B5%D8%AD%D9%8A%D8%AD%20%D8%AA%D8%B5%D9%88%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D8%A7%D9%84%D8%AA%D8%B2%D8%A7%D9%85.mp3",
         "summaryAr": "الانتقال من الالتزام المظهري الأجوف إلى عمق العبودية وصدق المعاملة مع الله."
       }
@@ -1575,7 +1575,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: قواعد التفكير المنطقي السليم في ضوء الوحي",
         "titleEn": "Rules of Sound Logical Thinking in the Light of Revelation",
-        "durationFormatted": "35:10",
+        "durationFormatted": "1:13:50",
         "audioUrl": "https://archive.org/download/islampodcst-UCCy0qwIz722Gi2MtjYlrQeg-PLnpYU8_AiEPc2iOrUi2wv8GHhKaCuHPJd/001_%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%AA%D9%81%D9%83%D9%8A%D8%B1%20%D8%A7%D9%84%D9%85%D9%86%D8%B7%D9%82%D9%8A%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "كيف يبني القرآن عقلية برهانية مستقيمة تزن الأمور بميزان الحق والهدى."
       },
@@ -1584,7 +1584,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: أهمية التواجد في بيئة الإيمان والصحبة الصالحة",
         "titleEn": "Importance of Dwelling in an Environment of Faith",
-        "durationFormatted": "34:00",
+        "durationFormatted": "1:36:29",
         "audioUrl": "https://archive.org/download/islampodcst-UCCy0qwIz722Gi2MtjYlrQeg-PLnpYU8_AiEPc2iOrUi2wv8GHhKaCuHPJd/002_%D8%A3%D9%87%D9%85%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AA%D9%88%D8%A7%D8%AC%D8%AF%20%D9%81%D9%8A%20%D8%A8%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%A5%D9%8A%D9%85%D8%A7%D9%86%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "واصبر نفسك مع الذين يدعون ربهم؛ أثر المحيط الإيماني في تثبيت القلب ومضاعفة الهمة."
       },
@@ -1593,7 +1593,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: معاني الرجولة الحقيقية في القرآن الكريم",
         "titleEn": "True Meanings of Manhood in the Holy Quran",
-        "durationFormatted": "41:30",
+        "durationFormatted": "1:10:33",
         "audioUrl": "https://archive.org/download/islampodcst-UCCy0qwIz722Gi2MtjYlrQeg-PLnpYU8_AiEPc2iOrUi2wv8GHhKaCuHPJd/004_%D9%85%D8%B9%D8%A7%D9%86%D9%8A%20%D8%A7%D9%84%D8%B1%D8%AC%D9%88%D9%84%D8%A9%20%D9%81%D9%8A%20%D8%A7%D9%84%D9%82%D8%B1%D8%A2%D9%86%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "رجال صدقوا ما عاهدوا الله عليه؛ صفات القوة، الأمانة، والثبات على المبدأ في كتاب الله."
       }
@@ -1618,7 +1618,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: اللياقة الإيمانية وكيف يستعيد القلب قوته وحيويته؟",
         "titleEn": "Spiritual Fitness & Restoring Heart Vitality",
-        "durationFormatted": "37:40",
+        "durationFormatted": "45:05",
         "audioUrl": "https://archive.org/download/islampodcst-UCCy0qwIz722Gi2MtjYlrQeg-PLnpYU8_AiEPc2iOrUi2wv8GHhKaCuHPJd/008_%D8%A7%D9%84%D9%84%D9%8A%D8%A7%D9%82%D8%A9%20%D8%A7%D9%84%D8%A5%D9%8A%D9%85%D8%A7%D9%86%D9%8A%D8%A9%20%EF%BD%9C%20%D8%AE%D8%B7%D8%A8%D8%A9%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "كما يحتاج الجسد إلى تمرين مستمر، يحتاج القلب إلى لياقة إيمانية تعصمه من الانهيار عند الفتن."
       },
@@ -1627,7 +1627,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: ضبط المشاعر الإنسانية على المعايير الشرعية",
         "titleEn": "Aligning Human Emotions with Divine Standards",
-        "durationFormatted": "42:15",
+        "durationFormatted": "38:05",
         "audioUrl": "https://archive.org/download/islampodcst-UCCy0qwIz722Gi2MtjYlrQeg-PLnpYU8_AiEPc2iOrUi2wv8GHhKaCuHPJd/009_%D8%B6%D8%A8%D8%B7%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B9%D8%B1%20%D8%A7%D9%84%D8%A5%D9%86%D8%B3%D8%A7%D9%86%D9%8A%D8%A9%20%D8%B9%D9%84%D9%89%20%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D9%8A%D9%8A%D8%B1%20%D8%A7%D9%84%D8%B4%D8%B1%D8%B9%D9%8A%D8%A9%20%EF%BD%9C%20%D8%AE%D8%B7%D8%A8%D8%A9%20%EF%BD%9C%20%D8%AF.%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%85%D9%86%D8%B9%D9%85.mp3",
         "summaryAr": "تهذيب الغضب والحزن والفرح والخوف لتكون كلها محكومة بهدي القرآن والسنة."
       }
@@ -1652,7 +1652,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: قراءة سنن التاريخ والتحولات الحضارية (المجلس السادس)",
         "titleEn": "Reading Historical Laws & Civilizational Shifts",
-        "durationFormatted": "56:30",
+        "durationFormatted": "1:48:35",
         "audioUrl": "https://archive.org/download/TASES-2017/06-Tasees-2017.mp3",
         "summaryAr": "التاريخ ليس ركاماً من الأخبار؛ بل سنن ربانية ماضية تحكم صعود الحضارات وسقوطها."
       },
@@ -1661,7 +1661,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: بنية المجتمع المسلم ومؤسسات الأمة التاريخية (المجلس السابع)",
         "titleEn": "Structure of Muslim Society & Historic Institutions",
-        "durationFormatted": "58:10",
+        "durationFormatted": "1:32:02",
         "audioUrl": "https://archive.org/download/TASES-2017/07-Tasees-2017.mp3",
         "summaryAr": "كيف حفظت الأوقاف والعلماء والأمة استقلالية المجتمع المسلم عبر القرون."
       },
@@ -1670,7 +1670,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: الصدمة الحضارية الحديثة وجذور التغريب (المجلس الثامن)",
         "titleEn": "Modern Civilizational Shock & Roots of Westernization",
-        "durationFormatted": "52:45",
+        "durationFormatted": "1:50:28",
         "audioUrl": "https://archive.org/download/TASES-2017/08-Tasees-2017.mp3",
         "summaryAr": "تحليل دقيق لكيفية تغلغل الاستعمار الثقافي وتفكيك منظومات التعليم والقضاء."
       },
@@ -1679,7 +1679,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المحاضرة 4: آفاق النهوض واستعادة الفاعلية الحضارية (المجلس التاسع)",
         "titleEn": "Horizons of Revival & Reclaiming Civilizational Agency",
-        "durationFormatted": "59:20",
+        "durationFormatted": "2:11:02",
         "audioUrl": "https://archive.org/download/TASES-2017/09-Tasees-2017.mp3",
         "summaryAr": "مسالك استعادة السيادة المعرفية والحضارية وبناء الإنسان المسلم الفاعل."
       }
@@ -1704,7 +1704,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: كيف تُصنع الآراء وتُوجه عقول الجماهير؟",
         "titleEn": "Manufacturing Public Opinion",
-        "durationFormatted": "48:15",
+        "durationFormatted": "1:46:55",
         "audioUrl": "https://archive.org/download/NAFS-2017/01-NAFS.mp3",
         "summaryAr": "دراسة نقدية لكتاب سيكولوجية الجماهير لغوستاف لوبون ومقارنته بالهدي القرآني في التبين والتثبت."
       },
@@ -1713,7 +1713,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: التحرر من قطيع الرأي والتبعية الساذجة",
         "titleEn": "Liberation from Herd Mentality",
-        "durationFormatted": "51:40",
+        "durationFormatted": "1:53:42",
         "audioUrl": "https://archive.org/download/NAFS-2017/02-NAFS.mp3",
         "summaryAr": "لا تكن إمعة إن أحسن الناس أحسنت وإن أساؤوا أسأت؛ توطين النفس على الحق والعدل."
       },
@@ -1722,7 +1722,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: تفكيك الخطاب الدعائي ووسائل الإقناع الخفية",
         "titleEn": "Deconstructing Propaganda Tactics",
-        "durationFormatted": "49:00",
+        "durationFormatted": "2:00:01",
         "audioUrl": "https://archive.org/download/NAFS-2017/03-NAFS.mp3",
         "summaryAr": "رصد الحيل البلاغية والمغالطات المنطقية التي تُستخدم لتزييف وعي الشعوب والمجتمعات."
       }
@@ -1756,7 +1756,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: معايير اختيار شريك الحياة: تنكح المرأة لأربع وحقيقة الدين والخلق",
         "titleEn": "Criteria for Choosing a Spouse: Deen & Character",
-        "durationFormatted": "103:04",
+        "durationFormatted": "1:43:04",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/02.mp3",
         "summaryAr": "فاظفر بذات الدين تربت يداك؛ إذا أتاكم من ترضون دينه وخلقه؛ كيف تختبر الأثر العملي للتدين والخلق قبل الزواج."
       },
@@ -1765,7 +1765,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: فقه الخطبة والرؤية الشرعية وضوابط التعارف قبل العقد",
         "titleEn": "Engagement Fiqh & Legitimate Courtship Boundaries",
-        "durationFormatted": "142:15",
+        "durationFormatted": "2:22:16",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/03.mp3",
         "summaryAr": "الرؤية الشرعية، الأسئلة الجوهرية لمعرفة نمط الشخصية والتوافق الفكري والتربوي دون تجاوز الحدود الشرعية."
       },
@@ -1774,7 +1774,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المحاضرة 4: بناء البيت المسلم وتوزيع الأدوار والمسؤوليات بين الزوجين",
         "titleEn": "Building the Muslim Home: Roles & Responsibilities",
-        "durationFormatted": "135:48",
+        "durationFormatted": "2:15:48",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/04.mp3",
         "summaryAr": "مفهوم القوامة العادلة، رعاية البيت، الحقوق والواجبات المتبادلة وتجنب صراع الأدوار المستورد."
       },
@@ -1783,7 +1783,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 5,
         "titleAr": "المحاضرة 5: إدارة الخلافات الزوجية وفن حل المشكلات وتجنب الطلاق",
         "titleEn": "Conflict Management & Problem Solving in Marriage",
-        "durationFormatted": "109:42",
+        "durationFormatted": "1:49:42",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/05.mp3",
         "summaryAr": "كيف تحاصر الخلاف في مهده؟ الصبر على الطباع المختلفة، فضيلة التغافل، وحفظ أسرار البيوت."
       },
@@ -1792,7 +1792,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 6,
         "titleAr": "المحاضرة 6: تربية الأبناء وبناء المناعة الإيمانية والأخلاقية في البيت",
         "titleEn": "Parenting & Building Moral Immunity in Children",
-        "durationFormatted": "106:36",
+        "durationFormatted": "1:46:37",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/06.mp3",
         "summaryAr": "أصول التربية الإيمانية، القدوة الصامتة، حماية الأبناء من الانحرافات المعاصرة وبناء شخصية مسلمة قوية."
       },
@@ -1801,7 +1801,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 7,
         "titleAr": "المحاضرة 7: صيانة ميزانية الأسرة وفقه الاقتصاد المنزلي والقناعة",
         "titleEn": "Family Budget, Home Economics & Contentment",
-        "durationFormatted": "103:36",
+        "durationFormatted": "1:43:36",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/07.mp3",
         "summaryAr": "التدبير المالي في البيت المسلم، تجنب التبذير والديون، وبركة الرزق الحلال والتكافل الأسري."
       },
@@ -1810,7 +1810,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 8,
         "titleAr": "المحاضرة 8: حفظ ميثاق الزوجية وتوريث القيم للأجيال وصناعة الأثر",
         "titleEn": "Preserving the Marital Covenant & Transmitting Values",
-        "durationFormatted": "130:16",
+        "durationFormatted": "2:10:17",
         "audioUrl": "https://archive.org/download/03_20191120_20191120/08.mp3",
         "summaryAr": "الميثاق الغليظ؛ كيف تصنع من بيتك محراباً للعلم والعبادة، وثمرة الاستقرار الأسري على نهضة الأمة."
       }
@@ -1835,7 +1835,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: فقه التسليم لله عند اشتداد الأزمات (بنود الحديبية)",
         "titleEn": "Submission to Allah Amidst Crises",
-        "durationFormatted": "33:15",
+        "durationFormatted": "16:28",
         "audioUrl": "https://archive.org/download/media-way2allah-_3780/bnwd_alslh_alhdebea_alshekh_ahmd_smer_h17_-_knaa_alnde_alfdaeaea.mp3",
         "summaryAr": "كيف يتعامل المؤمن مع الأقدار التي يظهر في بدايتها العسر وفي باطنها الفتح المبين."
       },
@@ -1844,7 +1844,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: الصبر والاحتساب عند الفتن (يا أبا جندل اصبر واحتسب)",
         "titleEn": "Patience and Seeking Reward in Tribulations",
-        "durationFormatted": "29:40",
+        "durationFormatted": "15:54",
         "audioUrl": "https://archive.org/download/media-way2allah-_3791/ea_aba_gndl_asbr_wahtsb_alhdebea_alshekh_ahmd_smer_h18_-_knaa_alnde_alfdaeaea.mp3",
         "summaryAr": "تثبيت القلوب المبتلاة واليقين بأن الله جاعل للمتقين فرجاً ومخرجاً."
       }
@@ -1869,7 +1869,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: الدواء النبوي لثبات القلب عند تأخر الفرج",
         "titleEn": "Prophetic Remedy for Steadfastness When Relief Delays",
-        "durationFormatted": "29:40",
+        "durationFormatted": "15:54",
         "audioUrl": "https://archive.org/download/media-way2allah-_3791/ea_aba_gndl_asbr_wahtsb_alhdebea_alshekh_ahmd_smer_h18_-_knaa_alnde_alfdaeaea.mp3",
         "summaryAr": "مغالبة اليأس والفتور واستحضار وعد الله الصادق لعباده الصابرين."
       },
@@ -1878,7 +1878,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: اتهام الرأي أمام الوحي والانقياد الكامل للشريعة",
         "titleEn": "Submitting Personal Opinion to Divine Revelation",
-        "durationFormatted": "33:15",
+        "durationFormatted": "16:28",
         "audioUrl": "https://archive.org/download/media-way2allah-_3780/bnwd_alslh_alhdebea_alshekh_ahmd_smer_h17_-_knaa_alnde_alfdaeaea.mp3",
         "summaryAr": "كيف يورث التسليم للشرع طمأنينة في النفس وانشراحاً في الصدر."
       }
@@ -1903,7 +1903,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: نشأة الإمام الشافعي وهمته المبكرة في حفظ العلم واللغة",
         "titleEn": "Upbringing of Imam Al-Shafi'i & Early Zeal",
-        "durationFormatted": "41:45",
+        "durationFormatted": "29:44",
         "audioUrl": "https://archive.org/download/khaled_alridwany_3_20150411/1.mp3",
         "summaryAr": "كيف صنعت الأم الصالحة والهمة العالية إماماً من أئمة المسلمين."
       },
@@ -1912,7 +1912,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: رحلة الشافعي إلى الإمام مالك والجمع بين الفقه والحديث",
         "titleEn": "Al-Shafi'i's Journey to Imam Malik: Fiqh & Hadith",
-        "durationFormatted": "44:10",
+        "durationFormatted": "28:11",
         "audioUrl": "https://archive.org/download/khaled_alridwany_3_20150411/2.mp3",
         "summaryAr": "أدب المتعلم مع شيخه، والجمع بين مدرسة الحجاز ومدرسة العراق."
       },
@@ -1921,7 +1921,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: ناصر السنة وتأسيس علم أصول الفقه والرسالة",
         "titleEn": "Defender of Sunnah & Founding Usul Al-Fiqh",
-        "durationFormatted": "43:20",
+        "durationFormatted": "30:03",
         "audioUrl": "https://archive.org/download/khaled_alridwany_3_20150411/3.mp3",
         "summaryAr": "مناظرات الشافعي العلمية، دفاعه عن حجية السنة، وتأليفه لكتاب الرسالة."
       },
@@ -1930,7 +1930,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "الدرس 4: عبادة الإمام الشافعي، زهده، وحكمه الخالدة",
         "titleEn": "Worship, Asceticism & Timeless Wisdom of Al-Shafi'i",
-        "durationFormatted": "45:50",
+        "durationFormatted": "26:05",
         "audioUrl": "https://archive.org/download/khaled_alridwany_3_20150411/4.mp3",
         "summaryAr": "تقسيم الشافعي لليله بين العلم والصلاة والنوم، ووصاياه الذهبية لطلاب الحق."
       }
@@ -1955,7 +1955,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "البرهان 1: كيف تستهدف الشبهات المتدينين؟ وسبل الوقاية",
         "titleEn": "How Doubts Target Practicing Believers & Prevention",
-        "durationFormatted": "19:20",
+        "durationFormatted": "08:21",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D9%85%D8%AA%D8%AF%D9%8A%D9%86%D9%8A%D9%86.mp3",
         "summaryAr": "خطورة التعرض للشبهات دون تأصيل علمي، وكيف يحفظ المسلم قلبه بالوحي."
       },
@@ -1964,7 +1964,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "البرهان 2: كيف يسمم الإلحاد عقول المثقفين؟ ونقد التبعية الفكرية",
         "titleEn": "Deconstructing Materialist Influence on Intellectuals",
-        "durationFormatted": "21:10",
+        "durationFormatted": "11:42",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D9%85%D8%AB%D9%82%D9%81%D9%8A%D9%86.mp3",
         "summaryAr": "كشف المغالطات الفلسفية التي ينخدع بها بعض المثقفين، وعظمة المنهج المعرفي الإسلامي."
       },
@@ -1973,7 +1973,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "البرهان 3: كيف يدمر الإلحاد الشعوب والمجتمعات الإنسانية؟",
         "titleEn": "Impact of Materialism on Societies and Nations",
-        "durationFormatted": "20:50",
+        "durationFormatted": "12:21",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D8%B4%D8%B9%D9%88%D8%A8.mp3",
         "summaryAr": "الأثر التدميري لغياب الإيمان بالله واليوم الآخر على الأسرة والأخلاق والأمن المجتمعي."
       }
@@ -1998,7 +1998,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الحلقة 1: كيف يسمم الإلحاد حياة الملحدين أنفسهم؟ وأزمة المعنى",
         "titleEn": "The Crisis of Meaning in Materialist Nihilism",
-        "durationFormatted": "22:30",
+        "durationFormatted": "11:24",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D9%85%D9%84%D8%AD%D8%AF%D9%8A%D9%86.mp3",
         "summaryAr": "الفراغ الوجودي والعدمية التي يقود إليها إنكار الخالق، وكيف يمنح الإيمان السكينة والمعنى."
       },
@@ -2007,7 +2007,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الحلقة 2: برهان العلوم التجريبية ودلالات التصميم في الكون",
         "titleEn": "Empirical Science & Signs of Cosmic Design",
-        "durationFormatted": "21:15",
+        "durationFormatted": "09:37",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D8%B9%D9%84%D9%88%D9%85.mp3",
         "summaryAr": "المعلومة والنظام لا ينشآن من العدم؛ دلالات العلم على العلم الأزلي المحيط."
       },
@@ -2016,7 +2016,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الحلقة 3: الأخلاق الموضوعية والضمير الإنساني الفطري",
         "titleEn": "Objective Morality & Innate Conscience",
-        "durationFormatted": "18:40",
+        "durationFormatted": "08:19",
         "audioUrl": "https://archive.org/download/20200703_20200703_1945/%D9%82%D9%86%D8%A7%D8%A9_%D8%A7%D9%84%D8%A8%D9%8A%D9%86%D8%A9_%D9%84%D9%85%D9%82%D8%A7%D8%B1%D9%86%D8%A9_%D8%A7%D9%84%D8%A3%D8%AF%D9%8A%D8%A7%D9%86_%D9%88%D8%A7%D9%84%D8%B1%D8%AF_%D8%B9%D9%84%D9%89_%D8%A7%D9%84%D8%B4%D8%A8%D9%87%D8%A7%D8%AA_%D8%A7%D9%84%D8%A5%D9%84%D8%AD%D8%A7%D8%AF_%D9%8A%D8%B3%D9%85%D9%85_%D8%A7%D9%84%D9%82%D9%8A%D9%85%D8%A9.mp3",
         "summaryAr": "لماذا يميز الإنسان بين الخير والشر؟ انهيار التفسير المادي للأخلاق والضمير."
       }
@@ -2041,7 +2041,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: ضرورة السنة لفهم القرآن واستحالة الاستغناء عنها",
         "titleEn": "Why Sunnah is Essential to Understand the Quran",
-        "durationFormatted": "46:15",
+        "durationFormatted": "51:14",
         "audioUrl": "https://archive.org/download/sina3at_istidlal/01.mp3",
         "summaryAr": "كيف نصلي ونزكي ونحج دون تفصيل السنة؟ الرد الصارم على شبهات القرآنيين المعاصرين."
       },
@@ -2050,7 +2050,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: علم مصطلح الحديث والمنهج النقدي الفريد للمحدثين",
         "titleEn": "Critical Methodology of Hadith Scholars",
-        "durationFormatted": "49:30",
+        "durationFormatted": "1:14:45",
         "audioUrl": "https://archive.org/download/sina3at_istidlal/02.mp3",
         "summaryAr": "توثيق الأسانيد والرواة؛ أعظم منهج تاريخي لتوثيق النصوص عرفته البشرية قاطبة."
       },
@@ -2059,7 +2059,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: تفكيك شبهات الطاعنين في صحيح الإمام البخاري",
         "titleEn": "Deconstructing Attacks on Sahih Bukhari",
-        "durationFormatted": "51:00",
+        "durationFormatted": "51:49",
         "audioUrl": "https://archive.org/download/sina3at_istidlal/03.mp3",
         "summaryAr": "لماذا يستهدفون البخاري بالذات؟ دحض الشبهات حول الإسناد والأحاديث المنتقدة."
       }
@@ -2084,7 +2084,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: شرح أصول الإيمان (المجلس الأول) — حقيقة الإيمان وأركانه",
         "titleEn": "Foundations of Faith (Part 1): Reality and Pillars",
-        "durationFormatted": "48:35",
+        "durationFormatted": "1:00:14",
         "audioUrl": "https://archive.org/download/ben1-130/0001.mp3",
         "summaryAr": "بيان أركان الإيمان الستة وثمراتها في صلاح القلب واستقامة العمل."
       },
@@ -2093,7 +2093,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: شرح أصول الإيمان (المجلس الثاني) — توحيد الله وتعظيمه",
         "titleEn": "Foundations of Faith (Part 2): Venerating Allah",
-        "durationFormatted": "45:10",
+        "durationFormatted": "57:56",
         "audioUrl": "https://archive.org/download/ben1-130/0002.mp3",
         "summaryAr": "تفصيل مسائل الإيمان بالله وأسمائه وصفاته وأثرها في الخشوع والعبودية."
       },
@@ -2102,7 +2102,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: شرح أصول التفسير — قواعد فهم كتاب الله العزيز",
         "titleEn": "Foundations of Tafsir: Rules for Understanding the Quran",
-        "durationFormatted": "47:00",
+        "durationFormatted": "1:30:51",
         "audioUrl": "https://archive.org/download/ben1-130/0003.mp3",
         "summaryAr": "كيف نرجع إلى تفسير القرآن بالقرآن وبالسنة وبأقوال الصحابة الكرام."
       },
@@ -2111,7 +2111,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "الدرس 4: شرح الأصول من علم الأصول — مدخل استنباط الأحكام",
         "titleEn": "Usul min Ilm al-Usul: Introduction to Legal Deduction",
-        "durationFormatted": "46:55",
+        "durationFormatted": "1:28:29",
         "audioUrl": "https://archive.org/download/ben1-130/0034.mp3",
         "summaryAr": "تعريف أصول الفقه، الأحكام التكليفية والوضعية، وأدلة الشريعة الغراء."
       }
@@ -2136,7 +2136,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: فضل التوحيد وما يكفر من الذنوب والخطايا",
         "titleEn": "Virtues of Tawheed and Erasing Sins",
-        "durationFormatted": "46:40",
+        "durationFormatted": "1:32:41",
         "audioUrl": "https://archive.org/download/uthaymeen-audio-kitab-tawheed/%D8%A7%D8%A8%D9%86%20%D8%A7%D9%84%D8%B9%D8%AB%D9%8A%D9%85%D9%8A%D9%86%20-%20%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D9%88%D8%AD%D9%8A%D8%AF%20-%2001.mp3",
         "summaryAr": "من حقق التوحيد دخل الجنة بغير حساب ولا عذاب؛ معنى لا إله إلا الله وشروطها."
       },
@@ -2145,7 +2145,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: الخوف من الشرك والتحذير من الرياء الخفي",
         "titleEn": "Fear of Shirk & Subconscious Ostentation",
-        "durationFormatted": "42:15",
+        "durationFormatted": "1:43:26",
         "audioUrl": "https://archive.org/download/uthaymeen-audio-kitab-tawheed/%D8%A7%D8%A8%D9%86%20%D8%A7%D9%84%D8%B9%D8%AB%D9%8A%D9%85%D9%8A%D9%86%20-%20%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D9%88%D8%AD%D9%8A%D8%AF%20-%2002.mp3",
         "summaryAr": "أخوف ما أخاف عليكم الشرك الأصغر؛ مراقبة القلب وتخليصه من حب المدح وثناء الناس."
       },
@@ -2154,7 +2154,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: صدق التوكل على الله وتفويض الأمور إليه",
         "titleEn": "Sincere Tawakkul & True Reliance",
-        "durationFormatted": "44:00",
+        "durationFormatted": "1:39:16",
         "audioUrl": "https://archive.org/download/uthaymeen-audio-kitab-tawheed/%D8%A7%D8%A8%D9%86%20%D8%A7%D9%84%D8%B9%D8%AB%D9%8A%D9%85%D9%8A%D9%86%20-%20%D9%83%D8%AA%D8%A7%D8%A8%20%D8%A7%D9%84%D8%AA%D9%88%D8%AD%D9%8A%D8%AF%20-%2003.mp3",
         "summaryAr": "الأخذ بالأسباب مع عدم الاعتماد عليها بل تعليق القلب بمسبب الأسباب جل جلاله."
       }
@@ -2179,7 +2179,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: مقدمات في التفسير واستنباط الهدايات من نصوص الوحي",
         "titleEn": "Foundations of Tafsir & Deducing Guidance",
-        "durationFormatted": "47:20",
+        "durationFormatted": "1:27:23",
         "audioUrl": "https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/001.mp3",
         "summaryAr": "كيف تفهم مراد الشارع من اللفظ؟ قواعد الجمع والترجيح وفهم مقاصد الشريعة الغراء."
       },
@@ -2188,7 +2188,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: آيات العبودية والصلاة وأثرها في تطهير السلوك",
         "titleEn": "Worship Verses & Transforming Conduct",
-        "durationFormatted": "45:00",
+        "durationFormatted": "1:12:01",
         "audioUrl": "https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/002.mp3",
         "summaryAr": "«إن الصلاة تنهى عن الفحشاء والمنكر»؛ كيف تصبح العبادة حصناً عملياً من المعاصي."
       },
@@ -2197,7 +2197,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: سنن الله الإلهية في تمحيص الصادقين وسقوط الظالمين",
         "titleEn": "Divine Laws in Testing the Truthful",
-        "durationFormatted": "50:10",
+        "durationFormatted": "1:11:28",
         "audioUrl": "https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/003.mp3",
         "summaryAr": "ولا يحيق المكر السيئ إلا بأهله؛ حتمية انتصار الحق مهما طال ليل الباطل وقوي سلطانه."
       }
@@ -2222,7 +2222,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: شرح حديث جبريل (المجلس الأول) — أركان الإسلام ومباني العمل",
         "titleEn": "Hadith of Jibreel (Part 1): Pillars of Islam",
-        "durationFormatted": "52:30",
+        "durationFormatted": "1:07:08",
         "audioUrl": "https://archive.org/download/3azamitAllah/7adeth-jbrel-aman-1.mp3",
         "summaryAr": "بيان أركان الإسلام العملية وكيف يتكامل الظاهر والباطن في تحقيق العبودية لله."
       },
@@ -2231,7 +2231,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: شرح حديث جبريل (المجلس الثاني) — أركان الإيمان واليقين",
         "titleEn": "Hadith of Jibreel (Part 2): Pillars of Faith",
-        "durationFormatted": "58:15",
+        "durationFormatted": "1:26:17",
         "audioUrl": "https://archive.org/download/3azamitAllah/7adeth-jbrel-aman-2.mp3",
         "summaryAr": "الإيمان بالله وملائكته وكتبه ورسله واليوم الآخر والقدر خيره وشره وأثره في ثبات القلب."
       },
@@ -2240,7 +2240,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: شرح حديث جبريل (المجلس الثالث) — مقام الإحسان وأشراط الساعة",
         "titleEn": "Hadith of Jibreel (Part 3): Ihsan & Signs of the Hour",
-        "durationFormatted": "32:20",
+        "durationFormatted": "1:23:08",
         "audioUrl": "https://archive.org/download/3azamitAllah/7adeth-jbrel-aman-3.mp3",
         "summaryAr": "أن تعبد الله كأنك تراه؛ مراقبة الله في الخلوات وفقه التعامل مع فتن آخر الزمان."
       }
@@ -2265,7 +2265,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: سلطة طرح الأسئلة وتفكيك الماجريات الفكرية",
         "titleEn": "The Power of Framing Questions & Intellectual Insight",
-        "durationFormatted": "43:50",
+        "durationFormatted": "1:19:31",
         "audioUrl": "https://archive.org/download/Mo1440abo3mr/%D9%85%D8%AD%D8%A7%D8%B6%D8%B1%D8%A9%20-%20%D8%B3%D9%84%D8%B7%D8%A9%20%D8%B7%D8%B1%D8%AD%20%D8%A7%D9%84%D8%A3%D8%B3%D8%A6%D9%84%D8%A9%D8%A5%D8%A8%D8%B1%D8%A7%D9%87%D9%8A%D9%85%20%D8%A7%D9%84%D8%B3%D9%83%D8%B1%D8%A7%D9%86.mp3",
         "summaryAr": "كيف يُوجَّه الوعي عبر سلطة طرح الأسئلة، وكيف يتحرر طالب العلم من أسر السجالات المفتعلة."
       },
@@ -2283,7 +2283,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: تنقلات الخطاب المعاصر واستعادة مركزية الوحي",
         "titleEn": "Shifts in Modern Discourse & Reclaiming Revelation Centrality",
-        "durationFormatted": "31:54",
+        "durationFormatted": "04:05",
         "audioUrl": "https://archive.org/download/khtab-mdni/03-%D8%A7%D9%84%D9%81%D8%B5%D9%84%20%D8%A7%D9%84%D8%A3%D9%88%D9%84-%D8%AA%D9%86%D9%82%D9%84%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AE%D8%B7%D8%A7%D8%A8%20%D8%A7%D9%84%D9%85%D8%AF%D9%86%D9%8A.mp3",
         "summaryAr": "رصد مسارات التحول الفكري وكيف يعتصم المسلم بمرجعية الكتاب والسنة أمام الموجات الوافدة."
       }
@@ -2308,7 +2308,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: غائية الحضارة في سلم الوحي وتصحيح بوصلة العمل",
         "titleEn": "Purpose of Civilization in the Hierarchy of Revelation",
-        "durationFormatted": "29:15",
+        "durationFormatted": "13:02",
         "audioUrl": "https://archive.org/download/khtab-mdni/08-%D8%BA%D8%A7%D8%A6%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AD%D8%B6%D8%A7%D8%B1%D8%A9%20%D9%81%D9%8A%20%D8%B3%D9%84%D9%85%20%D8%A7%D9%84%D9%88%D8%AD%D9%8A.mp3",
         "summaryAr": "العلم والعمران وسيلة لتحقيق العبودية لله؛ تصحيح القصد وتطهير الباطن بنور الوحي."
       },
@@ -2317,7 +2317,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: التعلق بآيتي العمارة والاستخلاف ومفهوم العبادة الشامل",
         "titleEn": "Understanding Stewardship and Comprehensive Worship",
-        "durationFormatted": "22:45",
+        "durationFormatted": "22:31",
         "audioUrl": "https://archive.org/download/khtab-mdni/12-%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%82%20%D8%A8%D8%A2%D9%8A%D8%AA%D9%8A%20%D8%A7%D9%84%D8%B9%D9%85%D8%A7%D8%B1%D8%A9%20%D9%88%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%AE%D9%84%D8%A7%D9%81.mp3",
         "summaryAr": "تحرير المفهوم القرآني للاستخلاف وارتباطه الوثيق بتحقيق التوحيد وإقامة الصلاة."
       },
@@ -2326,7 +2326,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: تأجيل نتائج الاستقامة وثبات القلب على الحق",
         "titleEn": "Delayed Fruits of Steadfastness & Firmness of Heart",
-        "durationFormatted": "18:55",
+        "durationFormatted": "23:00",
         "audioUrl": "https://archive.org/download/khtab-mdni/27-%D8%AA%D8%A3%D8%AC%D9%8A%D9%84%20%D9%86%D8%AA%D8%A7%D8%A6%D8%AC%20%D8%A7%D9%84%D8%A5%D8%B3%D8%AA%D9%82%D8%A7%D9%85%D8%A9.mp3",
         "summaryAr": "لماذا قد تتأخر ثمار الاستقامة في الدنيا؟ تربية النفس على الإخلاص وانتظار الجزاء من الله."
       }
@@ -2351,7 +2351,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الموعظة 1: عجباً لأمر المؤمن وسمو يقينه عند الشدائد",
         "titleEn": "Wondrous is the Affair of the Believer in Adversity",
-        "durationFormatted": "38:10",
+        "durationFormatted": "53:58",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/2-3agaban-lelmomen.mp3",
         "summaryAr": "إن أمره كله خير؛ كيف يتقلب المؤمن بين مقامات الشكر والصبر بعزة ويقين راسخ."
       },
@@ -2360,7 +2360,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الموعظة 2: أحوال العابدين الصادقين ومنازلهم عند الله",
         "titleEn": "States of the Devout Worshippers & Their Ranks",
-        "durationFormatted": "42:30",
+        "durationFormatted": "1:00:22",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/2-a7walaabedeen.mp3",
         "summaryAr": "تتألق قلوبهم في ظلمات الليل؛ صور مشرقة من عبادة السلف الصالح ومناجاتهم لربهم."
       },
@@ -2369,7 +2369,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الموعظة 3: الملتقى الجنة ونعيم الصابرين القابضين على الجمر",
         "titleEn": "Our Rendezvous is Paradise: Bliss of the Patient",
-        "durationFormatted": "45:00",
+        "durationFormatted": "59:54",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/2-alganah.mp3",
         "summaryAr": "سلعة الله الغالية التي تهون دونها كل مشقة؛ وصف صادق لنعيم أهل الجنة ولقاء الرحمن."
       }
@@ -2394,7 +2394,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الجزء 1: الصلاة تشتكي - أول ما يحاسب عليه العبد يوم القيامة",
         "titleEn": "Prayer Pleads: First Accountability on Judgment Day",
-        "durationFormatted": "36:40",
+        "durationFormatted": "49:19",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/1-asalat.mp3",
         "summaryAr": "كيف ينام العبد عن لقاء ربه؟ عقوبة التثاقل عن الصلاة وعظمة قدرها في ميزان الإسلام."
       },
@@ -2403,7 +2403,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الجزء 2: قبل الندم - المبادرة بالتوبة والمحافظة على الصلوات",
         "titleEn": "Before Regret: Hastening to Repentance & Guarding Salah",
-        "durationFormatted": "39:15",
+        "durationFormatted": "54:02",
         "audioUrl": "https://archive.org/download/way2sona_20160319_1746/1-qableanadam.mp3",
         "summaryAr": "نداء مشفق لكل مقصر أن يغتنم فسحة العمر ويعود إلى صفوف المصلين قبل فوات الأوان."
       }
@@ -2428,7 +2428,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الخطبة 1: وفاة آمنة بنت وهب وميلاد النور المحمدي ﷺ",
         "titleEn": "Passing of Aminah & Dawn of the Prophetic Light",
-        "durationFormatted": "51:20",
+        "durationFormatted": "42:44",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/001_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "آوى الله نبيه اليتيم فكفله ورعاه؛ دروس عظيمة من طفولة سيد الخلق ﷺ وتهيئته للرسالة."
       },
@@ -2437,7 +2437,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الخطبة 2: صيام رسول الله ﷺ وهديه الكامل في العبادة",
         "titleEn": "The Fasting of the Messenger & His Complete Worship",
-        "durationFormatted": "48:40",
+        "durationFormatted": "42:53",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/005_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "كيف كان حال النبي ﷺ في الصيام والقيام والذكر، وجمعه بين كمال العبودية ورحمة الأمة."
       },
@@ -2446,7 +2446,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الخطبة 3: السورة التي شيبت الرسول ﷺ (فاستقم كما أمرت)",
         "titleEn": "The Surah That Grayed the Prophet: Stand Firm as Commanded",
-        "durationFormatted": "46:15",
+        "durationFormatted": "1:27:27",
         "audioUrl": "https://archive.org/download/Keshik_uP_bY_mUSLEm/006_uP_bY_mUSLEm.Ettounssi.mp3",
         "summaryAr": "شيبتني هود وأخواتها؛ وقفات تهز القلوب مع آية الاستقامة وأهوال يوم القيامة."
       }
@@ -2471,7 +2471,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: عندي مشكلة أريد حلها - منهج الإسلام في تفريج الكروب",
         "titleEn": "I Have a Problem to Solve: Prophetic Relief of Distress",
-        "durationFormatted": "44:30",
+        "durationFormatted": "41:35",
         "audioUrl": "https://archive.org/download/moh_said_2/14.mp3",
         "summaryAr": "كيف يتعامل المؤمن مع الأزمات والمشكلات اليومية بالتوكل الصادق وحسن التدبير والاستعانة بالله."
       },
@@ -2480,7 +2480,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: غض البصر وحفظ الجوارح من مداخل الفتن",
         "titleEn": "Lowering the Gaze & Guarding the Senses from Temptation",
-        "durationFormatted": "42:10",
+        "durationFormatted": "49:47",
         "audioUrl": "https://archive.org/download/moh_said_2/16.mp3",
         "summaryAr": "البصر بريد القلب؛ كيف يورث غض البصر لله نور البصيرة وحلاوة الإيمان في الصدر."
       },
@@ -2489,7 +2489,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: فوائد تربوية وعقدية من حديث (احفظ الله يحفظك)",
         "titleEn": "Educational & Faith Benefits from 'Be Mindful of Allah'",
-        "durationFormatted": "47:00",
+        "durationFormatted": "36:54",
         "audioUrl": "https://archive.org/download/moh_said_2/17.mp3",
         "summaryAr": "احفظ الله تجده تجاهك؛ دستور الحماية الربانية وحفظ الدين والنفس والأهل."
       }
@@ -2514,7 +2514,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: حقيقة علو الهمة وأثرها في نهوض الفرد والأمة",
         "titleEn": "The Reality of High Zeal & Its Impact",
-        "durationFormatted": "69:50",
+        "durationFormatted": "1:21:43",
         "audioUrl": "https://archive.org/download/3olow-hemmuh/01.mp3",
         "summaryAr": "المؤمن القوي خير وأحب إلى الله؛ كيف يرتقي المسلم بهمته عن سفاسف الأمور إلى معاليها."
       },
@@ -2523,7 +2523,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: نماذج خالدة من علو همة الصحابة والسلف الصالح",
         "titleEn": "Timeless Models of High Zeal from the Salaf",
-        "durationFormatted": "83:20",
+        "durationFormatted": "1:31:49",
         "audioUrl": "https://archive.org/download/3olow-hemmuh/02.mp3",
         "summaryAr": "سير أبطال الصحابة والتابعين في الجمع بين إتقان العمل الدنيوي والسباق إلى الآخرة."
       },
@@ -2532,7 +2532,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: بواعث علو الهمة وكسر قيود العجز والكسل",
         "titleEn": "Drivers of High Zeal & Breaking the Chains of Sloth",
-        "durationFormatted": "73:50",
+        "durationFormatted": "1:32:50",
         "audioUrl": "https://archive.org/download/3olow-hemmuh/03.mp3",
         "summaryAr": "الأسباب العملية التي تشعل الهمة في طلب العلم والعبادة وتطرد الفتور والتسويف."
       }
@@ -2557,7 +2557,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: من المؤمنين رجال — ثبات القلوب والصدق مع الله",
         "titleEn": "Among the Believers Are Men: True Steadfastness",
-        "durationFormatted": "63:40",
+        "durationFormatted": "1:05:46",
         "audioUrl": "https://archive.org/download/alheweny0_gmail/%D9%85%D9%86%20%D8%A7%D9%84%D9%85%D8%A4%D9%85%D9%86%D9%8A%D9%86%20%D8%B1%D8%AC%D8%A7%D9%84.mp3",
         "summaryAr": "اهدنا الصراط المستقيم؛ تضرع العبد الدائم إلى ربه لتثبيت فؤاده على صراطه المستقيم."
       },
@@ -2566,7 +2566,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: فقه الأمر بالمعروف والنهي عن المنكر وإصلاح النفس (١)",
         "titleEn": "Enjoining Good and Reforming the Self (Part 1)",
-        "durationFormatted": "63:50",
+        "durationFormatted": "1:08:55",
         "audioUrl": "https://archive.org/download/Amer_Nahi/1.mp3",
         "summaryAr": "لا يستقيم إيمان عبد حتى يستقيم قلبه، ولا يستقيم قلبه حتى يستقيم لسانه."
       },
@@ -2575,7 +2575,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: ضوابط النصيحة ولزوم السنة والحذر من الغلو والتفريط (٢)",
         "titleEn": "Adhering to Sunnah Without Extremism or Neglect (Part 2)",
-        "durationFormatted": "55:00",
+        "durationFormatted": "59:26",
         "audioUrl": "https://archive.org/download/Amer_Nahi/2.mp3",
         "summaryAr": "سددوا وقاربوا وأبشروا؛ منهج التوسط والاعتدال في العبادة والدعوة كما شرعها رسول الله ﷺ."
       }
@@ -2600,7 +2600,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الخطبة 1: اصبروا وصابروا ورابطوا - صناعة النفس الصابرة",
         "titleEn": "Be Patient and Persevere: Forging the Resilient Soul",
-        "durationFormatted": "35:10",
+        "durationFormatted": "42:11",
         "audioUrl": "https://archive.org/download/khotab_minbriah-sh_samir-mostafa/01_Smir_Mostafa_khotab_esbero(%D8%A7%D8%B5%D8%A8%D8%B1%D9%88%D8%A7%20%D9%88%D8%B5%D8%A7%D8%A8%D9%80%D8%B1%D9%88%D8%A7).mp3",
         "summaryAr": "مكاره الجنة وحفت النار بالشهوات؛ كيف تروض نفسك على الصبر حتى تذوق حلاوة العبودية."
       },
@@ -2609,7 +2609,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الخطبة 2: أصول في المحن - كيف يثبت المؤمن عند الابتلاء؟",
         "titleEn": "Principles in Trials: How the Believer Stands Firm",
-        "durationFormatted": "33:40",
+        "durationFormatted": "54:16",
         "audioUrl": "https://archive.org/download/khotab_minbriah-sh_samir-mostafa/03_Smir_Mostafa_khotab_o.f.me7an(%D8%A3%D9%8F%D8%B5%D9%88%D9%84%20%D9%81%D9%8A%20%D8%A7%D9%84%D9%85%D8%AD%D9%80%D9%80%D9%86).mp3",
         "summaryAr": "القواعد الإيمانية الراسخة التي تحول المحن والشدائد إلى منح ربانية ورفعة في الدرجات."
       },
@@ -2618,7 +2618,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الخطبة 3: اعرف قدرك وإياك والغفلة - يقظة القلب للآخرة",
         "titleEn": "Know Your Worth & Beware of Heedlessness",
-        "durationFormatted": "37:00",
+        "durationFormatted": "53:10",
         "audioUrl": "https://archive.org/download/khotab_minbriah-sh_samir-mostafa/04_Smir_Mostafa_khotab_kadrak(%D8%A7%D8%B9%D8%B1%D9%81%20%D9%82%D8%AF%D8%B1%D9%83%20%D9%88%D8%A5%D9%8A%D8%A7%D9%83%20%D9%88%D8%A7%D9%84%D8%BA%D9%81%D9%84%D8%A9).mp3",
         "summaryAr": "قيمة العمر الغالية وكيف ينتفض المؤمن من كسله وغفلته ليعمر صحائفه بصالح الأعمال."
       }
@@ -2643,7 +2643,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: أهمية دراسة السيرة النبوية وحاجتنا الملحة إليها",
         "titleEn": "Importance of Studying the Prophetic Biography",
-        "durationFormatted": "38:20",
+        "durationFormatted": "1:23:38",
         "audioUrl": "https://archive.org/download/islami-888/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20(01-%20%D8%A3%D9%87%D9%85%D9%8A%D8%A9%20%D8%AF%D8%B1%D8%A7%D8%B3%D8%A9%20%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9)%20%D9%84%D9%81%D8%B6%D9%8A%D9%84%D8%A9%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%20%D8%B3%D9%85%D9%8A%D8%B1%20%D9%85%D8%B5%D8%B7%D9%81%D9%89.mp3",
         "summaryAr": "لماذا ندرس سيرة سيد المرسلين ﷺ؟ كيف تتحول السيرة من سرد تاريخي إلى منهج حياة وتربية."
       },
@@ -2652,7 +2652,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: أسماء النبي ﷺ ودلالاتها على كمال صفاته ورسالته",
         "titleEn": "Names of the Prophet & Their Meanings of Perfection",
-        "durationFormatted": "40:15",
+        "durationFormatted": "1:33:23",
         "audioUrl": "https://archive.org/download/islami-888/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20(03-%20%D8%A3%D8%B3%D9%85%D8%A7%D8%A1%20%D8%A7%D9%84%D9%86%D8%A8%D9%8A-%D8%B5%D9%84%D9%89%20%D8%A7%D9%84%D9%84%D9%87%20%D8%B9%D9%84%D9%8A%D9%87%20%D9%88%D8%B3%D9%84%D9%85-)%20%D9%84%D9%81%D8%B6%D9%8A%D9%84%D8%A9%20%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%20%D8%B3%D9%85%D9%8A%D8%B1%20%D9%85%D8%B5%D8%B7%D9%81%D9%89.mp3",
         "summaryAr": "محمد، أحمد، الماحي، الحاشر، العاقب، نبي الرحمة ونبي الملحمة؛ أنوار الأسماء النبوية الشريفة."
       },
@@ -2661,7 +2661,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: تعظيم الصحابة والسلف الصالح لرسول الله ﷺ وسنته",
         "titleEn": "How the Companions & Salaf Revered the Messenger",
-        "durationFormatted": "42:00",
+        "durationFormatted": "1:14:23",
         "audioUrl": "https://archive.org/download/islami-888/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20(05-%20%D8%AA%D8%B9%D8%B8%D9%8A%D9%85%20%D8%A7%D9%84%D8%B5%D8%AD%D8%A7%D8%A8%D8%A9%20%D9%88%D8%A7%D9%84%D8%B3%D9%84%D9%81%20%D9%84%D8%B1%D8%B3%D9%88%D9%84%20%D8%A7%D9%84%D9%84%D9%87)%20%D9%84%D9%84%D8%B4%D9%8A%D8%AE%20%20%D8%B3%D9%85%D9%8A%D8%B1%20%D9%85%D8%B5%D8%B7%D9%81%D9%89.mp3",
         "summaryAr": "أدب الصحابة الكرام بين يدي النبي ﷺ، وسرعة استجابتهم لأمره وتوقيرهم لحديثه الشريف."
       }
@@ -2686,7 +2686,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الحلقة 1: فهم كلام الله نعمة عظمى وبناء وعي الأسرة بالوحي",
         "titleEn": "Understanding Allah's Speech is the Greatest Blessing",
-        "durationFormatted": "26:40",
+        "durationFormatted": "03:37",
         "audioUrl": "https://archive.org/download/quraanhaya/1-%20%D9%81%D9%87%D9%85%20%D9%83%D9%84%D8%A7%D9%85%20%D8%A7%D9%84%D9%84%D9%87%20%D9%86%D8%B9%D9%85%D8%A9%21.mp3",
         "summaryAr": "كيف نتذوق حلاوة فهم خطاب الله المباشر لنا في القرآن، ونغرس حب تدبره في بيوتنا."
       },
@@ -2695,7 +2695,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الحلقة 2: حراسة الباطن وصيانة القلوب من الخواطر المفسدة",
         "titleEn": "Guarding the Inner Self & Protecting the Heart",
-        "durationFormatted": "29:10",
+        "durationFormatted": "04:11",
         "audioUrl": "https://archive.org/download/quraanhaya/13%20-%20%D8%AD%D8%B1%D8%A7%D8%B3%D8%A9%20%D8%A7%D9%84%D8%A8%D8%A7%D8%B7%D9%86.mp3",
         "summaryAr": "صلاح الظاهر فرع عن صلاح الباطن؛ كيف نحرس قلوبنا من الشبهات والشهوات الخفية."
       },
@@ -2704,7 +2704,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الحلقة 3: لماذا نستثقل الطاعات؟ وكيف نحيي الشغف بالعبادة",
         "titleEn": "Why Worship Feels Heavy & Reviving Passion for Obedience",
-        "durationFormatted": "27:50",
+        "durationFormatted": "03:23",
         "audioUrl": "https://archive.org/download/quraanhaya/15%20-%20%D9%84%D9%85%D8%A7%D8%B0%D8%A7%20%D9%86%D8%B3%D8%AA%D8%AB%D9%82%D9%84%20%D8%A7%D9%84%D8%B7%D8%A7%D8%B9%D8%A7%D8%AA%20%D8%9F.mp3",
         "summaryAr": "تشخيص دقيق لأسباب فتور الهمة عن الطاعة، والروشتة القرآنية لاستعادة لذة القرب من الله."
       }
@@ -2729,7 +2729,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "القصة 1: محمد رسول الله ﷺ - سيد الأولين والآخرين وقدوة الأبطال",
         "titleEn": "Muhammad Messenger of Allah: Role Model of Heroes",
-        "durationFormatted": "46:10",
+        "durationFormatted": "1:26:07",
         "audioUrl": "https://archive.org/download/alwaldin_gmail_201504/%D8%A7%D9%84%D8%B4%D9%8A%D8%AE%20%D8%A8%D8%AF%D8%B1%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A%20-%20%D9%85%D8%AD%D9%85%D8%AF%20%D8%B1%D8%B3%D9%88%D9%84%20%D8%A7%D9%84%D9%84%D9%87.MP3",
         "summaryAr": "ملحمة السيرة النبوية العطرة؛ شجاعة النبي ﷺ وثباته وعظيم رحمته بأمته وأصحابه."
       },
@@ -2738,7 +2738,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "القصة 2: وأخرى تحبونها - نصر من الله وفتح قريب وبطولات الفاتحين",
         "titleEn": "Victory from Allah and an Imminent Conquest",
-        "durationFormatted": "43:30",
+        "durationFormatted": "1:33:46",
         "audioUrl": "https://archive.org/download/20230722_20230722_1320/%D9%88%D8%A3%D8%AE%D8%B1%D9%89%20%D8%AA%D8%AD%D8%A8%D9%88%D9%86%D9%87%D8%A7%20%20%20%D8%A8%D8%AF%D8%B1%20%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A.mp3",
         "summaryAr": "كيف نصر الله جنده الموحدين في معارك الإسلام الفاصلة بصدق التوكل والإقدام."
       },
@@ -2747,7 +2747,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "القصة 3: قصة الصحابي الجليل أبي معلق الأنصاري ومعجزة استجابة الدعاء",
         "titleEn": "Story of Abu Mu'allaq Al-Ansari & the Answered Prayer",
-        "durationFormatted": "34:50",
+        "durationFormatted": "04:24",
         "audioUrl": "https://archive.org/download/BDRALMSHARY01/BDRALMSHARY01.mp3",
         "summaryAr": "يا ودود يا ذا العرش المجيد؛ كيف أنقذ الله صحابياً صادق اليقين بملك من السماء الرابعـة."
       }
@@ -2772,7 +2772,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: معتقد أهل السنة في التوحيد وأسماء الله وصفاته",
         "titleEn": "Affirming Tawheed and Divine Attributes",
-        "durationFormatted": "42:15",
+        "durationFormatted": "17:20",
         "audioUrl": "https://archive.org/download/Fatawa_ibn_Baz_bY_mUSLEm/0001_uP_bY_mUSLEm.mp3",
         "summaryAr": "ليس كمثله شيء وهو السميع البصير؛ سلامة منهج السلف في إمرار نصوص الصفات وتحقيق التوحيد."
       },
@@ -2781,7 +2781,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: الإيمان باليوم الآخر وأحكام الطهارة والصلاة",
         "titleEn": "Belief in the Last Day & Rulings of Purification",
-        "durationFormatted": "44:00",
+        "durationFormatted": "16:48",
         "audioUrl": "https://archive.org/download/Fatawa_ibn_Baz_bY_mUSLEm/0002_uP_bY_mUSLEm.mp3",
         "summaryAr": "توجيهات علمية محققة في مسائل العقيدة وأركان الإسلام العملية بأسلوب واضح ميسر."
       },
@@ -2790,7 +2790,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الدرس 3: فضل الصحابة الكرام وفقه المعاملات والآداب الشرعية",
         "titleEn": "Virtue of the Companions & Islamic Ethics",
-        "durationFormatted": "40:30",
+        "durationFormatted": "16:20",
         "audioUrl": "https://archive.org/download/Fatawa_ibn_Baz_bY_mUSLEm/0003_uP_bY_mUSLEm.mp3",
         "summaryAr": "سلامة القلوب والألسن لأصحاب رسول الله ﷺ وتحري الحلال والاتباع في سائر الشؤون."
       }
@@ -2815,7 +2815,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: منهج التصفية والتربية وتجريد المتابعة للنبي ﷺ",
         "titleEn": "Methodology of Purification, Education & Following the Sunnah",
-        "durationFormatted": "45:30",
+        "durationFormatted": "1:27:13",
         "audioUrl": "https://archive.org/download/selselat_Alhoda-wa-nnor_1-to-150_Al-Albany___uploaded_by_Abu-Ahmad-S-A/001.mp3",
         "summaryAr": "أسس النهوض بالأمة عبر تصفية العقيدة والعبادة مما علق بها والتربية على الكتاب والسنة."
       },
@@ -2824,7 +2824,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: تحقيق مسائل الطهارة والصلاة والعمل بالحديث الصحيح",
         "titleEn": "Verifying Rulings of Salah & Acting Upon Authentic Hadith",
-        "durationFormatted": "48:10",
+        "durationFormatted": "58:30",
         "audioUrl": "https://archive.org/download/selselat_Alhoda-wa-nnor_1-to-150_Al-Albany___uploaded_by_Abu-Ahmad-S-A/002.mp3",
         "summaryAr": "صلوا كما رأيتموني أصلي؛ تحرير دقيق لمسائل الفقه والحديث والرد على الشبهات."
       },
@@ -2833,7 +2833,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: فقه السنن الرواتب وآداب المساجد والفتاوى الحديثية",
         "titleEn": "Sunnah Prayers, Mosque Etiquette & Hadith Verifications",
-        "durationFormatted": "46:40",
+        "durationFormatted": "59:31",
         "audioUrl": "https://archive.org/download/selselat_Alhoda-wa-nnor_1-to-150_Al-Albany___uploaded_by_Abu-Ahmad-S-A/003.mp3",
         "summaryAr": "مباحث حديثية وفقهية ماتعة في إحياء السنن المهجورة والتمسك بهدي السلف الصالح."
       }
@@ -2858,7 +2858,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: سنن التدافع الحضاري ومكانة أمة الإسلام بين الأمم",
         "titleEn": "Civilizational Push & True Standing of the Ummah",
-        "durationFormatted": "53:20",
+        "durationFormatted": "1:08:29",
         "audioUrl": "https://archive.org/download/006_20240819/001.mp3",
         "summaryAr": "«ولولا دفع الله الناس بعضهم ببعض لفسدت الأرض»؛ دور الأمة كشاهدة على البشرية بالحق."
       },
@@ -2867,7 +2867,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: واجب الشباب في حفظ الهوية العقدية ونصرة الدين",
         "titleEn": "Duty of Youth in Preserving Creedal Identity",
-        "durationFormatted": "50:40",
+        "durationFormatted": "42:15",
         "audioUrl": "https://archive.org/download/006_20240819/002.mp3",
         "summaryAr": "كيف يتحول الوعي العقدي إلى عمل منظم وبناء علمي رصين لخدمة الدين ورفع رايته."
       },
@@ -2876,7 +2876,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: تاريخ القدس العقدي وحتمية وعد الله للمؤمنين",
         "titleEn": "History of Al-Quds & Certainty of Divine Promise",
-        "durationFormatted": "55:10",
+        "durationFormatted": "24:45",
         "audioUrl": "https://archive.org/download/tareekh_alaqids__alhawaly_fast/tareekh_alaqids__alhawaly_01.mp3",
         "summaryAr": "الجذور التاريخية والعقدية لقضية بيت المقدس في ميزان الوحي وبشائر النصر والتمكين."
       }
@@ -2901,7 +2901,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المجلس 1: تفسير سورة الفاتحة وأسرار مناجاة الرحمن في الصلاة",
         "titleEn": "Tafseer of Surah Al-Fatihah & Secrets of Prayer Intimacy",
-        "durationFormatted": "48:00",
+        "durationFormatted": "28:03",
         "audioUrl": "https://archive.org/download/0020217121427/001%20-%20%D8%B3%D9%88%D8%B1%D8%A9%20%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D8%AD%D8%A9(01)%2016-12-1427.mp3",
         "summaryAr": "قسمت الصلاة بيني وبين عبدي نصفين؛ كيف يستشعر المصلي جواب ربه له عند كل آية من الفاتحة."
       },
@@ -2910,7 +2910,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المجلس 2: لذة القرب من الله ودعاء المضطر في السجود والأسحار",
         "titleEn": "Sweetness of Nearness to Allah & the Distressed Supplication",
-        "durationFormatted": "46:30",
+        "durationFormatted": "06:46",
         "audioUrl": "https://archive.org/download/my1_ail_555_201/555.mp3",
         "summaryAr": "أقرب ما يكون العبد من ربه وهو ساجد؛ سكينة البكاء بين يدي الله وبث الشكوى إليه وحده."
       },
@@ -2919,7 +2919,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المجلس 3: لقاء مفتوح - توجيهات تربوية وفقهية لإصلاح القلوب",
         "titleEn": "Open Counsel: Spiritual & Fiqh Guidance for Heart Reform",
-        "durationFormatted": "44:10",
+        "durationFormatted": "42:10",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/001likaamftoooh.mp3",
         "summaryAr": "وصايا أبوية حانية من رحاب المدينة النبوية في الثبات على الطاعة وحفظ الجوارح."
       }
@@ -2944,7 +2944,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الموعظة 1: خلق المسلم ومعالي الآداب التي يبلغ بها درجة الصائم القائم",
         "titleEn": "The Muslim's Noble Character & High Etiquette",
-        "durationFormatted": "42:15",
+        "durationFormatted": "57:11",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/006-Kholoq_AlMoslem.mp3",
         "summaryAr": "إن المؤمن ليدرك بحسن خلقه درجة الصائم القائم؛ كيف يتجمل العبد بأخلاق القرآن مع الخلق."
       },
@@ -2953,7 +2953,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الموعظة 2: داء الغرور وأثره على طلبة العلم والعباد الصالحين",
         "titleEn": "The Disease of Arrogance & Its Danger to Seekers",
-        "durationFormatted": "45:40",
+        "durationFormatted": "1:21:14",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/004-AlGhoror_Wa_Atharoh.mp3",
         "summaryAr": "الحذر من العجب بالنفس أو العمل، وكيف كان السلف يجمعون إحساناً ومخافة وانكساراً لله."
       },
@@ -2962,7 +2962,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "الموعظة 3: مواقف إيمانية خالدة في الصدق مع الله عند المحن",
         "titleEn": "Timeless Faith Stances of Sincerity in Trials",
-        "durationFormatted": "41:50",
+        "durationFormatted": "1:19:48",
         "audioUrl": "https://archive.org/download/Shnghiti_by_hassan/008aleman.mp3",
         "summaryAr": "مشاهد تهز الوجدان من صدق أولياء الله الصالحين وثباتهم حين تمتحن القلوب."
       }
@@ -2987,7 +2987,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: مدخل البناء العلمي ومركزية السنة النبوية في الإسلام",
         "titleEn": "Foundational Intro & Centrality of Prophetic Sunnah",
-        "durationFormatted": "42:30",
+        "durationFormatted": "1:09:41",
         "audioUrl": "https://archive.org/download/hadith_/1.mp3",
         "summaryAr": "كيف تتكامل السنة النبوية مع القرآن الكريم لبناء التصور الإسلامي الكامل وحفظ الشريعة."
       },
@@ -2996,7 +2996,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: عبقرية الإسناد ومنهج المحدثين في نقد الروايات",
         "titleEn": "Genius of Isnad & Hadith Scholars' Critical Methodology",
-        "durationFormatted": "46:15",
+        "durationFormatted": "1:14:24",
         "audioUrl": "https://archive.org/download/hadith_/2.mp3",
         "summaryAr": "كيف حُفظت السنة النبوية بأدق معايير التوثيق التاريخي في الحضارة الإنسانية."
       },
@@ -3005,7 +3005,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: تفكيك شبهات الطاعنين في السنة وحجية خبر الآحاد",
         "titleEn": "Refuting Doubts Against Sunnah & Authentic Reports",
-        "durationFormatted": "48:50",
+        "durationFormatted": "1:15:57",
         "audioUrl": "https://archive.org/download/hadith_/3.mp3",
         "summaryAr": "الرد العلمي الرصين على الدعاوى المعاصرة المشككة في دواوين السنة الصحيحة."
       },
@@ -3014,7 +3014,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المحاضرة 4: خطة عملية لطالب العلم في التحصيل وملازمة الوحي",
         "titleEn": "Practical Roadmap for Seeking Knowledge & Revelation",
-        "durationFormatted": "44:10",
+        "durationFormatted": "1:15:04",
         "audioUrl": "https://archive.org/download/hadith_/4.mp3",
         "summaryAr": "خارطة طريق متدرجة للانتقال من التشتت المعرفي إلى البناء العلمي والعملي المتين."
       }
@@ -3039,7 +3039,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "الدرس 1: السيرة النبوية للمصلحين - عمرة القضاء ومعركة مؤتة",
         "titleEn": "Seerah for Reformers: Umrah of Fulfillment & Battle of Mu'tah",
-        "durationFormatted": "55:10",
+        "durationFormatted": "50:41",
         "audioUrl": "https://archive.org/download/mp-3-160-k_20240824_1419/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20%D9%84%D9%84%D9%85%D8%B5%D9%84%D8%AD%D9%8A%D9%86%20%D9%A3%D9%A0%20_%20%D8%B9%D9%85%D8%B1%D8%A9%20%D8%A7%D9%84%D9%82%D8%B6%D8%A7%D8%A1%20%D9%88%D9%85%D8%B9%D8%B1%D9%83%D8%A9%20%D9%85%D8%A4%D8%AA%D8%A9%20_%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%28MP3_160K%29.mp3",
         "summaryAr": "كيف أثمر صلح الحديبية نصراً سياسياً ودعوياً في عمرة القضاء، وبطولة قادة مؤتة الثلاثة وخالد بن الوليد."
       },
@@ -3048,7 +3048,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "الدرس 2: السيرة النبوية للمصلحين - فتح مكة المكرمة وعفو القادرين",
         "titleEn": "Seerah for Reformers: Conquest of Makkah & Noble Forgiveness",
-        "durationFormatted": "55:15",
+        "durationFormatted": "58:06",
         "audioUrl": "https://archive.org/download/mp-3-160-k_20240824_1424/%D8%A7%D9%84%D8%B3%D9%8A%D8%B1%D8%A9%20%D8%A7%D9%84%D9%86%D8%A8%D9%88%D9%8A%D8%A9%20%D9%84%D9%84%D9%85%D8%B5%D9%84%D8%AD%D9%8A%D9%86%20%D9%A3%D9%A1%20_%20%D9%81%D8%AA%D8%AD%20%D9%85%D9%83%D8%A9%20_%20%D8%A3%D8%AD%D9%85%D8%AF%20%D8%A7%D9%84%D8%B3%D9%8A%D8%AF%28MP3_160K%29.mp3",
         "summaryAr": "دخول النبي ﷺ مكة مطأطئاً رأسه تواضعاً لله، تطهير البيت الحرام من الأوثان، وقولته الخالدة: اذهبوا فأنتم الطلقاء."
       }
@@ -3073,7 +3073,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: فِرَّ إلى الله: حان وقت كسر قيود الغفلة",
         "titleEn": "Flee to Allah: Breaking the Chains of Heedlessness",
-        "durationFormatted": "36:45",
+        "durationFormatted": "1:12:48",
         "audioUrl": "https://archive.org/download/dr___hazem-shoman-mp3/1.mp3",
         "summaryAr": "استيقظ قبل فوات الأوان؛ نداء التوبة العاجل وعظمة مغفرة الله التي تسع كل الذنوب لمن صدق."
       },
@@ -3082,7 +3082,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: روشتة عملية للثبات والتخلص من ذنوب الخلوات",
         "titleEn": "Prescription for Steadfastness Against Secret Sins",
-        "durationFormatted": "40:15",
+        "durationFormatted": "30:25",
         "audioUrl": "https://archive.org/download/dr___hazem-shoman-mp3/2.mp3",
         "summaryAr": "مراقبة الله في السر والعلن، خطوات عملية لسد منافذ وسوسة الشيطان واستبدال المعصية بلذة الطاعة."
       },
@@ -3091,7 +3091,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: أول يوم في الجنة: نعيم لا يفنى ورؤية وجه الله",
         "titleEn": "First Day in Paradise: Eternal Bliss",
-        "durationFormatted": "38:20",
+        "durationFormatted": "53:39",
         "audioUrl": "https://archive.org/download/dr___hazem-shoman-mp3/3.mp3",
         "summaryAr": "وصف جنات النعيم ولقاء الأحبه في الفردوس الأعلى، شحذ الهمم وتهوين مصائب الدنيا في جنب الآخرة."
       }
@@ -3116,7 +3116,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: محتاج أصلي (1) - معجزة الركعتين وبداية الطريق",
         "titleEn": "I Need to Pray (1): The Miracle of Two Rakat",
-        "durationFormatted": "35:10",
+        "durationFormatted": "1:12:55",
         "audioUrl": "https://archive.org/download/way2sona_20160330_2010/1--.mp3",
         "summaryAr": "لماذا نصلي؟ كيف تفتح لك ركعتان صادقتان أبواب الفرج والسكينة والبركة في الدنيا والآخرة."
       },
@@ -3125,7 +3125,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: محتاج أصلي (2) - أسرار سورة الفاتحة ومناجاة الرحمن",
         "titleEn": "I Need to Pray (2): Secrets of Al-Fatihah & Intimacy",
-        "durationFormatted": "37:55",
+        "durationFormatted": "1:11:40",
         "audioUrl": "https://archive.org/download/way2sona_20160330_2010/2--.mp3",
         "summaryAr": "استشعار جواب الله لك في كل آية من الفاتحة: «حمدني عبدي... أثنى علي عبدي»؛ حياة القلب بالقرآن."
       },
@@ -3134,7 +3134,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: محتاج أصلي (3) - وليمة كل صلاة ولذة الركوع والسجود",
         "titleEn": "I Need to Pray (3): The Spiritual Banquet of Every Salah",
-        "durationFormatted": "39:30",
+        "durationFormatted": "1:05:44",
         "audioUrl": "https://archive.org/download/way2sona_20160330_2010/3---.mp3",
         "summaryAr": "أقرب ما يكون العبد من ربه وهو ساجد؛ كيف تذوق حلاوة الانكسار والخضوع بين يدي الله."
       },
@@ -3143,7 +3143,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 4,
         "titleAr": "المحاضرة 4: محتاج أصلي (4) - أتدرون بين يدي من أقوم؟",
         "titleEn": "I Need to Pray (4): Do You Know Before Whom I Stand?",
-        "durationFormatted": "41:00",
+        "durationFormatted": "1:04:51",
         "audioUrl": "https://archive.org/download/way2sona_20160330_2010/4--.mp3",
         "summaryAr": "استحضار عظمة الله وجلاله عند تكبيرة الإحرام، وكيف كان السلف يقفون في صلاتهم كأنهم يرون الآخرة."
       }
@@ -3168,7 +3168,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 1,
         "titleAr": "المحاضرة 1: صفقة رابحة مع الله واستثمار العمر والأبناء في الطاعة",
         "titleEn": "A Profitable Deal with Allah: Investing Life & Family",
-        "durationFormatted": "28:15",
+        "durationFormatted": "03:51",
         "audioUrl": "https://archive.org/download/quraanhaya/12-%20%D8%B5%D9%81%D9%82%D8%A9%20%D8%B1%D8%A7%D8%A8%D8%AD%D8%A9.mp3",
         "summaryAr": "إن الله اشترى من المؤمنين أنفسهم وأموالهم بأن لهم الجنة؛ كيف نجعل حياتنا وأسرنا وقفاً لمرضاة الله."
       },
@@ -3177,7 +3177,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 2,
         "titleAr": "المحاضرة 2: إصلاح أخطاء الماضي وبدء صفحة إيمانية مشرقة",
         "titleEn": "Reforming Past Mistakes & Starting a Bright Faith Chapter",
-        "durationFormatted": "31:00",
+        "durationFormatted": "03:44",
         "audioUrl": "https://archive.org/download/quraanhaya/16-%20%D8%A5%D8%B5%D9%84%D8%A7%D8%AD%20%D8%A3%D8%AE%D8%B7%D8%A7%D8%A1%20%D8%A7%D9%84%D9%85%D8%A7%D8%B6%D9%8A.mp3",
         "summaryAr": "التحرر من جلد الذات المقعد عن العمل، وكيف يبدل الله السيئات حسنات بالتوبة الصادقة والعمل الصالح."
       },
@@ -3186,7 +3186,7 @@ export const FAITH_AUDIO_SERIES: FaithAudioSeries[] = [
         "episodeNumber": 3,
         "titleAr": "المحاضرة 3: تحويل الشعور السلبي والألم إلى قوة دافعة للبناء",
         "titleEn": "Transforming Negative Feelings into Constructive Drive",
-        "durationFormatted": "29:40",
+        "durationFormatted": "09:54",
         "audioUrl": "https://archive.org/download/hosnzan/15-%20%D8%AD%D9%88%D9%84%20%D8%A7%D9%84%D8%B4%D8%B9%D9%88%D8%B1%20%D8%A7%D9%84%D8%B3%D9%84%D8%A8%D9%8A%20%D8%A5%D9%84%D9%89%20%D9%82%D9%88%D8%A9%20%D8%AF%D8%A7%D9%81%D8%B9%D8%A9.mp3",
         "summaryAr": "من روائع سلسلة حسن الظن بالله؛ كيف يصنع المؤمن من الحزن والابتلاء وقوداً للإنجاز ونفع الأمة."
       }
