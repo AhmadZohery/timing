@@ -1364,6 +1364,16 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const [topOrbStripMode, setTopOrbStripMode] = useState<'stories' | 'sos'>('stories');
   const [activeSosId, setActiveSosId] = useState<string | null>(null);
   const [isZenModeOpen, setIsZenModeOpen] = useState(false);
+  const [isDrivingHudMode, setIsDrivingHudMode] = useState(false);
+  const [ijazahPreviewPath, setIjazahPreviewPath] = useState<GuidedAcademyPath | null>(null);
+  const [trackProgressMap, setTrackProgressMap] = useState<Record<string, number>>(() => {
+    try {
+      const raw = localStorage.getItem('midmar_atheer_track_progress_v1');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
   const [quizIndex, setQuizIndex] = useState(0);
   const [selectedQuizOption, setSelectedQuizOption] = useState<number | null>(null);
   const [isDictatingGem, setIsDictatingGem] = useState(false);
@@ -1453,6 +1463,21 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
       );
     } catch {}
   }, [viewMode, selectedScholarId, activeCategory, ambientMode, ambientVolume]);
+
+  // Persist per-track listening timestamp every 5 seconds of playback
+  useEffect(() => {
+    if (!playingTrackId || !audioState.isPlaying || audioState.currentTime < 10) return;
+    const sec = Math.floor(audioState.currentTime);
+    if (sec % 5 !== 0) return;
+    setTrackProgressMap((prev) => {
+      if (prev[playingTrackId] === sec) return prev;
+      const next = { ...prev, [playingTrackId]: sec };
+      try {
+        localStorage.setItem('midmar_atheer_track_progress_v1', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, [playingTrackId, audioState.isPlaying, audioState.currentTime]);
 
   // Sleep Timer State
   const [sleepSecondsLeft, setSleepSecondsLeft] = useState<number | null>(null);
@@ -3197,7 +3222,20 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setIjazahPreviewPath(path);
+                        }}
+                        className="px-2.5 py-1 rounded-full bg-amber-300 hover:bg-amber-200 text-zinc-950 text-[10px] font-bold shadow-xs cursor-pointer flex items-center gap-1"
+                        title="عرض وثيقة وإجازة المسار المنهجي"
+                      >
+                        <span>📜</span>
+                        <span>وثيقة المسار</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => handleQueueEntirePath(pathTracks, path.titleAr)}
@@ -4437,6 +4475,28 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       <div className="space-y-2 pt-1 border-t border-amber-200/50 dark:border-zinc-800/80">
                         <div className="flex items-center justify-between gap-1 overflow-x-auto no-scrollbar pb-0.5">
                           <div className="flex items-center gap-1 shrink-0">
+                            {trackProgressMap[track.id] > 15 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  soundSynth.playTactileClick();
+                                  haptic.vibrateMedium();
+                                  const savedSec = trackProgressMap[track.id];
+                                  if (!isPlayingThis) {
+                                    handleTogglePlayTrack(track);
+                                    setTimeout(() => gymFaithAudio.seekTo(savedSec), 450);
+                                  } else {
+                                    gymFaithAudio.seekTo(savedSec);
+                                  }
+                                  onRewardToast?.(`⏪ تم استئناف المجلس من الدقيقة ${formatSeconds(savedSec)}`);
+                                }}
+                                className="px-2 py-1 rounded-full text-[10px] font-bold bg-amber-400 text-zinc-950 border border-amber-300 shadow-2xs cursor-pointer shrink-0 font-mono"
+                                title="استئناف الاستماع من آخر موضع توقفت عنده"
+                              >
+                                ⏪ {formatSeconds(trackProgressMap[track.id])}
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={(e) => {
@@ -5142,106 +5202,201 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           <div className="pointer-events-none absolute inset-0 bg-islamic-pattern opacity-10" />
 
           {/* Top Bar */}
-          <div className="w-full max-w-md flex items-center justify-between relative z-10">
-            <span className="px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/50 text-amber-200 text-xs font-bold">
-              ✨ خلوة التدبر والتركيز العميق
-            </span>
+          <div className="w-full max-w-md flex items-center justify-between gap-2 relative z-10 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/50 text-amber-200 text-xs font-bold">
+                ✨ خلوة التدبر
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  soundSynth.playTactileClick();
+                  setIsDrivingHudMode((prev) => !prev);
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-bold border cursor-pointer transition-all ${
+                  isDrivingHudMode
+                    ? 'bg-amber-400 text-zinc-950 border-amber-200 shadow-md'
+                    : 'bg-white/15 hover:bg-white/25 text-amber-100 border-white/25'
+                }`}
+              >
+                {isDrivingHudMode ? '🧘 وضع الخلوة العادي' : '🚗 وضع القيادة والسعي'}
+              </button>
+            </div>
             <button
               type="button"
-              onClick={() => setIsZenModeOpen(false)}
+              onClick={() => {
+                setIsDrivingHudMode(false);
+                setIsZenModeOpen(false);
+              }}
               className="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold cursor-pointer"
             >
               {isAr ? 'العودة للاستوديو ✕' : 'Exit Zen ✕'}
             </button>
           </div>
 
-          {/* Center Breathing Mamluk Shamsa Mandala & Live Equalizer */}
-          <div className="my-auto py-4 flex flex-col items-center text-center max-w-md w-full space-y-4 relative z-10">
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center">
-              <span className="pointer-events-none absolute -inset-3 rounded-full border-2 border-amber-300/40 animate-ping opacity-30" />
-              <span className="pointer-events-none absolute -inset-1.5 rounded-full border border-emerald-300/50 animate-pulse" />
-              <svg
-                viewBox="0 0 100 100"
-                className={`w-full h-full drop-shadow-[0_14px_35px_rgba(251,191,36,0.35)] ${
-                  audioState.isPlaying ? 'animate-[spin_14s_linear_infinite]' : ''
-                }`}
-              >
-                <circle cx="50" cy="50" r="48" fill="#064e3b" stroke="#fbbf24" strokeWidth="2.5" />
-                <circle cx="50" cy="50" r="39" fill="none" stroke="#fde68a" strokeWidth="0.9" strokeDasharray="4 3" />
-                <rect x="24" y="24" width="52" height="52" rx="5" fill="none" stroke="#fbbf24" strokeWidth="1.6" />
-                <rect x="24" y="24" width="52" height="52" rx="5" fill="none" stroke="#fbbf24" strokeWidth="1.6" transform="rotate(45 50 50)" />
-                <circle cx="50" cy="50" r="16" fill="#fef3c7" stroke="#d97706" strokeWidth="2.5" />
-              </svg>
-              <button
-                type="button"
-                onClick={() => gymFaithAudio.togglePlay()}
-                className="absolute inset-0 flex items-center justify-center text-emerald-950 cursor-pointer"
-              >
-                {audioState.isPlaying ? (
-                  <Pause className="w-6 h-6 fill-current" />
-                ) : (
-                  <Play className="w-6 h-6 fill-current ms-0.5" />
+          {/* Center Breathing Mamluk Shamsa Mandala OR Giant Hands-Free Driving HUD */}
+          {isDrivingHudMode ? (
+            <div className="my-auto py-3 flex flex-col items-center text-center max-w-md w-full space-y-4 relative z-10">
+              <div className="w-full p-3.5 rounded-3xl bg-black/35 border border-amber-400/40 space-y-1">
+                <span className="text-xs font-bold text-amber-300 block">
+                  🚗 {audioState.currentSheikhAr || 'وضع القيادة والسعي الآمن'}
+                </span>
+                <h3 className="text-lg sm:text-xl font-bold text-white leading-snug line-clamp-2">
+                  {audioState.currentTitleAr || 'اختر مجلساً للبدء'}
+                </h3>
+                {audioState.duration > 0 && (
+                  <p className="text-sm font-mono font-bold text-emerald-300 pt-1" dir="ltr">
+                    {formatSeconds(audioState.currentTime)} / {formatSeconds(audioState.duration)}
+                  </p>
                 )}
-              </button>
-            </div>
+              </div>
 
-            <div className="space-y-1 px-2">
-              <span className="text-xs font-bold text-amber-300 block">
-                {audioState.currentSheikhAr || 'محراب الوعي'}
-              </span>
-              <h3 className="text-base sm:text-lg font-bold text-white leading-relaxed">
-                {audioState.currentTitleAr || 'اختر مجلساً للبدء'}
-              </h3>
-            </div>
-
-            {/* Ambient Nature Soundscape Selector inside Zen Mode */}
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              {[
-                { id: 'off', label: '🔇 صمت الخلوة' },
-                { id: 'rain', label: '🌧️ مطر السكينة' },
-                { id: 'breeze', label: '🍃 نسيم الفجر' },
-                { id: 'warmth', label: '🕯️ دفء المحراب' },
-              ].map((amb) => (
+              {/* Giant 2x2 Hands-Free Tactile Grid for Safe Eyes-Free Operation */}
+              <div className="w-full grid grid-cols-2 gap-3">
                 <button
-                  key={amb.id}
                   type="button"
                   onClick={() => {
                     soundSynth.playTactileClick();
-                    setAmbientMode(amb.id as any);
+                    gymFaithAudio.togglePlay();
                   }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold border cursor-pointer transition-all ${
-                    ambientMode === amb.id
-                      ? 'bg-amber-400 text-zinc-950 border-amber-200 shadow-md'
-                      : 'bg-white/10 hover:bg-white/20 text-emerald-100 border-white/20'
+                  className="min-h-[104px] rounded-3xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold flex flex-col items-center justify-center gap-1.5 shadow-xl cursor-pointer active:scale-95 transition-transform"
+                >
+                  <span className="text-3xl">{audioState.isPlaying ? '⏸️' : '▶️'}</span>
+                  <span className="text-sm font-bold">
+                    {audioState.isPlaying ? 'إيقاف مؤقت' : 'تشغيل المجلس'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOneTapGoldenBookmark()}
+                  className="min-h-[104px] rounded-3xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold flex flex-col items-center justify-center gap-1.5 shadow-xl cursor-pointer active:scale-95 transition-transform"
+                >
+                  <span className="text-3xl">🔖</span>
+                  <span className="text-sm font-bold">ختم اللحظة الذهبية</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    if (audioState.duration > 0) {
+                      gymFaithAudio.seekTo(Math.max(0, audioState.currentTime - 15));
+                    }
+                  }}
+                  className="min-h-[88px] rounded-3xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 transition-transform"
+                >
+                  <span className="text-2xl">⏪ -15s</span>
+                  <span className="text-xs text-amber-200">إرجاع ١٥ ثانية</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundSynth.playTactileClick();
+                    if (upNextQueueIds.length > 0) {
+                      handlePlayNextInQueue();
+                    } else if (audioState.duration > 0) {
+                      gymFaithAudio.seekTo(Math.min(audioState.duration, audioState.currentTime + 30));
+                    }
+                  }}
+                  className="min-h-[88px] rounded-3xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 transition-transform"
+                >
+                  <span className="text-2xl">{upNextQueueIds.length > 0 ? '⏭️' : '⏩ +30s'}</span>
+                  <span className="text-xs text-amber-200">
+                    {upNextQueueIds.length > 0 ? 'المجلس التالي بالطابور' : 'تقديم ٣٠ ثانية'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="my-auto py-4 flex flex-col items-center text-center max-w-md w-full space-y-4 relative z-10">
+              <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center">
+                <span className="pointer-events-none absolute -inset-3 rounded-full border-2 border-amber-300/40 animate-ping opacity-30" />
+                <span className="pointer-events-none absolute -inset-1.5 rounded-full border border-emerald-300/50 animate-pulse" />
+                <svg
+                  viewBox="0 0 100 100"
+                  className={`w-full h-full drop-shadow-[0_14px_35px_rgba(251,191,36,0.35)] ${
+                    audioState.isPlaying ? 'animate-[spin_14s_linear_infinite]' : ''
                   }`}
                 >
-                  {amb.label}
+                  <circle cx="50" cy="50" r="48" fill="#064e3b" stroke="#fbbf24" strokeWidth="2.5" />
+                  <circle cx="50" cy="50" r="39" fill="none" stroke="#fde68a" strokeWidth="0.9" strokeDasharray="4 3" />
+                  <rect x="24" y="24" width="52" height="52" rx="5" fill="none" stroke="#fbbf24" strokeWidth="1.6" />
+                  <rect x="24" y="24" width="52" height="52" rx="5" fill="none" stroke="#fbbf24" strokeWidth="1.6" transform="rotate(45 50 50)" />
+                  <circle cx="50" cy="50" r="16" fill="#fef3c7" stroke="#d97706" strokeWidth="2.5" />
+                </svg>
+                <button
+                  type="button"
+                  onClick={() => gymFaithAudio.togglePlay()}
+                  className="absolute inset-0 flex items-center justify-center text-emerald-950 cursor-pointer"
+                >
+                  {audioState.isPlaying ? (
+                    <Pause className="w-6 h-6 fill-current" />
+                  ) : (
+                    <Play className="w-6 h-6 fill-current ms-0.5" />
+                  )}
                 </button>
-              ))}
-            </div>
-
-            {/* Scrubber & Quick Note inside Zen Mode */}
-            {audioState.duration > 0 && (
-              <div className="w-full space-y-2 pt-2">
-                <div className="flex items-center gap-2.5" dir="ltr">
-                  <span className="text-xs font-mono text-amber-200 tabular-nums">
-                    {formatSeconds(audioState.currentTime)}
-                  </span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={Math.max(1, audioState.duration)}
-                    value={Math.min(audioState.currentTime, audioState.duration)}
-                    onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
-                    className="flex-1 h-2 bg-white/20 rounded-full appearance-none cursor-pointer accent-amber-400"
-                  />
-                  <span className="text-xs font-mono text-amber-200 tabular-nums">
-                    {formatSeconds(audioState.duration)}
-                  </span>
-                </div>
               </div>
-            )}
-          </div>
+
+              <div className="space-y-1 px-2">
+                <span className="text-xs font-bold text-amber-300 block">
+                  {audioState.currentSheikhAr || 'محراب الوعي'}
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-white leading-relaxed">
+                  {audioState.currentTitleAr || 'اختر مجلساً للبدء'}
+                </h3>
+              </div>
+
+              {/* Ambient Nature Soundscape Selector inside Zen Mode */}
+              <div className="flex items-center justify-center gap-2 flex-wrap">
+                {[
+                  { id: 'off', label: '🔇 صمت الخلوة' },
+                  { id: 'rain', label: '🌧️ مطر السكينة' },
+                  { id: 'breeze', label: '🍃 نسيم الفجر' },
+                  { id: 'warmth', label: '🕯️ دفء المحراب' },
+                ].map((amb) => (
+                  <button
+                    key={amb.id}
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      setAmbientMode(amb.id as any);
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold border cursor-pointer transition-all ${
+                      ambientMode === amb.id
+                        ? 'bg-amber-400 text-zinc-950 border-amber-200 shadow-md'
+                        : 'bg-white/10 hover:bg-white/20 text-emerald-100 border-white/20'
+                    }`}
+                  >
+                    {amb.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Scrubber & Quick Note inside Zen Mode */}
+              {audioState.duration > 0 && (
+                <div className="w-full space-y-2 pt-2">
+                  <div className="flex items-center gap-2.5" dir="ltr">
+                    <span className="text-xs font-mono text-amber-200 tabular-nums">
+                      {formatSeconds(audioState.currentTime)}
+                    </span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={Math.max(1, audioState.duration)}
+                      value={Math.min(audioState.currentTime, audioState.duration)}
+                      onChange={(e) => gymFaithAudio.seekTo(Number(e.target.value))}
+                      className="flex-1 h-2 bg-white/20 rounded-full appearance-none cursor-pointer accent-amber-400"
+                    />
+                    <span className="text-xs font-mono text-amber-200 tabular-nums">
+                      {formatSeconds(audioState.duration)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Bottom Zen Controls */}
           <div className="w-full max-w-md flex items-center justify-between gap-1.5 flex-wrap relative z-10">
@@ -5425,6 +5580,115 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
         </div>
       )}
+
+      {/* 📜 Interactive Mamluk Academy Path Mastery Ijazah Scroll Modal (وثيقة وإجازة المسار المنهجي) */}
+      {ijazahPreviewPath && (() => {
+        const ijazahTracks = ijazahPreviewPath.trackIds
+          .map((id) => allCombinedTracks.find((t) => t.id === id))
+          .filter((t): t is MobileAudioTrack => Boolean(t));
+        const doneCount = ijazahTracks.filter((t) => completedTrackIds.includes(t.id)).length;
+        const totalCount = ijazahTracks.length;
+        return (
+          <div
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setIjazahPreviewPath(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-in fade-in duration-150"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm space-y-3"
+            >
+              <div className="relative overflow-hidden rounded-[28px] p-5 border-2 border-amber-500 bg-gradient-to-b from-[#fdf8ed] via-[#f7edd4] to-[#efe0b9] text-zinc-950 shadow-2xl space-y-3.5 text-center">
+                <div className="pointer-events-none absolute inset-0 bg-islamic-pattern opacity-10" />
+                <div className="pointer-events-none absolute inset-2.5 rounded-[20px] border border-amber-500/45" />
+
+                <div className="relative z-10 flex flex-col items-center gap-1">
+                  <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-900 text-amber-200 border border-amber-400/50">
+                    📜 وثيقة إجازة ومدارسة منهجية • مضمار
+                  </span>
+                  <h3 className="text-base font-bold text-emerald-950 pt-1">
+                    {ijazahPreviewPath.emoji} {ijazahPreviewPath.titleAr}
+                  </h3>
+                  <p className="text-[11px] font-medium text-amber-900 leading-relaxed">
+                    {ijazahPreviewPath.subtitleAr}
+                  </p>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-600/40 text-amber-950 text-[10px] font-bold mt-0.5">
+                    نسبة الإتمام المنهجي: {doneCount}/{totalCount} (
+                    {Math.round((doneCount / Math.max(1, totalCount)) * 100)}%)
+                  </span>
+                </div>
+
+                <div className="relative z-10 space-y-1.5 text-right max-h-52 overflow-y-auto pr-1">
+                  {ijazahTracks.map((tr, idx) => {
+                    const isDone = completedTrackIds.includes(tr.id);
+                    return (
+                      <div
+                        key={tr.id}
+                        className={`p-2 rounded-xl border flex items-start justify-between gap-2 ${
+                          isDone
+                            ? 'bg-emerald-900/10 border-emerald-600/40 text-emerald-950'
+                            : 'bg-white/75 border-amber-400/60 text-zinc-800'
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[11px] font-bold truncate">
+                            {idx + 1}. {tr.titleAr}
+                          </div>
+                          <div className="text-[9px] text-amber-900 font-bold truncate">
+                            🎙️ {tr.sheikhAr}
+                          </div>
+                        </div>
+                        <span className="text-xs shrink-0">
+                          {isDone ? '✅ مُنجز' : '⏳ قيد السماع'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="relative z-10 p-2 rounded-xl bg-emerald-950 text-amber-100 text-[10px] font-bold">
+                  🏛️ منهج أهل السنة والجماعة • تلقي العلم للعمل والتزكية
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    soundSynth.playTactileClick();
+                    const text = `📜 وثيقة مدارسة «${ijazahPreviewPath.titleAr}» عبر محراب البصيرة (مضمار)\nالإنجاز المنهجي: ${doneCount}/${totalCount}\n\n${ijazahTracks
+                      .map(
+                        (t, i) =>
+                          `${i + 1}. ${completedTrackIds.includes(t.id) ? '✅' : '▫️'} ${t.titleAr} — ${t.sheikhAr}`
+                      )
+                      .join('\n')}`;
+                    try {
+                      if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(text);
+                        onRewardToast?.('📜 تم نسخ وثيقة المسار المنهجي للحافظة!');
+                      }
+                    } catch {
+                      // ignore
+                    }
+                    setIjazahPreviewPath(null);
+                  }}
+                  className="flex-1 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold cursor-pointer shadow-lg"
+                >
+                  📋 نسخ ومشاركة وثيقة المسار
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIjazahPreviewPath(null)}
+                  className="px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold cursor-pointer"
+                >
+                  إغلاق ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Sleep Timer Selection Modal (Luminous Ivory & Indigo Sanctuary Card) */}
       {isSleepModalOpen && (
