@@ -1,175 +1,127 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Background Radial Gradient: Royal Emerald Obsidian -->
-    <radialGradient id="midmarBg" cx="50%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="#0a3c2e" />
-      <stop offset="35%" stop-color="#042018" />
-      <stop offset="70%" stop-color="#02130f" />
-      <stop offset="100%" stop-color="#010907" />
+    <!-- Deep Obsidian & Royal Emerald Sanctuary Canvas -->
+    <radialGradient id="midmarCanvas" cx="50%" cy="38%" r="72%">
+      <stop offset="0%" stop-color="#0d3b2e" />
+      <stop offset="45%" stop-color="#071f18" />
+      <stop offset="80%" stop-color="#061014" />
+      <stop offset="100%" stop-color="#030709" />
     </radialGradient>
 
-    <!-- Top Ambient Sheen (Apple HIG Frosted Glass) -->
-    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" stop-opacity="0.22" />
-      <stop offset="40%" stop-color="#10b981" stop-opacity="0.05" />
-      <stop offset="100%" stop-color="#059669" stop-opacity="0" />
-    </linearGradient>
-
-    <!-- Squircle Inner Rim Stroke -->
-    <linearGradient id="rimStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.6" />
-      <stop offset="45%" stop-color="#10b981" stop-opacity="0.18" />
-      <stop offset="100%" stop-color="#047857" stop-opacity="0.45" />
-    </linearGradient>
-
-    <!-- Meem Emerald Racetrack Ribbon Gradient -->
-    <linearGradient id="meemTrack" x1="10%" y1="10%" x2="90%" y2="90%">
-      <stop offset="0%" stop-color="#6ee7b7" />
-      <stop offset="25%" stop-color="#34d399" />
-      <stop offset="55%" stop-color="#10b981" />
-      <stop offset="85%" stop-color="#059669" />
-      <stop offset="100%" stop-color="#044e3b" />
-    </linearGradient>
-
-    <!-- Meem Crest Specular Highlight -->
-    <linearGradient id="meemHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ecfdf5" stop-opacity="0.8" />
-      <stop offset="50%" stop-color="#a7f3d0" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
-    </linearGradient>
-
-    <!-- Solar Gold Astrolabe & Compass Dial -->
-    <linearGradient id="solarGold" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Royal Gold Filigree Gradient -->
+    <linearGradient id="royalGold" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#fef08a" />
       <stop offset="35%" stop-color="#fbbf24" />
-      <stop offset="75%" stop-color="#f59e0b" />
-      <stop offset="100%" stop-color="#d97706" />
+      <stop offset="70%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#fde68a" />
     </linearGradient>
 
-    <!-- Guiding Star Radial Glow -->
-    <radialGradient id="starCore" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ffffff" />
-      <stop offset="20%" stop-color="#fef08a" />
-      <stop offset="55%" stop-color="#fbbf24" />
-      <stop offset="85%" stop-color="#f59e0b" />
-      <stop offset="100%" stop-color="#b45309" />
+    <!-- Luminous Emerald Jewel Gradient -->
+    <linearGradient id="emeraldJewel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="45%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <!-- Inner Mihrab Dome Glow -->
+    <radialGradient id="mihrabGlow" cx="50%" cy="46%" r="48%">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.32" />
+      <stop offset="55%" stop-color="#10b981" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
     </radialGradient>
 
-    <!-- Golden Speedline Gradient -->
-    <linearGradient id="goldPulse" x1="20%" y1="0%" x2="80%" y2="100%">
-      <stop offset="0%" stop-color="#fef08a" />
-      <stop offset="50%" stop-color="#fbbf24" />
-      <stop offset="100%" stop-color="#d97706" />
-    </linearGradient>
-
-    <!-- Drop Shadow Filter for Floating Depth -->
-    <filter id="trackShadow" x="-20%" y="-20%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.75" />
-    </filter>
-
-    <!-- Soft Golden Bloom Filter -->
-    <filter id="goldGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="4.5" result="glow" />
-      <feMerge>
-        <feMergeNode in="glow" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-
-    <!-- Ambient Emerald Bloom -->
-    <filter id="emeraldBloom" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="22" />
+    <filter id="emblemShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.7" />
     </filter>
   </defs>
 
-  <!-- 1. Royal Emerald Obsidian Squircle Canvas (iOS & Android PWA Maskable Compliant) -->
-  <rect x="0" y="0" width="512" height="512" rx="116" ry="116" fill="url(#midmarBg)" />
+  <!-- 1. Luxury Obsidian-Emerald Squircle Base -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#midmarCanvas)" />
 
-  <!-- 2. Apple HIG Specular Glass Top Sheen -->
-  <path d="M 0 116 C 0 52, 52 0, 116 0 L 396 0 C 460 0, 512 52, 512 116 L 512 180 C 400 220, 280 230, 200 210 C 120 190, 40 170, 0 150 Z" fill="url(#glassSheen)" opacity="0.45" />
+  <!-- 2. Outer Gold Filigree Frame -->
+  <rect x="18" y="18" width="476" height="476" rx="96" ry="96" fill="none" stroke="url(#royalGold)" stroke-width="3" stroke-opacity="0.42" />
 
-  <!-- 3. Squircle Inner Frosted Border -->
-  <rect x="3" y="3" width="506" height="506" rx="113" ry="113" fill="none" stroke="url(#rimStroke)" stroke-width="2" />
+  <!-- 3. Sacred Mihrab Radial Aura -->
+  <circle cx="256" cy="256" r="190" fill="url(#mihrabGlow)" />
 
-  <!-- 4. Luminous Ambient Blooms (Atmospheric Energy) -->
-  <circle cx="256" cy="216" r="130" fill="#10b981" opacity="0.12" filter="url(#emeraldBloom)" />
-  <circle cx="256" cy="216" r="48" fill="#fbbf24" opacity="0.22" filter="url(#emeraldBloom)" />
+  <!-- 4. Sculpted Mamluk Pointed Mihrab Archway -->
+  <path
+    d="M 106 424 V 236 C 106 146 172 94 256 54 C 340 94 406 146 406 236 V 424 Z"
+    fill="#071a15"
+    fill-opacity="0.75"
+    stroke="url(#royalGold)"
+    stroke-width="6"
+    filter="url(#emblemShadow)"
+  />
+  <path
+    d="M 124 410 V 240 C 124 160 182 112 256 76 C 330 112 388 160 388 240 V 410"
+    fill="none"
+    stroke="url(#emeraldJewel)"
+    stroke-width="2.5"
+    stroke-dasharray="8 6"
+    stroke-opacity="0.75"
+  />
 
-  <!-- 5. Astrolabe & Circadian Orbit Ring (The 9 Lifestyle Stations of Midmar) -->
-  <g opacity="0.75">
-    <!-- Outer Celestial Dial (r=164) -->
-    <circle cx="256" cy="216" r="164" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2 8" stroke-opacity="0.38" />
-    <!-- Inner Focus Ring (r=134) -->
-    <circle cx="256" cy="216" r="134" fill="none" stroke="#059669" stroke-width="1.2" stroke-dasharray="1 6" stroke-opacity="0.28" />
+  <!-- 5. 8-Pointed Islamic Rub el Hizb Star (نجمة الحزب والشمسة المملوكية) -->
+  <g filter="url(#emblemShadow)" transform="translate(256, 252)">
+    <!-- Square 1 (0 deg) -->
+    <rect
+      x="-88"
+      y="-88"
+      width="176"
+      height="176"
+      rx="14"
+      fill="url(#emeraldJewel)"
+      stroke="url(#royalGold)"
+      stroke-width="6"
+    />
+    <!-- Square 2 (45 deg) -->
+    <rect
+      x="-88"
+      y="-88"
+      width="176"
+      height="176"
+      rx="14"
+      transform="rotate(45)"
+      fill="#064e3b"
+      stroke="url(#royalGold)"
+      stroke-width="6"
+    />
 
-    <!-- Astrolabe Cardinal Crosshairs -->
-    <line x1="256" y1="46" x2="256" y2="76" stroke="#fbbf24" stroke-width="1.5" stroke-opacity="0.6" stroke-linecap="round" />
-    <line x1="256" y1="356" x2="256" y2="386" stroke="#10b981" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round" />
-    <line x1="86" y1="216" x2="116" y2="216" stroke="#10b981" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round" />
-    <line x1="396" y1="216" x2="426" y2="216" stroke="#10b981" stroke-width="1" stroke-opacity="0.4" stroke-linecap="round" />
+    <!-- Inner Golden Octagon Ring -->
+    <circle cx="0" cy="0" r="62" fill="#051310" stroke="url(#royalGold)" stroke-width="4" />
 
-    <!-- The 9 Lifestyle Station Astrolabe Nodes -->
-    <!-- Station 1: Fajr Zenith (True North / Qibla Orientation) -->
-    <polygon points="256,40 262,52 256,64 250,52" fill="url(#solarGold)" filter="url(#goldGlow)" />
-    <!-- Station 2: Morning Micro-Sprint (361.4, 90.4) -->
-    <circle cx="361.4" cy="90.4" r="3" fill="#34d399" opacity="0.7" />
-    <!-- Station 3: Positive Friction (417.5, 187.5) -->
-    <circle cx="417.5" cy="187.5" r="3" fill="#10b981" opacity="0.7" />
-    <!-- Station 4: Social Media Break (398.0, 298.0) -->
-    <circle cx="398.0" cy="298.0" r="3" fill="#34d399" opacity="0.7" />
-    <!-- Station 5: Gym Anchor (312.1, 370.1) -->
-    <circle cx="312.1" cy="370.1" r="3.5" fill="#fbbf24" opacity="0.8" />
-    <!-- Station 6: Evening Sprint (199.9, 370.1) -->
-    <circle cx="199.9" cy="370.1" r="3" fill="#34d399" opacity="0.7" />
-    <!-- Station 7: Retrospective Check-in (114.0, 298.0) -->
-    <circle cx="114.0" cy="298.0" r="3" fill="#10b981" opacity="0.7" />
-    <!-- Station 8: Grand Reward (94.5, 187.5) -->
-    <circle cx="94.5" cy="187.5" r="3.5" fill="#fbbf24" opacity="0.8" />
-    <!-- Station 9: Night Rest / Sleep Sanctuary (150.6, 90.4) -->
-    <circle cx="150.6" cy="90.4" r="3" fill="#34d399" opacity="0.7" />
+    <!-- Golden Crescent Moon Cradle inside the Star -->
+    <path
+      d="M -34 -8 A 38 38 0 1 0 34 -8 A 30 30 0 1 1 -34 -8 Z"
+      fill="url(#royalGold)"
+    />
+
+    <!-- Ascending Compass / Minaret Zenith Diamond (البوصلة والسمو) -->
+    <polygon
+      points="0,-46 13,-12 0,10 -13,-12"
+      fill="url(#royalGold)"
+    />
+    <polygon
+      points="0,-46 13,-12 0,-18"
+      fill="#ffffff"
+      opacity="0.55"
+    />
+    <circle cx="0" cy="-12" r="4.5" fill="#051310" />
   </g>
 
-  <!-- 6. Golden Circadian Under-Track Arc (The Golden Lane of Excellence) -->
-  <path d="M 224 136 C 234 130, 245 127, 256 127 C 302 127, 342 163, 346 210 C 348 240, 332 272, 308 296 C 288 316, 274 346, 256 380 C 242 408, 224 424, 204 430" fill="none" stroke="url(#goldPulse)" stroke-width="3" stroke-linecap="round" stroke-dasharray="145 28 36 16" filter="url(#goldGlow)" opacity="0.88" />
-
-  <!-- 7. The Master Glyph: Calligraphic Meem Circadian Racetrack (حرف الميم - حلبة مضمار) -->
-  <path d="M 256 124
-           C 316 124, 354 162, 354 216
-           C 354 260, 328 296, 302 322
-           C 278 346, 264 376, 246 410
-           C 234 430, 214 436, 196 434
-           C 186 432, 184 422, 192 414
-           C 214 390, 230 358, 238 322
-           C 192 310, 158 268, 158 216
-           C 158 162, 196 124, 256 124 Z
-           M 256 166
-           C 283.6 166, 306 188.4, 306 216
-           C 306 243.6, 283.6 266, 256 266
-           C 228.4 266, 206 243.6, 206 216
-           C 206 188.4, 228.4 166, 256 166 Z"
-        fill="url(#meemTrack)"
-        fill-rule="evenodd"
-        filter="url(#trackShadow)" />
-
-  <!-- 8. Meem Crest 3D Specular Rim Light -->
-  <path d="M 174 196 C 184 152, 218 130, 256 130 C 300 130, 334 154, 344 196" fill="none" stroke="url(#meemHighlight)" stroke-width="2.5" stroke-linecap="round" opacity="0.75" />
-
-  <!-- 9. Dynamic Tail Speed Accent (Aerodynamic Fin) -->
-  <path d="M 248 368 C 240 392, 222 418, 198 428" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-linecap="round" opacity="0.65" />
-
-  <!-- 10. The Sacred Heart: 8-Pointed Guiding Star of Damascus / Rub el Hizb (نجم الفلاح والغاية السامية) -->
-  <g filter="url(#goldGlow)">
-    <!-- 8-Pointed Star Polygon (Sovereign Mathematical Vertices) -->
-    <polygon points="256.00,188.00 260.98,203.99 275.80,196.20 268.01,211.02 284.00,216.00 268.01,220.98 275.80,235.80 260.98,228.01 256.00,244.00 251.02,228.01 236.20,235.80 243.99,220.98 228.00,216.00 243.99,211.02 236.20,196.20 251.02,203.99"
-             fill="url(#starCore)" />
-    <!-- Diamond Facet Overlay for 3D Chiseled Star Effect -->
-    <polygon points="256,188 256,216 284,216" fill="#fef08a" opacity="0.45" />
-    <polygon points="256,244 256,216 228,216" fill="#fef08a" opacity="0.45" />
-    <polygon points="275.8,196.2 256,216 275.8,235.8" fill="#d97706" opacity="0.3" />
-    <polygon points="236.2,235.8 256,216 236.2,196.2" fill="#d97706" opacity="0.3" />
-
-    <!-- Center Light Point: Absolute Purity & Focus -->
-    <circle cx="256" cy="216" r="4.5" fill="#ffffff" />
-    <circle cx="256" cy="216" r="2.2" fill="#10b981" />
-  </g>
+  <!-- 6. Base Horizon Foundation Pedestal -->
+  <path
+    d="M 86 424 H 426"
+    stroke="url(#royalGold)"
+    stroke-width="6"
+    stroke-linecap="round"
+  />
+  <path
+    d="M 136 444 H 376"
+    stroke="url(#emeraldJewel)"
+    stroke-width="4"
+    stroke-linecap="round"
+    opacity="0.8"
+  />
 </svg>

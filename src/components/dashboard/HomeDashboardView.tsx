@@ -1698,11 +1698,11 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                   <span className="block text-sm font-bold text-zinc-900 dark:text-white truncate">
                     {quranProgress?.surah
                       ? quranProgress.surah.startsWith('سورة')
-                        ? quranProgress.surah
-                        : `سورة ${quranProgress.surah}`
+                        ? `${quranProgress.surah} • استوديو الحفظ 🧠`
+                        : `سورة ${quranProgress.surah} • استوديو الحفظ 🧠`
                       : isAr
-                      ? 'الورد القرآني اليومي'
-                      : 'Daily Quran Wird'}
+                      ? 'الورد القرآني واستوديو الحفظ والتسميع 🧠'
+                      : 'Daily Quran Wird & Hifz Studio 🧠'}
                   </span>
                   <span
                     className={`block text-xs truncate mt-0.5 ${
@@ -1712,8 +1712,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     }`}
                   >
                     {isAr
-                      ? `تلاوة القرآن الكريم • صفحة ${currentWirdPages} من ${totalWirdPages}`
-                      : `Quran Recitation • Page ${currentWirdPages} of ${totalWirdPages}`}
+                      ? `إخفاء تدريجي للكلمات للتسميع + تكرار صوتي • ص ${currentWirdPages} من ${totalWirdPages}`
+                      : `Progressive word masking & audio loop • Page ${currentWirdPages} of ${totalWirdPages}`}
                   </span>
                 </div>
 
@@ -1729,8 +1729,8 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                       ? 'اليوم ✓'
                       : 'Today ✓'
                     : isAr
-                    ? `📖 ص ${currentWirdPages}`
-                    : `📖 p.${currentWirdPages}`}
+                    ? `🧠 حفظ وتسميع`
+                    : `🧠 Hifz`}
                 </span>
               </div>
 

@@ -1,10 +1,17 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   X,
   BookOpen,
   Search,
   Bookmark,
   CheckCircle2,
+  EyeOff,
+  Play,
+  Pause,
+  Repeat,
+  Sparkles,
+  Volume2,
+  RotateCcw,
 } from 'lucide-react';
 import {
   QURAN_SURAHS,
@@ -28,9 +35,43 @@ interface FlexibleQuranTrackerModalProps {
   quranProgress?: QuranProgress;
   onRewardToast?: (msg: string) => void;
   todayLog?: DailyLog;
+  initialMode?: QuranReadingMode;
 }
 
-export type QuranReadingMode = 'surah_ayah' | 'pages' | 'preset';
+export type QuranReadingMode = 'surah_ayah' | 'pages' | 'preset' | 'hifz';
+export type HifzMaskLevel = 'full_visible' | 'half_masked' | 'first_word_only' | 'blind_recall';
+
+interface HifzAyahItem {
+  numberInSurah: number;
+  globalNumber: number;
+  text: string;
+}
+
+const OFFLINE_FALLBACK_AYAHS: Record<number, HifzAyahItem[]> = {
+  1: [
+    { numberInSurah: 1, globalNumber: 1, text: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ' },
+    { numberInSurah: 2, globalNumber: 2, text: 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ' },
+    { numberInSurah: 3, globalNumber: 3, text: 'الرَّحْمَٰنِ الرَّحِيمِ' },
+    { numberInSurah: 4, globalNumber: 4, text: 'مَالِكِ يَوْمِ الدِّينِ' },
+    { numberInSurah: 5, globalNumber: 5, text: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ' },
+    { numberInSurah: 6, globalNumber: 6, text: 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ' },
+    { numberInSurah: 7, globalNumber: 7, text: 'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ' },
+  ],
+  67: [
+    { numberInSurah: 1, globalNumber: 5242, text: 'تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ' },
+    { numberInSurah: 2, globalNumber: 5243, text: 'الَّذِي خَلَقَ الْمَوْتَ وَالْحَيَاةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا ۚ وَهُوَ الْعَزِيزُ الْغَفُورُ' },
+    { numberInSurah: 3, globalNumber: 5244, text: 'الَّذِي خَلَقَ سَبْعَ سَمَاوَاتٍ طِبَاقًا ۖ مَّا تَرَىٰ فِي خَلْقِ الرَّحْمَٰنِ مِن تَفَاوُتٍ ۖ فَارْجِعِ الْبَصَرَ هَلْ تَرَىٰ مِن فُطُورٍ' },
+    { numberInSurah: 4, globalNumber: 5245, text: 'ثُمَّ ارْجِعِ الْبَصَرَ كَرَّتَيْنِ يَنقَلِبْ إِلَيْكَ الْبَصَرُ خَاسِئًا وَهُوَ حَسِيرٌ' },
+    { numberInSurah: 5, globalNumber: 5246, text: 'وَلَقَدْ زَيَّنَّا السَّمَاءَ الدُّنْيَا بِمَصَابِيحَ وَجَعَلْنَاهَا رُجُومًا لِّلشَّيَاطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ السَّعِيرِ' },
+  ],
+  18: [
+    { numberInSurah: 1, globalNumber: 2141, text: 'الْحَمْدُ لِلَّهِ الَّذِي أَنزَلَ عَلَىٰ عَبْدِهِ الْكِتَابَ وَلَمْ يَجْعَل لَّهُ عِوَجًا' },
+    { numberInSurah: 2, globalNumber: 2142, text: 'قَيِّمًا لِّيُنذِرَ بَأْسًا شَدِيدًا مِّن لَّدُنْهُ وَيُبَشِّرَ الْمُؤْمِنِينَ الَّذِينَ يَعْمَلُونَ الصَّالِحَاتِ أَنَّ لَهُمْ أَجْرًا حَسَنًا' },
+    { numberInSurah: 3, globalNumber: 2143, text: 'مَّاكِثِينَ فِيهِ أَبَدًا' },
+    { numberInSurah: 4, globalNumber: 2144, text: 'وَيُنذِرَ الَّذِينَ قَالُوا اتَّخَذَ اللَّهُ وَلَدًا' },
+    { numberInSurah: 5, globalNumber: 2145, text: 'مَّا لَهُم بِهِ مِنْ عِلْمٍ وَلَا لِآبَائِهِمْ ۚ كَبُرَتْ كَلِمَةً تَخْرُجُ مِنْ أَفْوَاهِهِمْ ۚ إِن يَقُولُونَ إِلَّا كَذِبًا' },
+  ],
+};
 
 export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps> = ({
   isOpen,
@@ -38,6 +79,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   quranProgress,
   onRewardToast,
   todayLog,
+  initialMode,
 }) => {
   const { language } = useTranslation();
   const isAr = language === 'ar';
@@ -59,7 +101,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   }, [quranProgress, defaultSurah]);
 
   const [activeTab, setActiveTab] = useState<QuranReadingMode>(
-    quranProgress?.mode && quranProgress.mode !== 'juz' ? quranProgress.mode : 'surah_ayah'
+    initialMode || (quranProgress?.mode && quranProgress.mode !== 'juz' ? (quranProgress.mode as QuranReadingMode) : 'surah_ayah')
   );
 
   // Tab 1: Surah & Ayah state
@@ -78,6 +120,126 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
     quranProgress?.endPage || Math.min(604, (quranProgress?.currentPage || initialSurah?.startPage || 2) + 4)
   );
 
+  // Tab 4: Interactive Hifz (Memorization & Self-Testing Studio) state
+  const [hifzSurahNumber, setHifzSurahNumber] = useState<number>(67); // Default Surah Al-Mulk
+  const [hifzStartAyah, setHifzStartAyah] = useState<number>(1);
+  const [hifzEndAyah, setHifzEndAyah] = useState<number>(5);
+  const [hifzMaskLevel, setHifzMaskLevel] = useState<HifzMaskLevel>('half_masked');
+  const [revealedWordKeys, setRevealedWordKeys] = useState<Record<string, boolean>>({});
+  const [hifzAyahs, setHifzAyahs] = useState<HifzAyahItem[]>(OFFLINE_FALLBACK_AYAHS[67]);
+  const [isLoadingHifz, setIsLoadingHifz] = useState<boolean>(false);
+  const [hifzReciter, setHifzReciter] = useState<'ar.husary' | 'ar.minshawi' | 'ar.alafasy'>('ar.husary');
+  const [hifzLoopTarget, setHifzLoopTarget] = useState<number>(3);
+  const [hifzCurrentLoop, setHifzCurrentLoop] = useState<number>(0);
+  const [playingHifzAyah, setPlayingHifzAyah] = useState<number | null>(null);
+  const [hifzStepsDone, setHifzStepsDone] = useState<Record<string, boolean>>({
+    listen3: false,
+    read5: false,
+    maskHalf: false,
+    blindTest: false,
+    linkPrev: false,
+  });
+  const hifzAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Fetch Surah Ayahs for Hifz Studio (with localStorage cache + offline fallback)
+  useEffect(() => {
+    if (!isOpen || activeTab !== 'hifz') return;
+    let cancelled = false;
+    const cacheKey = `midmar_hifz_surah_v1_${hifzSurahNumber}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as HifzAyahItem[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setHifzAyahs(parsed);
+          return;
+        }
+      } catch {}
+    }
+
+    setIsLoadingHifz(true);
+    fetch(`https://api.alquran.cloud/v1/surah/${hifzSurahNumber}/quran-uthmani`)
+      .then((r) => r.json())
+      .then((json) => {
+        if (cancelled) return;
+        const rawAyahs = json?.data?.ayahs;
+        if (Array.isArray(rawAyahs) && rawAyahs.length > 0) {
+          const mapped: HifzAyahItem[] = rawAyahs.map((a: any) => ({
+            numberInSurah: Number(a.numberInSurah),
+            globalNumber: Number(a.number),
+            text: String(a.text || '').trim(),
+          }));
+          setHifzAyahs(mapped);
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(mapped));
+          } catch {}
+        } else if (OFFLINE_FALLBACK_AYAHS[hifzSurahNumber]) {
+          setHifzAyahs(OFFLINE_FALLBACK_AYAHS[hifzSurahNumber]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled && OFFLINE_FALLBACK_AYAHS[hifzSurahNumber]) {
+          setHifzAyahs(OFFLINE_FALLBACK_AYAHS[hifzSurahNumber]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingHifz(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, activeTab, hifzSurahNumber]);
+
+  // Cleanup Hifz audio when modal closes
+  useEffect(() => {
+    if (!isOpen && hifzAudioRef.current) {
+      hifzAudioRef.current.pause();
+      setPlayingHifzAyah(null);
+    }
+  }, [isOpen]);
+
+  // Play & Loop Ayah Audio for Hifz
+  const handlePlayHifzAyah = (ayah: HifzAyahItem, loopCount: number = 1) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    if (playingHifzAyah === ayah.numberInSurah && hifzAudioRef.current && !hifzAudioRef.current.paused) {
+      hifzAudioRef.current.pause();
+      setPlayingHifzAyah(null);
+      return;
+    }
+
+    if (hifzAudioRef.current) {
+      hifzAudioRef.current.pause();
+    }
+
+    const audioUrl = `https://cdn.islamic.network/quran/audio/128/${hifzReciter}/${ayah.globalNumber}.mp3`;
+    const audio = new Audio(audioUrl);
+    hifzAudioRef.current = audio;
+    setPlayingHifzAyah(ayah.numberInSurah);
+    setHifzCurrentLoop(loopCount);
+
+    audio.onended = () => {
+      if (loopCount < hifzLoopTarget) {
+        const nextLoop = loopCount + 1;
+        setHifzCurrentLoop(nextLoop);
+        audio.currentTime = 0;
+        audio.play().catch(() => setPlayingHifzAyah(null));
+      } else {
+        setPlayingHifzAyah(null);
+        setHifzCurrentLoop(0);
+      }
+    };
+
+    audio.onerror = () => {
+      setPlayingHifzAyah(null);
+    };
+
+    audio.play().catch(() => {
+      setPlayingHifzAyah(null);
+    });
+  };
+
   // Sync state whenever modal opens or quranProgress updates
   useEffect(() => {
     if (isOpen) {
@@ -90,11 +252,13 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         setStartPage(quranProgress.startPage || quranProgress.currentPage);
       }
       if (quranProgress?.endPage) setEndPage(quranProgress.endPage);
-      if (quranProgress?.mode && quranProgress.mode !== 'juz') {
-        setActiveTab(quranProgress.mode);
+      if (initialMode) {
+        setActiveTab(initialMode);
+      } else if (quranProgress?.mode && quranProgress.mode !== 'juz') {
+        setActiveTab(quranProgress.mode as QuranReadingMode);
       }
     }
-  }, [isOpen, quranProgress]);
+  }, [isOpen, quranProgress, initialMode]);
 
   // Tab 3: Preset selection
   const [selectedPresetKey, setSelectedPresetKey] = useState<string>('baqarah');
@@ -102,6 +266,10 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
   if (!isOpen) return null;
 
   const currentSurah = getSurahByNumber(selectedSurahNumber) || initialSurah || defaultSurah;
+  const hifzSurahMeta = getSurahByNumber(hifzSurahNumber) || getSurahByNumber(67) || currentSurah;
+  const activeHifzAyahSlice = hifzAyahs.filter(
+    (a) => a.numberInSurah >= hifzStartAyah && a.numberInSurah <= hifzEndAyah
+  );
 
   // Filtered surahs for search
   const filteredSurahs = QURAN_SURAHS.filter((s) => {
@@ -236,7 +404,18 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
       finalStartPage = pSurah.startPage;
       finalEndPage = Math.min(604, pSurah.startPage + preset.pages - 1);
       rewardPoints = Math.min(50, Math.max(10, Math.round(finalPagesCount * 1.2)));
+    } else if (activeTab === 'hifz') {
+      finalSurahName = hifzSurahMeta.nameAr;
+      finalSurahNumber = hifzSurahMeta.number;
+      finalStartAyah = hifzStartAyah;
+      finalEndAyah = hifzEndAyah;
+      finalPagesCount = Math.max(1, Math.ceil((hifzEndAyah - hifzStartAyah + 1) / 8));
+      finalStartPage = hifzSurahMeta.startPage;
+      finalEndPage = hifzSurahMeta.endPage;
+      rewardPoints = 30;
     }
+
+    const dbMode = activeTab === 'hifz' ? 'surah_ayah' : activeTab;
 
     // Update or create quran_progress in Dexie
     if (quranProgress?.id) {
@@ -250,7 +429,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         endAyah: finalEndAyah,
         startPage: finalStartPage,
         endPage: finalEndPage,
-        mode: activeTab,
+        mode: dbMode,
         dailyTargetPages: finalPagesCount,
         lastUpdated: todayStr,
         history: [
@@ -274,7 +453,7 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
         endAyah: finalEndAyah,
         startPage: finalStartPage,
         endPage: finalEndPage,
-        mode: activeTab,
+        mode: dbMode,
         dailyTargetPages: finalPagesCount,
         lastUpdated: todayStr,
         history: [
@@ -322,7 +501,11 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
       const hasanat = calculateEstimatedHasanat(finalPagesCount);
       if (onRewardToast) {
         onRewardToast(
-          isAr
+          activeTab === 'hifz'
+            ? isAr
+              ? `🧠 ما شاء الله! تم تثبيت وتسميع آيات (${finalStartAyah}-${finalEndAyah}) من سورة ${finalSurahName} (+30 XP)`
+              : `🧠 Masha'Allah! Memorized & verified Ayahs ${finalStartAyah}-${finalEndAyah} of ${finalSurahName} (+30 XP)`
+            : isAr
             ? `✨ تقبّل الله تلاوتك! تم تسجيل ${finalPagesCount} ص من ${finalSurahName} (+${hasanat.toLocaleString()} حسنة مضاعفة 🤍)`
             : `✨ May Allah accept! Logged ${finalPagesCount} pages of ${finalSurahName} (+${rewardPoints} XP)`
         );
@@ -357,12 +540,12 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white">
-                {isAr ? 'تخصيص ومتابعة الورد القرآني' : 'Custom Quran Wird Tracker'}
+                {isAr ? 'الورد القرآني واستوديو الحفظ والتسميع' : 'Quran Wird & Interactive Hifz Studio'}
               </h2>
               <p className="text-xs text-slate-300">
                 {isAr
-                  ? 'اختر سورتك، حدد الآيات أو الصفحات، وسجل قراءتك بمرونة مطلقة'
-                  : 'Choose your Surah, set ayah/page range, and track with total flexibility'}
+                  ? 'تابع وردك اليومي أو احفظ الآيات بالتكرار الصوتي والإخفاء التدريجي للكلمات'
+                  : 'Track your daily Wird or memorize Ayahs with audio looping & progressive word masking'}
               </p>
             </div>
           </div>
@@ -379,8 +562,23 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
           </button>
         </div>
 
-        {/* Tab Navigation (3 Flexible Modes) */}
+        {/* Tab Navigation (4 Flexible Modes including Interactive Hifz Studio) */}
         <div className="px-4 sm:px-5 pt-3 border-b border-slate-200/80 dark:border-white/[0.08] flex gap-2 overflow-x-auto no-scrollbar whitespace-nowrap">
+          <button
+            type="button"
+            onClick={() => {
+              soundSynth.playTactileClick();
+              setActiveTab('hifz');
+            }}
+            className={`pb-2.5 px-3 font-bold text-xs sm:text-sm transition-all border-b-2 cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'hifz'
+                ? 'border-amber-500 text-amber-700 dark:text-amber-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-zinc-200'
+            }`}
+          >
+            <span>🧠 {isAr ? 'استوديو الحفظ والتسميع' : 'Hifz & Recall Studio'}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -764,6 +962,389 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
               </div>
             </div>
           )}
+
+          {/* TAB 4: INTERACTIVE QURAN HIFZ & SELF-TESTING STUDIO (استوديو الحفظ والتسميع المتدرج) */}
+          {activeTab === 'hifz' && (
+            <div className="space-y-4">
+              {/* 1. Surah & Ayah Range Picker for Hifz */}
+              <div className="p-3.5 rounded-2xl surface-card-3d space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-slate-800 dark:text-zinc-100 block">
+                      🧠 {isAr ? '١. اختر السورة ونصاب الآيات للحفظ والتثبيت اليوم:' : '1. Select Surah & Ayah Window for Hifz:'}
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-zinc-400">
+                      {isAr
+                        ? 'ينصح العلماء بحفظ 3 إلى 5 آيات متقنة مع ربطها وتكرارها بصرياً وصوتياً'
+                        : 'Memorize 3-5 Ayahs at a time with audio looping and progressive word masking'}
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[10px] font-bold">
+                    سورة {hifzSurahMeta.nameAr} ({hifzStartAyah} - {hifzEndAyah})
+                  </span>
+                </div>
+
+                {/* Quick Hifz Surahs Strip */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  {[67, 18, 36, 55, 56, 78, 87, 1, 2].map((sNum) => {
+                    const s = getSurahByNumber(sNum);
+                    if (!s) return null;
+                    const isSel = hifzSurahNumber === s.number;
+                    return (
+                      <button
+                        key={s.number}
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setHifzSurahNumber(s.number);
+                          setHifzStartAyah(1);
+                          setHifzEndAyah(Math.min(s.ayahCount, 5));
+                          setRevealedWordKeys({});
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 cursor-pointer transition-all ${
+                          isSel
+                            ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                            : 'bg-slate-100 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'
+                        }`}
+                      >
+                        سورة {s.nameAr}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Full 114 Surah Dropdown + Start/End Ayah */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
+                      {isAr ? 'اختر من 114 سورة:' : 'Surah (1-114):'}
+                    </label>
+                    <select
+                      value={hifzSurahNumber}
+                      onChange={(e) => {
+                        const num = Number(e.target.value);
+                        const s = getSurahByNumber(num);
+                        setHifzSurahNumber(num);
+                        setHifzStartAyah(1);
+                        setHifzEndAyah(Math.min(s?.ayahCount || 5, 5));
+                        setRevealedWordKeys({});
+                      }}
+                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-bold text-slate-900 dark:text-zinc-100"
+                    >
+                      {QURAN_SURAHS.map((s) => (
+                        <option key={s.number} value={s.number}>
+                          {s.number}. سورة {s.nameAr} ({s.ayahCount} آية)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
+                      {isAr ? 'من آية:' : 'From Ayah:'}
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={hifzSurahMeta.ayahCount}
+                      value={hifzStartAyah}
+                      onChange={(e) => {
+                        const v = Math.max(1, Math.min(hifzSurahMeta.ayahCount, Number(e.target.value) || 1));
+                        setHifzStartAyah(v);
+                        if (v > hifzEndAyah) setHifzEndAyah(Math.min(hifzSurahMeta.ayahCount, v + 4));
+                        setRevealedWordKeys({});
+                      }}
+                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-center text-slate-900 dark:text-zinc-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-zinc-400 mb-1">
+                      {isAr ? 'إلى آية (ننصح بـ 5 آيات):' : 'To Ayah:'}
+                    </label>
+                    <input
+                      type="number"
+                      min={hifzStartAyah}
+                      max={hifzSurahMeta.ayahCount}
+                      value={hifzEndAyah}
+                      onChange={(e) => {
+                        const v = Math.max(hifzStartAyah, Math.min(hifzSurahMeta.ayahCount, Number(e.target.value) || hifzStartAyah));
+                        setHifzEndAyah(v);
+                        setRevealedWordKeys({});
+                      }}
+                      className="w-full px-2.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-xs font-mono font-bold text-center text-slate-900 dark:text-zinc-100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Progressive Word Masking Level Bar + Sheikh Audio Repeater */}
+              <div className="p-3.5 rounded-2xl bento-3d-amber space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-amber-950 dark:text-amber-200 flex items-center gap-1.5">
+                    <EyeOff className="w-4 h-4 text-amber-600" />
+                    <span>{isAr ? '٢. مستوى الإخفاء التدريجي للتسميع الذاتي:' : '2. Progressive Word Masking Level:'}</span>
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundSynth.playTactileClick();
+                      setRevealedWordKeys({});
+                    }}
+                    className="px-2.5 py-1 rounded-full bg-white/90 dark:bg-zinc-900 text-slate-800 dark:text-zinc-200 text-[10px] font-bold flex items-center gap-1 cursor-pointer border border-amber-500/30"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{isAr ? 'إعادة إخفاء الكلمات' : 'Reset Hidden Words'}</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                  {(
+                    [
+                      { id: 'full_visible', labelAr: '👁️ ١. قراءة بصرية كاملة', labelEn: '1. Full Text' },
+                      { id: 'half_masked', labelAr: '🌓 ٢. إخفاء 50% من الكلمات', labelEn: '2. Mask 50%' },
+                      { id: 'first_word_only', labelAr: '🔑 ٣. أول كلمة فقط (ربط)', labelEn: '3. First Word Only' },
+                      { id: 'blind_recall', labelAr: '🧠 ٤. تسميع غيبي كامل', labelEn: '4. Full Blind Recall' },
+                    ] as const
+                  ).map((lvl) => (
+                    <button
+                      key={lvl.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setHifzMaskLevel(lvl.id);
+                        setRevealedWordKeys({});
+                      }}
+                      className={`py-2 px-2.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center ${
+                        hifzMaskLevel === lvl.id
+                          ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                          : 'bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 border border-amber-500/20'
+                      }`}
+                    >
+                      {isAr ? lvl.labelAr : lvl.labelEn}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Audio Reciter & Loop Count Selector */}
+                <div className="pt-2 border-t border-amber-500/20 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Volume2 className="w-3.5 h-3.5 text-amber-700 dark:text-amber-300" />
+                    <span className="text-[11px] font-bold text-amber-950 dark:text-amber-200">
+                      {isAr ? 'المُقرئ المُعلّم:' : 'Reciter:'}
+                    </span>
+                    {(
+                      [
+                        { id: 'ar.husary', label: 'الحصري' },
+                        { id: 'ar.minshawi', label: 'المنشاوي' },
+                        { id: 'ar.alafasy', label: 'العفاسي' },
+                      ] as const
+                    ).map((rec) => (
+                      <button
+                        key={rec.id}
+                        type="button"
+                        onClick={() => setHifzReciter(rec.id)}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer ${
+                          hifzReciter === rec.id
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-white/80 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'
+                        }`}
+                      >
+                        {rec.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Repeat className="w-3.5 h-3.5 text-amber-700 dark:text-amber-300" />
+                    <span className="text-[10px] font-bold text-amber-950 dark:text-amber-200">
+                      {isAr ? 'تكرار الآية:' : 'Loop:'}
+                    </span>
+                    {[1, 3, 5, 7].map((cnt) => (
+                      <button
+                        key={cnt}
+                        type="button"
+                        onClick={() => setHifzLoopTarget(cnt)}
+                        className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold cursor-pointer ${
+                          hifzLoopTarget === cnt
+                            ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950'
+                            : 'bg-white/80 dark:bg-zinc-900 text-slate-700 dark:text-zinc-300'
+                        }`}
+                      >
+                        {cnt}x
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Interactive Mushaf Hifz Stage (Tap any masked word to reveal it!) */}
+              <div className="p-4 sm:p-5 rounded-3xl celestial-obsidian-stage border border-amber-500/30 text-white space-y-3">
+                <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4" />
+                    <span>
+                      {isAr
+                        ? `لوح الحفظ التفاعلي — سورة ${hifzSurahMeta.nameAr} (الآيات ${hifzStartAyah} إلى ${hifzEndAyah})`
+                        : `Interactive Hifz Slate — Surah ${hifzSurahMeta.nameEn}`}
+                    </span>
+                  </span>
+                  <span className="text-[10px] text-emerald-300 font-bold">
+                    {isAr ? '💡 اضغط على أي كلمة مخفية لكشفها والتحقق من حفظك' : '💡 Tap any hidden word to reveal'}
+                  </span>
+                </div>
+
+                {isLoadingHifz ? (
+                  <div className="py-8 text-center text-xs text-slate-300">
+                    {isAr ? 'جاري تحميل الرسم العثماني للآيات...' : 'Loading Uthmani Ayahs...'}
+                  </div>
+                ) : activeHifzAyahSlice.length === 0 ? (
+                  <div className="py-6 text-center text-xs text-slate-300">
+                    {isAr ? 'لا توجد آيات في هذا النطاق، يرجى ضبط رقم البداية والنهاية.' : 'No Ayahs in selected range.'}
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-72 overflow-y-auto pe-1">
+                    {activeHifzAyahSlice.map((ayah) => {
+                      const words = ayah.text.split(/\s+/).filter(Boolean);
+                      const isPlayingThisAyah = playingHifzAyah === ayah.numberInSurah;
+
+                      return (
+                        <div
+                          key={ayah.numberInSurah}
+                          className={`p-3.5 rounded-2xl border transition-all ${
+                            isPlayingThisAyah
+                              ? 'bg-emerald-950/60 border-emerald-400/50 shadow-md'
+                              : 'bg-white/[0.04] border-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-mono font-bold">
+                              آية ﴿{ayah.numberInSurah}﴾
+                            </span>
+
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handlePlayHifzAyah(ayah, 1)}
+                                className={`px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                                  isPlayingThisAyah
+                                    ? 'bg-emerald-500 text-zinc-950'
+                                    : 'bg-white/10 hover:bg-white/20 text-white'
+                                }`}
+                              >
+                                {isPlayingThisAyah ? (
+                                  <>
+                                    <Pause className="w-3 h-3" />
+                                    <span>
+                                      {isAr
+                                        ? `جاري التكرار (${hifzCurrentLoop}/${hifzLoopTarget})`
+                                        : `Loop ${hifzCurrentLoop}/${hifzLoopTarget}`}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-3 h-3" />
+                                    <span>{isAr ? `استمع وكرر (${hifzLoopTarget}x)` : `Play (${hifzLoopTarget}x)`}</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Words Flow with Interactive Masking */}
+                          <div
+                            dir="rtl"
+                            lang="ar"
+                            className="flex flex-wrap items-center gap-1.5 leading-[2.35] text-base sm:text-lg font-bold tashkeel-text"
+                          >
+                            {words.map((word, wIdx) => {
+                              const wordKey = `${ayah.numberInSurah}-${wIdx}`;
+                              const isManuallyRevealed = Boolean(revealedWordKeys[wordKey]);
+                              let shouldHide = false;
+                              if (hifzMaskLevel === 'half_masked') {
+                                shouldHide = wIdx % 2 === 1;
+                              } else if (hifzMaskLevel === 'first_word_only') {
+                                shouldHide = wIdx > 0;
+                              } else if (hifzMaskLevel === 'blind_recall') {
+                                shouldHide = true;
+                              }
+
+                              const isHiddenNow = shouldHide && !isManuallyRevealed;
+
+                              return isHiddenNow ? (
+                                <button
+                                  key={wordKey}
+                                  type="button"
+                                  onClick={() => {
+                                    soundSynth.playTactileClick();
+                                    haptic.vibrateLight();
+                                    setRevealedWordKeys((prev) => ({ ...prev, [wordKey]: true }));
+                                  }}
+                                  className="px-3 py-0.5 rounded-xl bg-amber-400/15 hover:bg-amber-400/30 border border-dashed border-amber-400/45 text-amber-300 text-xs font-mono cursor-pointer transition-all active:scale-95"
+                                  title={isAr ? 'اضغط لكشف الكلمة' : 'Tap to reveal word'}
+                                >
+                                  •••
+                                </button>
+                              ) : (
+                                <span
+                                  key={wordKey}
+                                  onClick={() => {
+                                    if (shouldHide) {
+                                      setRevealedWordKeys((prev) => ({ ...prev, [wordKey]: false }));
+                                    }
+                                  }}
+                                  className={`px-1 rounded transition-colors ${
+                                    isManuallyRevealed
+                                      ? 'text-emerald-300 bg-emerald-500/15 cursor-pointer'
+                                      : 'text-white'
+                                  }`}
+                                >
+                                  {word}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 4. 5-Step Hifz Mastery Method Checklist (خماسية الحفظ المتقن) */}
+              <div className="p-3.5 rounded-2xl bento-3d-mint space-y-2">
+                <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 block">
+                  ✅ {isAr ? 'خماسية الحفظ المتقن والربط (منهج الحفاظ لتثبيت المحفوظ):' : '5-Step Hifz Mastery Checklist:'}
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                  {[
+                    { key: 'listen3', labelAr: '١. الاستماع للمقرئ 3 مرات لتصحيح المخارج والتجويد' },
+                    { key: 'read5', labelAr: '٢. القراءة البصرية المركزة 5 مرات مع فهم المعنى' },
+                    { key: 'maskHalf', labelAr: '٣. التسميع مع إخفاء نصف الكلمات ثم رؤوس الآيات' },
+                    { key: 'blindTest', labelAr: '٤. التسميع الغيبي الكامل 3 مرات متتالية دون خطأ' },
+                    { key: 'linkPrev', labelAr: '٥. ربط آخر آية بأول آية وقراءتها في ركعتي السنة' },
+                  ].map((st) => (
+                    <label
+                      key={st.key}
+                      className="flex items-center gap-2 p-2 rounded-xl bg-white/85 dark:bg-zinc-900/85 border border-emerald-500/20 text-[11px] font-bold text-slate-800 dark:text-zinc-200 cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(hifzStepsDone[st.key])}
+                        onChange={(e) => {
+                          soundSynth.playTactileClick();
+                          setHifzStepsDone((prev) => ({ ...prev, [st.key]: e.target.checked }));
+                        }}
+                        className="w-4 h-4 text-emerald-600 rounded"
+                      />
+                      <span>{st.labelAr}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Modal Footer / Actions */}
@@ -774,7 +1355,15 @@ export const FlexibleQuranTrackerModal: React.FC<FlexibleQuranTrackerModalProps>
             className="w-full sm:flex-1 min-h-[44px] py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all active:scale-98 cursor-pointer"
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>{isAr ? 'حفظ الورد وتسجيل قراءة اليوم 🌿' : 'Save Wird & Log Today\'s Reading 🌿'}</span>
+            <span>
+              {activeTab === 'hifz'
+                ? isAr
+                  ? 'تأكيد إتقان وتسميع آيات اليوم (+30 XP) 🧠'
+                  : 'Confirm Today Hifz Mastery (+30 XP) 🧠'
+                : isAr
+                ? 'حفظ الورد وتسجيل قراءة اليوم 🌿'
+                : "Save Wird & Log Today's Reading 🌿"}
+            </span>
           </button>
 
           <button

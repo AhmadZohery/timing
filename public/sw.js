@@ -1,17 +1,17 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
 const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
 
-const CACHE_NAME = 'midmar-lifeos-v6';
+const CACHE_NAME = 'midmar-sanctuary-v9';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.webmanifest',
-  '/favicon.svg',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  '/icons/notification-badge-96x96.png',
-  '/icons/notification-badge-192x192.png',
-  '/icons/apple-touch-icon.png',
+  '/manifest.webmanifest?v=20261019',
+  '/favicon.svg?v=20261019',
+  '/icons/icon-192x192.png?v=20261019',
+  '/icons/icon-512x512.png?v=20261019',
+  '/icons/notification-badge-96x96.png?v=20261019',
+  '/icons/notification-badge-192x192.png?v=20261019',
+  '/icons/apple-touch-icon.png?v=20261019',
   '/icons.svg',
 ];
 
@@ -210,8 +210,13 @@ self.addEventListener('fetch', (event) => {
     event.request.mode === 'navigate' ||
     (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
 
-  if (isNavigation) {
-    // Network-First for HTML navigation: always fetch the latest HTML so new deployments & chunk hashes are loaded immediately
+  const isManifestOrIcon =
+    url.pathname.endsWith('manifest.webmanifest') ||
+    url.pathname.endsWith('favicon.svg') ||
+    url.pathname.startsWith('/icons/');
+
+  if (isNavigation || isManifestOrIcon) {
+    // Network-First for HTML navigation, manifest, and brand icons so updates reflect immediately on mobile
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
@@ -225,8 +230,11 @@ self.addEventListener('fetch', (event) => {
           // Offline fallback
           const cached = await caches.match(event.request);
           if (cached) return cached;
-          const fallback = await caches.match('/index.html');
-          return fallback || Response.error();
+          if (isNavigation) {
+            const fallback = await caches.match('/index.html');
+            return fallback || Response.error();
+          }
+          return Response.error();
         })
     );
     return;

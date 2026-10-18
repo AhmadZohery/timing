@@ -42,6 +42,8 @@ export type VisualMovementArchetype =
   | 'core_hanging'
   | 'calisthenics_skill';
 
+export type AthleteGender = 'male' | 'female';
+
 export interface VisualExerciseMetadata {
   id: string;
   nameAr: string;
@@ -61,6 +63,9 @@ export interface VisualExerciseMetadata {
   commonMistakeAr: string;
   breathingAr: string;
   routineTags: RoutineSplitId[];
+  photoUrls?: [string, string];
+  genderFocus?: 'both' | 'male' | 'female';
+  femaleCoachNoteAr?: string;
 }
 
 export const MUSCLE_GROUP_LABELS: Record<MuscleGroupId, { labelAr: string; labelEn: string }> = {
@@ -592,14 +597,269 @@ export const VISUAL_EXERCISE_ATLAS: VisualExerciseMetadata[] = [
     commonMistakeAr: 'السحب عمودياً بقرب البار فيصطدم الصدر بالبار ويستحيل الانتقال فوقه.',
     breathingAr: 'زفير انفجاري عند السحب الأقصى',
     routineTags: ['calisthenics', 'pull'],
+    genderFocus: 'male',
+  },
+
+  // ======================== WOMEN'S SCULPTING, GLUTES, PILATES & CORE (تمارين مخصصة للمرأة ونحت القوام) ========================
+  {
+    id: 'atlas-hip-thrust-glute',
+    nameAr: 'Hip Thrust / Glute Bridge (رفع الحوض لنحت وشد الأرداف)',
+    nameEn: 'Barbell / Dumbbell Hip Thrust & Glute Bridge',
+    muscleGroup: 'legs_hamstrings',
+    muscleLabelAr: 'الأرداف والخلفيات (Gluteus Maximus)',
+    secondaryMusclesAr: ['الأفخاذ الخلفية', 'جذع البطن السفلي'],
+    equipmentAr: 'بنش + بار أو دمبل أو وزن الجسم بالمنزل',
+    archetype: 'hip_hinge_rdl',
+    defaultBaseWeightKg: 35,
+    defaultRepsBulking: 12,
+    defaultRepsCutting: 15,
+    isCompound: true,
+    startPostureAr: 'اسندي أعلى الظهر (تحت لوحي الكتف مباشرة) على حافة البنش مع ثني الركبتين بزاوية 90 درجة.',
+    peakPostureAr: 'ادفعي بالكعبين لرفع الحوض حتى يصبح الجسم مستقيماً من الكتف للركبة مع عصر الأرداف ثانيتين في الأعلى.',
+    formCuesAr: [
+      'أبقِ الذقن مضمومة للصدر والنظرة للأمام لحماية أسفل الظهر من التقوس',
+      'ادفعي من الكعبين وليس من أصابع القدمين لعزل عضلة الأرداف بالكامل',
+      'اثبتي في قمة الحركة (Peak Contraction) لمدة 1-2 ثانية في كل عدة',
+    ],
+    commonMistakeAr: 'رفع الرأس للخلف أو تقوس أسفل الظهر بدلاً من الدفع بمفصل الحوض.',
+    breathingAr: 'شهيق عند النزول • زفير قوي عند رفع الحوض للأعلى',
+    routineTags: ['legs', 'cardio'],
+    genderFocus: 'female',
+    femaleCoachNoteAr: 'التمرين رقم ١ علمياً لشد ونحت عضلات الأرداف وتقوية الحوض بدون تحميل على الركبتين أو تضخيم الفخذ الأمامي.',
+    photoUrls: [
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Glute_Bridge/0.jpg',
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Glute_Bridge/1.jpg',
+    ],
+  },
+  {
+    id: 'atlas-bulgarian-split-squat',
+    nameAr: 'Bulgarian Split Squat (لانجز بلغاري لنحت الساقين والأرداف)',
+    nameEn: 'Dumbbell Bulgarian Split Squat / Lunges',
+    muscleGroup: 'legs_quads',
+    muscleLabelAr: 'الأرداف والفخذ المتناسق',
+    secondaryMusclesAr: ['عضلات التوازن', 'الخلفيات'],
+    equipmentAr: 'دمبل خفيف أو وزن الجسم + مقعد خلفك',
+    archetype: 'squat_press',
+    defaultBaseWeightKg: 12,
+    defaultRepsBulking: 10,
+    defaultRepsCutting: 14,
+    isCompound: true,
+    startPostureAr: 'ضعي مشط القدم الخلفية على مقعد، وتقدمي بالقدم الأمامية خطوة مريحة للأمام.',
+    peakPostureAr: 'انزلي ببطء مع ميل خفيف بالجذع للأمام (15°) لاستهداف الأرداف، ثم ادفعي بالكعب الأمامي للأعلى.',
+    formCuesAr: [
+      'الميل البسيط بالجذع للأمام يوجه التركيز نحو الأرداف والخلفيات بدلاً من الركبة',
+      'تأكدي أن الركبة الأمامية تتحرك في نفس اتجاه أصابع القدم ولا تميل للداخل',
+    ],
+    commonMistakeAr: 'الوقوف قريباً جداً من المقعد مما يضغط على الركبة الأمامية.',
+    breathingAr: 'شهيق عميق في النزول • زفير عند الصعود',
+    routineTags: ['legs'],
+    genderFocus: 'female',
+    femaleCoachNoteAr: 'يعالج عدم التماثل بين الساقين ويمنح قواماً مشدوداً ومتناسقاً للجزء السفلي في الجيم أو المنزل.',
+    photoUrls: [
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Lunges/0.jpg',
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Lunges/1.jpg',
+    ],
+  },
+  {
+    id: 'atlas-glute-kickback',
+    nameAr: 'Glute Kickbacks (ركل خلفي بالكابل أو حبل المقاومة)',
+    nameEn: 'Cable / Band Glute Kickbacks',
+    muscleGroup: 'legs_hamstrings',
+    muscleLabelAr: 'الأرداف العلوية والجانبية',
+    secondaryMusclesAr: ['أسفل الظهر الخفيف', 'الخلفيات'],
+    equipmentAr: 'كابل سفلي أو استك مقاومة منزلي (Resistance Band)',
+    archetype: 'leg_curl_calf',
+    defaultBaseWeightKg: 15,
+    defaultRepsBulking: 12,
+    defaultRepsCutting: 15,
+    isCompound: false,
+    startPostureAr: 'امسكي بجهاز الكابل أو الحائط، واثني الجذع للأمام بزاوية 30 درجة مع شد البطن.',
+    peakPostureAr: 'ادفعي الساق للخلف وللأعلى ببطء مع ثبات الحوض دون لفّ أسفل الظهر.',
+    formCuesAr: [
+      'الحركة تنبع من مفصل الحوض والأرداف وليس من مرجحة أسفل الظهر',
+      'يمكن أداؤه في المنزل باستك المقاومة (Booty Band) بنفس الكفاءة تماماً',
+    ],
+    commonMistakeAr: 'الركل بسرعة مفرطة وتقوس القطنية.',
+    breathingAr: 'زفير عند الركل للخلف • شهيق عند العودة البطيئة',
+    routineTags: ['legs', 'cardio'],
+    genderFocus: 'female',
+    femaleCoachNoteAr: 'تمرين عزل مثالي للسيدات في الجيم أو المنزل لرفع وشد عضلة الأرداف بدون أي إجهاد على المفاصل.',
+    photoUrls: [
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Glute_Kickback/0.jpg',
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Glute_Kickback/1.jpg',
+    ],
+  },
+  {
+    id: 'atlas-pilates-core-plank',
+    nameAr: 'Pilates Core Plank & Vacuum (بلانك وبيلاتس لشد الخصر والبطن)',
+    nameEn: 'Pilates Core Plank & Stomach Vacuum',
+    muscleGroup: 'core',
+    muscleLabelAr: 'الحزام البطني العميق والخصر (Transverse Abdominis)',
+    secondaryMusclesAr: ['قاع الحوض', 'الأكتاف والظهر'],
+    equipmentAr: 'بساط يوجا/بيلاتس (بدون معدات)',
+    archetype: 'core_hanging',
+    defaultBaseWeightKg: 0,
+    defaultRepsBulking: 15,
+    defaultRepsCutting: 20,
+    isCompound: true,
+    startPostureAr: 'ارتكزي على الساعدين وأطراف الأصابع بحيث يكون الجسم في خط مستقيم تماماً.',
+    peakPostureAr: 'اسحبي السرة للداخل باتجاه العمود الفقري (شفط البطن البيلاتس) مع تنفس هادئ ومنتظم.',
+    formCuesAr: [
+      'يركز على عضلة البطن المستعرضة العميقة التي تمنح خصراً مشدوداً ومسطحاً',
+      'آمن تماماً ومفيد جداً لصحة العمود الفقري وقاع الحوض للسيدات',
+    ],
+    commonMistakeAr: 'هبوط الحوض للأسفل أو كتم النفس أثناء الثبات.',
+    breathingAr: 'شهيق من الأنف • زفير طويل من الفم مع سحب البطن للداخل',
+    routineTags: ['cardio', 'legs', 'upper'],
+    genderFocus: 'female',
+    femaleCoachNoteAr: 'بديل صحي وفعّال لتمارين البطن العنيفة؛ ينحت الخصر ويقوي عضلات الجذع العميقة ويحسن استقامة القوام.',
+    photoUrls: [
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/0.jpg',
+      'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/1.jpg',
+    ],
   },
 ];
+
+const FREE_EXERCISE_DB_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises';
+
+/**
+ * Verified real step-by-step exercise photographs (Start Pose 0.jpg & Peak Pose 1.jpg)
+ */
+const EXERCISE_ID_PHOTO_MAP: Record<string, [string, string]> = {
+  'atlas-bench-barbell': [
+    `${FREE_EXERCISE_DB_BASE}/Barbell_Bench_Press_-_Medium_Grip/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Barbell_Bench_Press_-_Medium_Grip/1.jpg`,
+  ],
+  'atlas-incline-db': [
+    `${FREE_EXERCISE_DB_BASE}/Incline_Dumbbell_Press/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Incline_Dumbbell_Press/1.jpg`,
+  ],
+  'atlas-cable-fly': [
+    `${FREE_EXERCISE_DB_BASE}/Dumbbell_Flyes/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Dumbbell_Flyes/1.jpg`,
+  ],
+  'atlas-chest-dips': [
+    `${FREE_EXERCISE_DB_BASE}/Dips_-_Chest_Version/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Dips_-_Chest_Version/1.jpg`,
+  ],
+  'atlas-lat-pulldown': [
+    `${FREE_EXERCISE_DB_BASE}/Wide-Grip_Lat_Pulldown/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Wide-Grip_Lat_Pulldown/1.jpg`,
+  ],
+  'atlas-barbell-row': [
+    `${FREE_EXERCISE_DB_BASE}/Bent_Over_Barbell_Row/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Bent_Over_Barbell_Row/1.jpg`,
+  ],
+  'atlas-seated-cable-row': [
+    `${FREE_EXERCISE_DB_BASE}/Seated_Cable_Rows/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Seated_Cable_Rows/1.jpg`,
+  ],
+  'atlas-ohp': [
+    `${FREE_EXERCISE_DB_BASE}/Standing_Military_Press/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Standing_Military_Press/1.jpg`,
+  ],
+  'atlas-lateral-raise': [
+    `${FREE_EXERCISE_DB_BASE}/Side_Lateral_Raise/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Side_Lateral_Raise/1.jpg`,
+  ],
+  'atlas-face-pull': [
+    `${FREE_EXERCISE_DB_BASE}/Face_Pull/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Face_Pull/1.jpg`,
+  ],
+  'atlas-bicep-curl': [
+    `${FREE_EXERCISE_DB_BASE}/Barbell_Curl/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Barbell_Curl/1.jpg`,
+  ],
+  'atlas-hammer-curl': [
+    `${FREE_EXERCISE_DB_BASE}/Alternate_Hammer_Curl/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Alternate_Hammer_Curl/1.jpg`,
+  ],
+  'atlas-tricep-pushdown': [
+    `${FREE_EXERCISE_DB_BASE}/Triceps_Pushdown_-_Rope_Attachment/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Triceps_Pushdown_-_Rope_Attachment/1.jpg`,
+  ],
+  'atlas-overhead-tricep': [
+    `${FREE_EXERCISE_DB_BASE}/Standing_Dumbbell_Triceps_Extension/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Standing_Dumbbell_Triceps_Extension/1.jpg`,
+  ],
+  'atlas-squat': [
+    `${FREE_EXERCISE_DB_BASE}/Barbell_Full_Squat/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Barbell_Full_Squat/1.jpg`,
+  ],
+  'atlas-leg-press': [
+    `${FREE_EXERCISE_DB_BASE}/Leg_Press/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Leg_Press/1.jpg`,
+  ],
+  'atlas-rdl': [
+    `${FREE_EXERCISE_DB_BASE}/Romanian_Deadlift/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Romanian_Deadlift/1.jpg`,
+  ],
+  'atlas-leg-curl-calf': [
+    `${FREE_EXERCISE_DB_BASE}/Lying_Leg_Curls/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Lying_Leg_Curls/1.jpg`,
+  ],
+  'atlas-hanging-leg-raise': [
+    `${FREE_EXERCISE_DB_BASE}/Hanging_Leg_Raise/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Hanging_Leg_Raise/1.jpg`,
+  ],
+  'atlas-calisthenics-muscleup': [
+    `${FREE_EXERCISE_DB_BASE}/Muscle_Up/0.jpg`,
+    `${FREE_EXERCISE_DB_BASE}/Muscle_Up/1.jpg`,
+  ],
+};
+
+const ARCHETYPE_PHOTO_MAP: Record<VisualMovementArchetype, [string, string]> = {
+  bench_press: EXERCISE_ID_PHOTO_MAP['atlas-bench-barbell'],
+  incline_press: EXERCISE_ID_PHOTO_MAP['atlas-incline-db'],
+  chest_fly: EXERCISE_ID_PHOTO_MAP['atlas-cable-fly'],
+  overhead_press: EXERCISE_ID_PHOTO_MAP['atlas-ohp'],
+  lateral_raise: EXERCISE_ID_PHOTO_MAP['atlas-lateral-raise'],
+  dips_pushup: EXERCISE_ID_PHOTO_MAP['atlas-chest-dips'],
+  tricep_extension: EXERCISE_ID_PHOTO_MAP['atlas-tricep-pushdown'],
+  pullup_pulldown: EXERCISE_ID_PHOTO_MAP['atlas-lat-pulldown'],
+  row_horizontal: EXERCISE_ID_PHOTO_MAP['atlas-seated-cable-row'],
+  face_pull: EXERCISE_ID_PHOTO_MAP['atlas-face-pull'],
+  bicep_curl: EXERCISE_ID_PHOTO_MAP['atlas-bicep-curl'],
+  squat_press: EXERCISE_ID_PHOTO_MAP['atlas-squat'],
+  hip_hinge_rdl: EXERCISE_ID_PHOTO_MAP['atlas-rdl'],
+  leg_curl_calf: EXERCISE_ID_PHOTO_MAP['atlas-leg-curl-calf'],
+  core_hanging: EXERCISE_ID_PHOTO_MAP['atlas-hanging-leg-raise'],
+  calisthenics_skill: EXERCISE_ID_PHOTO_MAP['atlas-calisthenics-muscleup'],
+};
+
+export function getExerciseRealPhotos(
+  exerciseOrArchetype: VisualExerciseMetadata | VisualMovementArchetype
+): [string, string] {
+  if (typeof exerciseOrArchetype === 'string') {
+    return ARCHETYPE_PHOTO_MAP[exerciseOrArchetype] || ARCHETYPE_PHOTO_MAP.bench_press;
+  }
+  if (exerciseOrArchetype.photoUrls) {
+    return exerciseOrArchetype.photoUrls;
+  }
+  return (
+    EXERCISE_ID_PHOTO_MAP[exerciseOrArchetype.id] ||
+    ARCHETYPE_PHOTO_MAP[exerciseOrArchetype.archetype] ||
+    ARCHETYPE_PHOTO_MAP.bench_press
+  );
+}
 
 /**
  * Matches any exercise name (Arabic or English) to the best VisualExerciseMetadata entry!
  */
 export function matchExerciseToVisualAtlas(exerciseName: string): VisualExerciseMetadata {
   const q = exerciseName.toLowerCase();
+  if (/hip thrust|glute bridge|رفع الحوض|كوبري الأرداف/.test(q)) {
+    return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-hip-thrust-glute')!;
+  }
+  if (/split squat|lunge|بلغاري|لانجز|طعن/.test(q)) {
+    return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-bulgarian-split-squat')!;
+  }
+  if (/kickback|ركل خلفي|أرداف بالكابل/.test(q)) {
+    return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-glute-kickback')!;
+  }
+  if (/pilates|plank|vacuum|بيلاتس|بلانك|شفط البطن/.test(q)) {
+    return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-pilates-core-plank')!;
+  }
   if (/incline|مائل|علوي/.test(q) && /press|ضغط|تجميع|دمبل/.test(q)) {
     return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-incline-db')!;
   }
@@ -645,7 +905,7 @@ export function matchExerciseToVisualAtlas(exerciseName: string): VisualExercise
   if (/rdl|romanian|deadlift|رومانية|ديدلفت/.test(q)) {
     return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-rdl')!;
   }
-  if (/leg press|split squat|بلغاري|دفع الأرجل/.test(q)) {
+  if (/leg press|دفع الأرجل/.test(q)) {
     return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-leg-press')!;
   }
   if (/leg curl|calf|خلفيات|سمانة/.test(q)) {
@@ -657,7 +917,7 @@ export function matchExerciseToVisualAtlas(exerciseName: string): VisualExercise
   if (/muscle-up|lever|planche|ماسل أب|فرونت ليفر|بلانش/.test(q)) {
     return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-calisthenics-muscleup')!;
   }
-  if (/leg raise|ab |core|plank|بطن|بلانك/.test(q)) {
+  if (/leg raise|ab |core|بطن/.test(q)) {
     return VISUAL_EXERCISE_ATLAS.find((x) => x.id === 'atlas-hanging-leg-raise')!;
   }
   return VISUAL_EXERCISE_ATLAS[0];
@@ -672,7 +932,6 @@ export function getAlternativeExercisesFor(currentExerciseName: string): VisualE
     (item) => item.muscleGroup === matched.muscleGroup && item.id !== matched.id
   );
   if (sameMuscle.length >= 2) return sameMuscle;
-  // Include related muscles if group is small
   const related = VISUAL_EXERCISE_ATLAS.filter(
     (item) =>
       item.id !== matched.id &&
@@ -702,12 +961,12 @@ export const YESTERDAY_SPLIT_OPTIONS: Array<{
 }> = [
   { id: 'push', labelAr: '💪 دفع (صدر وكتف وترايسبس)', shortAr: 'دفع (Push)', icon: '💪' },
   { id: 'pull', labelAr: '🦅 سحب (ظهر وبايسبس وخلفي)', shortAr: 'سحب (Pull)', icon: '🦅' },
-  { id: 'legs', labelAr: '🦵 أرجل وبطن (Legs & Core)', shortAr: 'أرجل (Legs)', icon: '🦵' },
-  { id: 'upper', labelAr: '🔥 علوي شامل (Upper Body)', shortAr: 'علوي (Upper)', icon: '🔥' },
+  { id: 'legs', labelAr: '🦵 أرجل وأرداف وبطن (Lower & Core)', shortAr: 'أرجل وأرداف', icon: '🦵' },
+  { id: 'upper', labelAr: '🔥 علوي شامل وشد القوام (Upper Body)', shortAr: 'علوي (Upper)', icon: '🔥' },
   { id: 'arms_delts', labelAr: '💥 ذراع وأكتاف (Arms & Delts)', shortAr: 'ذراع وأكتاف', icon: '💥' },
-  { id: 'combat', labelAr: '🥊 فنون قتالية (بوكس / كيك / جوجيتسو)', shortAr: 'قتال (Combat)', icon: '🥊' },
-  { id: 'calisthenics', labelAr: '🤸‍♂️ كاليستنكس ومهارات وزن الجسم', shortAr: 'كاليستنكس', icon: '🤸‍♂️' },
-  { id: 'cardio', labelAr: '🏃 كارديو وحرق دهون وبطن', shortAr: 'كارديو وبطن', icon: '🏃' },
+  { id: 'combat', labelAr: '🥊 فنون قتالية (بوكس / كيك / دفاع)', shortAr: 'قتال (Combat)', icon: '🥊' },
+  { id: 'calisthenics', labelAr: '🤸‍♂️ كاليستنكس ومرونة وزن الجسم', shortAr: 'كاليستنكس', icon: '🤸‍♂️' },
+  { id: 'cardio', labelAr: '🏃 كارديو وبيلاتس ونحت البطن', shortAr: 'كارديو وبيلاتس', icon: '🏃' },
   { id: 'rest', labelAr: '🛌 أمس كان يوم راحة واستشفاء', shortAr: 'راحة (Rest)', icon: '🛌' },
 ];
 
@@ -715,9 +974,54 @@ export function computeTodaySmartRecommendation(
   yesterdaySplit: RoutineSplitId,
   bodyGoal: BodyGoalType,
   secondarySport: SecondarySportType,
-  _athleteLevel: AthleteLevelType
+  _athleteLevel: AthleteLevelType,
+  gender: AthleteGender = 'male'
 ): SmartSplitRecommendation {
   const yOpt = YESTERDAY_SPLIT_OPTIONS.find((o) => o.id === yesterdaySplit) || YESTERDAY_SPLIT_OPTIONS[0];
+
+  // Specialized Women's Recovery & Sculpting Smart Coach
+  if (gender === 'female') {
+    if (yesterdaySplit === 'legs') {
+      return {
+        yesterdaySplit,
+        yesterdayLabelAr: yOpt.labelAr,
+        recommendedSplit: 'upper',
+        recommendedTitleAr: '🌸 يوم شد الجزء العلوي واستقامة الظهر والكتف (Upper Body Toning & Posture)',
+        recommendedReasonAr:
+          'لأنكِ درّبتِ الجزء السفلي والأرداف أمس، فالعضلات السفلية تحتاج 48 ساعة للاستشفاء والشد؛ اليوم مثالي لشد الذراعين والظهر وتحسين استقامة القوام وبيلاتس البطن!',
+        alternativeTitleAr: '🧘‍♀️ أو: حصة بيلاتس وكارديو خفيف وشد الخصر (Pilates & Core Flow)',
+        alternativeSplit: 'cardio',
+        recoveringMusclesAr: ['الأرداف (Glutes)', 'الأفخاذ الأمامية والخلفية'],
+        freshMusclesAr: ['الظهر واستقامة الكتفين 100%', 'الذراعين والـ Core 100%'],
+      };
+    }
+    if (yesterdaySplit === 'upper' || yesterdaySplit === 'push' || yesterdaySplit === 'pull') {
+      return {
+        yesterdaySplit,
+        yesterdayLabelAr: yOpt.labelAr,
+        recommendedSplit: 'legs',
+        recommendedTitleAr: '🍑 يوم نحت وشد الجزء السفلي والأرداف (Glutes, Legs & Core Sculpt)',
+        recommendedReasonAr:
+          'الجزء العلوي في مرحلة استشفاء من تمرين أمس؛ اليوم هو التوقيت المثالي لتمارين الـ Hip Thrust واللانجز البلغاري والـ RDL لنحت القوام السفلي بأفضل طاقة!',
+        alternativeTitleAr: '🏃‍♀️ أو: كارديو حرق دهون وتمارين بيلاتس للبطن والمرونة',
+        alternativeSplit: 'cardio',
+        recoveringMusclesAr: ['الظهر والأكتاف', 'الذراعين'],
+        freshMusclesAr: ['الأرداف والخلفيات 100%', 'الساقين وعضلات الحوض 100%'],
+      };
+    }
+    return {
+      yesterdaySplit,
+      yesterdayLabelAr: yOpt.labelAr,
+      recommendedSplit: 'legs',
+      recommendedTitleAr: '🍑 البداية الذهبية: يوم نحت القوام السفلي والأرداف والـ Core',
+      recommendedReasonAr:
+        'جسمكِ في كامل نشاطه واستشفائه اليوم! البدء بتمارين الجزء السفلي والأرداف (Hip Thrust + Split Squat + RDL) يحفز حرق الدهون وشد القوام بأعلى كفاءة.',
+      alternativeTitleAr: '🌸 أو: يوم علوي متناسق وشد الذراعين والظهر (Upper Body Sculpt)',
+      alternativeSplit: 'upper',
+      recoveringMusclesAr: ['جميع العضلات في كامل الاستشفاء والحيوية!'],
+      freshMusclesAr: ['الأرداف والساقين 100%', 'البطن والخصر 100%', 'الجزء العلوي 100%'],
+    };
+  }
 
   if (yesterdaySplit === 'push') {
     return {

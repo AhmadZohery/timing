@@ -41,7 +41,17 @@ export interface MobileAudioTrack {
   titleEn: string;
   sheikhAr: string;
   sheikhEn: string;
-  category: 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio' | 'mindset' | 'zawaj' | 'siyra';
+  category:
+    | 'khutbah'
+    | 'quran'
+    | 'adhkar'
+    | 'tazkiyah'
+    | 'radio'
+    | 'mindset'
+    | 'zawaj'
+    | 'siyra'
+    | 'men_fiqh'
+    | 'women_fiqh';
   audioUrl: string;
   durationFormatted: string;
   badgeAr: string;
@@ -663,6 +673,82 @@ export const VERIFIED_FAITH_TRACKS: MobileAudioTrack[] = [
     icon: '⚡',
   },
 
+  // --- 6.5 دروس وفقه الرجل المسلم (الفتوة، القوامة، الكسب الحلال، وغض البصر) ---
+  {
+    id: 'track_men_fiqh_01',
+    titleAr: 'رجولة المؤمن وفتوة الصحابة: القوة والأمانة والقيادة في الإسلام',
+    titleEn: 'Believer Manhood & Chivalry of the Companions',
+    sheikhAr: 'الشيخ محمد مختار الشنقيطي',
+    sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
+    category: 'men_fiqh',
+    audioUrl: 'https://archive.org/download/Shanqeeti_Durus_Muntaqah/01_Thabat.mp3',
+    durationFormatted: '42:15',
+    badgeAr: '🧔 فقه وبناء الرجل',
+    icon: '🧔',
+  },
+  {
+    id: 'track_men_fiqh_02',
+    titleAr: 'مسؤولية الرجل في القوامة الرحيمة، الكسب الطيب، وحماية الأسرة',
+    titleEn: 'Merciful Qiwamah, Halal Earning & Family Leadership',
+    sheikhAr: 'م. أيمن عبد الرحيم (فك الله أسره)',
+    sheikhEn: 'Eng. Ayman Abdelrahim',
+    category: 'men_fiqh',
+    audioUrl: 'https://archive.org/download/03_20191120_20191120/04.mp3',
+    durationFormatted: '135:48',
+    badgeAr: '🛡️ القوامة والمسؤولية',
+    icon: '⚔️',
+  },
+  {
+    id: 'track_men_fiqh_03',
+    titleAr: 'مجاهدة الشهوات وغض البصر وحفظ الفرج للشباب والرجال',
+    titleEn: 'Lowering the Gaze & Guarding Chastity for Men',
+    sheikhAr: 'الشيخ عبد الرزاق البدر',
+    sheikhEn: 'Sheikh Abdur Razzaq Al-Badr',
+    category: 'men_fiqh',
+    audioUrl: 'https://archive.org/download/Aldaa_Wa_Aldawaa_Badr/01.mp3',
+    durationFormatted: '39:20',
+    badgeAr: '🦁 عفة الفتى المسلم',
+    icon: '🧔',
+  },
+
+  // --- 6.6 دروس وفقه المرأة المسلمة (الطهارة، العذر الشرعي، قدوات الصحابيات، والسكينة) ---
+  {
+    id: 'track_women_fiqh_01',
+    titleAr: 'فقه المرأة المسلمة: أحكام الطهارة والصلاة والعبادة حال العذر الشرعي',
+    titleEn: 'Muslim Woman Fiqh: Purification, Prayer & Worship During Menses',
+    sheikhAr: 'الشيخ عبد العزيز الطريفي (فك الله أسره)',
+    sheikhEn: 'Sheikh Abdul Aziz Al-Tarefe',
+    category: 'women_fiqh',
+    audioUrl: 'https://archive.org/download/S_Tafssir-5_uP_bY_mUSLEm/001.mp3',
+    durationFormatted: '38:20',
+    badgeAr: '🌸 فقه وطهارة المرأة',
+    icon: '🧕',
+  },
+  {
+    id: 'track_women_fiqh_02',
+    titleAr: 'سير أمهات المؤمنين: الصديقة عائشة وخديجة وفاطمة رضي الله عنهن',
+    titleEn: 'Mothers of the Believers: Aisha, Khadijah & Fatimah',
+    sheikhAr: 'الشيخ عبد الحميد كشك (رحمه الله)',
+    sheikhEn: 'Sheikh Abdul Hamid Kishk',
+    category: 'women_fiqh',
+    audioUrl: 'https://archive.org/download/Keshik_uP_bY_mUSLEm/003_uP_bY_mUSLEm.Ettounssi.mp3',
+    durationFormatted: '38:50',
+    badgeAr: '👑 قدوات نساء الإسلام',
+    icon: '🌸',
+  },
+  {
+    id: 'track_women_fiqh_03',
+    titleAr: 'رسالة إلى المرأة المسلمة: الحجاب، الحياء، وبناء الجيل الصالح',
+    titleEn: 'Message to the Muslim Woman: Modesty, Peace & Raising Righteous Generations',
+    sheikhAr: 'الشيخ محمد مختار الشنقيطي',
+    sheikhEn: 'Sheikh Muhammad Mukhtar Al-Shanqeeti',
+    category: 'women_fiqh',
+    audioUrl: 'https://archive.org/download/Shanqeeti_Durus_Muntaqah/02_Tawakkul.mp3',
+    durationFormatted: '37:40',
+    badgeAr: '💎 تاج الحياء والسكينة',
+    icon: '🧕',
+  },
+
   // --- 7. إذاعات القرآن الكريم الحية (24/7 Live Stream) متطابقة مع قنوات مضمار ---
   ...GYM_FAITH_CHANNELS.map((ch) => ({
     id: `track_radio_${ch.id}`,
@@ -696,7 +782,18 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const [selectedScholarId, setSelectedScholarId] = useState<string>('ayman_abdelrahim');
   const [expandedSeriesId, setExpandedSeriesId] = useState<string | null>('series_ayman_zawaj_bayt_muslim');
   const [activeCategory, setActiveCategory] = useState<
-    'all' | 'favorites' | 'zawaj' | 'mindset' | 'siyra' | 'khutbah' | 'quran' | 'adhkar' | 'tazkiyah' | 'radio'
+    | 'all'
+    | 'favorites'
+    | 'men_fiqh'
+    | 'women_fiqh'
+    | 'zawaj'
+    | 'mindset'
+    | 'siyra'
+    | 'khutbah'
+    | 'quran'
+    | 'adhkar'
+    | 'tazkiyah'
+    | 'radio'
   >('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
@@ -757,6 +854,8 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
   const categories = useMemo(() => [
     { id: 'all', label: isAr ? '✨ الكل' : 'All', count: allCombinedTracks.length },
     { id: 'favorites', label: isAr ? '💖 المفضلة' : 'Favorites', count: favoriteIds.length },
+    { id: 'men_fiqh', label: isAr ? '🧔 دروس وفقه الرجل' : 'Men Fiqh & Character', count: allCombinedTracks.filter(t => t.category === 'men_fiqh').length },
+    { id: 'women_fiqh', label: isAr ? '🧕 دروس وفقه المرأة' : 'Women Fiqh & Sanctuary', count: allCombinedTracks.filter(t => t.category === 'women_fiqh').length },
     { id: 'quran', label: isAr ? '📖 تلاوات خاشعة' : 'Recitations', count: allCombinedTracks.filter(t => t.category === 'quran').length },
     { id: 'radio', label: isAr ? '📻 إذاعات حية 24/7' : 'Live Radios', count: allCombinedTracks.filter(t => t.category === 'radio').length },
     { id: 'tazkiyah', label: isAr ? '💖 تزكية ورقائق' : 'Tazkiyah', count: allCombinedTracks.filter(t => t.category === 'tazkiyah').length },

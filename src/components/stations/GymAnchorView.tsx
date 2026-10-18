@@ -37,6 +37,7 @@ import {
   YESTERDAY_SPLIT_OPTIONS,
   type RoutineSplitId,
   type VisualExerciseMetadata,
+  type AthleteGender,
 } from '../../data/visualExerciseAtlas';
 import type { NiyyahPillar } from '../spiritual/NiyyahSanctuaryModal';
 import confetti from 'canvas-confetti';
@@ -612,6 +613,72 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
     return (localStorage.getItem('midmar_yesterday_split') as RoutineSplitId) || 'push';
   });
 
+  // Athlete Gender Profile (🧔 رجل / 🌸 امرأة) for tailored exercises, coaching & religious notes
+  const [athleteGender, setAthleteGender] = useState<AthleteGender>(() => {
+    return (localStorage.getItem('midmar_user_gender_profile') as AthleteGender) || 'male';
+  });
+
+  const handleSelectGender = (g: AthleteGender) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setAthleteGender(g);
+    localStorage.setItem('midmar_user_gender_profile', g);
+    if (g === 'female') {
+      // Load specialized women's glutes, lower-body sculpting & core routine if user switches to female
+      saveExercises([
+        {
+          id: 'fem-1',
+          name: isAr ? 'Hip Thrust / Glute Bridge (دفع الحوض لتقوية ونحت الأرداف)' : 'Barbell / DB Hip Thrust',
+          sets: [
+            { weight: 30, reps: 12, done: false },
+            { weight: 35, reps: 12, done: false },
+            { weight: 35, reps: 10, done: false },
+          ],
+        },
+        {
+          id: 'fem-2',
+          name: isAr ? 'Bulgarian Split Squat (سكوات بلغاري لنحت الفخذ والأرداف)' : 'Bulgarian Split Squat',
+          sets: [
+            { weight: 10, reps: 12, done: false },
+            { weight: 10, reps: 12, done: false },
+            { weight: 12, reps: 10, done: false },
+          ],
+        },
+        {
+          id: 'fem-3',
+          name: isAr ? 'Romanian Deadlift - RDL (ديدلفت روماني للخلفيات والأرداف)' : 'Romanian Deadlift (RDL)',
+          sets: [
+            { weight: 25, reps: 12, done: false },
+            { weight: 30, reps: 12, done: false },
+            { weight: 30, reps: 10, done: false },
+          ],
+        },
+        {
+          id: 'fem-4',
+          name: isAr ? 'Pilates Core Plank & Vacuum (بلانك وبيلاتس لشد الخصر والحوض)' : 'Pilates Plank & Core Vacuum',
+          sets: [
+            { weight: 0, reps: 15, done: false },
+            { weight: 0, reps: 15, done: false },
+            { weight: 0, reps: 15, done: false },
+          ],
+        },
+      ]);
+      if (onRewardToast) {
+        onRewardToast(
+          isAr
+            ? '🌸 تم تفعيل برنامج المرأة (نحت القوام، البيلاتس، وتوجيهات فقه وصحة المرأة)!'
+            : '🌸 Activated Women Sculpting, Pilates & Wellness mode!'
+        );
+      }
+    } else if (onRewardToast) {
+      onRewardToast(
+        isAr
+          ? '🧔 تم تفعيل برنامج الرجل (القوة، التضخيم، والفنون القتالية)!'
+          : '🧔 Activated Men Strength & Hypertrophy mode!'
+      );
+    }
+  };
+
   // Visual Exercise Guide, 1-Tap Swapper & Custom Picker Modal State
   const [visualModalState, setVisualModalState] = useState<{
     isOpen: boolean;
@@ -626,8 +693,15 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
   });
 
   const smartRecommendation = React.useMemo(
-    () => computeTodaySmartRecommendation(yesterdaySplit, bodyGoal, secondarySport, athleteLevel),
-    [yesterdaySplit, bodyGoal, secondarySport, athleteLevel]
+    () =>
+      computeTodaySmartRecommendation(
+        yesterdaySplit,
+        bodyGoal,
+        secondarySport,
+        athleteLevel,
+        athleteGender
+      ),
+    [yesterdaySplit, bodyGoal, secondarySport, athleteLevel, athleteGender]
   );
 
   // Niyyah (Intention) Consecration Engine
@@ -1624,13 +1698,74 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                   </p>
                 </div>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold">
-                {athleteLevel === 'beginner'
-                  ? isAr ? '🌱 مستوى مبتدئ' : '🌱 Beginner'
-                  : athleteLevel === 'intermediate'
-                  ? isAr ? '⚡ مستوى متوسط' : '⚡ Intermediate'
-                  : isAr ? '🏆 مستوى متقدم' : '🏆 Advanced'}
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Gender Toggle: 🧔 رجل vs 🌸 امرأة */}
+                <div className="flex items-center rounded-full bg-zinc-100 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('male')}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      athleteGender === 'male'
+                        ? 'bg-[#141517] dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                        : 'text-zinc-600 dark:text-zinc-400'
+                    }`}
+                  >
+                    {isAr ? '🧔 رجل (قوة وتضخيم)' : '🧔 Men'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectGender('female')}
+                    className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                      athleteGender === 'female'
+                        ? 'bg-pink-600 text-white shadow-xs'
+                        : 'text-zinc-600 dark:text-zinc-400'
+                    }`}
+                  >
+                    {isAr ? '🌸 امرأة (نحت وبيلاتس)' : '🌸 Women'}
+                  </button>
+                </div>
+
+                <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold">
+                  {athleteLevel === 'beginner'
+                    ? isAr ? '🌱 مستوى مبتدئ' : '🌱 Beginner'
+                    : athleteLevel === 'intermediate'
+                    ? isAr ? '⚡ مستوى متوسط' : '⚡ Intermediate'
+                    : isAr ? '🏆 مستوى متقدم' : '🏆 Advanced'}
+                </span>
+              </div>
+            </div>
+
+            {/* Gender-Differentiated Fiqh, Physiology & Focus Banner */}
+            <div
+              className={`p-3.5 rounded-2xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 ${
+                athleteGender === 'female'
+                  ? 'bg-pink-500/10 border-pink-500/30 text-pink-950 dark:text-pink-200'
+                  : 'bg-indigo-500/10 border-indigo-500/25 text-indigo-950 dark:text-indigo-200'
+              }`}
+            >
+              <div className="space-y-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <span>{athleteGender === 'female' ? '🌸' : '🧔'}</span>
+                  <span>
+                    {athleteGender === 'female'
+                      ? isAr
+                        ? 'وضع رياضة وفقه المرأة المسلمة: نحت القوام، البيلاتس، ومراعاة الفطرة'
+                        : 'Women Fitness & Fiqh Mode: Sculpting, Pilates & Modesty'
+                      : isAr
+                      ? 'وضع رياضة وفقه الرجل المسلم: البناء العضلي، القوة، والفتوة النبوية'
+                      : 'Men Strength & Fiqh Mode: Hypertrophy, Power & Prophetic Chivalry'}
+                  </span>
+                </div>
+                <p className="text-[11px] opacity-90 leading-relaxed">
+                  {athleteGender === 'female'
+                    ? isAr
+                      ? 'يركّز هذا المسار على تمارين شد ونحت الجزء السفلي والأرداف (Glutes & Legs)، تقوية قاع الحوض والـ Core بالبيلاتس، وشد الذراعين والظهر بدون ضخامة مفرطة، مع مراعاة فترات الراحة والعذر الشرعي وضوابط الخصوصية الشرعية.'
+                      : 'Focuses on lower-body sculpting, glutes, core pilates, posture, and cycle-aware recovery.'
+                    : isAr
+                    ? 'يركّز هذا المسار على التضخيم العضلي المتناسق (V-Taper)، القوة المركبة، والدمج مع الفنون القتالية عملاً بحديث «المؤمن القوي خير وأحب إلى الله» مع حفظ عورة الرجل في الصالات الرياضية (من السرة إلى الركبة).'
+                    : 'Focuses on compound strength, V-taper hypertrophy, combat conditioning, and athletic Sunnah.'}
+                </p>
+              </div>
             </div>
 
             {/* Row 1: Primary Body Goal (تضخيم / تنشيف / إعادة تشكيل / قوة قتالية) */}
@@ -2316,9 +2451,9 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
                           });
                         }}
                         className="group relative cursor-pointer shrink-0"
-                        title={isAr ? 'اضغط لعرض شكل الحركة التفصيلي والعضلات المستهدفة' : 'Tap to inspect visual form'}
+                        title={isAr ? 'اضغط لعرض صور الحركة الحقيقية والعضلات المستهدفة' : 'Tap to inspect real movement photos'}
                       >
-                        <ExerciseMovementDiagram archetype={atlasMeta.archetype} compact />
+                        <ExerciseMovementDiagram archetype={atlasMeta.archetype} exercise={atlasMeta} compact />
                         <span className="absolute -bottom-1 -end-1 w-5 h-5 rounded-full bg-[#141517] text-emerald-400 border border-white/20 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                           <Eye className="w-3 h-3" />
                         </span>
@@ -2673,6 +2808,8 @@ export const GymAnchorView: React.FC<GymAnchorViewProps> = ({
         onSwapExercise={handleSwapExercise}
         onToggleLibraryExercise={handleToggleLibraryExercise}
         isAr={isAr}
+        athleteGender={athleteGender}
+        onChangeGender={handleSelectGender}
       />
     </div>
   );

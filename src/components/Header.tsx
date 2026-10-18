@@ -870,7 +870,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Logo */}
           <img
-            src="/favicon.svg"
+            src="/favicon.svg?v=20261019"
             alt="Midmar Logo"
             className="hidden sm:block w-9 h-9 rounded-xl shadow-md shadow-emerald-950/30 group-hover:scale-105 group-hover:shadow-emerald-500/30 transition-all object-cover shrink-0"
           />

@@ -1,39 +1,162 @@
-import React, { useState } from 'react';
-import { X, Check, RefreshCw, Plus, Sparkles, Eye, Dumbbell, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Check, RefreshCw, Plus, Sparkles, Eye, Dumbbell, ShieldAlert, Play, Pause } from 'lucide-react';
 import {
   VISUAL_EXERCISE_ATLAS,
   MUSCLE_GROUP_LABELS,
   matchExerciseToVisualAtlas,
   getAlternativeExercisesFor,
+  getExerciseRealPhotos,
   type VisualExerciseMetadata,
   type VisualMovementArchetype,
   type MuscleGroupId,
+  type AthleteGender,
 } from '../../data/visualExerciseAtlas';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
 
 interface ExerciseMovementDiagramProps {
   archetype: VisualMovementArchetype;
+  exercise?: VisualExerciseMetadata;
   compact?: boolean;
   className?: string;
 }
 
 /**
- * Interactive SVG Biomechanical Figure & Muscle Highlight Illustration
- * Renders the athlete's posture, apparatus (bench/bar/cables/rack), glowing target muscles,
- * and motion trajectory vectors.
+ * Real Imported Exercise Photographs (Start Pose 0.jpg + Peak Pose 1.jpg)
+ * with interactive motion playback AND Biomechanical Muscle Highlight toggle.
  */
 export const ExerciseMovementDiagram: React.FC<ExerciseMovementDiagramProps> = ({
   archetype,
+  exercise,
   compact = false,
   className = '',
 }) => {
+  const photos = getExerciseRealPhotos(exercise || archetype);
+  const [activeFrame, setActiveFrame] = useState<0 | 1>(1);
+  const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(!compact);
+  const [photoError, setPhotoError] = useState<boolean>(false);
+  const [displayMode, setDisplayMode] = useState<'photo' | 'anatomy'>('photo');
+
+  useEffect(() => {
+    setPhotoError(false);
+  }, [archetype, exercise?.id]);
+
+  useEffect(() => {
+    if (compact || !isAutoPlaying || photoError || displayMode !== 'photo') return;
+    const timer = setInterval(() => {
+      setActiveFrame((prev) => (prev === 0 ? 1 : 0));
+    }, 1350);
+    return () => clearInterval(timer);
+  }, [compact, isAutoPlaying, photoError, displayMode]);
+
   return (
     <div
       className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#11161d] via-[#151d26] to-[#0e1318] border border-white/10 flex items-center justify-center select-none ${
-        compact ? 'w-16 h-16 sm:w-20 sm:h-16 shrink-0' : 'w-full h-48 sm:h-56'
+        compact ? 'w-16 h-16 sm:w-20 sm:h-16 shrink-0' : 'w-full h-56 sm:h-64'
       } ${className}`}
     >
+      {/* REAL IMPORTED EXERCISE MOVEMENT PHOTOS (START & PEAK FRAMES) */}
+      {!photoError && displayMode === 'photo' && (
+        <div className="relative z-20 w-full h-full flex flex-col justify-between">
+          {compact ? (
+            <img
+              src={photos[1] || photos[0]}
+              alt={exercise?.nameEn || archetype}
+              loading="lazy"
+              onError={() => setPhotoError(true)}
+              className="w-full h-full object-cover object-center"
+            />
+          ) : (
+            <>
+              {/* Split / Animated Real Photo Stage */}
+              <div className="relative w-full h-full overflow-hidden bg-zinc-950">
+                <img
+                  src={photos[activeFrame] || photos[0]}
+                  alt={`${exercise?.nameEn || archetype} frame ${activeFrame + 1}`}
+                  onError={() => setPhotoError(true)}
+                  className="w-full h-full object-cover object-center transition-all duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />
+
+                {/* Top Controls: Frame Indicator + Anatomy Toggle */}
+                <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-2 z-30">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsAutoPlaying((p) => !p);
+                    }}
+                    className="px-2.5 py-1 rounded-full bg-black/70 hover:bg-black/85 border border-white/20 text-[10px] font-bold text-white flex items-center gap-1 cursor-pointer backdrop-blur-xs"
+                  >
+                    {isAutoPlaying ? <Pause className="w-3 h-3 text-emerald-400" /> : <Play className="w-3 h-3 text-amber-400" />}
+                    <span>{isAutoPlaying ? 'حركة حية (1⇄2)' : 'تشغيل الحركة'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDisplayMode('anatomy');
+                    }}
+                    className="px-2.5 py-1 rounded-full bg-black/70 hover:bg-black/85 border border-emerald-400/40 text-[10px] font-bold text-emerald-300 cursor-pointer backdrop-blur-xs"
+                  >
+                    🧬 خريطة العضلات
+                  </button>
+                </div>
+
+                {/* Bottom Interactive 2-Step Pose Selector Thumbnails */}
+                <div className="absolute bottom-2 inset-x-2.5 flex items-center justify-between gap-2 z-30">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsAutoPlaying(false);
+                      setActiveFrame(0);
+                    }}
+                    className={`flex-1 py-1 px-2 rounded-xl border text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all backdrop-blur-xs ${
+                      activeFrame === 0
+                        ? 'bg-amber-500 text-zinc-950 border-amber-300 shadow-sm'
+                        : 'bg-black/65 text-zinc-200 border-white/15'
+                    }`}
+                  >
+                    <span>١. وضع البداية</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsAutoPlaying(false);
+                      setActiveFrame(1);
+                    }}
+                    className={`flex-1 py-1 px-2 rounded-xl border text-[10px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all backdrop-blur-xs ${
+                      activeFrame === 1
+                        ? 'bg-emerald-500 text-zinc-950 border-emerald-300 shadow-sm'
+                        : 'bg-black/65 text-zinc-200 border-white/15'
+                    }`}
+                  >
+                    <span>٢. ذروة الأداء ✓</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Button to switch back to Real Photos when in Anatomy Mode */}
+      {!compact && displayMode === 'anatomy' && !photoError && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setDisplayMode('photo');
+          }}
+          className="absolute top-2.5 end-2.5 z-30 px-2.5 py-1 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-extrabold shadow-md cursor-pointer"
+        >
+          📸 عرض الصور الحقيقية للتمرين
+        </button>
+      )}
+
       {/* Subtle biomechanical grid background */}
       <svg className="absolute inset-0 w-full h-full opacity-15 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
         <defs>
@@ -44,10 +167,10 @@ export const ExerciseMovementDiagram: React.FC<ExerciseMovementDiagramProps> = (
         <rect width="100" height="100" fill={`url(#grid-${archetype})`} />
       </svg>
 
-      {/* Main Biomechanical SVG Figure */}
+      {/* Fallback / Anatomy Biomechanical SVG Figure */}
       <svg
         viewBox="0 0 160 110"
-        className="relative z-10 w-full h-full p-1.5"
+        className={`relative z-10 w-full h-full p-1.5 ${!photoError && displayMode === 'photo' ? 'hidden' : ''}`}
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -391,6 +514,8 @@ interface VisualExerciseGuideModalProps {
   currentExercisesNames?: string[];
   onSwapExercise?: (newExerciseMeta: VisualExerciseMetadata) => void;
   onToggleLibraryExercise?: (exerciseMeta: VisualExerciseMetadata) => void;
+  athleteGender?: AthleteGender;
+  onChangeGender?: (gender: AthleteGender) => void;
   isAr?: boolean;
 }
 
@@ -402,13 +527,20 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
   currentExercisesNames = [],
   onSwapExercise,
   onToggleLibraryExercise,
+  athleteGender = 'male',
+  onChangeGender,
   isAr = true,
 }) => {
   const [activeTab, setActiveTab] = useState<'guide' | 'swap' | 'library'>(initialTab);
-  const [selectedMuscleFilter, setSelectedMuscleFilter] = useState<MuscleGroupId | 'all'>('all');
+  const [selectedMuscleFilter, setSelectedMuscleFilter] = useState<MuscleGroupId | 'all' | 'female_sculpt'>('all');
+  const [localGender, setLocalGender] = useState<AthleteGender>(athleteGender);
   const [inspectedExercise, setInspectedExercise] = useState<VisualExerciseMetadata>(() =>
     matchExerciseToVisualAtlas(initialExerciseName)
   );
+
+  React.useEffect(() => {
+    setLocalGender(athleteGender);
+  }, [athleteGender]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -424,7 +556,25 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
   const filteredLibrary =
     selectedMuscleFilter === 'all'
       ? VISUAL_EXERCISE_ATLAS
+      : selectedMuscleFilter === 'female_sculpt'
+      ? VISUAL_EXERCISE_ATLAS.filter(
+          (ex) =>
+            ex.genderFocus === 'female' ||
+            ex.muscleGroup === 'legs_hamstrings' ||
+            ex.muscleGroup === 'legs_quads' ||
+            ex.muscleGroup === 'core'
+        )
       : VISUAL_EXERCISE_ATLAS.filter((ex) => ex.muscleGroup === selectedMuscleFilter);
+
+  const handleSelectGender = (g: AthleteGender) => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    setLocalGender(g);
+    onChangeGender?.(g);
+    if (g === 'female' && selectedMuscleFilter === 'all') {
+      setSelectedMuscleFilter('female_sculpt');
+    }
+  };
 
   return (
     <div
@@ -436,8 +586,8 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[30px] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-white/10 shadow-2xl p-4 sm:p-6 space-y-4"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-200/80 dark:border-white/10">
+        {/* Header + Male/Female Profile Switcher */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-200/80 dark:border-white/10">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-2xl bg-[#141517] dark:bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
               <Dumbbell className="w-5 h-5" />
@@ -454,13 +604,41 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 ms-auto sm:ms-0">
+            {/* Male vs Female Quick Switcher */}
+            <div className="inline-flex items-center p-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => handleSelectGender('male')}
+                className={`px-2.5 py-1 rounded-full cursor-pointer transition-all ${
+                  localGender === 'male'
+                    ? 'bg-[#141517] dark:bg-emerald-500 text-white dark:text-zinc-950 shadow-2xs'
+                    : 'text-zinc-600 dark:text-zinc-400'
+                }`}
+              >
+                🧔 رجل
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectGender('female')}
+                className={`px-2.5 py-1 rounded-full cursor-pointer transition-all ${
+                  localGender === 'female'
+                    ? 'bg-rose-500 text-white shadow-2xs'
+                    : 'text-zinc-600 dark:text-zinc-400'
+                }`}
+              >
+                🌸 امرأة
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* 3 Mode Tabs */}
@@ -478,7 +656,7 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
-            <span className="truncate">{isAr ? 'شكل الحركة والأداء' : 'Form & Muscles'}</span>
+            <span className="truncate">{isAr ? 'صور الحركة والأداء' : 'Photos & Form'}</span>
           </button>
 
           <button
@@ -514,12 +692,15 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
           </button>
         </div>
 
-        {/* TAB 1: VISUAL BIOMECHANICAL FORM & MUSCLE GUIDE */}
+        {/* TAB 1: REAL PHOTOS & BIOMECHANICAL FORM GUIDE */}
         {activeTab === 'guide' && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
               <div className="md:col-span-6">
-                <ExerciseMovementDiagram archetype={inspectedExercise.archetype} />
+                <ExerciseMovementDiagram
+                  archetype={inspectedExercise.archetype}
+                  exercise={inspectedExercise}
+                />
               </div>
 
               <div className="md:col-span-6 space-y-3">
@@ -539,6 +720,19 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
                     ⚙️ {inspectedExercise.equipmentAr}
                   </span>
                 </div>
+
+                {/* Gender-aware specialized coaching note */}
+                {localGender === 'female' ? (
+                  <div className="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-400/35 text-xs text-rose-900 dark:text-rose-200 font-bold leading-relaxed">
+                    🌸 إرشاد مخصص للمرأة:{' '}
+                    {inspectedExercise.femaleCoachNoteAr ||
+                      `ينصح بأداء ${inspectedExercise.defaultRepsCutting}–15 عدة بوزن متوسط وتحكم بطيء لشد ونحت العضلة (${inspectedExercise.muscleLabelAr}) وتناسق القوام دون إجهاد المفاصل.`}
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-900 dark:text-emerald-200 font-bold leading-relaxed">
+                    🧔 إرشاد البناء العضلي للرجل: استهدف {inspectedExercise.defaultRepsBulking}–10 عدات بوزن تدريجي (Progressive Overload) مع ثبات ثانيتين في النزول السلبي.
+                  </div>
+                )}
 
                 <div className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 space-y-2 text-xs">
                   <div>
@@ -616,7 +810,7 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
                   className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/50 flex flex-col justify-between gap-3 transition-all"
                 >
                   <div className="flex items-start gap-3">
-                    <ExerciseMovementDiagram archetype={alt.archetype} compact />
+                    <ExerciseMovementDiagram archetype={alt.archetype} exercise={alt} compact />
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-white leading-snug">
                         {alt.nameAr}
@@ -655,7 +849,7 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
                       }}
                       className="py-2 px-3 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold cursor-pointer"
                     >
-                      شرح الشكل
+                      صور الحركة
                     </button>
                   </div>
                 </div>
@@ -667,7 +861,7 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
         {/* TAB 3: FULL VISUAL EXERCISE PICKER (CHOOSE WHAT TO PLAY TODAY) */}
         {activeTab === 'library' && (
           <div className="space-y-3.5">
-            {/* Muscle Group Filter Pills */}
+            {/* Muscle Group & Women's Sculpt Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
               <button
                 type="button"
@@ -679,6 +873,17 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
                 }`}
               >
                 الكل ({VISUAL_EXERCISE_ATLAS.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedMuscleFilter('female_sculpt')}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 cursor-pointer ${
+                  selectedMuscleFilter === 'female_sculpt'
+                    ? 'bg-rose-500 text-white shadow-xs'
+                    : 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-400/30'
+                }`}
+              >
+                🌸 نحت قوام المرأة والأرداف والبيلاتس
               </button>
               {(Object.keys(MUSCLE_GROUP_LABELS) as MuscleGroupId[]).map((mKey) => (
                 <button
@@ -719,7 +924,7 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
                       }}
                       className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer"
                     >
-                      <ExerciseMovementDiagram archetype={item.archetype} compact />
+                      <ExerciseMovementDiagram archetype={item.archetype} exercise={item} compact />
                       <div className="min-w-0">
                         <h5 className="text-xs font-bold text-zinc-950 dark:text-white truncate">
                           {item.nameAr}
@@ -727,7 +932,7 @@ export const VisualExerciseGuideModal: React.FC<VisualExerciseGuideModalProps> =
                         <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block mt-0.5">
                           🎯 {item.muscleLabelAr} • {item.equipmentAr}
                         </span>
-                        <span className="text-[10px] text-zinc-500 underline">اضغط لعرض شكل الحركة</span>
+                        <span className="text-[10px] text-zinc-500 underline">اضغط لعرض صور الحركة</span>
                       </div>
                     </div>
 

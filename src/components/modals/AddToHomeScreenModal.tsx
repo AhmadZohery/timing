@@ -62,9 +62,11 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0">
-              مِ
-            </div>
+            <img
+              src="/favicon.svg?v=20261019"
+              alt="مِضمار"
+              className="w-14 h-14 rounded-2xl shadow-lg shadow-emerald-950/50 border border-amber-400/35 shrink-0"
+            />
             <div>
               <h3 className="text-lg font-black text-white leading-tight">
                 ثبّت «مِضمار» على جهازك
