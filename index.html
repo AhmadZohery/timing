@@ -7,7 +7,7 @@
       if ('caches' in window) {
         caches.keys().then(function(keys) {
           for (var i = 0; i < keys.length; i++) {
-            if (keys[i] !== 'midmar-sanctuary-v10') {
+            if (keys[i] !== 'midmar-sanctuary-v11') {
               caches.delete(keys[i]);
             }
           }
@@ -87,13 +87,7 @@
     <title>مِضمار — المحراب اليومي</title>
   </head>
   <body class="antialiased selection:bg-emerald-500/20 selection:text-emerald-800 dark:selection:text-emerald-300 min-h-screen overflow-x-hidden transition-colors duration-200" style="background-color:#061014;margin:0;">
-    <div id="root">
-      <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%, #0D2D2A 0%, #07191A 60%, #040B0E 100%);color:#FDE68A;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;text-align:center;padding:24px;">
-        <img src="/icons/midmar-royal-192.png" alt="مِضمار" width="116" height="116" style="border-radius:28px;box-shadow:0 20px 50px rgba(0,0,0,0.6),0 0 30px rgba(212,175,55,0.2);margin-bottom:20px;" />
-        <div style="font-size:24px;font-weight:700;letter-spacing:0;color:#FEF3C7;margin-bottom:6px;">مِضمار</div>
-        <div style="font-size:13px;font-weight:500;color:#A7F3D0;opacity:0.85;">المحراب اليومي للصلوات والقرآن والتركيز</div>
-      </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
