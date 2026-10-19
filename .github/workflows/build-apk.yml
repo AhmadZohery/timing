@@ -1,0 +1,128 @@
+name: Build Android APK & Auto-Deploy Web/OTA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-web-and-apk:
+    name: Build Signed APK & Deploy Live OTA
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup Java 21 (Required for Android Gradle Plugin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install dependencies & Build Web Bundle
+        run: |
+          npm ci
+          npm run build
+
+      - name: Auto-Deploy Web Bundle to GitHub Pages (gh-pages)
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          commit_message: "deploy: auto-sync gh-pages production build"
+
+      - name: Scaffold Capacitor Android Project & Configure Icons/Permissions
+        run: |
+          npm install --no-save @capacitor/core@^7.0.0 @capacitor/cli@^7.0.0 @capacitor/android@^7.0.0
+          npx cap add android
+
+          # Dynamic versionCode from commit count so every APK upgrades cleanly in-place
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          sed -i "s/versionCode 1/versionCode ${COMMIT_COUNT}/g" android/app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.0.${COMMIT_COUNT}\"/g" android/app/build.gradle
+
+          # Copy high-res Midmar Royal Launcher Icons into all mipmap folders
+          for dir in mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
+            mkdir -p "android/app/src/main/res/$dir"
+            cp public/icons/midmar-royal-512.png "android/app/src/main/res/$dir/ic_launcher.png"
+            cp public/icons/midmar-royal-512.png "android/app/src/main/res/$dir/ic_launcher_round.png"
+            cp public/icons/midmar-royal-maskable-512.png "android/app/src/main/res/$dir/ic_launcher_foreground.png"
+          done
+
+          # Add WakeLock, Vibration, and Notifications permissions to AndroidManifest.xml
+          sed -i 's/<uses-permission android:name="android.permission.INTERNET" \/>/<uses-permission android:name="android.permission.INTERNET" \/>\n    <uses-permission android:name="android.permission.WAKE_LOCK" \/>\n    <uses-permission android:name="android.permission.VIBRATE" \/>\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" \/>/' android/app/src/main/AndroidManifest.xml
+
+          npx cap sync android
+
+      - name: Build & Sign Production APK with Persistent Keystore
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+          # Retrieve persistent keystore from 'latest' release if it exists, otherwise generate once
+          if gh release download latest -p "midmar-release.jks" --clobber 2>/dev/null; then
+            echo "Loaded persistent release keystore from GitHub Release."
+          else
+            echo "Generating initial persistent release keystore..."
+            keytool -genkeypair -v \
+              -keystore midmar-release.jks \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -alias midmar \
+              -storepass midmar2026 \
+              -keypass midmar2026 \
+              -dname "CN=Midmar LifeOS, OU=Engineering, O=Midmar, L=Cairo, S=Cairo, C=EG"
+          fi
+
+          # Locate Android build-tools (zipalign & apksigner)
+          BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+          UNSIGNED_APK="app/build/outputs/apk/release/app-release-unsigned.apk"
+          ALIGNED_APK="app/build/outputs/apk/release/app-release-aligned.apk"
+          SIGNED_APK="../midmar-lifeos.apk"
+
+          "$BUILD_TOOLS_DIR/zipalign" -v -p 4 "$UNSIGNED_APK" "$ALIGNED_APK"
+          "$BUILD_TOOLS_DIR/apksigner" sign \
+            --ks midmar-release.jks \
+            --ks-key-alias midmar \
+            --ks-pass pass:midmar2026 \
+            --key-pass pass:midmar2026 \
+            --out "$SIGNED_APK" \
+            "$ALIGNED_APK"
+
+          cp midmar-release.jks ../midmar-release.jks
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: midmar-lifeos-apk
+          path: midmar-lifeos.apk
+          retention-days: 30
+
+      - name: Publish Signed APK to GitHub Release (latest)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest midmar-lifeos.apk midmar-release.jks --clobber
+            gh release edit latest --title "مِضمار (Midmar LifeOS) — v1.0.${COMMIT_COUNT} (${SHORT_SHA})" --notes "نسخة أندرويد المحدثة تلقائياً (Signed Release APK — قابلة للتثبيت والتحديث المباشر فوق النسخة الحالية بدون فقدان البيانات)."
+          else
+            gh release create latest midmar-lifeos.apk midmar-release.jks --title "مِضمار (Midmar LifeOS) — v1.0.${COMMIT_COUNT} (${SHORT_SHA})" --notes "نسخة أندرويد المحدثة تلقائياً (Signed Release APK — قابلة للتثبيت والتحديث المباشر فوق النسخة الحالية بدون فقدان البيانات)."
+          fi

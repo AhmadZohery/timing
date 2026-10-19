@@ -70,16 +70,16 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({
 
           <div className="flex items-center gap-4">
             <img
-              src="/favicon.svg?v=20261019"
+              src="./favicon.svg?v=20261020"
               alt="مِضمار"
               className="w-14 h-14 rounded-2xl shadow-lg shadow-emerald-950/50 border border-amber-400/35 shrink-0"
             />
             <div>
               <h3 className="text-lg font-black text-white leading-tight">
-                ثبّت أيقونة «مِضمار» على هاتفك
+                ثبّت تطبيق «مِضمار» على هاتفك
               </h3>
               <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                افتح مِضمار بضغطة واحدة من شاشة هاتفك الرئيسية وبشاشة كاملة يعمل فوراً حتى بدون إنترنت.
+                افتح مِضمار بضغطة واحدة من شاشة هاتفك الرئيسية (أيقونة فورية أو ملف APK مستقل قابل للتحديث دائماً).
               </p>
             </div>
           </div>
@@ -95,8 +95,26 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({
               className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 text-sm transition-all transform active:scale-98 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>📲 تثبيت الأيقونة الآن بضغطة واحدة</span>
+              <span>📲 تثبيت الأيقونة الذكية فوراً (تتحدث تلقائياً)</span>
             </button>
+          )}
+
+          {/* Direct Android APK Download / In-Place Upgrade Button */}
+          {!pwaState.isIos && (
+            <a
+              href="https://github.com/AhmadZohery/timing/releases/download/latest/midmar-lifeos.apk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3.5 px-4 bg-[#141517] hover:bg-zinc-800 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-amber-300 border border-amber-400/40 font-bold rounded-2xl shadow-md flex items-center justify-between gap-2 text-xs sm:text-sm transition-all active:scale-98 cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <Download className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>📦 تحميل / تحديث ملف الأندرويد المباشر (APK)</span>
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-zinc-950 text-[10px] font-black shrink-0">
+                APK رسمي
+              </span>
+            </a>
           )}
 
           {/* Step-by-Step Instructions for iOS or Android */}
