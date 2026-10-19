@@ -11,8 +11,10 @@ class SoundSynthesizer {
   private currentAmbientType: AmbientSoundType = 'none';
   private isMuted: boolean = typeof window !== 'undefined' && localStorage.getItem('midmar_sound_muted') === 'true';
   private ambientListeners: Set<(isPlaying: boolean, type: AmbientSoundType) => void> = new Set();
+  private athanListeners: Set<(isPlaying: boolean, muadhinId: string) => void> = new Set();
   private athanAudio: HTMLAudioElement | null = null;
   private isAthanPlaying = false;
+  private currentMuadhinId = 'makkah';
   private isUnlocked = false;
 
   constructor() {
@@ -32,6 +34,13 @@ class SoundSynthesizer {
       window.addEventListener('pointerdown', unlock, { capture: true, once: true });
       window.addEventListener('keydown', unlock, { capture: true, once: true });
       window.addEventListener('touchstart', unlock, { capture: true, once: true });
+
+      // Emergency Escape key shortcut: pressing Esc always stops any playing Adhan immediately
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isAthanPlaying) {
+          this.stopAthanAudio();
+        }
+      });
     }
   }
 
@@ -51,6 +60,22 @@ class SoundSynthesizer {
     });
   }
 
+  public subscribeAthan(listener: (isPlaying: boolean, muadhinId: string) => void): () => void {
+    this.athanListeners.add(listener);
+    listener(this.isAthanPlaying, this.currentMuadhinId);
+    return () => {
+      this.athanListeners.delete(listener);
+    };
+  }
+
+  private notifyAthan() {
+    this.athanListeners.forEach((fn) => {
+      try {
+        fn(this.isAthanPlaying, this.currentMuadhinId);
+      } catch {}
+    });
+  }
+
   public setMuted(muted: boolean) {
     this.isMuted = muted;
     try {
@@ -58,6 +83,7 @@ class SoundSynthesizer {
     } catch {}
     if (muted) {
       this.stopAmbient();
+      this.stopAthanAudio();
     }
   }
 
@@ -1184,20 +1210,24 @@ class SoundSynthesizer {
     this.stopAthanAudio();
 
     const opt = MUADHIN_OPTIONS.find((m) => m.id === muadhinId) || MUADHIN_OPTIONS[0];
+    this.currentMuadhinId = opt.id;
     try {
       audioCoordinator.requestExclusive('athan');
       const aud = new Audio(opt.audioUrl);
       aud.volume = 0.95;
       this.athanAudio = aud;
       this.isAthanPlaying = true;
+      this.notifyAthan();
 
       aud.onended = () => {
         this.isAthanPlaying = false;
         this.athanAudio = null;
+        this.notifyAthan();
       };
       aud.onerror = () => {
         this.isAthanPlaying = false;
         this.athanAudio = null;
+        this.notifyAthan();
         // Offline / Network fail-safe: play distinct synthesized spiritual chime
         this.playPrayerSpiritualChime('rast_minaret');
       };
@@ -1206,24 +1236,34 @@ class SoundSynthesizer {
     } catch {
       this.isAthanPlaying = false;
       this.athanAudio = null;
+      this.notifyAthan();
       // Autoplay blocked / Network fail-safe
       this.playPrayerSpiritualChime('rast_minaret');
     }
   }
 
   public stopAthanAudio(): void {
+    const wasPlaying = this.isAthanPlaying || Boolean(this.athanAudio);
     if (this.athanAudio) {
       try {
         this.athanAudio.pause();
         this.athanAudio.currentTime = 0;
+        this.athanAudio.src = '';
       } catch {}
       this.athanAudio = null;
     }
     this.isAthanPlaying = false;
+    if (wasPlaying) {
+      this.notifyAthan();
+    }
   }
 
   public isAthanActive(): boolean {
     return this.isAthanPlaying;
+  }
+
+  public getCurrentMuadhinId(): string {
+    return this.currentMuadhinId;
   }
 
   // =========================================================================
@@ -1312,24 +1352,25 @@ class SoundSynthesizer {
 
   /**
    * Dedicated intelligent prayer notification handler
-   * - If Adhan audio is enabled: plays selected Muadhin (default Makkah)
-   * - If Adhan audio is disabled: plays distinct spiritual prayer chime
+   * - Strictly requires explicit user opt-in (adhanEnabled && adhanUserExplicitlyOptedIn) before playing Adhan audio
+   * - Respects silentWorkMode (no automatic audio during work/meetings)
    */
   public playPrayerNotification(settings?: {
     adhanEnabled?: boolean;
+    adhanUserExplicitlyOptedIn?: boolean;
+    silentWorkMode?: boolean;
     muadhin?: string;
     chimeWhenDisabled?: string;
   }) {
-    if (this.isMuted) return;
+    if (this.isMuted || settings?.silentWorkMode) return;
     const cfg = this.getNotificationTonesConfig();
-    const isAdhanEnabled = settings?.adhanEnabled ?? false;
+    const isAdhanExplicitlyEnabled = Boolean(
+      settings?.adhanEnabled && settings?.adhanUserExplicitlyOptedIn
+    );
 
-    if (isAdhanEnabled) {
+    if (isAdhanExplicitlyEnabled) {
       const muadhin = settings?.muadhin || cfg.prayerTone || 'makkah';
       this.playAthanAudio(muadhin);
-    } else {
-      const chime = settings?.chimeWhenDisabled || cfg.prayerChimeAlternative || 'rast_minaret';
-      this.playPrayerSpiritualChime(chime);
     }
   }
 }

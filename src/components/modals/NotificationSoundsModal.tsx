@@ -151,7 +151,8 @@ export const NotificationSoundsModal: React.FC<NotificationSoundsModalProps> = (
             notificationTones: updatedConfig,
             prayerAudioSettings: {
               ...(userState.settings.prayerAudioSettings || {
-                adhanEnabled: true,
+                adhanEnabled: false,
+                adhanUserExplicitlyOptedIn: false,
                 muadhin: 'makkah',
                 prePrayerAlertEnabled: true,
                 prePrayerAlertMinutes: 10,
@@ -198,7 +199,8 @@ export const NotificationSoundsModal: React.FC<NotificationSoundsModalProps> = (
             notificationTones: DEFAULT_CONFIG,
             prayerAudioSettings: {
               ...(userState.settings.prayerAudioSettings || {
-                adhanEnabled: true,
+                adhanEnabled: false,
+                adhanUserExplicitlyOptedIn: false,
                 muadhin: 'makkah',
                 prePrayerAlertEnabled: true,
                 prePrayerAlertMinutes: 10,

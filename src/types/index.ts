@@ -685,6 +685,8 @@ export interface NotificationTonesConfig {
 
 export interface PrayerAudioSettings {
   adhanEnabled: boolean;
+  adhanUserExplicitlyOptedIn?: boolean; // Strictly guards against accidental auto-Adhan unless explicitly toggled by user
+  silentWorkMode?: boolean; // Silences all automatic prayer audio/chimes during work/meetings
   muadhin: 'makkah' | 'madinah' | 'aqsa' | 'abdulbasit' | 'mishary' | 'takbeerat_only';
   chimeWhenDisabled?: 'rast_minaret' | 'andalusian_peace' | 'serenity_chime';
   prePrayerAlertEnabled: boolean; // default true

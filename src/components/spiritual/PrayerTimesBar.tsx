@@ -8,7 +8,6 @@ import {
   Navigation,
   Volume2,
   VolumeX,
-  Bell,
   BellRing,
   BookOpen,
   Copy,
@@ -195,9 +194,9 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   const [inAppTasbihTarget, setInAppTasbihTarget] = useState<number>(33);
   const [inAppTasbihPhrase, setInAppTasbihPhrase] = useState<string>('سُبْحَانَ اللَّهِ');
 
-  // Adhan & Pre-Prayer Audio State
+  // Adhan & Pre-Prayer Audio State (Unified with Global SoundSynthesizer)
   const activeAdhanAudioRef = React.useRef<HTMLAudioElement | null>(null);
-  const [isAdhanPlaying, setIsAdhanPlaying] = useState(false);
+  const [isAdhanPlaying, setIsAdhanPlaying] = useState(() => soundSynth.isAthanActive());
   const [dismissedAlertPrayer, setDismissedAlertPrayer] = useState<string | null>(null);
 
   // Nawafil Guide Modal & Extras Collapse State
@@ -205,13 +204,68 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
   const [nawafilModalTab, setNawafilModalTab] = useState<NafilaTab>('dhuha');
   const [isExtrasExpanded, setIsExtrasExpanded] = useState(false);
 
+  const isAutoAdhanEnabled = Boolean(
+    userState?.settings?.prayerAudioSettings?.adhanEnabled &&
+      userState?.settings?.prayerAudioSettings?.adhanUserExplicitlyOptedIn &&
+      !userState?.settings?.prayerAudioSettings?.silentWorkMode
+  );
+
+  useEffect(() => {
+    return soundSynth.subscribeAthan((playing) => {
+      setIsAdhanPlaying(playing);
+    });
+  }, []);
+
   const handleStopAdhan = () => {
     soundSynth.playTactileClick();
+    soundSynth.stopAthanAudio();
     if (activeAdhanAudioRef.current) {
       activeAdhanAudioRef.current.pause();
       activeAdhanAudioRef.current.currentTime = 0;
+      activeAdhanAudioRef.current = null;
     }
     setIsAdhanPlaying(false);
+    onRewardToast?.(isAr ? '🔇 تم إيقاف صوت الأذان فوراً' : '🔇 Adhan stopped');
+  };
+
+  const handleToggleAutoAdhan = async () => {
+    soundSynth.playTactileClick();
+    haptic.vibrateLight();
+    const nextEnabled = !isAutoAdhanEnabled;
+    if (!nextEnabled) {
+      soundSynth.stopAthanAudio();
+      if (activeAdhanAudioRef.current) {
+        activeAdhanAudioRef.current.pause();
+        activeAdhanAudioRef.current = null;
+      }
+      setIsAdhanPlaying(false);
+    }
+    const currentAudio = userState?.settings?.prayerAudioSettings || {
+      adhanEnabled: false,
+      adhanUserExplicitlyOptedIn: false,
+      muadhin: 'makkah',
+      prePrayerAlertEnabled: true,
+      prePrayerAlertMinutes: 10,
+      chimeWhenDisabled: 'rast_minaret',
+    };
+    const stateId = userState?.id || 'current_user';
+    await db.user_state.update(stateId, {
+      'settings.prayerAudioSettings': {
+        ...currentAudio,
+        adhanEnabled: nextEnabled,
+        adhanUserExplicitlyOptedIn: nextEnabled,
+        silentWorkMode: !nextEnabled,
+      },
+    });
+    onRewardToast?.(
+      nextEnabled
+        ? isAr
+          ? '🔔 تم تفعيل صوت الأذان التلقائي عند دخول الوقت'
+          : '🔔 Automatic Adhan enabled'
+        : isAr
+        ? '🔕 وضع العمل والاجتماعات: الأذان التلقائي صامت تماماً'
+        : '🔕 Work/Meeting Mode: Auto-Adhan muted'
+    );
   };
 
   const handlePlayAdhan = () => {
@@ -223,29 +277,11 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
     if (activeAdhanAudioRef.current) {
       activeAdhanAudioRef.current.pause();
+      activeAdhanAudioRef.current = null;
     }
-    const aud = new Audio(opt.audioUrl);
-    aud.volume = 0.9;
-    aud.play().then(() => {
-      setIsAdhanPlaying(true);
-      activeAdhanAudioRef.current = aud;
-      onRewardToast?.(isAr ? `📢 يُرفع الأذان الآن بصوت: ${opt.nameAr}` : `Adhan playing: ${opt.nameAr}`);
-    }).catch(() => {
-      soundSynth.playPrayerSpiritualChime(pAudio?.chimeWhenDisabled || 'rast_minaret');
-      onRewardToast?.(isAr ? `📿 رنين الصلاة الروحي (مقام الرست النبوي الشريف)` : `Prayer spiritual chime`);
-    });
-    aud.onended = () => {
-      setIsAdhanPlaying(false);
-    };
+    soundSynth.playAthanAudio(muadhinKey);
+    onRewardToast?.(isAr ? `📢 يُرفع الأذان الآن بصوت: ${opt.nameAr} (اضغط إيقاف للكتم)` : `Adhan playing: ${opt.nameAr}`);
   };
-
-  useEffect(() => {
-    return () => {
-      if (activeAdhanAudioRef.current) {
-        activeAdhanAudioRef.current.pause();
-      }
-    };
-  }, []);
 
   const cityPickerRef = React.useRef<HTMLDivElement>(null);
 
@@ -671,20 +707,49 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
             )}
           </div>
 
-          {/* Adhan Audio Settings Quick Button */}
-          <button
-            type="button"
-            onClick={() => {
-              soundSynth.playTactileClick();
-              haptic.vibrateLight();
-              setSanctuaryTab('meeqat');
-              setIsExtrasExpanded(true);
-            }}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-amber-300 flex items-center justify-center cursor-pointer active:scale-95 transition-all"
-            title={isAr ? 'إعدادات صوت الأذان والتنبيهات' : 'Adhan Audio Settings'}
-          >
-            <Bell className="w-4 h-4" />
-          </button>
+          {/* Instant Stop Adhan OR Auto-Adhan Work/Meeting Mode Toggle */}
+          {isAdhanPlaying ? (
+            <button
+              type="button"
+              onClick={handleStopAdhan}
+              className="h-8 px-3 rounded-full bg-rose-600 hover:bg-rose-500 border border-rose-300 text-white text-[11px] font-black flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all animate-pulse shadow-md"
+              title={isAr ? 'إيقاف صوت الأذان فوراً (Esc)' : 'Stop Adhan Immediately (Esc)'}
+            >
+              <VolumeX className="w-3.5 h-3.5 shrink-0" />
+              <span>{isAr ? 'إيقاف الأذان 🔇' : 'Stop Adhan'}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleToggleAutoAdhan}
+              className={`h-8 px-2.5 rounded-full border text-[11px] font-bold flex items-center gap-1 cursor-pointer active:scale-95 transition-all ${
+                isAutoAdhanEnabled
+                  ? 'bg-amber-500/20 hover:bg-amber-500/30 border-amber-400/50 text-amber-300'
+                  : 'bg-white/10 hover:bg-white/15 border-white/15 text-zinc-300'
+              }`}
+              title={
+                isAutoAdhanEnabled
+                  ? isAr
+                    ? 'الأذان التلقائي مفعّل — اضغط لكتمه (وضع العمل والاجتماعات)'
+                    : 'Auto-Adhan ON — Tap to mute for work/meetings'
+                  : isAr
+                  ? 'وضع العمل والاجتماعات: الأذان التلقائي صامت — اضغط لتفعيل الأذان التلقائي'
+                  : 'Work/Meeting Mode: Auto-Adhan Muted — Tap to enable'
+              }
+            >
+              {isAutoAdhanEnabled ? (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  <span className="hidden sm:inline">{isAr ? 'الأذان: مفعّل' : 'Adhan ON'}</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                  <span className="hidden sm:inline">{isAr ? 'الأذان: صامت' : 'Adhan Muted'}</span>
+                </>
+              )}
+            </button>
+          )}
 
           {/* Extras Drawer Toggle Pill (Nawafil, Qiyam, Qadaa, Tasbih) */}
           <button

@@ -508,22 +508,33 @@ export const QuickReminderModal: React.FC<QuickReminderModalProps> = ({
   const currentMuadhin = userState?.settings?.prayerAudioSettings?.muadhin || 'makkah';
   const currentChime = userState?.settings?.prayerAudioSettings?.chimeWhenDisabled || 'rast_minaret';
   const prePrayerAlertEnabled = userState?.settings?.prayerAudioSettings?.prePrayerAlertEnabled ?? true;
-  const adhanEnabled = userState?.settings?.prayerAudioSettings?.adhanEnabled ?? true;
+  const adhanEnabled = Boolean(
+    userState?.settings?.prayerAudioSettings?.adhanEnabled &&
+      userState?.settings?.prayerAudioSettings?.adhanUserExplicitlyOptedIn
+  );
 
   const handleUpdatePrayerAudioSetting = async (patch: Record<string, any>) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
+    if (patch.adhanEnabled === false) {
+      soundSynth.stopAthanAudio();
+    }
     const currentAudio = userState?.settings?.prayerAudioSettings || {
-      adhanEnabled: true,
+      adhanEnabled: false,
+      adhanUserExplicitlyOptedIn: false,
       muadhin: 'makkah',
       prePrayerAlertEnabled: true,
       prePrayerAlertMinutes: 10,
       chimeWhenDisabled: 'rast_minaret',
     };
+    const nextPatch =
+      patch.adhanEnabled !== undefined
+        ? { ...patch, adhanUserExplicitlyOptedIn: Boolean(patch.adhanEnabled) }
+        : patch;
     await db.user_state.update('current_user', {
       'settings.prayerAudioSettings': {
         ...currentAudio,
-        ...patch,
+        ...nextPatch,
       },
     });
     await autonomousNotificationScheduler.scheduleAllUpcomingAlarms();

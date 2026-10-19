@@ -165,6 +165,14 @@ export function App() {
     });
   }, []);
 
+  const [isGlobalAdhanPlaying, setIsGlobalAdhanPlaying] = useState(() => soundSynth.isAthanActive());
+
+  useEffect(() => {
+    return soundSynth.subscribeAthan((playing) => {
+      setIsGlobalAdhanPlaying(playing);
+    });
+  }, []);
+
   // Authentication Gate & Session Security
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated());
 
@@ -1491,6 +1499,70 @@ export function App() {
           )}
         </Suspense>
       </ErrorBoundary>
+
+      {/* Global Emergency Adhan Stop Banner (Always on top z-[200] across all stations & modals) */}
+      {isGlobalAdhanPlaying && (
+        <div className="fixed top-3 inset-x-3 z-[200] max-w-lg mx-auto rounded-2xl bg-zinc-950/95 border-2 border-amber-500/80 shadow-[0_16px_48px_rgba(0,0,0,0.85)] p-3 flex flex-wrap items-center justify-between gap-2.5 text-white animate-fade-in">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="w-8 h-8 rounded-xl bg-amber-500 text-zinc-950 flex items-center justify-center text-base shrink-0 font-black">
+              🕌
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm font-black text-amber-300 truncate">
+                📢 يُرفع الآن صوت الأذان الشريف
+              </p>
+              <p className="text-[10px] text-zinc-300 truncate">
+                اضغط للإيقاف الفوري أو اضغط زر (Esc) في لوحة المفاتيح
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0 ms-auto">
+            <button
+              type="button"
+              onClick={() => {
+                soundSynth.stopAthanAudio();
+                setIsGlobalAdhanPlaying(false);
+                setRewardToast('🔇 تم إيقاف صوت الأذان فوراً');
+                setTimeout(() => setRewardToast(null), 2500);
+              }}
+              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 active:scale-95 text-white text-xs font-black shadow-md cursor-pointer transition-all"
+            >
+              🔇 إيقاف فوراً
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                soundSynth.stopAthanAudio();
+                setIsGlobalAdhanPlaying(false);
+                const stateId = userState?.id || 'current_user';
+                const currentAudio = userState?.settings?.prayerAudioSettings || {
+                  adhanEnabled: false,
+                  adhanUserExplicitlyOptedIn: false,
+                  muadhin: 'makkah',
+                  prePrayerAlertEnabled: true,
+                  prePrayerAlertMinutes: 10,
+                  chimeWhenDisabled: 'rast_minaret',
+                };
+                await db.user_state.update(stateId, {
+                  'settings.prayerAudioSettings': {
+                    ...currentAudio,
+                    adhanEnabled: false,
+                    adhanUserExplicitlyOptedIn: false,
+                    silentWorkMode: true,
+                  },
+                });
+                setRewardToast('🔕 تم تفعيل وضع العمل والاجتماعات (إلغاء الأذان التلقائي نهائياً)');
+                setTimeout(() => setRewardToast(null), 3500);
+              }}
+              className="px-2.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-white/15 active:scale-95 text-zinc-200 text-[11px] font-bold cursor-pointer transition-all"
+              title="إيقاف الصوت الآن وإلغاء التشغيل التلقائي للأذان نهائياً أثناء العمل والاجتماعات"
+            >
+              💼 وضع العمل (صامت دائماً)
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Persistent Global YouTube Player Host (Keeps Audio Playing Across All Modals & Views) */}
       <PersistentYouTubeHost />

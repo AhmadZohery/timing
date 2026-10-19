@@ -51,12 +51,15 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
   // Adhan state
   const prayerAudio = userState?.settings?.prayerAudioSettings || {
     adhanEnabled: false,
+    adhanUserExplicitlyOptedIn: false,
     muadhin: 'makkah',
     chimeWhenDisabled: 'rast_minaret',
     prePrayerAlertEnabled: true,
     prePrayerAlertMinutes: 10,
   };
-  const [adhanEnabled, setAdhanEnabled] = useState(prayerAudio.adhanEnabled);
+  const [adhanEnabled, setAdhanEnabled] = useState(
+    Boolean(prayerAudio.adhanEnabled && prayerAudio.adhanUserExplicitlyOptedIn)
+  );
   const [selectedMuadhin, setSelectedMuadhin] = useState(prayerAudio.muadhin || 'makkah');
   const [selectedChime, setSelectedChime] = useState(prayerAudio.chimeWhenDisabled || 'rast_minaret');
   const [prePrayerAlert, setPrePrayerAlert] = useState(prayerAudio.prePrayerAlertEnabled ?? true);
@@ -116,13 +119,21 @@ export const PrayerLocationModal: React.FC<PrayerLocationModalProps> = ({
   const handleUpdateAdhanSettings = async (partial: Partial<PrayerAudioSettings>) => {
     soundSynth.playTactileClick();
     haptic.vibrateLight();
+    if (partial.adhanEnabled === false) {
+      soundSynth.stopAthanAudio();
+    }
+    const nextAdhanEnabled = partial.adhanEnabled !== undefined ? partial.adhanEnabled : adhanEnabled;
     const updated: PrayerAudioSettings = {
-      adhanEnabled,
+      adhanEnabled: nextAdhanEnabled,
+      adhanUserExplicitlyOptedIn: nextAdhanEnabled,
       muadhin: selectedMuadhin,
       chimeWhenDisabled: selectedChime,
       prePrayerAlertEnabled: prePrayerAlert,
       prePrayerAlertMinutes: prePrayerMins,
       ...partial,
+      ...(partial.adhanEnabled !== undefined
+        ? { adhanUserExplicitlyOptedIn: Boolean(partial.adhanEnabled) }
+        : {}),
     };
     if (partial.adhanEnabled !== undefined) setAdhanEnabled(partial.adhanEnabled);
     if (partial.muadhin !== undefined) setSelectedMuadhin(partial.muadhin);
