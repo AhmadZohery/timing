@@ -1215,6 +1215,27 @@ export const Header: React.FC<HeaderProps> = ({
                           </span>
                         </button>
                       )}
+
+                      {/* Direct 1-Tap Android APK Download / Update Link inside Menu */}
+                      <a
+                        href="https://github.com/AhmadZohery/timing/releases/download/latest/midmar-lifeos.apk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          setShowControlCenter(false);
+                        }}
+                        className="w-full py-2 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 flex items-center justify-between text-xs font-bold text-amber-100 cursor-pointer transition-colors"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Download className="w-3.5 h-3.5 text-amber-300" />
+                          <span>{language === 'ar' ? '📦 تحميل / تحديث تطبيق الأندرويد المباشر (APK)' : '📦 Download / Update Android APK'}</span>
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-black">
+                          APK
+                        </span>
+                      </a>
                     </div>
                   </div>
 
@@ -1648,6 +1669,20 @@ export const Header: React.FC<HeaderProps> = ({
                           <span className="truncate">{language === 'ar' ? 'تثبيت الأيقونة' : 'Install Icon'}</span>
                         </button>
                       )}
+
+                      <a
+                        href="https://github.com/AhmadZohery/timing/releases/download/latest/midmar-lifeos.apk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          setShowControlCenter(false);
+                        }}
+                        className="flex items-center gap-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-900 dark:text-amber-200 border border-amber-300/60 dark:border-amber-500/30 text-xs font-bold transition-colors cursor-pointer text-start"
+                      >
+                        <Download className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="truncate">{language === 'ar' ? 'تحميل APK 📦' : 'Download APK 📦'}</span>
+                      </a>
 
                       {onToggleFullWidth && (
                         <button
