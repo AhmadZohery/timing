@@ -16,19 +16,89 @@ const STATIC_ASSETS = [
   '/icons.svg',
 ];
 
-// Open native IndexedDB inside Service Worker for background alarm storage
+// Open native IndexedDB inside Service Worker for background alarm storage & deduplication
 function openAlarmsDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('midmar_sw_alarms_db', 1);
+    const request = indexedDB.open('midmar_sw_alarms_db', 2);
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('alarms')) {
         db.createObjectStore('alarms', { keyPath: 'id' });
       }
+      if (!db.objectStoreNames.contains('shown_tags')) {
+        db.createObjectStore('shown_tags', { keyPath: 'tag' });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
+
+const recentlyShownTags = new Map();
+const DEDUP_WINDOW_MS = 45 * 60 * 1000; // 45 minutes cooldown per tag
+
+async function wasTagShownRecently(tag) {
+  if (!tag || String(tag).startsWith('test-')) return false;
+  const now = Date.now();
+  const memTs = recentlyShownTags.get(tag);
+  if (memTs && now - memTs < DEDUP_WINDOW_MS) {
+    return true;
+  }
+  try {
+    // Also check if notification is already visible in the OS tray
+    const activeNotifs = await self.registration.getNotifications({ tag });
+    if (activeNotifs && activeNotifs.length > 0) {
+      return true;
+    }
+  } catch {}
+
+  try {
+    const db = await openAlarmsDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction('shown_tags', 'readonly');
+      const store = tx.objectStore('shown_tags');
+      const req = store.get(tag);
+      req.onsuccess = () => {
+        const rec = req.result;
+        if (rec && now - rec.shownAt < DEDUP_WINDOW_MS) {
+          recentlyShownTags.set(tag, rec.shownAt);
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      };
+      req.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+async function markTagShown(tag) {
+  if (!tag) return;
+  const now = Date.now();
+  recentlyShownTags.set(tag, now);
+  try {
+    const db = await openAlarmsDB();
+    const tx = db.transaction('shown_tags', 'readwrite');
+    tx.objectStore('shown_tags').put({ tag, shownAt: now });
+  } catch {}
+}
+
+async function showDedupedNotification(title, options = {}) {
+  const tag = options.tag || 'midmar-general';
+  if (await wasTagShownRecently(tag)) {
+    return false;
+  }
+  await markTagShown(tag);
+  await self.registration.showNotification(title, {
+    ...options,
+    tag,
+    renotify: false,
+    requireInteraction: false,
+    vibrate: options.vibrate || [200, 100, 200],
+  });
+  return true;
 }
 
 async function saveAlarmsToDB(alarms) {
@@ -101,14 +171,11 @@ function scheduleUpcomingLocalTimeouts(alarms) {
     if (delay > 0 && delay <= 4 * 60 * 60 * 1000) {
       const timeoutId = setTimeout(async () => {
         try {
-          await self.registration.showNotification(alarm.title, {
+          await showDedupedNotification(alarm.title, {
             body: alarm.body,
             icon: getValidIcon(alarm.icon),
             badge: DEFAULT_BADGE,
             tag: alarm.tag,
-            renotify: true,
-            requireInteraction: true,
-            vibrate: [500, 200, 500, 200, 500],
             actions: alarm.actions || [
               { action: 'mark_done', title: 'تم بحمد الله ✔' },
               { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
@@ -131,17 +198,14 @@ async function checkDueAlarms() {
   const now = Date.now();
 
   for (const alarm of alarms) {
-    // If alarm is due (within past 45 mins window and not future)
-    if (now >= alarm.timestampMs && now - alarm.timestampMs <= 45 * 60 * 1000) {
+    // If alarm is due (within past 15 mins window and not future)
+    if (now >= alarm.timestampMs && now - alarm.timestampMs <= 15 * 60 * 1000) {
       try {
-        await self.registration.showNotification(alarm.title, {
+        await showDedupedNotification(alarm.title, {
           body: alarm.body,
           icon: getValidIcon(alarm.icon),
           badge: DEFAULT_BADGE,
           tag: alarm.tag,
-          renotify: true,
-          requireInteraction: true,
-          vibrate: [500, 200, 500, 200, 500],
           actions: alarm.actions || [
             { action: 'mark_done', title: 'تم بحمد الله ✔' },
             { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
@@ -152,8 +216,8 @@ async function checkDueAlarms() {
       } catch (e) {
         console.warn('[SW] Failed to show alarm notification:', e);
       }
-    } else if (now - alarm.timestampMs > 45 * 60 * 1000) {
-      // Expired alarm older than 45 mins: purge
+    } else if (now - alarm.timestampMs > 15 * 60 * 1000) {
+      // Expired alarm older than 15 mins: purge without spamming old alerts
       await removeAlarmFromDB(alarm.id);
     }
   }
@@ -289,11 +353,11 @@ self.addEventListener('message', (event) => {
       (async () => {
         await saveAlarmsToDB(data.alarms);
 
-        // 1. In-memory local timer for nearest alarms within next 4 hours
-        scheduleUpcomingLocalTimeouts(data.alarms);
+        const fallbackAlarms = [];
+        const hasTimestampTrigger =
+          'showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined';
 
-        // 2. If Notification Triggers API is supported by the browser/Android OS
-        if ('showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined') {
+        if (hasTimestampTrigger) {
           for (const alarm of data.alarms) {
             if (alarm.timestampMs > Date.now()) {
               try {
@@ -302,8 +366,9 @@ self.addEventListener('message', (event) => {
                   icon: getValidIcon(alarm.icon),
                   badge: DEFAULT_BADGE,
                   tag: alarm.tag,
-                  requireInteraction: true,
-                  vibrate: [500, 200, 500, 200, 500],
+                  renotify: false,
+                  requireInteraction: false,
+                  vibrate: [200, 100, 200],
                   showTrigger: new TimestampTrigger(alarm.timestampMs),
                   actions: alarm.actions || [
                     { action: 'mark_done', title: 'تم بحمد الله ✔' },
@@ -312,11 +377,29 @@ self.addEventListener('message', (event) => {
                   data: { url: alarm.url || '/', ...alarm.data },
                 });
               } catch (e) {
-                console.warn('[SW] TimestampTrigger registration notice:', e);
+                fallbackAlarms.push(alarm);
               }
             }
           }
+        } else {
+          fallbackAlarms.push(...data.alarms);
         }
+
+        // Only set local in-memory timeouts for alarms that weren't scheduled via OS TimestampTrigger
+        scheduleUpcomingLocalTimeouts(fallbackAlarms);
+      })()
+    );
+  }
+
+  if (data.type === 'CLEAR_ALL_ALARMS') {
+    event.waitUntil(
+      (async () => {
+        clearLocalTimeouts();
+        await saveAlarmsToDB([]);
+        try {
+          const notifications = await self.registration.getNotifications();
+          notifications.forEach((n) => n.close());
+        } catch {}
       })()
     );
   }
@@ -336,8 +419,8 @@ self.addEventListener('message', (event) => {
               icon: DEFAULT_ICON,
               badge: DEFAULT_BADGE,
               tag: 'test-lockscreen-alert',
-              requireInteraction: true,
-              vibrate: [500, 250, 500, 250, 500],
+              requireInteraction: false,
+              vibrate: [250, 150, 250],
               showTrigger: new TimestampTrigger(targetMs),
               data: { url: '/' },
             });
@@ -353,8 +436,8 @@ self.addEventListener('message', (event) => {
               icon: DEFAULT_ICON,
               badge: DEFAULT_BADGE,
               tag: 'test-lockscreen-alert',
-              requireInteraction: true,
-              vibrate: [500, 250, 500, 250, 500],
+              requireInteraction: false,
+              vibrate: [250, 150, 250],
               data: { url: '/' },
             });
           }, delayMs);
@@ -406,8 +489,8 @@ self.addEventListener('notificationclick', (event) => {
               icon: DEFAULT_ICON,
               badge: DEFAULT_BADGE,
               tag: event.notification.tag + '-snooze',
-              requireInteraction: true,
-              vibrate: [500, 200, 500],
+              requireInteraction: false,
+              vibrate: [200, 100, 200],
               showTrigger: new TimestampTrigger(snoozeMs),
               data: notifData,
             });
@@ -420,8 +503,8 @@ self.addEventListener('notificationclick', (event) => {
             icon: DEFAULT_ICON,
             badge: DEFAULT_BADGE,
             tag: event.notification.tag + '-snooze',
-            requireInteraction: true,
-            vibrate: [500, 200, 500],
+            requireInteraction: false,
+            vibrate: [200, 100, 200],
             data: notifData,
           });
         }, 10 * 60 * 1000);
@@ -465,10 +548,7 @@ self.addEventListener('push', (event) => {
     body: data.body,
     icon: getValidIcon(data.icon),
     badge: DEFAULT_BADGE,
-    tag: data.tag || 'midmar-push-' + Date.now(),
-    renotify: true,
-    requireInteraction: true,
-    vibrate: [500, 200, 500, 200, 500],
+    tag: data.tag || 'midmar-push',
     actions: [
       { action: 'mark_done', title: 'تم بحمد الله ✔' },
       { action: 'snooze', title: 'تأجيل 10 دقائق ⏰' },
@@ -476,10 +556,5 @@ self.addEventListener('push', (event) => {
     data: { url: data.url || '/' },
   };
 
-  event.waitUntil(
-    Promise.all([
-      self.registration.showNotification(data.title, options),
-      checkDueAlarms(),
-    ])
-  );
+  event.waitUntil(showDedupedNotification(data.title, options));
 });

@@ -801,28 +801,35 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
 
         {/* Smart Late Accountability Reminders Card ("تنبيهات الاستدراك الذكية عند التأخر") */}
         <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 space-y-3.5 shadow-2xs">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                 <AlertCircle className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200">
-                  {language === 'ar' ? 'تنبيهات الاستدراك الذكية عند التأخر' : 'Smart Late Catch-Up Reminders'}
-                </h4>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-zinc-200">
+                    {language === 'ar' ? 'تنبيهات المتابعة والاستدراك الإضافية (اختيارية)' : 'Extra Accountability & Follow-Up Alerts'}
+                  </h4>
+                  <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[9px] font-bold">
+                    {userState?.settings?.accountabilityNotificationsEnabled === true
+                      ? (language === 'ar' ? 'مُفعّلة' : 'Active')
+                      : (language === 'ar' ? 'وضع الهدوء 🔕 (الأساسيات فقط)' : 'Calm Mode 🔕')}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
                   {language === 'ar'
-                    ? 'تنبيه لطيف غير مزعج لمساعدتك على استدراك الصلوات، ورد سورة البقرة، ومراجعة اليوم'
-                    : 'Gentle proactive alerts if you fall behind on prayers, Surah Al-Baqarah, or day review'}
+                    ? 'افتراضياً يصلك تنبيه واحد هادئ عند دخول وقت الصلاة ومنبهاتك الخاصة فقط. فعّل هذا الخيار إذا أردت تنبيهات متابعة إضافية.'
+                    : 'By default only 1 calm alert per prayer + your custom alarms fire. Enable this only if you want extra follow-up alerts.'}
                 </p>
               </div>
             </div>
 
-            {/* Master Toggle */}
-            <label className="relative inline-flex items-center cursor-pointer">
+            {/* Master Toggle (Strictly opt-in: false by default) */}
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
               <input
                 type="checkbox"
-                checked={userState?.settings?.accountabilityNotificationsEnabled ?? true}
+                checked={userState?.settings?.accountabilityNotificationsEnabled === true}
                 onChange={(e) =>
                   handleUpdateSettings({ accountabilityNotificationsEnabled: e.target.checked })
                 }
@@ -832,8 +839,34 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
             </label>
           </div>
 
-          {/* Sub-toggles (shown if master enabled) */}
-          {(userState?.settings?.accountabilityNotificationsEnabled ?? true) && (
+          {/* 1-Tap Calm Mode & Purge Spam Button */}
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <button
+              type="button"
+              onClick={async () => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                const remaining = await autonomousNotificationScheduler.purgeAndResetToCalmMode();
+                setNotificationMsg(
+                  language === 'ar'
+                    ? `🔕 تم تفعيل وضع الهدوء ومسح جميع الإشعارات المزعجة! (مجدول الآن ${remaining} تنبيه أساسي فقط)`
+                    : `🔕 Calm Mode active! Purged spam alerts (${remaining} essential alerts scheduled)`
+                );
+                setTimeout(() => setNotificationMsg(null), 5000);
+              }}
+              className="w-full py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+            >
+              <span>🔕</span>
+              <span>
+                {language === 'ar'
+                  ? 'تفعيل وضع الهدوء فوراً ومسح أي إشعارات متكررة معلقة'
+                  : 'Activate Calm Mode & Purge Pending Spam Alerts'}
+              </span>
+            </button>
+          </div>
+
+          {/* Sub-toggles (shown only if master explicitly enabled) */}
+          {userState?.settings?.accountabilityNotificationsEnabled === true && (
             <div className="space-y-2.5 pt-2 border-t border-slate-200/70 dark:border-zinc-800 animate-fade-in">
               {/* Late Prayer Toggle */}
               <div className="flex items-center justify-between text-xs text-slate-700 dark:text-zinc-300">
@@ -841,13 +874,13 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                   <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>
                     {language === 'ar'
-                      ? 'تذكير استدراك الصلاة المتأخرة (إذا مضت 45 دقيقة أو دخلت الصلاة التالية)'
+                      ? 'تذكير استدراك الصلاة المتأخرة (إذا مضت 45 دقيقة دون تسجيل)'
                       : 'Remind me if a prayer is overdue / unrecorded'}
                   </span>
                 </span>
                 <input
                   type="checkbox"
-                  checked={userState?.settings?.latePrayerReminderEnabled ?? true}
+                  checked={userState?.settings?.latePrayerReminderEnabled === true}
                   onChange={(e) =>
                     handleUpdateSettings({ latePrayerReminderEnabled: e.target.checked })
                   }
@@ -867,7 +900,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                 </span>
                 <input
                   type="checkbox"
-                  checked={userState?.settings?.lateWirdReminderEnabled ?? true}
+                  checked={userState?.settings?.lateWirdReminderEnabled === true}
                   onChange={(e) =>
                     handleUpdateSettings({ lateWirdReminderEnabled: e.target.checked })
                   }
@@ -887,7 +920,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                 </span>
                 <input
                   type="checkbox"
-                  checked={userState?.settings?.lateCheckinReminderEnabled ?? true}
+                  checked={userState?.settings?.lateCheckinReminderEnabled === true}
                   onChange={(e) =>
                     handleUpdateSettings({ lateCheckinReminderEnabled: e.target.checked })
                   }
@@ -907,7 +940,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                 </span>
                 <input
                   type="checkbox"
-                  checked={userState?.settings?.sunnahFastingRemindersEnabled ?? true}
+                  checked={userState?.settings?.sunnahFastingRemindersEnabled === true}
                   onChange={(e) =>
                     handleUpdateSettings({ sunnahFastingRemindersEnabled: e.target.checked })
                   }
@@ -927,7 +960,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                 </span>
                 <input
                   type="checkbox"
-                  checked={userState?.settings?.morningEveningAdhkarRemindersEnabled ?? true}
+                  checked={userState?.settings?.morningEveningAdhkarRemindersEnabled === true}
                   onChange={(e) =>
                     handleUpdateSettings({ morningEveningAdhkarRemindersEnabled: e.target.checked })
                   }
@@ -947,7 +980,7 @@ export const SettingsBackupModal: React.FC<SettingsBackupModalProps> = ({
                 </span>
                 <input
                   type="checkbox"
-                  checked={userState?.settings?.scheduleStationRemindersEnabled ?? true}
+                  checked={userState?.settings?.scheduleStationRemindersEnabled === true}
                   onChange={(e) =>
                     handleUpdateSettings({ scheduleStationRemindersEnabled: e.target.checked })
                   }

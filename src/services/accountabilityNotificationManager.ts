@@ -12,11 +12,11 @@ class AccountabilityNotificationManager {
 
   constructor() {
     try {
-      const saved = sessionStorage.getItem('midmar_notified_accountability');
+      const saved = localStorage.getItem('midmar_notified_accountability_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          parsed.forEach((k) => this.notifiedKeys.add(k));
+          parsed.slice(-150).forEach((k) => this.notifiedKeys.add(k));
         }
       }
     } catch {
@@ -27,10 +27,8 @@ class AccountabilityNotificationManager {
   private markNotified(key: string) {
     this.notifiedKeys.add(key);
     try {
-      sessionStorage.setItem(
-        'midmar_notified_accountability',
-        JSON.stringify(Array.from(this.notifiedKeys))
-      );
+      const arr = Array.from(this.notifiedKeys).slice(-150);
+      localStorage.setItem('midmar_notified_accountability_v2', JSON.stringify(arr));
     } catch {
       // Ignore storage error
     }
@@ -41,14 +39,14 @@ class AccountabilityNotificationManager {
   }
 
   /**
-   * Start periodic check (every 60 seconds)
+   * Start periodic check (every 120 seconds)
    */
   public start() {
     if (this.timerId !== null) return;
     this.checkAndNotify();
     this.timerId = window.setInterval(() => {
       this.checkAndNotify();
-    }, 60000);
+    }, 120000);
   }
 
   public stop() {
@@ -60,14 +58,15 @@ class AccountabilityNotificationManager {
 
   /**
    * Core inspection and notification trigger
+   * NOTE: Requires EXPLICIT opt-in (`accountabilityNotificationsEnabled === true`) so users are never spammed by default!
    */
   public async checkAndNotify() {
     try {
       const userState = await db.user_state.get('current_user');
       const settings = userState?.settings;
 
-      // Master toggle for late accountability notifications
-      if (settings?.accountabilityNotificationsEnabled === false) return;
+      // Master toggle for late accountability notifications — strictly opt-in!
+      if (settings?.accountabilityNotificationsEnabled !== true) return;
 
       const now = new Date();
       const currentHour = now.getHours();
@@ -81,7 +80,7 @@ class AccountabilityNotificationManager {
       // =========================================================================
       // 1. LATE PRAYER ACCOUNTABILITY CHECK (تذكير الصلوات المتأخرة غير المسجلة)
       // =========================================================================
-      if (settings?.latePrayerReminderEnabled !== false) {
+      if (settings?.latePrayerReminderEnabled === true) {
         const defaultCity = detectDefaultCityFromTimezone();
         const loc = settings?.prayerLocation;
         const lat = loc?.latitude ?? defaultCity.lat;

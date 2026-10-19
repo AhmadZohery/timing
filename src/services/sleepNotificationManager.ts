@@ -10,11 +10,11 @@ class SleepNotificationManager {
 
   constructor() {
     try {
-      const saved = sessionStorage.getItem('midmar_notified_sleep');
+      const saved = localStorage.getItem('midmar_notified_sleep_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          parsed.forEach((k) => this.notifiedKeys.add(k));
+          parsed.slice(-100).forEach((k) => this.notifiedKeys.add(k));
         }
       }
     } catch {
@@ -25,10 +25,8 @@ class SleepNotificationManager {
   private markNotified(key: string) {
     this.notifiedKeys.add(key);
     try {
-      sessionStorage.setItem(
-        'midmar_notified_sleep',
-        JSON.stringify(Array.from(this.notifiedKeys))
-      );
+      const arr = Array.from(this.notifiedKeys).slice(-100);
+      localStorage.setItem('midmar_notified_sleep_v2', JSON.stringify(arr));
     } catch {
       // Ignore
     }
@@ -43,7 +41,7 @@ class SleepNotificationManager {
     this.checkAndNotify();
     this.timerId = window.setInterval(() => {
       this.checkAndNotify();
-    }, 60000); // Check once a minute
+    }, 120000); // Check once every 2 minutes
   }
 
   public stop() {
@@ -59,7 +57,8 @@ class SleepNotificationManager {
       const settings = userState?.settings;
       const sleepConfig = settings?.sleepSchedule;
 
-      if (sleepConfig?.enabled === false) return;
+      // Require explicit opt-in for sleep & power-nap notifications
+      if (sleepConfig?.enabled !== true) return;
 
       const now = new Date();
       const currentHours = now.getHours();

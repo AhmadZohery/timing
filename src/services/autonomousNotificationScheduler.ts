@@ -1,4 +1,4 @@
-import { calculatePrayerTimes, detectDefaultCityFromTimezone, getHijriDateDetails } from '../utils/prayerCalculator';
+import { calculatePrayerTimes, detectDefaultCityFromTimezone } from '../utils/prayerCalculator';
 import { db } from '../db/db';
 import { getBiologicalDate, formatLocalDate } from '../utils/gamification';
 import { scheduleService } from './scheduleService';
@@ -83,8 +83,33 @@ class AutonomousNotificationScheduler {
         }
       }
 
-      const userState = await db.user_state.get('current_user');
-      const settings = userState?.settings;
+      let userState = await db.user_state.get('current_user');
+      let settings = userState?.settings;
+
+      // One-time automatic migration to Calm Essential Mode so existing users aren't spammed by 40+ old queued alarms
+      try {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('midmar_calm_notifications_migrated_v1') !== '1') {
+          localStorage.setItem('midmar_calm_notifications_migrated_v1', '1');
+          if (userState && settings) {
+            const calmSettings = {
+              ...settings,
+              accountabilityNotificationsEnabled: false,
+              latePrayerReminderEnabled: false,
+              lateWirdReminderEnabled: false,
+              lateCheckinReminderEnabled: false,
+              sunnahFastingRemindersEnabled: false,
+              morningEveningAdhkarRemindersEnabled: false,
+              scheduleStationRemindersEnabled: false,
+            };
+            await db.user_state.update(userState.id, { settings: calmSettings });
+            settings = calmSettings;
+          }
+          if (reg) {
+            const targetWorker = reg.active || reg.waiting || reg.installing;
+            targetWorker?.postMessage({ type: 'CLEAR_ALL_ALARMS' });
+          }
+        }
+      } catch {}
 
       const defaultCity = detectDefaultCityFromTimezone();
       const loc = settings?.prayerLocation;
@@ -107,14 +132,16 @@ class AutonomousNotificationScheduler {
       const prayersCompleted = todayLog?.prayers || {};
 
       const alarms: ScheduledAlarmItem[] = [];
-      const followUpMinutes = settings?.followUpReminderMinutes ?? 15;
-      const secondReminderMinutes = settings?.secondReminderMinutes ?? 30;
-      const prePrayerAlertEnabled = settings?.prayerAudioSettings?.prePrayerAlertEnabled ?? true;
+      const accountabilityOptIn = settings?.accountabilityNotificationsEnabled === true;
+      const followUpOptIn = accountabilityOptIn && settings?.latePrayerReminderEnabled === true;
+      const followUpMinutes = settings?.followUpReminderMinutes ?? 25;
+      const prePrayerAlertEnabled = accountabilityOptIn && settings?.prayerAudioSettings?.prePrayerAlertEnabled === true;
       const prePrayerMinutes = settings?.prayerAudioSettings?.prePrayerAlertMinutes ?? 10;
       const fridayDelayMinutes = settings?.fridayReminderDelayMinutes ?? 120;
+      const prayersEnabled = settings?.prayerNotificationsEnabled !== false;
 
       // ----------------------------------------------------
-      // 1. TODAY'S PRAYERS (Remaining obligatory prayers)
+      // 1. TODAY'S PRAYERS (Remaining obligatory prayers — 1 clean Adhan alert per prayer)
       // ----------------------------------------------------
       const todayPrayerList: Array<{ name: PrayerName; time: Date; titleAr: string }> = [
         { name: 'fajr', time: todayTimes.fajr, titleAr: 'صلاة الفجر' },
@@ -124,91 +151,77 @@ class AutonomousNotificationScheduler {
         { name: 'isha', time: todayTimes.isha, titleAr: 'صلاة العشاء' },
       ];
 
-      for (const p of todayPrayerList) {
-        const prayerRecord = prayersCompleted[p.name];
-        const isDone =
-          prayerRecord &&
-          (prayerRecord.status === 'on_time' ||
-            prayerRecord.status === 'in_group' ||
-            prayerRecord.status === 'late');
+      if (prayersEnabled) {
+        for (const p of todayPrayerList) {
+          const prayerRecord = prayersCompleted[p.name];
+          const isDone =
+            prayerRecord &&
+            (prayerRecord.status === 'on_time' ||
+              prayerRecord.status === 'in_group' ||
+              prayerRecord.status === 'late');
 
-        // A) Pre-Prayer Reminder (10 mins before Adhan)
-        if (prePrayerAlertEnabled) {
-          const preTime = new Date(p.time.getTime() - prePrayerMinutes * 60 * 1000).getTime();
-          if (preTime > now.getTime()) {
-            alarms.push({
-              id: `pre_${p.name}_${todayDateStr}`,
-              title: `اقترب موعد ${p.titleAr} ⏳`,
-              body: `بقي قرابة ${prePrayerMinutes} دقائق على الأذان.. تهيأ بالوضوء والسكينة.`,
-              timestampMs: preTime,
-              tag: `pre-prayer-${p.name}`,
-              url: '/?station=HOME',
-              icon: DEFAULT_ALARM_ICON,
-            });
+          // A) Pre-Prayer Reminder (ONLY if explicitly opted in)
+          if (prePrayerAlertEnabled) {
+            const preTime = new Date(p.time.getTime() - prePrayerMinutes * 60 * 1000).getTime();
+            if (preTime > now.getTime()) {
+              alarms.push({
+                id: `pre_${p.name}_${todayDateStr}`,
+                title: `اقترب موعد ${p.titleAr} ⏳`,
+                body: `بقي قرابة ${prePrayerMinutes} دقائق على الأذان.. تهيأ بالوضوء والسكينة.`,
+                timestampMs: preTime,
+                tag: `pre-prayer-${p.name}`,
+                url: '/?station=HOME',
+                icon: DEFAULT_ALARM_ICON,
+              });
+            }
           }
-        }
 
-        // B) Exact Adhan Time Notification
-        const adhanTime = p.time.getTime();
-        if (adhanTime > now.getTime()) {
-          alarms.push({
-            id: `adhan_${p.name}_${todayDateStr}`,
-            title: `الله أكبر، حان الآن موعد ${p.titleAr} 🕌`,
-            body: `حيّ على الصلاة، حيّ على الفلاح.. بادر بالصلاة في أول وقتها لتنال أجر الصف الأول.`,
-            timestampMs: adhanTime,
-            tag: `adhan-${p.name}`,
-            url: '/?station=HOME',
-            icon: DEFAULT_ALARM_ICON,
-            actions: [
-              { action: 'mark_prayed', title: 'صليت في وقتها ✔' },
-              { action: 'snooze', title: 'سأصلي الآن 🤲' },
-            ],
-            data: { prayer: p.name },
-          });
-        }
-
-        // C) Follow-up late reminder 1 (15m post-adhan) if not already done
-        if (!isDone) {
-          const follow1Time = new Date(p.time.getTime() + followUpMinutes * 60 * 1000).getTime();
-          if (follow1Time > now.getTime() && !(todayTimes.isFriday && p.name === 'dhuhr')) {
+          // B) Exact Adhan Time Notification
+          const adhanTime = p.time.getTime();
+          if (adhanTime > now.getTime()) {
             alarms.push({
-              id: `follow1_${p.name}_${todayDateStr}`,
-              title: `تذكير استدراك: ${p.titleAr} ⏳`,
-              body: `مضت ${followUpMinutes} دقيقة على الأذان.. هل أديت الفريضة؟ سارع لتحفظ ثواب الوقت.`,
-              timestampMs: follow1Time,
-              tag: `follow1-${p.name}`,
+              id: `adhan_${p.name}_${todayDateStr}`,
+              title: `الله أكبر، حان الآن موعد ${p.titleAr} 🕌`,
+              body: `حيّ على الصلاة، حيّ على الفلاح.. بادر بالصلاة في أول وقتها لتنال أجر الصف الأول.`,
+              timestampMs: adhanTime,
+              tag: `adhan-${p.name}`,
               url: '/?station=HOME',
               icon: DEFAULT_ALARM_ICON,
               actions: [
-                { action: 'mark_prayed', title: 'صليت الآن ✔' },
-                { action: 'snooze', title: 'تذكير بعد 10د ⏰' },
+                { action: 'mark_prayed', title: 'صليت في وقتها ✔' },
+                { action: 'snooze', title: 'سأصلي الآن 🤲' },
               ],
               data: { prayer: p.name },
             });
           }
 
-          // D) Follow-up late reminder 2 (30m post-adhan)
-          const follow2Time = new Date(p.time.getTime() + secondReminderMinutes * 60 * 1000).getTime();
-          if (follow2Time > now.getTime() && !(todayTimes.isFriday && p.name === 'dhuhr')) {
-            alarms.push({
-              id: `follow2_${p.name}_${todayDateStr}`,
-              title: `تنبيه حازم: ${p.titleAr} ⚠️`,
-              body: `مضت نصف ساعة على دخول الوقت! استدرك صلاتك فوراً لتحمي بركة يومك وشعلتك.`,
-              timestampMs: follow2Time,
-              tag: `follow2-${p.name}`,
-              url: '/?station=HOME',
-              icon: DEFAULT_ALARM_ICON,
-              actions: [{ action: 'mark_prayed', title: 'سأقوم للصلاة فوراً 🏃‍♂️' }],
-              data: { prayer: p.name },
-            });
+          // C) Follow-up late reminder (ONLY if explicitly opted in, max 1 gentle reminder)
+          if (!isDone && followUpOptIn) {
+            const follow1Time = new Date(p.time.getTime() + followUpMinutes * 60 * 1000).getTime();
+            if (follow1Time > now.getTime() && !(todayTimes.isFriday && p.name === 'dhuhr')) {
+              alarms.push({
+                id: `follow1_${p.name}_${todayDateStr}`,
+                title: `تذكير لطيف: ${p.titleAr} ⏳`,
+                body: `مضت ${followUpMinutes} دقيقة على الأذان.. هل أديت الفريضة؟ سارع لتحفظ ثواب الوقت.`,
+                timestampMs: follow1Time,
+                tag: `follow1-${p.name}`,
+                url: '/?station=HOME',
+                icon: DEFAULT_ALARM_ICON,
+                actions: [
+                  { action: 'mark_prayed', title: 'صليت الآن ✔' },
+                  { action: 'snooze', title: 'تذكير بعد 10د ⏰' },
+                ],
+                data: { prayer: p.name },
+              });
+            }
           }
         }
       }
 
       // ----------------------------------------------------
-      // 2. FRIDAY SPECIAL REMINDERS (Today if Friday)
+      // 2. FRIDAY SPECIAL REMINDERS (ONLY if accountability opted in)
       // ----------------------------------------------------
-      if (todayTimes.isFriday) {
+      if (prayersEnabled && accountabilityOptIn && todayTimes.isFriday) {
         const jumuahReminderTime = new Date(todayTimes.dhuhr.getTime() + fridayDelayMinutes * 60 * 1000).getTime();
         if (jumuahReminderTime > now.getTime()) {
           alarms.push({
@@ -221,23 +234,10 @@ class AutonomousNotificationScheduler {
             icon: DEFAULT_ALARM_ICON,
           });
         }
-
-        const goldenHourTime = new Date(todayTimes.maghrib.getTime() - 60 * 60 * 1000).getTime();
-        if (goldenHourTime > now.getTime()) {
-          alarms.push({
-            id: `friday_golden_${todayDateStr}`,
-            title: 'ساعة الإجابة المباركة يوم الجمعة 🤲',
-            body: 'بقي ساعة على غروب شمس الجمعة.. اغتنم هذا الوقت بالدعاء والصلاة على النبي ﷺ.',
-            timestampMs: goldenHourTime,
-            tag: 'friday-golden-hour',
-            url: '/?station=HOME',
-            icon: DEFAULT_ALARM_ICON,
-          });
-        }
       }
 
       // ----------------------------------------------------
-      // 3. TOMORROW'S 5 PRAYERS (Rolling 36-48h window so alerts fire even if app stays closed!)
+      // 3. TOMORROW'S 5 PRAYERS (1 clean Adhan alert per prayer)
       // ----------------------------------------------------
       const tomorrowPrayerList: Array<{ name: PrayerName; time: Date; titleAr: string }> = [
         { name: 'fajr', time: tomorrowTimes.fajr, titleAr: 'صلاة الفجر' },
@@ -247,106 +247,43 @@ class AutonomousNotificationScheduler {
         { name: 'isha', time: tomorrowTimes.isha, titleAr: 'صلاة العشاء' },
       ];
 
-      for (const tp of tomorrowPrayerList) {
-        // Pre-prayer reminder tomorrow
-        if (prePrayerAlertEnabled) {
-          const preTime = new Date(tp.time.getTime() - prePrayerMinutes * 60 * 1000).getTime();
-          if (preTime > now.getTime()) {
+      if (prayersEnabled) {
+        for (const tp of tomorrowPrayerList) {
+          // Adhan tomorrow
+          const adhanTime = tp.time.getTime();
+          if (adhanTime > now.getTime()) {
             alarms.push({
-              id: `pre_${tp.name}_${tomorrowDateStr}`,
-              title: `اقترب موعد ${tp.titleAr} ⏳`,
-              body: `بقي قرابة ${prePrayerMinutes} دقائق على الأذان.. تهيأ بالوضوء والسكينة.`,
-              timestampMs: preTime,
-              tag: `pre-prayer-${tp.name}`,
+              id: `adhan_${tp.name}_${tomorrowDateStr}`,
+              title: tp.name === 'fajr' ? 'الصلاة خير من النوم: صلاة الفجر 🌅' : `الله أكبر، حان الآن موعد ${tp.titleAr} 🕌`,
+              body: tp.name === 'fajr'
+                ? 'الله أكبر.. حان موعد فجر يوم جديد. استيقظ لتنال ذمة الله وبركة الصباح.'
+                : 'حيّ على الصلاة، حيّ على الفلاح.. بادر بالصلاة في أول وقتها لتنال أجر الصف الأول.',
+              timestampMs: adhanTime,
+              tag: `adhan-${tp.name}`,
               url: '/?station=HOME',
               icon: DEFAULT_ALARM_ICON,
+              actions: [
+                { action: 'mark_prayed', title: 'صليت في وقتها ✔' },
+                { action: 'snooze', title: 'سأصلي الآن 🤲' },
+              ],
+              data: { prayer: tp.name },
             });
           }
         }
-
-        // Adhan tomorrow
-        const adhanTime = tp.time.getTime();
-        if (adhanTime > now.getTime()) {
-          alarms.push({
-            id: `adhan_${tp.name}_${tomorrowDateStr}`,
-            title: tp.name === 'fajr' ? 'الصلاة خير من النوم: صلاة الفجر 🌅' : `الله أكبر، حان الآن موعد ${tp.titleAr} 🕌`,
-            body: tp.name === 'fajr'
-              ? 'الله أكبر.. حان موعد فجر يوم جديد. استيقظ لتنال ذمة الله وبركة الصباح.'
-              : 'حيّ على الصلاة، حيّ على الفلاح.. بادر بالصلاة في أول وقتها لتنال أجر الصف الأول.',
-            timestampMs: adhanTime,
-            tag: `adhan-${tp.name}`,
-            url: '/?station=HOME',
-            icon: DEFAULT_ALARM_ICON,
-            actions: [
-              { action: 'mark_prayed', title: 'صليت في وقتها ✔' },
-              { action: 'snooze', title: 'سأصلي الآن 🤲' },
-            ],
-            data: { prayer: tp.name },
-          });
-        }
-
-        // Follow-up 1 (+15m) tomorrow
-        const follow1Time = new Date(tp.time.getTime() + followUpMinutes * 60 * 1000).getTime();
-        if (follow1Time > now.getTime() && !(tomorrowTimes.isFriday && tp.name === 'dhuhr')) {
-          alarms.push({
-            id: `follow1_${tp.name}_${tomorrowDateStr}`,
-            title: `تذكير استدراك: ${tp.titleAr} ⏳`,
-            body: `مضت ${followUpMinutes} دقيقة على الأذان.. هل أديت الفريضة؟ سارع لتحفظ ثواب الوقت.`,
-            timestampMs: follow1Time,
-            tag: `follow1-${tp.name}`,
-            url: '/?station=HOME',
-            icon: DEFAULT_ALARM_ICON,
-            actions: [
-              { action: 'mark_prayed', title: 'صليت الآن ✔' },
-              { action: 'snooze', title: 'تذكير بعد 10د ⏰' },
-            ],
-            data: { prayer: tp.name },
-          });
-        }
-      }
-
-      // Friday special tomorrow if tomorrow is Friday
-      if (tomorrowTimes.isFriday) {
-        const tomorrowGoldenHour = new Date(tomorrowTimes.maghrib.getTime() - 60 * 60 * 1000).getTime();
-        if (tomorrowGoldenHour > now.getTime()) {
-          alarms.push({
-            id: `friday_golden_${tomorrowDateStr}`,
-            title: 'ساعة الإجابة المباركة يوم الجمعة 🤲',
-            body: 'بقي ساعة على غروب شمس الجمعة.. اغتنم هذا الوقت بالدعاء والصلاة على النبي ﷺ.',
-            timestampMs: tomorrowGoldenHour,
-            tag: 'friday-golden-hour',
-            url: '/?station=HOME',
-            icon: DEFAULT_ALARM_ICON,
-          });
-        }
       }
 
       // ----------------------------------------------------
-      // 4. MIDDAY WIRD & SURAH AL-BAQARAH REMINDER (13:30 Today & Tomorrow)
+      // 4. MIDDAY WIRD & SURAH AL-BAQARAH REMINDER (ONLY if explicitly opted in)
       // ----------------------------------------------------
-      if (settings?.lateWirdReminderEnabled ?? true) {
+      if (accountabilityOptIn && settings?.lateWirdReminderEnabled === true) {
         const middayWirdToday = new Date();
         middayWirdToday.setHours(13, 30, 0, 0);
         if (middayWirdToday.getTime() > now.getTime()) {
           alarms.push({
             id: `wird_midday_${todayDateStr}`,
             title: 'ورد سورة البقرة المبارك 📖',
-            body: 'انتصف نهارك.. لا تدع زحام العمل ينسيك نور وبركة سورة البقرة وطرد الشياطين.',
+            body: 'انتصف نهارك.. لا تدع زحام العمل ينسيك نور وبركة سورة البقرة.',
             timestampMs: middayWirdToday.getTime(),
-            tag: 'wird-midday',
-            url: '/?station=COMMUTE_MORNING',
-            icon: DEFAULT_ALARM_ICON,
-          });
-        }
-
-        const middayWirdTomorrow = new Date(tomorrow);
-        middayWirdTomorrow.setHours(13, 30, 0, 0);
-        if (middayWirdTomorrow.getTime() > now.getTime()) {
-          alarms.push({
-            id: `wird_midday_${tomorrowDateStr}`,
-            title: 'ورد سورة البقرة المبارك 📖',
-            body: 'انتصف نهارك.. لا تدع زحام العمل ينسيك نور وبركة سورة البقرة وطرد الشياطين.',
-            timestampMs: middayWirdTomorrow.getTime(),
             tag: 'wird-midday',
             url: '/?station=COMMUTE_MORNING',
             icon: DEFAULT_ALARM_ICON,
@@ -355,9 +292,9 @@ class AutonomousNotificationScheduler {
       }
 
       // ----------------------------------------------------
-      // 5. EVENING RETROSPECTIVE CHECK-IN (21:30 Today & Tomorrow)
+      // 5. EVENING RETROSPECTIVE CHECK-IN (ONLY if explicitly opted in)
       // ----------------------------------------------------
-      if (settings?.lateCheckinReminderEnabled ?? true) {
+      if (accountabilityOptIn && settings?.lateCheckinReminderEnabled === true) {
         const checkinToday = new Date();
         checkinToday.setHours(21, 30, 0, 0);
         if (checkinToday.getTime() > now.getTime()) {
@@ -371,33 +308,18 @@ class AutonomousNotificationScheduler {
             icon: DEFAULT_ALARM_ICON,
           });
         }
-
-        const checkinTomorrow = new Date(tomorrow);
-        checkinTomorrow.setHours(21, 30, 0, 0);
-        if (checkinTomorrow.getTime() > now.getTime()) {
-          alarms.push({
-            id: `checkin_evening_${tomorrowDateStr}`,
-            title: 'حصاد اليوم وإغلاق المحطات (مِضمار) 🌙',
-            body: 'حان وقت إغلاق محطات اليوم وحصاد نقاطك وتأمين شعلة الالتزام قبل النوم.',
-            timestampMs: checkinTomorrow.getTime(),
-            tag: 'evening-checkin',
-            url: '/?station=RETROSPECTIVE_CHECKIN',
-            icon: DEFAULT_ALARM_ICON,
-          });
-        }
       }
 
       // ----------------------------------------------------
-      // 6. MORNING & EVENING ADHKAR REMINDERS
+      // 6. MORNING & EVENING ADHKAR REMINDERS (ONLY if explicitly opted in)
       // ----------------------------------------------------
-      if (settings?.morningEveningAdhkarRemindersEnabled ?? true) {
-        // Today Morning Adhkar (20m post-sunrise)
+      if (accountabilityOptIn && settings?.morningEveningAdhkarRemindersEnabled === true) {
         const morningToday = new Date(todayTimes.sunrise.getTime() + 20 * 60 * 1000).getTime();
         if (morningToday > now.getTime()) {
           alarms.push({
             id: `adhkar_morning_${todayDateStr}`,
             title: '🌿 حان وقت أذكار الصباح النبوية',
-            body: '﴿وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ﴾.. أذكار الصباح حِصن يومك وسكينتك وبركة مسعاك.',
+            body: '﴿وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ﴾.. أذكار الصباح حِصن يومك وسكينتك.',
             timestampMs: morningToday,
             tag: 'adhkar-morning',
             url: '/?station=COMMUTE_MORNING',
@@ -405,116 +327,65 @@ class AutonomousNotificationScheduler {
           });
         }
 
-        // Today Evening Adhkar (25m post-Asr before sunset)
         const eveningToday = new Date(todayTimes.asr.getTime() + 25 * 60 * 1000).getTime();
         if (eveningToday > now.getTime()) {
           alarms.push({
             id: `adhkar_evening_${todayDateStr}`,
             title: '🌿 حان وقت أذكار المساء النبوية',
-            body: '﴿وَقَبْلَ الْغُرُوبِ﴾.. بادر بأذكار المساء لتكون لك حِصناً وبركة وسكينة قبل حلول الليل.',
+            body: '﴿وَقَبْلَ الْغُرُوبِ﴾.. بادر بأذكار المساء لتكون لك حِصناً وبركة وسكينة.',
             timestampMs: eveningToday,
             tag: 'adhkar-evening',
             url: '/?station=EVENING_SPRINT',
             icon: DEFAULT_ALARM_ICON,
           });
         }
-
-        // Tomorrow Morning Adhkar
-        const morningTomorrow = new Date(tomorrowTimes.sunrise.getTime() + 20 * 60 * 1000).getTime();
-        if (morningTomorrow > now.getTime()) {
-          alarms.push({
-            id: `adhkar_morning_${tomorrowDateStr}`,
-            title: '🌿 حان وقت أذكار الصباح النبوية',
-            body: '﴿وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ﴾.. أذكار الصباح حِصن يومك وسكينتك وبركة مسعاك.',
-            timestampMs: morningTomorrow,
-            tag: 'adhkar-morning',
-            url: '/?station=COMMUTE_MORNING',
-            icon: DEFAULT_ALARM_ICON,
-          });
-        }
-
-        // Tomorrow Evening Adhkar
-        const eveningTomorrow = new Date(tomorrowTimes.asr.getTime() + 25 * 60 * 1000).getTime();
-        if (eveningTomorrow > now.getTime()) {
-          alarms.push({
-            id: `adhkar_evening_${tomorrowDateStr}`,
-            title: '🌿 حان وقت أذكار المساء النبوية',
-            body: '﴿وَقَبْلَ الْغُرُوبِ﴾.. بادر بأذكار المساء لتكون لك حِصناً وبركة وسكينة قبل حلول الليل.',
-            timestampMs: eveningTomorrow,
-            tag: 'adhkar-evening',
-            url: '/?station=EVENING_SPRINT',
-            icon: DEFAULT_ALARM_ICON,
-          });
-        }
       }
 
       // ----------------------------------------------------
-      // 7. SUNNAH FASTING REMINDERS
+      // 7. SUNNAH FASTING REMINDERS (ONLY if explicitly opted in)
       // ----------------------------------------------------
-      if (settings?.sunnahFastingRemindersEnabled ?? true) {
-        const dayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon ...
+      if (accountabilityOptIn && settings?.sunnahFastingRemindersEnabled === true) {
+        const dayOfWeek = now.getDay();
         const eveningFastTime = new Date();
-        eveningFastTime.setHours(20, 15, 0, 0); // 8:15 PM
+        eveningFastTime.setHours(20, 15, 0, 0);
 
         if (eveningFastTime.getTime() > now.getTime()) {
-          // Sunday evening -> Tomorrow is Monday fasting
           if (dayOfWeek === 0) {
             alarms.push({
               id: `fasting_monday_${todayDateStr}`,
               title: '🌙 تذكير صيام غداً الإثنين (سنة نبوية)',
-              body: 'غداً تُعرض الأعمال على الله وأحب أن يُعرض عملي وأنا صائم.. تذكر نية الصيام وبركة السحور.',
+              body: 'غداً تُعرض الأعمال على الله.. تذكر نية الصيام وبركة السحور.',
               timestampMs: eveningFastTime.getTime(),
               tag: 'fasting-monday',
               url: '/?station=HOME',
               icon: DEFAULT_ALARM_ICON,
             });
-          }
-
-          // Wednesday evening -> Tomorrow is Thursday fasting
-          if (dayOfWeek === 3) {
+          } else if (dayOfWeek === 3) {
             alarms.push({
               id: `fasting_thursday_${todayDateStr}`,
               title: '🌙 تذكير صيام غداً الخميس (سنة نبوية)',
-              body: 'غداً يوم مبارك تُعرض فيه الأعمال على الله.. استعد بنية الصيام وبركة السحور.',
+              body: 'غداً يوم مبارك تُعرض فيه الأعمال على الله.. استعد بنية الصيام.',
               timestampMs: eveningFastTime.getTime(),
               tag: 'fasting-thursday',
               url: '/?station=HOME',
               icon: DEFAULT_ALARM_ICON,
             });
           }
-
-          // White Days
-          const hijri = getHijriDateDetails(now);
-          if (hijri.isTomorrowWhiteDay) {
-            alarms.push({
-              id: `fasting_white_days_${todayDateStr}`,
-              title: '🌕 تذكير صيام الأيام البيض المباركة',
-              body: `غداً تبدأ الأيام البيض (${hijri.day + 1} ${hijri.monthNameAr}).. صيام 3 أيام من كل شهر كصيام الدهر.`,
-              timestampMs: eveningFastTime.getTime(),
-              tag: 'fasting-white-days',
-              url: '/?station=HOME',
-              icon: DEFAULT_ALARM_ICON,
-            });
-          }
         }
       }
 
       // ----------------------------------------------------
-      // 8. USER SCHEDULE & LIFESTYLE STATION REMINDERS (Today & Tomorrow)
+      // 8. USER SCHEDULE & LIFESTYLE STATION REMINDERS (ONLY if explicitly opted in)
       // ----------------------------------------------------
-      if (settings?.scheduleStationRemindersEnabled ?? true) {
+      if (accountabilityOptIn && settings?.scheduleStationRemindersEnabled === true) {
         const schedulePrefs = scheduleService.getPreferences();
         const routineAns = userState?.settings?.dailyRoutineAnswers;
         const userWorkStart = routineAns?.workStartHour ?? 9;
         const userWorkEnd = routineAns?.workEndHour ?? 17;
 
-        const scheduleDays = [
-          { date: now, dateStr: todayDateStr },
-          { date: tomorrow, dateStr: tomorrowDateStr },
-        ];
+        const scheduleDays = [{ date: now, dateStr: todayDateStr }];
 
         for (const sd of scheduleDays) {
-          // Work sprint start (respects user's configured workStartHour)
           if (routineAns?.activityType !== 'student' || routineAns?.workStartHour !== undefined || schedulePrefs.workStartTime) {
             const [prefH, prefM] = (schedulePrefs.workStartTime || '09:00').split(':').map(Number);
             const wH = routineAns?.workStartHour !== undefined ? routineAns.workStartHour : (prefH || 9);
@@ -525,7 +396,7 @@ class AutonomousNotificationScheduler {
               alarms.push({
                 id: `station_work_${sd.dateStr}`,
                 title: '🎯 بداية ساعات العمل والتركيز العميق',
-                body: 'حان موعد محطة العمل والإنتاجية.. صفّ ذهنك وحدد مهمة اليوم الرئيسية لتحقيق إنجاز نوعي.',
+                body: 'حان موعد محطة العمل والإنتاجية.. صفّ ذهنك وحدد مهمة اليوم الرئيسية.',
                 timestampMs: workStartTime.getTime(),
                 tag: 'station-work',
                 url: '/?station=WORK_MICRO_SPRINT',
@@ -534,7 +405,6 @@ class AutonomousNotificationScheduler {
             }
           }
 
-          // Sports / Gym Anchor (respects user's workoutStartHour and NEVER fires during work hours!)
           const isRestPref = routineAns?.workoutPreference === 'none_rest' || routineAns?.workoutStartHour === -1;
           if (!isRestPref) {
             let sportHour =
@@ -546,7 +416,6 @@ class AutonomousNotificationScheduler {
                 ? 20
                 : Math.max(18, userWorkEnd + 1);
 
-            // Safety guard: if sportHour falls inside active work hours, push it to 1 hour after workEndHour
             if (sportHour >= userWorkStart && sportHour < userWorkEnd) {
               sportHour = Math.min(22, userWorkEnd + 1);
             }
@@ -559,31 +428,13 @@ class AutonomousNotificationScheduler {
                 alarms.push({
                   id: `station_gym_${sd.dateStr}`,
                   title: `🏋️‍♂️ موعد شحذ الجسد والرياضة (${plannedSport})`,
-                  body: 'حان موعد محطة اللياقة وتجديد النشاط بعد يومك.. الرياضة وقود صفائك الذهني ودرع صحتك.',
+                  body: 'حان موعد محطة اللياقة وتجديد النشاط بعد يومك.',
                   timestampMs: sportTime.getTime(),
                   tag: 'station-gym',
                   url: '/?station=GYM_ANCHOR',
                   icon: DEFAULT_ALARM_ICON,
                 });
               }
-            }
-          }
-
-          // Bedtime wind-down alert (30m before sleepTime)
-          if (schedulePrefs.sleepTime) {
-            const [sH, sM] = schedulePrefs.sleepTime.split(':').map(Number);
-            const windDownTime = new Date(sd.date);
-            windDownTime.setHours(sH || 23, (sM || 0) - 30, 0, 0);
-            if (windDownTime.getTime() > now.getTime()) {
-              alarms.push({
-                id: `station_sleep_${sd.dateStr}`,
-                title: '🌙 وقت التهدئة والاستعداد للنوم العميق',
-                body: 'شارف اليوم على الانتهاء.. أوقف الشاشات الزرقاء واقرأ أذكار النوم وسورة الملك لتنعم بنوم هانئ.',
-                timestampMs: windDownTime.getTime(),
-                tag: 'station-sleep',
-                url: '/?station=HOME',
-                icon: DEFAULT_ALARM_ICON,
-              });
             }
           }
         }
@@ -672,23 +523,6 @@ class AutonomousNotificationScheduler {
                     actions: [{ action: 'mark_done', title: 'تم الحضور / الإنجاز ✔' }],
                     data: { reminderId: rem.id },
                   });
-                }
-
-                // C) Post-Appointment Satisfaction Check-In (90 mins after appointment)
-                if (rem.satisfactionScore === undefined) {
-                  const rateTimestamp = reminderTime.getTime() + 90 * 60 * 1000;
-                  if (rateTimestamp > now.getTime() && day.dateStr !== dayAfterTomorrowStr) {
-                    alarms.push({
-                      id: `custom_rate_${rem.id}_${day.dateStr}`,
-                      title: `🌟 كيف كان موعدك: ${rem.title}؟`,
-                      body: 'افتح مِضمار وسجل نسبة رضاك عن هذا الموعد أو المناسبة في ثانية واحدة!',
-                      timestampMs: rateTimestamp,
-                      tag: `custom-rate-${rem.id}`,
-                      url: '/?station=HOME',
-                      icon: DEFAULT_ALARM_ICON,
-                      data: { reminderId: rem.id, type: 'rate' },
-                    });
-                  }
                 }
               }
             }
@@ -907,6 +741,44 @@ class AutonomousNotificationScheduler {
       serverSync.cancelPushAlarm(`follow2-${prayerName}`);
     } catch {}
   }
+
+  /**
+   * Immediately purge all queued alarms in Service Worker & Server, close open banners,
+   * and reset settings to Calm Essential Mode (only 1 Adhan alert per prayer + explicit custom reminders).
+   */
+  public async purgeAndResetToCalmMode(): Promise<number> {
+    try {
+      const userState = await db.user_state.get('current_user');
+      if (userState) {
+        const calmSettings = {
+          ...userState.settings,
+          accountabilityNotificationsEnabled: false,
+          latePrayerReminderEnabled: false,
+          lateWirdReminderEnabled: false,
+          lateCheckinReminderEnabled: false,
+          sunnahFastingRemindersEnabled: false,
+          morningEveningAdhkarRemindersEnabled: false,
+          scheduleStationRemindersEnabled: false,
+        };
+        await db.user_state.update(userState.id, { settings: calmSettings });
+      }
+
+      if ('serviceWorker' in navigator) {
+        const reg = await navigator.serviceWorker.ready.catch(() => null);
+        if (reg) {
+          const targetWorker = reg.active || reg.waiting || reg.installing;
+          targetWorker?.postMessage({ type: 'CLEAR_ALL_ALARMS' });
+          const notifs = await reg.getNotifications().catch(() => []);
+          notifs.forEach((n) => n.close());
+        }
+      }
+
+      return await this.scheduleAllUpcomingAlarms();
+    } catch {
+      return 0;
+    }
+  }
 }
 
 export const autonomousNotificationScheduler = new AutonomousNotificationScheduler();
+

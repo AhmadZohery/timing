@@ -11,13 +11,13 @@ class PrayerNotificationManager {
   private notifiedKeys = new Set<string>();
 
   constructor() {
-    // Load sent notification tags from sessionStorage to prevent spamming on page reload
+    // Load sent notification tags from localStorage (persists across tabs & reloads)
     try {
-      const saved = sessionStorage.getItem('midmar_notified_prayers');
+      const saved = localStorage.getItem('midmar_notified_prayers_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          parsed.forEach((k) => this.notifiedKeys.add(k));
+          parsed.slice(-150).forEach((k) => this.notifiedKeys.add(k));
         }
       }
     } catch {
@@ -28,10 +28,8 @@ class PrayerNotificationManager {
   private markNotified(key: string) {
     this.notifiedKeys.add(key);
     try {
-      sessionStorage.setItem(
-        'midmar_notified_prayers',
-        JSON.stringify(Array.from(this.notifiedKeys))
-      );
+      const arr = Array.from(this.notifiedKeys).slice(-150);
+      localStorage.setItem('midmar_notified_prayers_v2', JSON.stringify(arr));
     } catch {
       // Ignore storage errors
     }
@@ -42,14 +40,14 @@ class PrayerNotificationManager {
   }
 
   /**
-   * Start periodic check (runs every 30 seconds)
+   * Start periodic check (runs every 60 seconds)
    */
   public start() {
     if (this.timerId !== null) return;
     this.checkAndNotify();
     this.timerId = window.setInterval(() => {
       this.checkAndNotify();
-    }, 30000);
+    }, 60000);
   }
 
   public stop() {
@@ -101,7 +99,7 @@ class PrayerNotificationManager {
   }
 
   /**
-   * Core inspection and notification trigger
+   * Core inspection and notification trigger (Calm & Non-Spammy by default)
    */
   public async checkAndNotify() {
     try {
@@ -126,10 +124,10 @@ class PrayerNotificationManager {
 
       const prayersCompleted = todayLog?.prayers || {};
 
-      // Configurable reminder delays
-      const followUpMinutes = settings?.followUpReminderMinutes ?? 15; // 15 mins
-      const secondReminderMinutes = settings?.secondReminderMinutes ?? 30; // 30 mins
-      const fridayDelayMinutes = settings?.fridayReminderDelayMinutes ?? 120; // 120 mins = 2 hours
+      // Only send extra follow-up reminders if the user explicitly enabled accountabilityNotificationsEnabled === true
+      const accountabilityOptIn = settings?.accountabilityNotificationsEnabled === true && settings?.latePrayerReminderEnabled === true;
+      const prePrayerOptIn = settings?.prayerAudioSettings?.prePrayerAlertEnabled === true && settings?.accountabilityNotificationsEnabled === true;
+      const followUpMinutes = settings?.followUpReminderMinutes ?? 25;
 
       const prayerCheckList: Array<{
         name: PrayerName;
@@ -163,113 +161,52 @@ class PrayerNotificationManager {
 
         const diffMinutes = Math.floor((now.getTime() - item.time.getTime()) / 60000);
 
-        // Pre-Prayer Approaching Alert (10 minutes before Adhan)
-        const msUntilPrayer = item.time.getTime() - now.getTime();
-        const minutesUntilPrayer = Math.floor(msUntilPrayer / 60000);
-        if (minutesUntilPrayer > 0 && minutesUntilPrayer <= 10) {
-          const preKey = `pre-adhan-${item.name}-${todayDateStr}`;
-          if (!this.hasNotified(preKey)) {
-            this.markNotified(preKey);
-            await this.showNotification(
-              `اقترب موعد ${item.titleAr} ⏳ (خلال ${minutesUntilPrayer} دقائق)`,
-              `استعد بالوضوء والسكينة لصلاتك في أول وقتها لتنال أجر الصف الأول وبركة الوقت.`,
-              `prayer-pre-${item.name}`,
-              'wird_adhkar'
-            );
+        // Pre-Prayer Approaching Alert (ONLY if explicitly opted in)
+        if (prePrayerOptIn) {
+          const msUntilPrayer = item.time.getTime() - now.getTime();
+          const minutesUntilPrayer = Math.floor(msUntilPrayer / 60000);
+          if (minutesUntilPrayer > 0 && minutesUntilPrayer <= 10) {
+            const preKey = `pre-adhan-${item.name}-${todayDateStr}`;
+            if (!this.hasNotified(preKey)) {
+              this.markNotified(preKey);
+              await this.showNotification(
+                `اقترب موعد ${item.titleAr} ⏳ (خلال ${minutesUntilPrayer} دقائق)`,
+                `استعد بالوضوء والسكينة لصلاتك في أول وقتها.`,
+                `pre-prayer-${item.name}`,
+                'wird_adhkar'
+              );
+            }
           }
         }
 
-        // 0) Adhan Entry Alert (Expanded from 5m to 45m grace window to handle mobile deep-sleep wakeups)
-        if (diffMinutes >= 0 && diffMinutes <= 45) {
+        // 0) Exact Adhan Entry Alert (within 0 to 15m window, single clean notification per prayer)
+        if (diffMinutes >= 0 && diffMinutes <= 15) {
           const key = `adhan-${item.name}-${todayDateStr}`;
           if (!this.hasNotified(key)) {
             this.markNotified(key);
             await this.showNotification(
               `الله أكبر، حان موعد ${item.titleAr} 🕌`,
-              diffMinutes > 5
-                ? `مضت ${diffMinutes} دقيقة على دخول وقت ${item.titleAr}.. استدرك صلاتك الآن لتنال أجر الفريضة وبركة وقتها.`
-                : `حيّ على الصلاة، حيّ على الفلاح.. بادر بالاستعداد للصلاة في أول وقتها لتنال أجر الصف الأول.`,
-              `prayer-adhan-${item.name}`,
+              `حيّ على الصلاة، حيّ على الفلاح.. بادر بالصلاة في أول وقتها لتنال البركة والسكينة.`,
+              `adhan-${item.name}`,
               'prayer_adhan',
               settings?.prayerAudioSettings
             );
           }
         }
 
-        // Special rule for Friday Prayer:
-        // On Friday, Jumu'ah replaces Dhuhr. Reminder is strictly 2 hours (120 min) later!
-        if (todayTimes.isFriday && item.name === 'dhuhr') {
-          if (diffMinutes >= fridayDelayMinutes && diffMinutes <= fridayDelayMinutes + 45) {
-            const key = `friday-120-${todayDateStr}`;
+        // Follow-up reminder (ONLY if user explicitly opted into accountability reminders, max 1 gentle reminder)
+        if (accountabilityOptIn && !(todayTimes.isFriday && item.name === 'dhuhr')) {
+          if (diffMinutes >= followUpMinutes && diffMinutes < followUpMinutes + 15) {
+            const key = `followup-${followUpMinutes}-${item.name}-${todayDateStr}`;
             if (!this.hasNotified(key)) {
               this.markNotified(key);
               await this.showNotification(
-                'تقبل الله طاعتكم وجمعتكم 🕌',
-                'مضت ساعتان على أذان الجمعة.. هل أديت صلاة الجمعة؟ انقر لتسجيل صلاتك ونيل البركة.',
-                'jumuah-friday'
+                `تذكير لطيف بـ ${item.titleAr} 🕌`,
+                `مضت ${followUpMinutes} دقيقة على الأذان.. هل أديت ${item.titleAr}؟ انقر لتسجيل صلاتك.`,
+                `follow1-${item.name}`,
+                'urgent_warning'
               );
             }
-          }
-          // Skip 15-min and 30-min reminders for Friday Dhuhr
-          continue;
-        }
-
-        // Friday Golden Hour: ساعة الإجابة قبل غروب الشمس بساعة
-        if (todayTimes.isFriday) {
-          const maghribTime = todayTimes.maghrib.getTime();
-          const minutesToMaghrib = Math.floor((maghribTime - now.getTime()) / 60000);
-          if (minutesToMaghrib > 0 && minutesToMaghrib <= 60) {
-            const key = `friday-golden-hour-${todayDateStr}`;
-            if (!this.hasNotified(key)) {
-              this.markNotified(key);
-              await this.showNotification(
-                '🌸 ساعة الإجابة يوم الجمعة.. اغتنمها بالدعاء',
-                'شارف نهار الجمعة على المغيب.. تفرغ للدعاء والرجاء، فإن فيها ساعة لا يوافقها عبد مسلم يسأل الله خيراً إلا آتاه إياه.',
-                'friday-golden-hour'
-              );
-            }
-          }
-        }
-
-        // Post-Asr Evening Adhkar (أذكار المساء المسنونة قبل الغروب)
-        if (item.name === 'asr' && diffMinutes >= 10 && diffMinutes <= 45) {
-          const key = `evening-adhkar-asr-${todayDateStr}`;
-          if (!this.hasNotified(key)) {
-            this.markNotified(key);
-            await this.showNotification(
-              '🌿 حان وقت أذكار المساء النبوية',
-              '﴿وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ وَقَبْلَ الْغُرُوبِ﴾.. بادر بأذكار المساء لتكون لك حِصناً وبركة وسكينة قبل حلول الليل.',
-              'evening-adhkar'
-            );
-          }
-        }
-
-        // Standard prayers (Fajr, Dhuhr, Asr, Maghrib, Isha):
-        // 1) First check at +15 minutes (diffMinutes between 15 and 29)
-        if (diffMinutes >= followUpMinutes && diffMinutes < secondReminderMinutes) {
-          const key = `followup-${followUpMinutes}-${item.name}-${todayDateStr}`;
-          if (!this.hasNotified(key)) {
-            this.markNotified(key);
-            await this.showNotification(
-              `حان موعد ${item.titleAr} منذ ${followUpMinutes} دقيقة 🕌`,
-              `هل أديت ${item.titleAr} في وقتها؟ الصلاة أحب الأعمال إلى الله، انقر لتسجيل صلاتك.`,
-              `prayer-followup-${item.name}`,
-              'urgent_warning'
-            );
-          }
-        }
-
-        // 2) Second check at +30 minutes (diffMinutes between 30 and 59)
-        if (diffMinutes >= secondReminderMinutes && diffMinutes < secondReminderMinutes + 30) {
-          const key = `followup-${secondReminderMinutes}-${item.name}-${todayDateStr}`;
-          if (!this.hasNotified(key)) {
-            this.markNotified(key);
-            await this.showNotification(
-              `تذكير لطيف بـ ${item.titleAr} 🤍`,
-              `لا تؤخر ${item.titleAr} عن وقتها، الصلاة راحة للنفس وبركة في الوقت والعمل.`,
-              `prayer-warning-${item.name}`,
-              'urgent_warning'
-            );
           }
         }
       }
