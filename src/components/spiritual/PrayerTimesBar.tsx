@@ -287,13 +287,11 @@ export const PrayerTimesBar: React.FC<PrayerTimesBarProps> = ({
 
   React.useEffect(() => {
     if (!isCityPickerOpen) return;
-    const handleOutsidePointer = (e: PointerEvent) => {
-      if (cityPickerRef.current && !cityPickerRef.current.contains(e.target as Node)) {
-        setIsCityPickerOpen(false);
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsCityPickerOpen(false);
     };
-    document.addEventListener('pointerdown', handleOutsidePointer);
-    return () => document.removeEventListener('pointerdown', handleOutsidePointer);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isCityPickerOpen]);
 
   const activeCity = PRESET_CITIES.find((c) => c.id === selectedCityId) || PRESET_CITIES[6]; // Dubai default

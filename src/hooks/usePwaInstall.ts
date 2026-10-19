@@ -22,8 +22,7 @@ function checkStandalone(): boolean {
     const isStandaloneMedia = Boolean(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
     const isIosStandalone = Boolean((window.navigator as any)?.standalone === true);
     const isAndroidReferrer = Boolean(typeof document !== 'undefined' && document?.referrer && typeof document.referrer === 'string' && document.referrer.includes('android-app://'));
-    const isMarkedInstalled = typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true';
-    return isStandaloneMedia || isIosStandalone || isAndroidReferrer || isMarkedInstalled;
+    return isStandaloneMedia || isIosStandalone || isAndroidReferrer;
   } catch {
     return false;
   }
@@ -31,6 +30,7 @@ function checkStandalone(): boolean {
 
 function checkHasDismissed(): boolean {
   if (typeof window === 'undefined') return false;
+  if (localStorage.getItem(STORAGE_KEY_INSTALLED) === 'true') return true;
   const dismissedUntil = localStorage.getItem(STORAGE_KEY_DISMISSED);
   return Boolean(dismissedUntil && Date.now() < parseInt(dismissedUntil, 10));
 }
@@ -45,8 +45,12 @@ function getPlatformInfo() {
 }
 
 export function usePwaInstall(): PwaInstallState {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(() =>
+    typeof window !== 'undefined' ? (window as any).__deferredPwaPrompt || null : null
+  );
+  const [isInstallable, setIsInstallable] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? Boolean((window as any).__deferredPwaPrompt) : false
+  );
   const [isStandalone, setIsStandalone] = useState(checkStandalone);
   const [hasDismissed, setHasDismissed] = useState(checkHasDismissed);
   const [platform] = useState(getPlatformInfo);
@@ -55,16 +59,23 @@ export function usePwaInstall(): PwaInstallState {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    if ((window as any).__deferredPwaPrompt) {
+      setDeferredPrompt((window as any).__deferredPwaPrompt);
+      setIsInstallable(true);
+    }
+
     // Listen for Chrome/Android beforeinstallprompt
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
+      (window as any).__deferredPwaPrompt = e;
       setDeferredPrompt(e);
       setIsInstallable(true);
     };
 
-    // 5. Listen for appinstalled
+    // Listen for appinstalled
     const handleAppInstalled = () => {
       localStorage.setItem(STORAGE_KEY_INSTALLED, 'true');
+      (window as any).__deferredPwaPrompt = null;
       setIsStandalone(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
@@ -81,7 +92,7 @@ export function usePwaInstall(): PwaInstallState {
 
   const markAsInstalled = useCallback(() => {
     localStorage.setItem(STORAGE_KEY_INSTALLED, 'true');
-    setIsStandalone(true);
+    setHasDismissed(true);
   }, []);
 
   const dismissForLater = useCallback((days: number = 7) => {
@@ -92,16 +103,18 @@ export function usePwaInstall(): PwaInstallState {
 
   const suppressForever = useCallback(() => {
     localStorage.setItem(STORAGE_KEY_INSTALLED, 'true');
-    setIsStandalone(true);
+    setHasDismissed(true);
   }, []);
 
   const promptInstall = useCallback(async (): Promise<boolean> => {
-    if (!deferredPrompt) return false;
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__deferredPwaPrompt : null);
+    if (!promptEvent) return false;
     try {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+      promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
       if (outcome === 'accepted') {
         markAsInstalled();
+        (window as any).__deferredPwaPrompt = null;
         setIsInstallable(false);
         setDeferredPrompt(null);
         return true;
@@ -112,9 +125,8 @@ export function usePwaInstall(): PwaInstallState {
     return false;
   }, [deferredPrompt, markAsInstalled]);
 
-  // Should prompt if:
+  // Should auto-prompt if:
   // - Not standalone AND
-  // - Not marked installed AND
   // - Not currently dismissed AND
   // - Is mobile (or installable on desktop)
   const shouldPrompt = !isStandalone && !hasDismissed && (isMobile || isInstallable);

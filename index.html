@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <script>
+      // Capture PWA install prompt early before React mounts so 1-tap install always works on mobile
+      window.__deferredPwaPrompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__deferredPwaPrompt = e;
+      });
       // Immediate clean-slate for legacy caches (v1-v9) while preserving IndexedDB user data
       if ('caches' in window) {
         caches.keys().then(function(keys) {

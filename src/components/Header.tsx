@@ -385,14 +385,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   React.useEffect(() => {
     if (!showControlCenter) return;
-    const handleOutsidePointer = (e: Event) => {
-      const target = e.target as Node;
-      if (controlCenterRef.current && !controlCenterRef.current.contains(target)) {
-        setShowControlCenter(false);
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowControlCenter(false);
     };
-    document.addEventListener('pointerdown', handleOutsidePointer, true);
-    return () => document.removeEventListener('pointerdown', handleOutsidePointer, true);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showControlCenter]);
 
   React.useEffect(() => {
@@ -997,6 +994,30 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
+          {/* Mobile Direct App Icon Install Button (< md, shown when in browser) */}
+          {!isPwaStandalone && onOpenA2hsModal && (
+            <button
+              type="button"
+              onClick={async () => {
+                soundSynth.playTactileClick();
+                haptic.vibrateLight();
+                if (isInstallable) {
+                  const installed = await promptInstall();
+                  if (!installed) {
+                    onOpenA2hsModal();
+                  }
+                } else {
+                  onOpenA2hsModal();
+                }
+              }}
+              className="md:hidden w-10 h-10 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/35 flex items-center justify-center text-emerald-300 active:scale-95 transition-all cursor-pointer"
+              title={language === 'ar' ? 'تثبيت أيقونة التطبيق على شاشة الموبايل' : 'Install App Icon'}
+              aria-label={language === 'ar' ? 'تثبيت أيقونة التطبيق' : 'Install App'}
+            >
+              <Download className="w-4 h-4" />
+            </button>
+          )}
+
           {/* Mobile Clean Circular Glass Search Button (< md) */}
           <button
             type="button"
@@ -1092,26 +1113,57 @@ export const Header: React.FC<HeaderProps> = ({
                     </div>
 
                     {/* Direct Bell / Notifications Hub Shortcut inside Control Center */}
-                    {onOpenQuickReminder && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowControlCenter(false);
-                          soundSynth.playTactileClick();
-                          haptic.vibrateLight();
-                          onOpenQuickReminder();
-                        }}
-                        className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-between text-xs font-bold text-white cursor-pointer transition-colors"
-                      >
-                        <span className="flex items-center gap-2">
-                          <Bell className="w-3.5 h-3.5 text-[#bce8c2]" />
-                          <span>{language === 'ar' ? 'مركز المنبهات والأذان والإشعارات' : 'Alarms, Adhan & Notifications'}</span>
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-habit-green-ink text-white">
-                          {language === 'ar' ? 'فتح ←' : 'Open →'}
-                        </span>
-                      </button>
-                    )}
+                    <div className="space-y-1.5">
+                      {onOpenQuickReminder && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowControlCenter(false);
+                            soundSynth.playTactileClick();
+                            haptic.vibrateLight();
+                            onOpenQuickReminder();
+                          }}
+                          className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 flex items-center justify-between text-xs font-bold text-white cursor-pointer transition-colors"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Bell className="w-3.5 h-3.5 text-[#bce8c2]" />
+                            <span>{language === 'ar' ? 'مركز المنبهات والأذان والإشعارات' : 'Alarms, Adhan & Notifications'}</span>
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-habit-green-ink text-white">
+                            {language === 'ar' ? 'فتح ←' : 'Open →'}
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Prominent 1-Tap Install App Icon on Mobile Home Screen */}
+                      {onOpenA2hsModal && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            soundSynth.playTactileClick();
+                            haptic.vibrateLight();
+                            setShowControlCenter(false);
+                            if (isInstallable) {
+                              const installed = await promptInstall();
+                              if (!installed) {
+                                onOpenA2hsModal();
+                              }
+                            } else {
+                              onOpenA2hsModal();
+                            }
+                          }}
+                          className="w-full py-2 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/35 flex items-center justify-between text-xs font-bold text-emerald-100 cursor-pointer transition-colors"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Download className="w-3.5 h-3.5 text-emerald-300" />
+                            <span>{language === 'ar' ? '📲 تثبيت أيقونة التطبيق على شاشة الموبايل' : '📲 Pin App Icon to Home Screen'}</span>
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500 text-zinc-950 font-black">
+                            {language === 'ar' ? 'تثبيت' : 'Install'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Quick Action Strip (Habitline Pastel Bento Tiles) */}
@@ -1531,7 +1583,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="truncate">{t('settings')}</span>
                       </button>
 
-                      {!isPwaStandalone && onOpenA2hsModal && (
+                      {onOpenA2hsModal && (
                         <button
                           type="button"
                           onClick={() => {
