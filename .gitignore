@@ -40,3 +40,6 @@ server/data/
 
 habitline-*.zip
 license_certificate_*.pdf
+*.apk
+*.jks
+
