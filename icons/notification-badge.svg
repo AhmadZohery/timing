@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Pure White Silhouette on 100% Transparent Background for Android Notification Status Bar -->
+  <g transform="translate(256, 256)" fill="#ffffff">
+    <!-- 8-Pointed Rub el Hizb Star Outer Frame (Cutout Center) -->
+    <path
+      fill-rule="evenodd"
+      d="M -136 -136 H 136 V 136 H -136 Z
+         M 0 -92 A 92 92 0 1 0 0 92 A 92 92 0 1 0 0 -92 Z"
+    />
+    <path
+      fill-rule="evenodd"
+      transform="rotate(45)"
+      d="M -136 -136 H 136 V 136 H -136 Z
+         M 0 -92 A 92 92 0 1 0 0 92 A 92 92 0 1 0 0 -92 Z"
+    />
+    <!-- Inner Crescent Moon + Compass Spear -->
+    <path d="M -52 -10 A 56 56 0 1 0 52 -10 A 44 44 0 1 1 -52 -10 Z" />
+    <polygon points="0,-68 20,-16 0,16 -20,-16" />
+  </g>
+</svg>

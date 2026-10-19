@@ -1,26 +1,104 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
-const CACHE_NAME = 'midmar-lifeos-v2';
+const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
+
+const CACHE_NAME = 'midmar-sanctuary-v13';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/favicon.svg',
-  '/icons.svg',
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './favicon.svg?v=20261020',
+  './icons/midmar-royal-192.png',
+  './icons/midmar-royal-512.png',
+  './icons/midmar-royal-maskable-512.png',
+  './icons/notification-badge-96x96.png',
+  './icons/notification-badge-192x192.png',
+  './icons/midmar-apple-touch.png',
+  './icons.svg',
 ];
 
-// Open native IndexedDB inside Service Worker for background alarm storage
+// Open native IndexedDB inside Service Worker for background alarm storage & deduplication
 function openAlarmsDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('midmar_sw_alarms_db', 1);
+    const request = indexedDB.open('midmar_sw_alarms_db', 2);
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('alarms')) {
         db.createObjectStore('alarms', { keyPath: 'id' });
       }
+      if (!db.objectStoreNames.contains('shown_tags')) {
+        db.createObjectStore('shown_tags', { keyPath: 'tag' });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
+
+const recentlyShownTags = new Map();
+const DEDUP_WINDOW_MS = 45 * 60 * 1000; // 45 minutes cooldown per tag
+
+async function wasTagShownRecently(tag) {
+  if (!tag || String(tag).startsWith('test-')) return false;
+  const now = Date.now();
+  const memTs = recentlyShownTags.get(tag);
+  if (memTs && now - memTs < DEDUP_WINDOW_MS) {
+    return true;
+  }
+  try {
+    // Also check if notification is already visible in the OS tray
+    const activeNotifs = await self.registration.getNotifications({ tag });
+    if (activeNotifs && activeNotifs.length > 0) {
+      return true;
+    }
+  } catch {}
+
+  try {
+    const db = await openAlarmsDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction('shown_tags', 'readonly');
+      const store = tx.objectStore('shown_tags');
+      const req = store.get(tag);
+      req.onsuccess = () => {
+        const rec = req.result;
+        if (rec && now - rec.shownAt < DEDUP_WINDOW_MS) {
+          recentlyShownTags.set(tag, rec.shownAt);
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      };
+      req.onerror = () => resolve(false);
+    });
+  } catch {
+    return false;
+  }
+}
+
+async function markTagShown(tag) {
+  if (!tag) return;
+  const now = Date.now();
+  recentlyShownTags.set(tag, now);
+  try {
+    const db = await openAlarmsDB();
+    const tx = db.transaction('shown_tags', 'readwrite');
+    tx.objectStore('shown_tags').put({ tag, shownAt: now });
+  } catch {}
+}
+
+async function showDedupedNotification(title, options = {}) {
+  const tag = options.tag || 'midmar-general';
+  if (await wasTagShownRecently(tag)) {
+    return false;
+  }
+  await markTagShown(tag);
+  await self.registration.showNotification(title, {
+    ...options,
+    tag,
+    renotify: false,
+    requireInteraction: false,
+    vibrate: options.vibrate || [200, 100, 200],
+  });
+  return true;
 }
 
 async function saveAlarmsToDB(alarms) {
@@ -57,7 +135,62 @@ async function removeAlarmFromDB(alarmId) {
     const db = await openAlarmsDB();
     const tx = db.transaction('alarms', 'readwrite');
     tx.objectStore('alarms').delete(alarmId);
-  } catch (_) {}
+  } catch {}
+}
+
+const DEFAULT_ICON = new URL('./icons/midmar-royal-192.png', self.location.href).href;
+// Android status bar & notification header require a monochrome white silhouette on a 100% transparent background
+const DEFAULT_BADGE = new URL('./icons/notification-badge-96x96.png', self.location.href).href;
+
+function getValidIcon(icon) {
+  if (icon && typeof icon === 'string' && !icon.endsWith('.svg')) {
+    try {
+      const cleanIcon = icon.startsWith('/') ? '.' + icon : icon;
+      return new URL(cleanIcon, self.location.href).href;
+    } catch {
+      return icon;
+    }
+  }
+  return DEFAULT_ICON;
+}
+
+let activeLocalTimeouts = [];
+
+function clearLocalTimeouts() {
+  for (const t of activeLocalTimeouts) {
+    clearTimeout(t);
+  }
+  activeLocalTimeouts = [];
+}
+
+function scheduleUpcomingLocalTimeouts(alarms) {
+  clearLocalTimeouts();
+  const now = Date.now();
+  for (const alarm of alarms) {
+    const delay = alarm.timestampMs - now;
+    // Set timers for anything up to 4 hours in the future while SW stays alive
+    if (delay > 0 && delay <= 4 * 60 * 60 * 1000) {
+      const timeoutId = setTimeout(async () => {
+        try {
+          await showDedupedNotification(alarm.title, {
+            body: alarm.body,
+            icon: getValidIcon(alarm.icon),
+            badge: DEFAULT_BADGE,
+            tag: alarm.tag,
+            actions: alarm.actions || [
+              { action: 'mark_done', title: 'تم بحمد الله ✔' },
+              { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
+            ],
+            data: { url: alarm.url || './', ...alarm.data },
+          });
+          await removeAlarmFromDB(alarm.id);
+        } catch (e) {
+          console.warn('[SW] Timeout notification trigger notice:', e);
+        }
+      }, delay);
+      activeLocalTimeouts.push(timeoutId);
+    }
+  }
 }
 
 // Check and trigger any alarms whose time has arrived
@@ -66,40 +199,39 @@ async function checkDueAlarms() {
   const now = Date.now();
 
   for (const alarm of alarms) {
-    // If alarm is due (within past 45 mins window and not future)
-    if (now >= alarm.timestampMs && now - alarm.timestampMs <= 45 * 60 * 1000) {
+    // If alarm is due (within past 15 mins window and not future)
+    if (now >= alarm.timestampMs && now - alarm.timestampMs <= 15 * 60 * 1000) {
       try {
-        await self.registration.showNotification(alarm.title, {
+        await showDedupedNotification(alarm.title, {
           body: alarm.body,
-          icon: alarm.icon || '/favicon.svg',
-          badge: '/favicon.svg',
+          icon: getValidIcon(alarm.icon),
+          badge: DEFAULT_BADGE,
           tag: alarm.tag,
-          renotify: true,
-          requireInteraction: true,
-          vibrate: [500, 200, 500, 200, 500],
           actions: alarm.actions || [
             { action: 'mark_done', title: 'تم بحمد الله ✔' },
             { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
           ],
-          data: { url: alarm.url || '/', ...alarm.data },
+          data: { url: alarm.url || './', ...alarm.data },
         });
         await removeAlarmFromDB(alarm.id);
       } catch (e) {
         console.warn('[SW] Failed to show alarm notification:', e);
       }
-    } else if (now - alarm.timestampMs > 45 * 60 * 1000) {
-      // Expired alarm older than 45 mins: purge
+    } else if (now - alarm.timestampMs > 15 * 60 * 1000) {
+      // Expired alarm older than 15 mins: purge without spamming old alerts
       await removeAlarmFromDB(alarm.id);
     }
   }
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
+  if (!isLocalDev) {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return Promise.allSettled(STATIC_ASSETS.map((asset) => cache.add(asset)));
+      })
+    );
+  }
   self.skipWaiting();
 });
 
@@ -108,29 +240,91 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
+          if (isLocalDev || key !== CACHE_NAME) {
             return caches.delete(key);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Cache first, then network fallback
+// Smart caching strategy:
+// 1. Navigation requests (HTML) -> Network-First with cache fallback, ensuring new deployments update immediately
+// 2. API requests (/api/) -> Network only (never cached by SW)
+// 3. Static assets (images, icons, fonts, hashed JS/CSS) -> Cache-First with network fallback
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  if (isLocalDev || event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+
+  // Never intercept localhost development, Vite HMR, or server API routes
+  if (
+    url.hostname === 'localhost' ||
+    url.hostname === '127.0.0.1' ||
+    url.port === '5173' ||
+    url.pathname.startsWith('/@') ||
+    url.pathname.includes('/node_modules/') ||
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/api/') ||
+    url.search.includes('t=')
+  ) {
+    return;
+  }
+
+  const isNavigation =
+    event.request.mode === 'navigate' ||
+    (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
+
+  const isManifestOrIcon =
+    url.pathname.endsWith('manifest.webmanifest') ||
+    url.pathname.endsWith('favicon.svg') ||
+    url.pathname.includes('/icons/');
+
+  if (isNavigation || isManifestOrIcon) {
+    // Network-First for HTML navigation, manifest, and brand icons so updates reflect immediately on mobile
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          // Offline fallback
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          if (isNavigation) {
+            const fallback = (await caches.match('./index.html')) || (await caches.match('./'));
+            return fallback || Response.error();
+          }
+          return Response.error();
+        })
+    );
+    return;
+  }
+
+  // Cache-First for static assets (icons, fonts, scripts, styles)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        return cachedResponse;
+        const cachedType = (cachedResponse.headers.get('content-type') || '').toLowerCase();
+        const isJsOrCss = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+        if (!isJsOrCss || !cachedType.includes('text/html')) {
+          return cachedResponse;
+        }
       }
       return fetch(event.request)
         .then((networkResponse) => {
           if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
             return networkResponse;
+          }
+          const respType = (networkResponse.headers.get('content-type') || '').toLowerCase();
+          const isJsOrCss = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+          if (isJsOrCss && respType.includes('text/html')) {
+            return new Response('Asset mismatch', { status: 404, statusText: 'Not Found' });
           }
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -138,10 +332,13 @@ self.addEventListener('fetch', (event) => {
           });
           return networkResponse;
         })
-        .catch(() => {
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+        .catch(async (err) => {
+          if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+            const cachedHtml = (await caches.match('./index.html')) || (await caches.match('./'));
+            if (cachedHtml) return cachedHtml;
           }
+          // Reject naturally so browser dynamic imports and fetch retries fail cleanly without SyntaxError
+          throw err;
         });
     })
   );
@@ -157,18 +354,22 @@ self.addEventListener('message', (event) => {
       (async () => {
         await saveAlarmsToDB(data.alarms);
 
-        // If Notification Triggers API is supported by the browser/Android OS
-        if ('showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined') {
+        const fallbackAlarms = [];
+        const hasTimestampTrigger =
+          'showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined';
+
+        if (hasTimestampTrigger) {
           for (const alarm of data.alarms) {
             if (alarm.timestampMs > Date.now()) {
               try {
                 await self.registration.showNotification(alarm.title, {
                   body: alarm.body,
-                  icon: alarm.icon || '/favicon.svg',
-                  badge: '/favicon.svg',
+                  icon: getValidIcon(alarm.icon),
+                  badge: DEFAULT_BADGE,
                   tag: alarm.tag,
-                  requireInteraction: true,
-                  vibrate: [500, 200, 500, 200, 500],
+                  renotify: false,
+                  requireInteraction: false,
+                  vibrate: [200, 100, 200],
                   showTrigger: new TimestampTrigger(alarm.timestampMs),
                   actions: alarm.actions || [
                     { action: 'mark_done', title: 'تم بحمد الله ✔' },
@@ -177,11 +378,29 @@ self.addEventListener('message', (event) => {
                   data: { url: alarm.url || '/', ...alarm.data },
                 });
               } catch (e) {
-                console.warn('[SW] TimestampTrigger registration notice:', e);
+                fallbackAlarms.push(alarm);
               }
             }
           }
+        } else {
+          fallbackAlarms.push(...data.alarms);
         }
+
+        // Only set local in-memory timeouts for alarms that weren't scheduled via OS TimestampTrigger
+        scheduleUpcomingLocalTimeouts(fallbackAlarms);
+      })()
+    );
+  }
+
+  if (data.type === 'CLEAR_ALL_ALARMS') {
+    event.waitUntil(
+      (async () => {
+        clearLocalTimeouts();
+        await saveAlarmsToDB([]);
+        try {
+          const notifications = await self.registration.getNotifications();
+          notifications.forEach((n) => n.close());
+        } catch {}
       })()
     );
   }
@@ -198,16 +417,16 @@ self.addEventListener('message', (event) => {
           try {
             await self.registration.showNotification('🔔 تجربة تنبيه الشاشة المقفلة (مِضمار)', {
               body: 'ما شاء الله! التنبيهات تعمل بنجاح وشاشة هاتفك مقفلة وبأعلى أولوية.',
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
+              icon: DEFAULT_ICON,
+              badge: DEFAULT_BADGE,
               tag: 'test-lockscreen-alert',
-              requireInteraction: true,
-              vibrate: [500, 250, 500, 250, 500],
+              requireInteraction: false,
+              vibrate: [250, 150, 250],
               showTrigger: new TimestampTrigger(targetMs),
               data: { url: '/' },
             });
             triggerRegistered = true;
-          } catch (_) {}
+          } catch {}
         }
 
         // Fallback setTimeout inside Service Worker
@@ -215,11 +434,11 @@ self.addEventListener('message', (event) => {
           setTimeout(async () => {
             await self.registration.showNotification('🔔 تجربة تنبيه الشاشة المقفلة (مِضمار)', {
               body: 'ما شاء الله! التنبيهات تعمل بنجاح وشاشة هاتفك مقفلة وبأعلى أولوية.',
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
+              icon: DEFAULT_ICON,
+              badge: DEFAULT_BADGE,
               tag: 'test-lockscreen-alert',
-              requireInteraction: true,
-              vibrate: [500, 250, 500, 250, 500],
+              requireInteraction: false,
+              vibrate: [250, 150, 250],
               data: { url: '/' },
             });
           }, delayMs);
@@ -268,25 +487,25 @@ self.addEventListener('notificationclick', (event) => {
           try {
             await self.registration.showNotification(event.notification.title + ' (تذكير مؤجل)', {
               body: event.notification.body,
-              icon: '/favicon.svg',
-              badge: '/favicon.svg',
+              icon: DEFAULT_ICON,
+              badge: DEFAULT_BADGE,
               tag: event.notification.tag + '-snooze',
-              requireInteraction: true,
-              vibrate: [500, 200, 500],
+              requireInteraction: false,
+              vibrate: [200, 100, 200],
               showTrigger: new TimestampTrigger(snoozeMs),
               data: notifData,
             });
             return;
-          } catch (_) {}
+          } catch {}
         }
         setTimeout(async () => {
           await self.registration.showNotification(event.notification.title + ' (تذكير مؤجل)', {
             body: event.notification.body,
-            icon: '/favicon.svg',
-            badge: '/favicon.svg',
+            icon: DEFAULT_ICON,
+            badge: DEFAULT_BADGE,
             tag: event.notification.tag + '-snooze',
-            requireInteraction: true,
-            vibrate: [500, 200, 500],
+            requireInteraction: false,
+            vibrate: [200, 100, 200],
             data: notifData,
           });
         }, 10 * 60 * 1000);
@@ -305,7 +524,8 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       if (self.clients.openWindow) {
-        return self.clients.openWindow(targetUrl + (action ? '?action=' + action : ''));
+        const sep = targetUrl.includes('?') ? '&' : '?';
+        return self.clients.openWindow(targetUrl + (action ? sep + 'action=' + action : ''));
       }
     })
   );
@@ -320,19 +540,16 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       data = event.data.json();
-    } catch (_) {
+    } catch {
       data.body = event.data.text();
     }
   }
 
   const options = {
     body: data.body,
-    icon: data.icon || '/favicon.svg',
-    badge: '/favicon.svg',
-    tag: data.tag || 'midmar-push-' + Date.now(),
-    renotify: true,
-    requireInteraction: true,
-    vibrate: [500, 200, 500, 200, 500],
+    icon: getValidIcon(data.icon),
+    badge: DEFAULT_BADGE,
+    tag: data.tag || 'midmar-push',
     actions: [
       { action: 'mark_done', title: 'تم بحمد الله ✔' },
       { action: 'snooze', title: 'تأجيل 10 دقائق ⏰' },
@@ -340,5 +557,5 @@ self.addEventListener('push', (event) => {
     data: { url: data.url || '/' },
   };
 
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(showDedupedNotification(data.title, options));
 });
