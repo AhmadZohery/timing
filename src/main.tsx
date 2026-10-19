@@ -31,10 +31,29 @@ if (typeof window !== 'undefined' && window.sessionStorage) {
 }
 
 // Register Service Worker for offline-first PWA & native notification icon/badge rendering
-if ('serviceWorker' in navigator) {
+if (
+  'serviceWorker' in navigator &&
+  (window.location.protocol === 'https:' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1')
+) {
+  const hadController = Boolean(navigator.serviceWorker.controller);
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) return;
+    try {
+      const reloadKey = 'midmar_sw_reloaded_v13';
+      if (!window.sessionStorage.getItem(reloadKey)) {
+        window.sessionStorage.setItem(reloadKey, '1');
+        window.location.reload();
+      }
+    } catch {}
+  });
+
   window.addEventListener('load', () => {
+    const swUrl = `${import.meta.env.BASE_URL || './'}sw.js`;
     navigator.serviceWorker
-      .register('/sw.js')
+      .register(swUrl)
       .then((reg) => {
         // Check for newer version on load
         reg.update().catch(() => {});

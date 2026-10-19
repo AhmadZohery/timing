@@ -1,19 +1,19 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
 const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
 
-const CACHE_NAME = 'midmar-sanctuary-v12';
+const CACHE_NAME = 'midmar-sanctuary-v13';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/favicon.svg?v=20261020',
-  '/icons/midmar-royal-192.png',
-  '/icons/midmar-royal-512.png',
-  '/icons/midmar-royal-maskable-512.png',
-  '/icons/notification-badge-96x96.png',
-  '/icons/notification-badge-192x192.png',
-  '/icons/midmar-apple-touch.png',
-  '/icons.svg',
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './favicon.svg?v=20261020',
+  './icons/midmar-royal-192.png',
+  './icons/midmar-royal-512.png',
+  './icons/midmar-royal-maskable-512.png',
+  './icons/notification-badge-96x96.png',
+  './icons/notification-badge-192x192.png',
+  './icons/midmar-apple-touch.png',
+  './icons.svg',
 ];
 
 // Open native IndexedDB inside Service Worker for background alarm storage & deduplication
@@ -138,14 +138,15 @@ async function removeAlarmFromDB(alarmId) {
   } catch {}
 }
 
-const DEFAULT_ICON = new URL('/icons/midmar-royal-192.png', self.location.origin).href;
+const DEFAULT_ICON = new URL('./icons/midmar-royal-192.png', self.location.href).href;
 // Android status bar & notification header require a monochrome white silhouette on a 100% transparent background
-const DEFAULT_BADGE = new URL('/icons/notification-badge-96x96.png', self.location.origin).href;
+const DEFAULT_BADGE = new URL('./icons/notification-badge-96x96.png', self.location.href).href;
 
 function getValidIcon(icon) {
   if (icon && typeof icon === 'string' && !icon.endsWith('.svg')) {
     try {
-      return new URL(icon, self.location.origin).href;
+      const cleanIcon = icon.startsWith('/') ? '.' + icon : icon;
+      return new URL(cleanIcon, self.location.href).href;
     } catch {
       return icon;
     }
@@ -180,7 +181,7 @@ function scheduleUpcomingLocalTimeouts(alarms) {
               { action: 'mark_done', title: 'تم بحمد الله ✔' },
               { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
             ],
-            data: { url: alarm.url || '/', ...alarm.data },
+            data: { url: alarm.url || './', ...alarm.data },
           });
           await removeAlarmFromDB(alarm.id);
         } catch (e) {
@@ -210,7 +211,7 @@ async function checkDueAlarms() {
             { action: 'mark_done', title: 'تم بحمد الله ✔' },
             { action: 'snooze', title: 'تذكير بعد 10 دقائق ⏰' },
           ],
-          data: { url: alarm.url || '/', ...alarm.data },
+          data: { url: alarm.url || './', ...alarm.data },
         });
         await removeAlarmFromDB(alarm.id);
       } catch (e) {
@@ -227,7 +228,7 @@ self.addEventListener('install', (event) => {
   if (!isLocalDev) {
     event.waitUntil(
       caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll(STATIC_ASSETS);
+        return Promise.allSettled(STATIC_ASSETS.map((asset) => cache.add(asset)));
       })
     );
   }
@@ -278,7 +279,7 @@ self.addEventListener('fetch', (event) => {
   const isManifestOrIcon =
     url.pathname.endsWith('manifest.webmanifest') ||
     url.pathname.endsWith('favicon.svg') ||
-    url.pathname.startsWith('/icons/');
+    url.pathname.includes('/icons/');
 
   if (isNavigation || isManifestOrIcon) {
     // Network-First for HTML navigation, manifest, and brand icons so updates reflect immediately on mobile
@@ -296,7 +297,7 @@ self.addEventListener('fetch', (event) => {
           const cached = await caches.match(event.request);
           if (cached) return cached;
           if (isNavigation) {
-            const fallback = await caches.match('/index.html');
+            const fallback = (await caches.match('./index.html')) || (await caches.match('./'));
             return fallback || Response.error();
           }
           return Response.error();
@@ -333,7 +334,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async (err) => {
           if (event.request.mode === 'navigate' || event.request.destination === 'document') {
-            const cachedHtml = (await caches.match('/index.html')) || (await caches.match('/'));
+            const cachedHtml = (await caches.match('./index.html')) || (await caches.match('./'));
             if (cachedHtml) return cachedHtml;
           }
           // Reject naturally so browser dynamic imports and fetch retries fail cleanly without SyntaxError

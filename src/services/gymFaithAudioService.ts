@@ -211,6 +211,17 @@ class GymFaithAudioService {
       errorMessage: null,
       resumePoint,
     };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && this.state.isPlaying && !this.isUserPaused) {
+          this.syncWakeLock(true);
+          if (this.state.mediaType === 'audio' && this.audio && this.audio.paused) {
+            this.audio.play().catch(() => {});
+          }
+        }
+      });
+    }
   }
 
   public registerYouTubeBridge(bridge: YouTubePlayerBridge | null) {
@@ -477,6 +488,27 @@ class GymFaithAudioService {
     this.updateState({ isPlaying: false, isLoading: false });
   }
 
+  private wakeLockSentinel: any = null;
+
+  private async syncWakeLock(shouldHold: boolean) {
+    if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) return;
+    try {
+      if (shouldHold) {
+        if (!this.wakeLockSentinel) {
+          this.wakeLockSentinel = await (navigator as any).wakeLock.request('screen');
+          this.wakeLockSentinel?.addEventListener?.('release', () => {
+            this.wakeLockSentinel = null;
+          });
+        }
+      } else if (this.wakeLockSentinel) {
+        await this.wakeLockSentinel.release();
+        this.wakeLockSentinel = null;
+      }
+    } catch {
+      // Ignore if battery saver or background tab denies wakeLock
+    }
+  }
+
   private updateMediaSession() {
     if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return;
 
@@ -487,12 +519,29 @@ class GymFaithAudioService {
         album: this.state.mode === 'series' ? 'سلاسل السيرة والهمم' : 'أثير الرياضة الإيماني',
         artwork: [
           {
-            src: '/icon-512.png',
+            src: './icons/midmar-royal-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: './icons/midmar-royal-512.png',
             sizes: '512x512',
             type: 'image/png',
           },
         ],
       });
+      navigator.mediaSession.playbackState = this.state.isPlaying ? 'playing' : 'paused';
+      if (
+        this.state.duration > 0 &&
+        Number.isFinite(this.state.duration) &&
+        typeof navigator.mediaSession.setPositionState === 'function'
+      ) {
+        navigator.mediaSession.setPositionState({
+          duration: Math.max(1, this.state.duration),
+          playbackRate: this.state.playbackRate || 1,
+          position: Math.min(Math.max(0, this.state.currentTime || 0), this.state.duration),
+        });
+      }
     } catch {}
   }
 
@@ -741,7 +790,12 @@ class GymFaithAudioService {
   }
 
   private updateState(partial: Partial<GymFaithAudioState>) {
+    const prevPlaying = this.state.isPlaying;
     this.state = { ...this.state, ...partial };
+    if (partial.isPlaying !== undefined && partial.isPlaying !== prevPlaying) {
+      this.syncWakeLock(this.state.isPlaying);
+      this.updateMediaSession();
+    }
     this.listeners.forEach((l) => l(this.getState()));
   }
 

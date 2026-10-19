@@ -1,0 +1,15 @@
+{
+  "appId": "app.midmar.lifeos",
+  "appName": "مِضمار",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#061014",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  }
+}

@@ -132,6 +132,10 @@ export const PersistentYouTubeHost: React.FC = () => {
       loadedVideoRef.current = videoId;
       retriedVideoRef.current = null;
 
+      const isHttpOrigin =
+        typeof window !== 'undefined' &&
+        (window.location.protocol === 'http:' || window.location.protocol === 'https:');
+
       try {
         playerRef.current = new window.YT.Player(target, {
           videoId,
@@ -141,7 +145,7 @@ export const PersistentYouTubeHost: React.FC = () => {
             playsinline: 1,
             modestbranding: 1,
             rel: 0,
-            origin: window.location.origin,
+            ...(isHttpOrigin ? { origin: window.location.origin } : {}),
           },
           events: {
             onReady: (event: any) => {
