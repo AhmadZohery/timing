@@ -102,7 +102,11 @@ export const HabitRecurrenceModal: React.FC<HabitRecurrenceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4 animate-fade-in"
+    >
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
@@ -112,7 +116,7 @@ export const HabitRecurrenceModal: React.FC<HabitRecurrenceModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full sm:max-w-lg modal-surface border-t sm:border border-slate-200 dark:border-zinc-800 rounded-t-3xl sm:rounded-3xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="relative z-10 w-full max-w-lg modal-surface border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden max-h-[88dvh] flex flex-col shadow-2xl animate-scale-in">
         {/* Header */}
         <div className="p-5 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center gap-2.5">

@@ -347,7 +347,11 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
       ];
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center items-center animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4 animate-fade-in"
+    >
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm cursor-pointer"
@@ -357,11 +361,7 @@ export const AiCoachModal: React.FC<AiCoachModalProps> = ({
           onClose();
         }}
       />
-      <div className="relative z-10 w-full sm:max-w-2xl max-h-[92vh] sm:max-h-[85vh] modal-surface rounded-t-3xl sm:rounded-2xl border-t sm:border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden">
-        {/* Top Drag Indicator on Mobile */}
-        <div className="w-full flex justify-center pt-2.5 pb-1 sm:hidden celestial-obsidian-stage border-b-0">
-          <div className="w-12 h-1.5 rounded-full bg-white/30" />
-        </div>
+      <div className="relative z-10 w-full max-w-2xl max-h-[88dvh] modal-surface rounded-3xl border border-slate-200 dark:border-zinc-800 flex flex-col overflow-hidden shadow-2xl animate-scale-in">
 
         {/* Header */}
         <div className="p-4 sm:p-5 celestial-obsidian-stage border-b border-white/10 flex items-center justify-between text-white shrink-0">

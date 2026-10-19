@@ -2901,187 +2901,251 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
           </div>
         </div>
 
-        {/* Collapsible Popover 1: Nature & Sanctuary Ambience Mixer (أجواء الخشوع) */}
-        {isAmbiencePopoverOpen && (
-          <div className="mt-2 p-2.5 rounded-2xl bg-white/95 dark:bg-zinc-900 border-2 border-indigo-300 dark:border-indigo-500/40 shadow-md flex flex-wrap items-center justify-between gap-2 relative z-10 animate-in fade-in duration-150">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] font-bold text-indigo-950 dark:text-indigo-200 me-1">
-                {isAr ? '🌧️ خلفية صوتية خاشعة:' : 'Ambience:'}
-              </span>
-              {[
-                { id: 'rain', label: isAr ? '🌧️ مطر السكينة' : 'Rain' },
-                { id: 'breeze', label: isAr ? '🍃 نسيم الفجر' : 'Breeze' },
-                { id: 'warmth', label: isAr ? '🕯️ دفء الخلوة' : 'Warmth' },
-              ].map((amb) => {
-                const isActive = ambientMode === amb.id;
-                return (
-                  <button
-                    key={amb.id}
-                    type="button"
-                    onClick={() => {
-                      soundSynth.playTactileClick();
-                      haptic.vibrateLight();
-                      const next = isActive ? 'off' : (amb.id as any);
-                      setAmbientMode(next);
-                      if (next !== 'off') {
-                        onRewardToast?.(isAr ? `${amb.label} يعمل بهدوء في خلفية المجلس` : `${amb.label} enabled`);
-                      }
-                    }}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold cursor-pointer border transition-all ${
-                      isActive
-                        ? 'bg-indigo-600 text-white border-amber-300 shadow-xs'
-                        : 'bg-indigo-50/80 dark:bg-zinc-800 text-indigo-950 dark:text-indigo-200 border-indigo-200 dark:border-zinc-700'
-                    }`}
-                  >
-                    {amb.label}
-                  </button>
-                );
-              })}
-            </div>
-            {ambientMode !== 'off' && (
-              <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-100/90 dark:bg-indigo-950/70 border border-indigo-300">
-                <span className="text-[9px] font-bold text-indigo-950 dark:text-indigo-200">
-                  {Math.round(ambientVolume * 100)}%
-                </span>
-                <input
-                  type="range"
-                  min={0.05}
-                  max={0.45}
-                  step={0.02}
-                  value={ambientVolume}
-                  onChange={(e) => setAmbientVolume(Number(e.target.value))}
-                  aria-label="Ambient Sound Volume"
-                  className="w-16 h-1 bg-indigo-300 rounded-full appearance-none cursor-pointer accent-indigo-600"
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Collapsible Popover 2: Smart Heart-State & Time-Window Concierge Drawer ("رشّح لي") */}
-        {isSmartConciergeOpen && (
-          <div className="mt-2 p-2.5 rounded-2xl bg-gradient-to-br from-white via-amber-50/70 to-emerald-50/80 dark:from-zinc-900 dark:via-indigo-950/50 dark:to-emerald-950/40 border-2 border-amber-400/90 shadow-lg space-y-2 relative z-10 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-bold text-zinc-950 dark:text-amber-200 flex items-center gap-1">
-                <span>🧭</span>
-                <span>{isAr ? 'مستشار البصيرة الذكي: اختر حال قلبك ووقتك' : 'Smart Heart & Time Concierge'}</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsSmartConciergeOpen(false)}
-                className="text-[10px] font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5">
-              {[
-                { id: 'futoor', label: '🌧️ فتور وتشتت' },
-                { id: 'shubuhat', label: '🛡️ شبهات وحيرة' },
-                { id: 'waay', label: '🧠 شغف بالوعي' },
-                { id: 'bayt', label: '🏡 بناء الأسرة' },
-                { id: 'sakeenah', label: '🌿 سكينة وخشوع' },
-              ].map((m) => (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    setConciergeMood(m.id as any);
-                  }}
-                  className={`px-2 py-1 rounded-full text-[10px] font-bold whitespace-nowrap cursor-pointer border transition-all ${
-                    conciergeMood === m.id
-                      ? 'bg-emerald-700 text-white border-amber-300 shadow-xs'
-                      : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-amber-300/70'
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 shrink-0">
-                {isAr ? 'الوقت:' : 'Time:'}
-              </span>
-              {[
-                { id: 'short', label: '⚡ ١٥-٢٥د' },
-                { id: 'medium', label: '🎯 ٣٠-٤٥د' },
-                { id: 'deep', label: '🏛️ +٤٥د' },
-              ].map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => {
-                    soundSynth.playTactileClick();
-                    setConciergeDuration(d.id as any);
-                  }}
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap cursor-pointer border transition-all ${
-                    conciergeDuration === d.id
-                      ? 'bg-indigo-600 text-white border-amber-300 shadow-2xs'
-                      : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-indigo-200 dark:border-zinc-700'
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-
-            {smartRecommendedTrack.track && (
-              <div className="p-2 rounded-xl bg-gradient-to-r from-emerald-800 via-teal-800 to-indigo-900 text-white border border-amber-300/80 flex items-center justify-between gap-2 shadow-sm">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-white truncate">
-                    ✨ {smartRecommendedTrack.track.titleAr} ({smartRecommendedTrack.track.sheikhAr})
-                  </p>
-                  <p className="text-[10px] text-emerald-100 truncate">
-                    💡 {smartRecommendedTrack.reasonAr}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleTogglePlayTrack(smartRecommendedTrack.track);
-                    setIsSmartConciergeOpen(false);
-                  }}
-                  className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-[11px] font-bold shrink-0 cursor-pointer shadow-md"
-                >
-                  {isAr ? 'تشغيل ▶️' : 'Play ▶️'}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Collapsible Popover 3: Custom YouTube / SoundCloud Link Launcher */}
-        {isCustomDrawerOpen && (
-          <form
-            onSubmit={handleLaunchCustomUrl}
-            className="mt-2 p-2 rounded-2xl bg-white/95 dark:bg-zinc-900 border border-emerald-400/80 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 relative z-10 animate-in fade-in duration-150"
-          >
-            <input
-              type="url"
-              required
-              value={customLinkInput}
-              onChange={(e) => setCustomLinkInput(e.target.value)}
-              placeholder={isAr ? 'الصق رابط يوتيوب أو ساوند كلاود أو MP3 لحفظه وتشغيله...' : 'Paste YouTube, SoundCloud, or MP3 URL...'}
-              className="flex-1 h-8 px-2.5 rounded-xl bg-emerald-50/60 dark:bg-zinc-950 border border-emerald-300/80 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none"
-            />
-            <input
-              type="text"
-              value={customTitleInput}
-              onChange={(e) => setCustomTitleInput(e.target.value)}
-              placeholder={isAr ? 'عنوان الدرس (اختياري)' : 'Title (optional)'}
-              className="sm:w-40 h-8 px-2.5 rounded-xl bg-amber-50/60 dark:bg-zinc-950 border border-amber-300/80 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="h-8 px-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold shadow-xs cursor-pointer shrink-0"
+        {/* Centered Popup 1: Nature & Sanctuary Ambience Mixer (أجواء الخشوع) */}
+        {isAmbiencePopoverOpen &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+              onClick={() => setIsAmbiencePopoverOpen(false)}
             >
-              {isAr ? 'حفظ وتشغيل ▶️' : 'Save & Play ▶️'}
-            </button>
-          </form>
-        )}
+              <div
+                onClick={(e) => e.stopPropagation()}
+                dir={isAr ? 'rtl' : 'ltr'}
+                className="w-full max-w-sm p-4 rounded-[28px] bg-white dark:bg-zinc-900 border-2 border-indigo-400 dark:border-indigo-500/50 shadow-2xl space-y-3.5 animate-scale-in"
+              >
+                <div className="flex items-center justify-between gap-2 border-b border-indigo-100 dark:border-zinc-800 pb-2.5">
+                  <span className="text-xs font-black text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                    <span>🌧️</span>
+                    <span>{isAr ? 'أجواء الخلوة والسكينة الصوتية' : 'Sanctuary Ambience Mixer'}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsAmbiencePopoverOpen(false)}
+                    className="w-7 h-7 rounded-full bg-indigo-50 dark:bg-zinc-800 text-indigo-900 dark:text-indigo-200 flex items-center justify-center text-xs font-bold cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { id: 'rain', label: isAr ? '🌧️ مطر السكينة الخاشع' : 'Gentle Rain' },
+                    { id: 'breeze', label: isAr ? '🍃 نسيم الفجر الهادئ' : 'Dawn Breeze' },
+                    { id: 'warmth', label: isAr ? '🕯️ دفء الخلوة والتأمل' : 'Sanctuary Warmth' },
+                  ].map((amb) => {
+                    const isActive = ambientMode === amb.id;
+                    return (
+                      <button
+                        key={amb.id}
+                        type="button"
+                        onClick={() => {
+                          soundSynth.playTactileClick();
+                          haptic.vibrateLight();
+                          const next = isActive ? 'off' : (amb.id as any);
+                          setAmbientMode(next);
+                          if (next !== 'off') {
+                            onRewardToast?.(isAr ? `${amb.label} يعمل بهدوء في خلفية المجلس` : `${amb.label} enabled`);
+                          }
+                        }}
+                        className={`w-full px-3.5 py-2.5 rounded-2xl text-xs font-bold cursor-pointer border transition-all flex items-center justify-between ${
+                          isActive
+                            ? 'bg-indigo-600 text-white border-amber-300 shadow-sm'
+                            : 'bg-indigo-50/80 dark:bg-zinc-800 text-indigo-950 dark:text-indigo-200 border-indigo-200 dark:border-zinc-700'
+                        }`}
+                      >
+                        <span>{amb.label}</span>
+                        <span>{isActive ? '✔ قيد التشغيل' : 'تشغيل'}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {ambientMode !== 'off' && (
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-indigo-100/90 dark:bg-indigo-950/70 border border-indigo-300">
+                    <span className="text-[11px] font-bold text-indigo-950 dark:text-indigo-200">
+                      {isAr ? 'مستوى الصوت:' : 'Volume:'} {Math.round(ambientVolume * 100)}%
+                    </span>
+                    <input
+                      type="range"
+                      min={0.05}
+                      max={0.45}
+                      step={0.02}
+                      value={ambientVolume}
+                      onChange={(e) => setAmbientVolume(Number(e.target.value))}
+                      aria-label="Ambient Sound Volume"
+                      className="w-32 h-1.5 bg-indigo-300 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>,
+            document.body
+          )}
+
+        {/* Centered Popup 2: Smart Heart-State & Time-Window Concierge Drawer ("رشّح لي") */}
+        {isSmartConciergeOpen &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+              onClick={() => setIsSmartConciergeOpen(false)}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                dir={isAr ? 'rtl' : 'ltr'}
+                className="w-full max-w-md p-4 rounded-[28px] bg-gradient-to-br from-white via-amber-50/90 to-emerald-50/90 dark:from-zinc-900 dark:via-indigo-950/80 dark:to-emerald-950/80 border-2 border-amber-400 shadow-2xl space-y-3.5 animate-scale-in"
+              >
+                <div className="flex items-center justify-between gap-2 border-b border-amber-200/70 dark:border-white/10 pb-2.5">
+                  <span className="text-xs font-black text-zinc-950 dark:text-amber-200 flex items-center gap-1.5">
+                    <span>🧭</span>
+                    <span>{isAr ? 'مستشار البصيرة الذكي: اختر حال قلبك ووقتك' : 'Smart Heart & Time Concierge'}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsSmartConciergeOpen(false)}
+                    className="w-7 h-7 rounded-full bg-amber-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center text-xs font-bold cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { id: 'futoor', label: '🌧️ فتور وتشتت' },
+                    { id: 'shubuhat', label: '🛡️ شبهات وحيرة' },
+                    { id: 'waay', label: '🧠 شغف بالوعي' },
+                    { id: 'bayt', label: '🏡 بناء الأسرة' },
+                    { id: 'sakeenah', label: '🌿 سكينة وخشوع' },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setConciergeMood(m.id as any);
+                      }}
+                      className={`px-2.5 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer border transition-all ${
+                        conciergeMood === m.id
+                          ? 'bg-emerald-700 text-white border-amber-300 shadow-xs'
+                          : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border-amber-300/70'
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 shrink-0">
+                    {isAr ? 'الوقت المتاح:' : 'Time:'}
+                  </span>
+                  {[
+                    { id: 'short', label: '⚡ ١٥-٢٥د' },
+                    { id: 'medium', label: '🎯 ٣٠-٤٥د' },
+                    { id: 'deep', label: '🏛️ +٤٥د' },
+                  ].map((d) => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => {
+                        soundSynth.playTactileClick();
+                        setConciergeDuration(d.id as any);
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer border transition-all ${
+                        conciergeDuration === d.id
+                          ? 'bg-indigo-600 text-white border-amber-300 shadow-2xs'
+                          : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-indigo-200 dark:border-zinc-700'
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+
+                {smartRecommendedTrack.track && (
+                  <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-800 via-teal-800 to-indigo-900 text-white border border-amber-300/80 flex items-center justify-between gap-2.5 shadow-md">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-white truncate">
+                        ✨ {smartRecommendedTrack.track.titleAr} ({smartRecommendedTrack.track.sheikhAr})
+                      </p>
+                      <p className="text-[10px] text-emerald-100 mt-0.5 line-clamp-2">
+                        💡 {smartRecommendedTrack.reasonAr}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleTogglePlayTrack(smartRecommendedTrack.track);
+                        setIsSmartConciergeOpen(false);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-bold shrink-0 cursor-pointer shadow-md"
+                    >
+                      {isAr ? 'تشغيل ▶️' : 'Play ▶️'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>,
+            document.body
+          )}
+
+        {/* Centered Popup 3: Custom YouTube / SoundCloud Link Launcher */}
+        {isCustomDrawerOpen &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+              onClick={() => setIsCustomDrawerOpen(false)}
+            >
+              <form
+                onClick={(e) => e.stopPropagation()}
+                onSubmit={handleLaunchCustomUrl}
+                dir={isAr ? 'rtl' : 'ltr'}
+                className="w-full max-w-md p-4 rounded-[28px] bg-white dark:bg-zinc-900 border-2 border-emerald-400 shadow-2xl space-y-3 animate-scale-in"
+              >
+                <div className="flex items-center justify-between gap-2 border-b border-emerald-100 dark:border-zinc-800 pb-2">
+                  <span className="text-xs font-black text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5">
+                    <span>➕</span>
+                    <span>{isAr ? 'إضافة وتشغيل رابط يوتيوب أو ساوند كلاود' : 'Add Custom Audio/Video Link'}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomDrawerOpen(false)}
+                    className="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center text-xs font-bold cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <input
+                  type="url"
+                  required
+                  value={customLinkInput}
+                  onChange={(e) => setCustomLinkInput(e.target.value)}
+                  placeholder={isAr ? 'الصق رابط يوتيوب أو ساوند كلاود أو MP3 لحفظه وتشغيله...' : 'Paste YouTube, SoundCloud, or MP3 URL...'}
+                  className="w-full h-10 px-3 rounded-xl bg-emerald-50/60 dark:bg-zinc-950 border border-emerald-300/80 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={customTitleInput}
+                  onChange={(e) => setCustomTitleInput(e.target.value)}
+                  placeholder={isAr ? 'عنوان الدرس (اختياري)' : 'Title (optional)'}
+                  className="w-full h-10 px-3 rounded-xl bg-amber-50/60 dark:bg-zinc-950 border border-amber-300/80 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="w-full h-10 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold shadow-md cursor-pointer"
+                >
+                  {isAr ? 'حفظ وتشغيل فوراً ▶️' : 'Save & Play ▶️'}
+                </button>
+              </form>
+            </div>,
+            document.body
+          )}
 
         {/* Row 2: 5-Mode Interactive Studio Switcher integrated cleanly into Crown */}
         <div className="mt-2 grid grid-cols-5 bg-white/90 dark:bg-zinc-950/90 p-0.5 rounded-xl border border-amber-300/70 dark:border-zinc-800 gap-0.5 shadow-inner relative z-10">
@@ -3112,60 +3176,72 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
         </div>
       </div>
 
-      {/* Inline Timestamped Gem Modal when user taps ✍️ دوّن فائدة */}
-      {gemDraftTrack && (
-        <form
-          onSubmit={handleSaveGem}
-          className="mx-3 mt-2 p-2.5 rounded-2xl bg-gradient-to-r from-amber-50 via-white to-emerald-50 dark:from-zinc-900 dark:to-emerald-950/50 border-2 border-amber-400 shadow-lg space-y-1.5 shrink-0 relative z-20"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] font-bold text-amber-950 dark:text-amber-200 truncate">
-              ✍️ تدوين فائدة: <span className="text-emerald-800 dark:text-emerald-300">{gemDraftTrack.titleAr}</span>
-              {audioState.currentTime > 0 && (
-                <span className="ms-1.5 px-1.5 py-0.5 rounded-full bg-amber-200/80 text-zinc-950 font-mono text-[10px]">
-                  ⏱️ {formatSeconds(audioState.currentTime)}
+      {/* Centered Popup Timestamped Gem Modal when user taps ✍️ دوّن فائدة */}
+      {gemDraftTrack &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+            onClick={() => setGemDraftTrack(null)}
+          >
+            <form
+              onClick={(e) => e.stopPropagation()}
+              onSubmit={handleSaveGem}
+              dir={isAr ? 'rtl' : 'ltr'}
+              className="w-full max-w-md p-4 rounded-[28px] bg-gradient-to-br from-amber-50 via-white to-emerald-50 dark:from-zinc-900 dark:to-emerald-950/90 border-2 border-amber-400 shadow-2xl space-y-3 animate-scale-in"
+            >
+              <div className="flex items-center justify-between gap-2 border-b border-amber-200/70 dark:border-white/10 pb-2">
+                <span className="text-xs font-bold text-amber-950 dark:text-amber-200 truncate">
+                  ✍️ تدوين فائدة: <span className="text-emerald-800 dark:text-emerald-300">{gemDraftTrack.titleAr}</span>
+                  {audioState.currentTime > 0 && (
+                    <span className="ms-1.5 px-1.5 py-0.5 rounded-full bg-amber-200/80 text-zinc-950 font-mono text-[10px]">
+                      ⏱️ {formatSeconds(audioState.currentTime)}
+                    </span>
+                  )}
                 </span>
-              )}
-            </span>
-            <button
-              type="button"
-              onClick={() => setGemDraftTrack(null)}
-              className="text-xs font-bold text-zinc-500 hover:text-zinc-900 cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <input
-              type="text"
-              required
-              value={gemDraftText}
-              onChange={(e) => setGemDraftText(e.target.value)}
-              placeholder={isAr ? 'اكتب الدرة أو اضغط 🎙️ للإملاء الصوتي بالعربية...' : 'Write or dictate your insight...'}
-              className="flex-1 h-8 px-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-amber-300 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white"
-            />
-            <button
-              type="button"
-              onClick={handleVoiceDictateGem}
-              className={`h-8 px-2.5 rounded-xl text-[11px] font-bold shrink-0 cursor-pointer border transition-all flex items-center gap-1 ${
-                isDictatingGem
-                  ? 'bg-rose-600 text-white border-rose-400 animate-pulse shadow-md'
-                  : 'bg-amber-100 hover:bg-amber-200 dark:bg-zinc-800 text-amber-950 dark:text-amber-200 border-amber-300'
-              }`}
-              title={isAr ? 'إملاء الفائدة بالصوت 🎙️' : 'Voice Dictation 🎙️'}
-            >
-              <span>🎙️</span>
-              <span className="hidden xs:inline">{isDictatingGem ? 'يستمع...' : 'إملاء'}</span>
-            </button>
-            <button
-              type="submit"
-              className="h-8 px-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shrink-0 cursor-pointer"
-            >
-              {isAr ? 'حفظ 💎' : 'Save 💎'}
-            </button>
-          </div>
-        </form>
-      )}
+                <button
+                  type="button"
+                  onClick={() => setGemDraftTrack(null)}
+                  className="w-7 h-7 rounded-full bg-amber-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center text-xs font-bold cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+              <input
+                type="text"
+                required
+                autoFocus
+                value={gemDraftText}
+                onChange={(e) => setGemDraftText(e.target.value)}
+                placeholder={isAr ? 'اكتب الدرة أو اضغط 🎙️ للإملاء الصوتي بالعربية...' : 'Write or dictate your insight...'}
+                className="w-full h-10 px-3 rounded-xl bg-white dark:bg-zinc-950 border border-amber-300 dark:border-zinc-700 text-xs font-bold text-zinc-900 dark:text-white"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleVoiceDictateGem}
+                  className={`flex-1 h-10 px-3 rounded-xl text-xs font-bold cursor-pointer border transition-all flex items-center justify-center gap-1.5 ${
+                    isDictatingGem
+                      ? 'bg-rose-600 text-white border-rose-400 animate-pulse shadow-md'
+                      : 'bg-amber-100 hover:bg-amber-200 dark:bg-zinc-800 text-amber-950 dark:text-amber-200 border-amber-300'
+                  }`}
+                >
+                  <span>🎙️</span>
+                  <span>{isDictatingGem ? 'يستمع الآن...' : 'إملاء بالصوت'}</span>
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 h-10 px-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold cursor-pointer shadow-md"
+                >
+                  {isAr ? 'حفظ الدرة 💎' : 'Save Gem 💎'}
+                </button>
+              </div>
+            </form>
+          </div>,
+          document.body
+        )}
 
       {viewMode === 'paths' ? (
         /* Guided Mastery Academy Paths + Saved Timestamped Gems Notebook */
@@ -3738,8 +3814,9 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       })}
                     </div>
 
-                    {/* Expandable Interactive Story Flash Card when an Orb is tapped */}
+                    {/* Centered Popup Story Flash Card when an Orb is tapped */}
                     {activeStoryId &&
+                      typeof document !== 'undefined' &&
                       (() => {
                         const activeStoryIdx = wisdomStories.findIndex((s) => s.id === activeStoryId);
                         const story = wisdomStories[activeStoryIdx];
@@ -3747,91 +3824,106 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                         const linkedTrack = allCombinedTracks.find((t) => t.id === story.trackId);
                         const isPledged = pledgedActionIds.includes(story.id);
 
-                        return (
-                          <div className="p-3.5 rounded-[22px] bg-gradient-to-br from-[#fffdf7] via-amber-50/80 to-emerald-50/75 dark:from-zinc-900 dark:via-indigo-950/40 dark:to-emerald-950/40 border-2 border-amber-400 shadow-md space-y-2.5 animate-in fade-in duration-150">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="text-base">{story.emoji}</span>
-                                <div>
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-300/80 text-zinc-950">
-                                    ⚡ ومضة بصيرة • {story.scholarShortAr}
-                                  </span>
-                                  <h4 className="text-xs font-bold text-zinc-950 dark:text-white mt-0.5">
-                                    {story.titleAr}
-                                  </h4>
+                        return createPortal(
+                          <div
+                            role="dialog"
+                            aria-modal="true"
+                            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+                            onClick={() => setActiveStoryId(null)}
+                          >
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              dir={isAr ? 'rtl' : 'ltr'}
+                              className="w-full max-w-md p-4 rounded-[28px] bg-gradient-to-br from-[#fffdf7] via-amber-50/95 to-emerald-50/90 dark:from-zinc-900 dark:via-indigo-950/90 dark:to-emerald-950/90 border-2 border-amber-400 shadow-2xl space-y-3 animate-scale-in"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">{story.emoji}</span>
+                                  <div>
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-300/80 text-zinc-950">
+                                      ⚡ ومضة بصيرة • {story.scholarShortAr}
+                                    </span>
+                                    <h4 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-white mt-0.5">
+                                      {story.titleAr}
+                                    </h4>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      soundSynth.playTactileClick();
+                                      const nextStory =
+                                        wisdomStories[(activeStoryIdx + 1) % wisdomStories.length];
+                                      setActiveStoryId(nextStory.id);
+                                    }}
+                                    className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-zinc-800 hover:bg-amber-200 text-amber-950 dark:text-amber-200 text-[10px] font-bold border border-amber-300 cursor-pointer"
+                                  >
+                                    {isAr ? 'الومضة التالية ⏭️' : 'Next ⏭️'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setActiveStoryId(null)}
+                                    className="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center text-xs font-bold cursor-pointer"
+                                  >
+                                    ✕
+                                  </button>
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-1">
+                              <p className="text-xs font-bold text-emerald-950 dark:text-emerald-100 leading-[1.9] bg-white/90 dark:bg-zinc-950/80 p-3 rounded-2xl border border-amber-300/70">
+                                {story.quoteAr}
+                              </p>
+
+                              {/* Actionable Daily Micro-Pledge Box */}
+                              <div className="p-3 rounded-2xl bg-emerald-900/95 text-white border border-amber-300/70 flex items-center justify-between gap-2">
+                                <div className="min-w-0">
+                                  <span className="text-[10px] font-bold text-amber-300 block">
+                                    🎯 تحويل البصيرة إلى عمل اليوم (+30 XP):
+                                  </span>
+                                  <p className="text-xs font-bold text-white leading-snug mt-0.5">
+                                    {story.actionPledgeAr}
+                                  </p>
+                                </div>
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    soundSynth.playTactileClick();
-                                    const nextStory =
-                                      wisdomStories[(activeStoryIdx + 1) % wisdomStories.length];
-                                    setActiveStoryId(nextStory.id);
-                                  }}
-                                  className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-zinc-800 hover:bg-amber-200 text-amber-950 dark:text-amber-200 text-[10px] font-bold border border-amber-300 cursor-pointer"
+                                  onClick={() => handleTogglePledge(story.id, story.actionPledgeAr)}
+                                  className={`px-3 py-1.5 rounded-xl text-[11px] font-bold shrink-0 cursor-pointer transition-all ${
+                                    isPledged
+                                      ? 'bg-amber-400 text-zinc-950 shadow-sm'
+                                      : 'bg-white/15 hover:bg-white/25 text-amber-200 border border-amber-300/50'
+                                  }`}
                                 >
-                                  {isAr ? 'الومضة التالية ⏭️' : 'Next ⏭️'}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setActiveStoryId(null)}
-                                  className="w-6 h-6 rounded-full bg-zinc-200/70 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center text-xs font-bold cursor-pointer"
-                                >
-                                  ✕
+                                  {isPledged ? '✔ عاهدت اليوم' : '🤝 ألتزم بها'}
                                 </button>
                               </div>
-                            </div>
 
-                            <p className="text-xs font-bold text-emerald-950 dark:text-emerald-100 leading-[1.9] bg-white/85 dark:bg-zinc-950/70 p-2.5 rounded-xl border border-amber-300/70">
-                              {story.quoteAr}
-                            </p>
-
-                            {/* Actionable Daily Micro-Pledge Box */}
-                            <div className="p-2.5 rounded-xl bg-emerald-900/95 text-white border border-amber-300/70 flex items-center justify-between gap-2">
-                              <div className="min-w-0">
-                                <span className="text-[9px] font-bold text-amber-300 block">
-                                  🎯 تحويل البصيرة إلى عمل اليوم (+30 XP):
-                                </span>
-                                <p className="text-[11px] font-bold text-white leading-snug">
-                                  {story.actionPledgeAr}
-                                </p>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleTogglePledge(story.id, story.actionPledgeAr)}
-                                className={`px-3 py-1.5 rounded-xl text-[10px] font-bold shrink-0 cursor-pointer transition-all ${
-                                  isPledged
-                                    ? 'bg-amber-400 text-zinc-950 shadow-sm'
-                                    : 'bg-white/15 hover:bg-white/25 text-amber-200 border border-amber-300/50'
-                                }`}
-                              >
-                                {isPledged ? '✔ عاهدت اليوم' : '🤝 ألتزم بها'}
-                              </button>
-                            </div>
-
-                            <div className="flex items-center justify-between gap-2 pt-0.5">
-                              <button
-                                type="button"
-                                onClick={() => handleInstantSaveStoryGem(story)}
-                                className="px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 hover:bg-amber-50 text-amber-950 dark:text-amber-200 border border-amber-300 text-[10px] font-bold cursor-pointer"
-                              >
-                                💎 احفظ القاعدة في كشكولي
-                              </button>
-                              {linkedTrack && (
+                              <div className="flex items-center justify-between gap-2 pt-0.5">
                                 <button
                                   type="button"
-                                  onClick={() => handleTogglePlayTrack(linkedTrack)}
-                                  className="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                  onClick={() => handleInstantSaveStoryGem(story)}
+                                  className="px-3 py-2 rounded-xl bg-white dark:bg-zinc-800 hover:bg-amber-50 text-amber-950 dark:text-amber-200 border border-amber-300 text-[11px] font-bold cursor-pointer"
                                 >
-                                  <span>استمع للمجلس الكامل</span>
-                                  <Play className="w-3 h-3 fill-current" />
+                                  💎 احفظ القاعدة في كشكولي
                                 </button>
-                              )}
+                                {linkedTrack && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleTogglePlayTrack(linkedTrack);
+                                      setActiveStoryId(null);
+                                    }}
+                                    className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                  >
+                                    <span>استمع للمجلس الكامل</span>
+                                    <Play className="w-3.5 h-3.5 fill-current" />
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          </div>,
+                          document.body
                         );
                       })()}
                   </>
@@ -3872,50 +3964,66 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                       })}
                     </div>
 
-                    {/* Expandable SOS First-Aid Prescription Card */}
+                    {/* Centered Popup SOS First-Aid Prescription Card */}
                     {activeSosId &&
+                      typeof document !== 'undefined' &&
                       (() => {
                         const capsule = sosHeartCapsules.find((c) => c.id === activeSosId);
                         if (!capsule) return null;
-                        return (
-                          <div className="p-3.5 rounded-[22px] bg-gradient-to-br from-rose-50 via-[#fffdf7] to-emerald-50/80 dark:from-zinc-900 dark:via-rose-950/30 dark:to-emerald-950/40 border-2 border-rose-400 dark:border-amber-400/70 shadow-md space-y-2.5 animate-in fade-in duration-150">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="px-2.5 py-0.5 rounded-full bg-rose-700 text-white text-[10px] font-bold">
-                                🚑 روشتة إسعاف قلبي فوري • {capsule.titleAr}
-                              </span>
+                        return createPortal(
+                          <div
+                            role="dialog"
+                            aria-modal="true"
+                            className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+                            onClick={() => setActiveSosId(null)}
+                          >
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              dir={isAr ? 'rtl' : 'ltr'}
+                              className="w-full max-w-md p-4 rounded-[28px] bg-gradient-to-br from-rose-50 via-[#fffdf7] to-emerald-50/95 dark:from-zinc-900 dark:via-rose-950/80 dark:to-emerald-950/90 border-2 border-rose-400 dark:border-amber-400/80 shadow-2xl space-y-3 animate-scale-in"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="px-2.5 py-1 rounded-full bg-rose-700 text-white text-[11px] font-bold">
+                                  🚑 روشتة إسعاف قلبي فوري • {capsule.titleAr}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveSosId(null)}
+                                  className="w-7 h-7 rounded-full bg-rose-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center text-xs font-bold cursor-pointer"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+
+                              <div className="p-3 rounded-2xl bg-white/95 dark:bg-zinc-950/85 border border-amber-300/80 text-center">
+                                <p className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-amber-200 leading-[2.1]">
+                                  {capsule.ayahOrHadithAr}
+                                </p>
+                              </div>
+
+                              <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed">
+                                🩺 <span className="font-bold text-rose-900 dark:text-amber-300">التشخيص والعلاج:</span>{' '}
+                                {capsule.diagnosisAr}
+                              </p>
+
+                              <div className="p-2.5 rounded-xl bg-emerald-900/90 text-amber-100 text-[11px] font-bold flex items-center justify-between gap-2">
+                                <span>🌬️ {capsule.breathingCueAr}</span>
+                                <span className="w-2.5 h-2.5 rounded-full bg-amber-300 animate-ping shrink-0" />
+                              </div>
+
                               <button
                                 type="button"
-                                onClick={() => setActiveSosId(null)}
-                                className="text-xs font-bold text-zinc-500 hover:text-zinc-900 cursor-pointer"
+                                onClick={() => {
+                                  handleLaunchSosCapsule(capsule);
+                                  setActiveSosId(null);
+                                }}
+                                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 hover:from-emerald-800 hover:to-teal-800 text-white text-xs font-bold cursor-pointer shadow-md flex items-center justify-center gap-1.5"
                               >
-                                ✕
+                                <span>▶️ شغّل جرعة الإسعاف الصوتي + أجواء السكينة تلقائياً</span>
                               </button>
                             </div>
-
-                            <div className="p-2.5 rounded-xl bg-white/90 dark:bg-zinc-950/80 border border-amber-300/80 text-center">
-                              <p className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-amber-200 leading-[2.1]">
-                                {capsule.ayahOrHadithAr}
-                              </p>
-                            </div>
-
-                            <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed">
-                              🩺 <span className="font-bold text-rose-900 dark:text-amber-300">التشخيص والعلاج:</span>{' '}
-                              {capsule.diagnosisAr}
-                            </p>
-
-                            <div className="p-2 rounded-xl bg-emerald-900/90 text-amber-100 text-[10px] font-bold flex items-center justify-between gap-2">
-                              <span>🌬️ {capsule.breathingCueAr}</span>
-                              <span className="w-2.5 h-2.5 rounded-full bg-amber-300 animate-ping shrink-0" />
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => handleLaunchSosCapsule(capsule)}
-                              className="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 hover:from-emerald-800 hover:to-teal-800 text-white text-xs font-bold cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
-                            >
-                              <span>▶️ شغّل جرعة الإسعاف الصوتي + أجواء السكينة تلقائياً</span>
-                            </button>
-                          </div>
+                          </div>,
+                          document.body
                         );
                       })()}
                   </>
@@ -4603,51 +4711,62 @@ export const MobileAudioSanctuaryView: React.FC<MobileAudioSanctuaryViewProps> =
                           </div>
                         </div>
 
-                        {/* 🗺️ Interactive 3-Node Visual Mind-Map Drawer (التشجير العقلي البصري للمحاضرة) */}
-                        {expandedMindMapTrackId === track.id && (
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            className={`p-2.5 rounded-2xl border space-y-2 animate-in fade-in duration-150 ${
-                              isPlayingThis
-                                ? 'bg-black/30 border-amber-300/40 text-white'
-                                : 'bg-gradient-to-br from-amber-50/95 via-white to-emerald-50/80 dark:from-zinc-950 dark:to-emerald-950/30 border-amber-300/80 dark:border-amber-500/40 text-zinc-900 dark:text-zinc-100'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
-                                <span>🗺️</span>
-                                <span>خريطة التشجير العقلي للمجلس (٣ محاور متسلسلة)</span>
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => setExpandedMindMapTrackId(null)}
-                                className="text-[10px] font-bold opacity-75 hover:opacity-100 cursor-pointer"
+                        {/* 🗺️ Centered Popup 3-Node Visual Mind-Map (التشجير العقلي البصري للمحاضرة) */}
+                        {expandedMindMapTrackId === track.id &&
+                          typeof document !== 'undefined' &&
+                          createPortal(
+                            <div
+                              role="dialog"
+                              aria-modal="true"
+                              className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-xs animate-fade-in"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedMindMapTrackId(null);
+                              }}
+                            >
+                              <div
+                                onClick={(e) => e.stopPropagation()}
+                                dir={isAr ? 'rtl' : 'ltr'}
+                                className="w-full max-w-lg p-4 rounded-[28px] bg-gradient-to-br from-amber-50 via-white to-emerald-50 dark:from-zinc-900 dark:to-emerald-950/90 border-2 border-amber-400 shadow-2xl space-y-3 animate-scale-in text-zinc-900 dark:text-zinc-100"
                               >
-                                إغلاق ✕
-                              </button>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
-                              {getTrackVisualMindMap(track).map((node, idx) => (
-                                <div
-                                  key={idx}
-                                  className={`p-2 rounded-xl border ${
-                                    isPlayingThis
-                                      ? 'bg-white/10 border-white/20'
-                                      : 'bg-white/95 dark:bg-zinc-900/90 border-amber-200/80 dark:border-zinc-800 shadow-2xs'
-                                  }`}
-                                >
-                                  <div className="text-[10px] font-bold text-emerald-700 dark:text-amber-300 mb-0.5 flex items-center gap-1">
-                                    <span>{node.icon}</span>
-                                    <span>{node.stage}</span>
+                                <div className="flex items-center justify-between gap-2 border-b border-amber-200/70 dark:border-white/10 pb-2.5">
+                                  <div>
+                                    <span className="text-xs font-black text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                                      <span>🗺️</span>
+                                      <span>خريطة التشجير العقلي للمجلس (٣ محاور متسلسلة)</span>
+                                    </span>
+                                    <p className="text-[11px] font-bold text-emerald-900 dark:text-emerald-200 mt-0.5 truncate">
+                                      {track.titleAr} • {track.sheikhAr}
+                                    </p>
                                   </div>
-                                  <p className="text-[10px] leading-relaxed font-medium opacity-90">
-                                    {node.text}
-                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedMindMapTrackId(null)}
+                                    className="w-7 h-7 rounded-full bg-amber-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center text-xs font-bold cursor-pointer shrink-0"
+                                  >
+                                    ✕
+                                  </button>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                  {getTrackVisualMindMap(track).map((node, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="p-3 rounded-2xl border bg-white/95 dark:bg-zinc-900/90 border-amber-200/80 dark:border-zinc-800 shadow-xs"
+                                    >
+                                      <div className="text-[11px] font-bold text-emerald-700 dark:text-amber-300 mb-1 flex items-center gap-1">
+                                        <span>{node.icon}</span>
+                                        <span>{node.stage}</span>
+                                      </div>
+                                      <p className="text-[11px] leading-relaxed font-medium">
+                                        {node.text}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>,
+                            document.body
+                          )}
                       </div>
                     )}
                   </div>

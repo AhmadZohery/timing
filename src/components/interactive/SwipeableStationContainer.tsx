@@ -1,5 +1,4 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useRef } from 'react';
 import type { StationId } from '../../types';
 import { soundSynth } from '../../services/soundSynthesizer';
 import { haptic } from '../../services/vibrationService';
@@ -19,42 +18,57 @@ export const SwipeableStationContainer: React.FC<SwipeableStationContainerProps>
   children,
 }) => {
   const { isRTL } = useTranslation();
-  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
+  const touchStartRef = useRef<{ x: number; y: number; time: number; ignore: boolean } | null>(null);
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  const shouldIgnoreSwipeTarget = (target: EventTarget | null): boolean => {
+    const el = target as HTMLElement | null;
+    if (!el || typeof el.closest !== 'function') return false;
+    return Boolean(
+      el.closest('[data-no-swipe]') ||
+        el.closest('[role="dialog"]') ||
+        el.closest('input') ||
+        el.closest('button') ||
+        el.closest('select') ||
+        el.closest('textarea') ||
+        el.closest('audio') ||
+        el.closest('iframe') ||
+        el.closest('[role="slider"]') ||
+        el.closest('.overflow-x-auto') ||
+        el.closest('.no-swipe')
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 1) {
+      touchStartRef.current = null;
+      return;
     }
-  }, []);
+    const touch = e.touches[0];
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+      ignore: shouldIgnoreSwipeTarget(e.target),
+    };
+  };
 
-  const handleDragEnd = (event: any, info: { offset: { x: number }; velocity: { x: number } }) => {
-    // Check if the interaction originated from an interactive or scrollable element
-    const target = (event?.target || event?.srcElement) as HTMLElement | null;
-    if (
-      target &&
-      (target.closest('[data-no-swipe]') ||
-        target.closest('input') ||
-        target.closest('button') ||
-        target.closest('select') ||
-        target.closest('textarea') ||
-        target.closest('audio') ||
-        target.closest('iframe') ||
-        target.closest('[role="slider"]') ||
-        target.closest('.overflow-x-auto') ||
-        target.closest('.no-swipe'))
-    ) {
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current;
+    touchStartRef.current = null;
+    if (!start || start.ignore || e.changedTouches.length === 0) return;
+
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    const dt = Math.max(1, Date.now() - start.time);
+
+    // Must be predominantly horizontal (at least 2.2x more horizontal than vertical)
+    if (Math.abs(dx) < 110 || Math.abs(dx) < Math.abs(dy) * 2.2 || dt > 700) {
       return;
     }
 
-    const swipeThreshold = 110;
-    const velocityThreshold = 0.5;
-    const x = info.offset.x;
-    const vx = info.velocity.x;
-
-    // In LTR: Swiping left (negative x) moves forward; swiping right (positive x) moves backward.
-    // In RTL: Swiping right (positive x) moves forward; swiping left (negative x) moves backward.
-    const rawLeftSwipe = x < -swipeThreshold || vx < -velocityThreshold;
-    const rawRightSwipe = x > swipeThreshold || vx > velocityThreshold;
+    const rawLeftSwipe = dx < -110;
+    const rawRightSwipe = dx > 110;
     const isForward = isRTL ? rawRightSwipe : rawLeftSwipe;
     const isBackward = isRTL ? rawLeftSwipe : rawRightSwipe;
 
@@ -70,40 +84,13 @@ export const SwipeableStationContainer: React.FC<SwipeableStationContainerProps>
   };
 
   return (
-    <div className="relative w-full overflow-hidden touch-pan-y">
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={activeStation}
-          drag={isTouchDevice ? 'x' : false}
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.08}
-          onDragEnd={handleDragEnd}
-          initial={{ opacity: 0, y: 10, scale: 0.99 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.99 }}
-          transformTemplate={(_, generated) => {
-            if (
-              !generated ||
-              generated === 'none' ||
-              generated === 'translateX(0px) translateY(0px) scale(1)' ||
-              generated === 'translateY(0px) scale(1)' ||
-              generated === 'translate3d(0px, 0px, 0px)'
-            ) {
-              return 'none';
-            }
-            return generated;
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 320,
-            damping: 30,
-            mass: 0.8,
-          }}
-          className={`w-full ${isTouchDevice ? 'cursor-grab active:cursor-grabbing' : ''}`}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
+    <div
+      key={activeStation}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="relative w-full animate-fade-in"
+    >
+      {children}
     </div>
   );
 };

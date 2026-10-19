@@ -1038,17 +1038,20 @@ export const Header: React.FC<HeaderProps> = ({
               <ChevronDown className={`hidden sm:inline w-3 h-3 transition-transform ${showControlCenter ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Control Center Popover Dropdown — Impeccable Habitline Bento Menu */}
-            {showControlCenter && (
-              <>
+            {/* Control Center Centered Modal — Portaled to document.body so it always centers in mobile viewport */}
+            {showControlCenter && typeof document !== 'undefined' && createPortal(
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 animate-fade-in"
+              >
                 <div
-                  className="fixed inset-0 z-40 cursor-default bg-black/25 dark:bg-black/45 backdrop-blur-2xs"
+                  className="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-xs cursor-pointer"
                   onClick={() => setShowControlCenter(false)}
-                  onTouchStart={() => setShowControlCenter(false)}
                 />
                 <div
-                  className="absolute end-0 top-full mt-2.5 z-50 w-[312px] sm:w-[348px] rounded-[28px] menu-surface border border-zinc-200/90 dark:border-white/10 p-3 space-y-2.5 animate-fade-in"
-                  style={{ maxHeight: '84vh', overflowY: 'auto' }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative z-10 w-full max-w-[356px] max-h-[85dvh] overflow-y-auto overscroll-contain rounded-[28px] menu-surface border border-zinc-200/90 dark:border-white/10 p-3 space-y-2.5 shadow-2xl"
                 >
                   {/* Obsidian Hero Profile & Live Status Card */}
                   <div className="rounded-[22px] celestial-obsidian-stage text-white p-3.5 border border-white/10 space-y-2.5">
@@ -1600,9 +1603,17 @@ export const Header: React.FC<HeaderProps> = ({
                         <span>{language === 'ar' ? 'قفل وخروج' : 'Logout'}</span>
                       </button>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setShowControlCenter(false)}
+                      className="px-3.5 py-2 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity"
+                    >
+                      {language === 'ar' ? 'إغلاق ✕' : 'Close ✕'}
+                    </button>
                   </div>
                 </div>
-              </>
+              </div>,
+              document.body
             )}
           </div>
         </div>

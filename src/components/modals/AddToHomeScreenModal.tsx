@@ -35,14 +35,18 @@ export const AddToHomeScreenModal: React.FC<AddToHomeScreenModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4 animate-fade-in"
+    >
       {/* Backdrop - Click outside to close */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
         onClick={onClose}
       />
       <div 
-        className="relative z-10 w-full sm:max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transform transition-all max-h-[92vh] flex flex-col"
+        className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden transition-all max-h-[88dvh] flex flex-col animate-scale-in"
         dir="rtl"
       >
         {/* Celestial Obsidian 3D Header */}

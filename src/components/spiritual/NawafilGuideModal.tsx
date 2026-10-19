@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Sun,
@@ -144,13 +145,17 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
 
   const visibleTabs = tabs.filter((t) => t.category === activeCategory);
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-[110] flex items-center justify-center p-2.5 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl max-h-[94vh] rounded-3xl modal-surface border border-slate-200 dark:border-white/[0.12] flex flex-col overflow-hidden cursor-default animate-scale-in"
+        className="w-full max-w-3xl max-h-[88dvh] rounded-3xl modal-surface border border-slate-200 dark:border-white/[0.12] flex flex-col overflow-hidden cursor-default animate-scale-in shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         dir={isAr ? 'rtl' : 'ltr'}
       >
@@ -1232,6 +1237,7 @@ export const NawafilGuideModal: React.FC<NawafilGuideModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -927,37 +927,23 @@ export function App() {
         onOpenFaithAudio={() => setIsFaithAudioModalOpen(true)}
       />
 
-      {/* Mobile Companion Bottom Sheet Modal Drawer */}
+      {/* Mobile Companion Centered Popup Modal */}
       {isMobileCompanionOpen && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label={t('mobile_companion_hub')}
-          className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-fade-in"
+          className="fixed inset-0 z-[100] lg:hidden flex items-center justify-center p-3.5 bg-black/65 backdrop-blur-xs animate-fade-in"
         >
           <div
             className="fixed inset-0 cursor-pointer"
             onClick={() => setIsMobileCompanionOpen(false)}
           />
           <div
-            onTouchStart={(e) => {
-              (e.currentTarget as HTMLElement).dataset.touchStartY = String(e.touches[0]?.clientY || 0);
-            }}
-            onTouchEnd={(e) => {
-              const startY = Number((e.currentTarget as HTMLElement).dataset.touchStartY || 0);
-              const endY = e.changedTouches[0]?.clientY || 0;
-              if (startY > 0 && endY - startY > 75) {
-                setIsMobileCompanionOpen(false);
-              }
-            }}
-            className="relative z-10 w-full max-h-[86vh] bg-[#f7f7f7] dark:bg-zinc-950 rounded-t-[32px] border-t border-zinc-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden"
+            className="relative z-10 w-full max-w-md max-h-[85dvh] bg-[#f7f7f7] dark:bg-zinc-950 rounded-[28px] border border-zinc-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden animate-scale-in"
           >
-            {/* Mobile Sheet Drag Handle */}
-            <div className="pt-2.5 pb-1 flex justify-center bg-white dark:bg-[#141517]">
-              <div className="w-11 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-            </div>
-            {/* Drawer Drag Header — Habitline Obsidian Pill Accent */}
-            <div className="px-4 py-3 border-b border-zinc-200/80 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#141517]">
+            {/* Popup Header — Habitline Obsidian Pill Accent */}
+            <div className="px-4 py-3.5 border-b border-zinc-200/80 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#141517]">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-[#141517] dark:bg-emerald-500/20 text-[#bce8c2] flex items-center justify-center text-xs font-bold">
                   ⚡

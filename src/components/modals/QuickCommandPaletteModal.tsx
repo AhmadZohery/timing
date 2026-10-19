@@ -613,12 +613,14 @@ const QuickCommandPaletteModalContent: React.FC<QuickCommandPaletteModalProps> =
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 sm:pt-20 bg-slate-950/75 backdrop-blur-md animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-6 bg-slate-950/75 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
         dir="rtl"
-        className="w-full max-w-2xl modal-surface rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col max-h-[85vh] transition-all"
+        className="w-full max-w-2xl modal-surface rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col max-h-[85dvh] transition-all shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
