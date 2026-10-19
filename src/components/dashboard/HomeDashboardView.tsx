@@ -2941,14 +2941,30 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                     <ChevronDown className="w-3 h-3 opacity-70" />
                   </button>
 
-                  {/* Language Dropdown Menu */}
-                  {isLangDropdownOpen && (
-                    <>
+                  {/* Language Centered Popup Modal — Portaled to document.body */}
+                  {isLangDropdownOpen && typeof document !== 'undefined' && createPortal(
+                    <div
+                      role="dialog"
+                      aria-modal="true"
+                      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in"
+                      onClick={() => setIsLangDropdownOpen(false)}
+                    >
                       <div
-                        className="fixed inset-0 z-30"
-                        onClick={() => setIsLangDropdownOpen(false)}
-                      />
-                      <div className="absolute top-full mt-1.5 start-0 z-40 w-44 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl p-1.5 space-y-0.5 animate-scale-up">
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full max-w-xs rounded-[26px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl p-3.5 space-y-1.5 animate-scale-up"
+                      >
+                        <div className="flex items-center justify-between px-2 pb-1.5 border-b border-zinc-100 dark:border-zinc-800">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                            {isAr ? '🌍 اختر لغة التعلم' : '🌍 Select Target Language'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsLangDropdownOpen(false)}
+                            className="text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white px-2 py-0.5 rounded-full cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        </div>
                         {TARGET_LANGUAGES.map((tl) => (
                           <button
                             key={tl.code}
@@ -2959,21 +2975,22 @@ export const HomeDashboardView: React.FC<HomeDashboardViewProps> = ({
                               setActiveLangCode(tl.code);
                               setIsLangDropdownOpen(false);
                             }}
-                            className={`w-full px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            className={`w-full px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
                               activeLangCode === tl.code
                                 ? 'bg-[#141517] text-white dark:bg-white dark:text-zinc-950 shadow-xs'
                                 : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                             }`}
                           >
-                            <span className="flex items-center gap-2">
-                              <span>{tl.flag}</span>
+                            <span className="flex items-center gap-2.5">
+                              <span className="text-base">{tl.flag}</span>
                               <span>{isAr ? tl.nameAr : tl.nameEn}</span>
                             </span>
-                            {activeLangCode === tl.code && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            {activeLangCode === tl.code && <CheckCircle2 className="w-4 h-4" />}
                           </button>
                         ))}
                       </div>
-                    </>
+                    </div>,
+                    document.body
                   )}
                 </div>
               </div>

@@ -508,19 +508,6 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isExpanded]);
 
-  // Click outside to dismiss
-  useEffect(() => {
-    if (!isExpanded) return;
-    const handleOutsideClick = (e: Event) => {
-      const target = e.target as Node;
-      if (containerRef.current && !containerRef.current.contains(target)) {
-        handleClose();
-      }
-    };
-    document.addEventListener('pointerdown', handleOutsideClick, true);
-    return () => document.removeEventListener('pointerdown', handleOutsideClick, true);
-  }, [isExpanded]);
-
   const isPrevPrayerConfirmed = Boolean(confirmedPrayers[prayerWindowProgress.prevKey]);
   const hasActiveMobileLiveEvent = Boolean(audioState.isPlaying || isApproaching || isExpanded);
 
@@ -556,12 +543,12 @@ export const DynamicIslandHub: React.FC<DynamicIslandHubProps> = ({
             damping: 36,
             mass: 0.42,
           }}
-          className={`relative select-none overflow-hidden transition-all duration-200 ${
+          className={`relative select-none transition-all duration-200 ${
             isExpanded
-              ? 'w-full max-w-lg bg-[#080C14]/96 dark:bg-black/98 text-white border border-emerald-500/35 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.95),0_0_24px_rgba(16,185,129,0.12),inset_0_1px_1.5px_rgba(255,255,255,0.2)] backdrop-blur-3xl'
+              ? 'w-full max-w-lg max-h-[82dvh] overflow-y-auto overscroll-contain bg-[#080C14]/96 dark:bg-black/98 text-white border border-emerald-500/35 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.95),0_0_24px_rgba(16,185,129,0.12),inset_0_1px_1.5px_rgba(255,255,255,0.2)] backdrop-blur-3xl'
               : isApproaching
-              ? 'w-auto min-w-[280px] max-w-[360px] bg-[#120F06]/95 dark:bg-black/95 text-white border border-amber-400/50 ring-1 ring-amber-400/30 px-4 py-2 shadow-[0_8px_24px_rgba(245,158,11,0.25),inset_0_1px_1.5px_rgba(253,224,71,0.25)] cursor-pointer hover:scale-[1.015] active:scale-[0.98]'
-              : 'w-auto min-w-[280px] max-w-[360px] bg-[#080C14]/95 dark:bg-black/95 text-white border border-emerald-500/35 ring-1 ring-emerald-400/20 px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.8),0_0_16px_rgba(16,185,129,0.15),inset_0_1px_1.5px_0_rgba(255,255,255,0.22)] cursor-pointer hover:scale-[1.015] active:scale-[0.98]'
+              ? 'overflow-hidden w-auto min-w-[280px] max-w-[360px] bg-[#120F06]/95 dark:bg-black/95 text-white border border-amber-400/50 ring-1 ring-amber-400/30 px-4 py-2 shadow-[0_8px_24px_rgba(245,158,11,0.25),inset_0_1px_1.5px_rgba(253,224,71,0.25)] cursor-pointer hover:scale-[1.015] active:scale-[0.98]'
+              : 'overflow-hidden w-auto min-w-[280px] max-w-[360px] bg-[#080C14]/95 dark:bg-black/95 text-white border border-emerald-500/35 ring-1 ring-emerald-400/20 px-4 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.8),0_0_16px_rgba(16,185,129,0.15),inset_0_1px_1.5px_0_rgba(255,255,255,0.22)] cursor-pointer hover:scale-[1.015] active:scale-[0.98]'
           }`}
           onClick={!isExpanded ? handleOpen : undefined}
           role={!isExpanded ? 'button' : undefined}

@@ -1112,6 +1112,58 @@ export const Header: React.FC<HeaderProps> = ({
                       </button>
                     </div>
 
+                    {/* Pinned Quick Shortcuts Row (Visible on Mobile & Desktop inside Control Center) */}
+                    {pinnedActions.length > 0 && (
+                      <div className="pt-1 border-t border-white/10">
+                        <div className="flex items-center justify-between mb-1.5 px-0.5">
+                          <span className="text-[10px] font-bold text-[#bce8c2]">
+                            📌 {language === 'ar' ? 'اختصاراتك المثبتة للوصول الفوري' : 'Your Pinned Shortcuts'}
+                          </span>
+                        </div>
+                        <div
+                          onClick={() => setShowControlCenter(false)}
+                          className="flex items-center gap-1.5 flex-wrap"
+                        >
+                          {pinnedActions.map((actionId) => {
+                            const opt = PINNABLE_OPTIONS.find((o) => o.id === actionId);
+                            if (!opt) return null;
+                            const IconComp = opt.icon;
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => {
+                                  soundSynth.playTactileClick();
+                                  haptic.vibrateLight();
+                                  setShowControlCenter(false);
+                                  if (opt.id === 'search') onOpenCommandPalette?.();
+                                  else if (opt.id === 'niyyah') onOpenNiyyahModal?.();
+                                  else if (opt.id === 'buffer') onOpenBufferModal();
+                                  else if (opt.id === 'panic') handlePanicClick();
+                                  else if (opt.id === 'survival') handleSurvivalToggle();
+                                  else if (opt.id === 'sleep') onOpenSleepRest?.();
+                                  else if (opt.id === 'wird') onOpenWirdModal?.();
+                                  else if (opt.id === 'tasbih') onOpenSmartTasbih?.();
+                                  else if (opt.id === 'poetry') onOpenArabicPoetry?.();
+                                  else if (opt.id === 'wisdom') onOpenLifeWisdom?.();
+                                  else if (opt.id === 'goals') onOpenGoalsModal();
+                                  else if (opt.id === 'coach') onOpenAiCoach?.();
+                                  else if (opt.id === 'palette') onOpenPaletteModal?.();
+                                  else if (opt.id === 'archive') onOpenArchiveModal?.();
+                                  else if (opt.id === 'mute') handleToggleMute();
+                                  else if (opt.id === 'theme') handleThemeToggle();
+                                }}
+                                className="flex-1 min-w-[72px] py-1.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center gap-1.5 text-[11px] font-bold text-white cursor-pointer active:scale-95 transition-all"
+                              >
+                                <IconComp className="w-3.5 h-3.5 text-[#bce8c2] shrink-0" />
+                                <span className="truncate">{language === 'ar' ? opt.labelAr : opt.labelEn}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Direct Bell / Notifications Hub Shortcut inside Control Center */}
                     <div className="space-y-1.5">
                       {onOpenQuickReminder && (

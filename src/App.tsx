@@ -1,4 +1,5 @@
 import { useState, useEffect, Suspense } from 'react';
+import { createPortal } from 'react-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from './db/db';
 import type { StationId, EnergyLevel } from './types';
@@ -928,7 +929,7 @@ export function App() {
       />
 
       {/* Mobile Companion Centered Popup Modal */}
-      {isMobileCompanionOpen && (
+      {isMobileCompanionOpen && typeof document !== 'undefined' && createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -940,6 +941,7 @@ export function App() {
             onClick={() => setIsMobileCompanionOpen(false)}
           />
           <div
+            onClick={(e) => e.stopPropagation()}
             className="relative z-10 w-full max-w-md max-h-[85dvh] bg-[#f7f7f7] dark:bg-zinc-950 rounded-[28px] border border-zinc-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden animate-scale-in"
           >
             {/* Popup Header — Habitline Obsidian Pill Accent */}
@@ -967,7 +969,7 @@ export function App() {
             </div>
 
             {/* Drawer Scrollable Content */}
-            <div className="p-4 overflow-y-auto space-y-4">
+            <div className="p-4 overflow-y-auto overscroll-contain space-y-4">
               <CompanionSidebar
                 dailyLogs={allDailyLogs || []}
                 todayDate={today}
@@ -994,7 +996,8 @@ export function App() {
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Dedicated Sacred Modals with Isolated ErrorBoundary (Always Eagerly Mounted) */}

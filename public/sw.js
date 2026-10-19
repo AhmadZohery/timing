@@ -1,7 +1,7 @@
 // Service Worker for 100% Offline Caching, Autonomous Alarms & Background Notifications
 const isLocalDev = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1' || self.location.port === '5173';
 
-const CACHE_NAME = 'midmar-sanctuary-v11';
+const CACHE_NAME = 'midmar-sanctuary-v12';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
